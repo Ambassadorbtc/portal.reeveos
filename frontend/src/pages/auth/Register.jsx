@@ -229,9 +229,9 @@ const Register = () => {
 
           <p className="text-xs text-gray-400 mt-6 text-center font-body">
             By signing up you agree to our{' '}
-            <a href="https://rezvo.co.uk/terms" className="underline hover:text-primary" target="_blank" rel="noreferrer">Terms</a>
+            <a href="/terms.html" className="underline hover:text-primary" target="_blank" rel="noreferrer">Terms</a>
             {' '}and{' '}
-            <a href="https://rezvo.co.uk/privacy" className="underline hover:text-primary" target="_blank" rel="noreferrer">Privacy Policy</a>
+            <a href="/privacy.html" className="underline hover:text-primary" target="_blank" rel="noreferrer">Privacy Policy</a>
           </p>
         </div>
       </section>

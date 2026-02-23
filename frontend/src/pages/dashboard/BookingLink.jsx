@@ -47,7 +47,7 @@ const BookingLink = () => {
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 flex items-center bg-gray-50 border border-border rounded-lg px-4 py-2.5 group hover:border-primary/50 transition-colors">
               <i className="fa-solid fa-link text-gray-400 mr-3" />
-              <span className="text-sm font-medium text-primary truncate flex-1">{bookingUrl}</span>
+              <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary truncate flex-1 hover:underline">{bookingUrl}</a>
             </div>
             <div className="flex gap-2">
               <button onClick={handleCopy} className="bg-primary text-white font-bold text-sm px-5 py-2.5 rounded-lg shadow-lg hover:bg-primary-hover transition-colors flex items-center gap-2">

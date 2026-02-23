@@ -119,6 +119,11 @@ const Calendar = () => {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [staffFilter, setStaffFilter] = useState('all')
+  const [calSearch, setCalSearch] = useState('')
+  const [showStatusDD, setShowStatusDD] = useState(false)
+  const [showStaffDD, setShowStaffDD] = useState(false)
   const scrollRef = useRef(null)
 
   const isRestaurant = businessType === 'restaurant'
@@ -172,6 +177,7 @@ const Calendar = () => {
     const h = e => {
       if (!e.target.closest('[data-ap]') && !e.target.closest('[data-po]')) setSelA(null)
       if (!e.target.closest('[data-fab]')) setFabOpen(false)
+      if (!e.target.closest('[data-filter-dd]')) { setShowStatusDD(false); setShowStaffDD(false) }
     }
     document.addEventListener('click', h)
     return () => document.removeEventListener('click', h)
@@ -188,6 +194,17 @@ const Calendar = () => {
   const staffColumns = data?.staff || []
   const bookings = data?.bookings || []
   const blocks = data?.blocks || []
+
+  // Apply filters
+  const filteredBookings = bookings.filter(b => {
+    if (statusFilter !== 'all' && b.status !== statusFilter) return false
+    if (staffFilter !== 'all' && b.staffId !== staffFilter) return false
+    if (calSearch) {
+      const q = calSearch.toLowerCase()
+      return (b.clientName || '').toLowerCase().includes(q) || (b.serviceName || '').toLowerCase().includes(q)
+    }
+    return true
+  })
 
   const gc = useCallback((a) => {
     if (cm === 'staff') {
@@ -339,12 +356,33 @@ const Calendar = () => {
         <div style={{ width: 1, height: 24, background: '#EBEBEB' }} />
 
         {/* Filter pills */}
-        <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 20, border: 'none', background: '#F5F5F5', fontSize: 12, fontWeight: 500, color: '#777', cursor: 'pointer' }}>
-          <FilterIcon /> All status <ChevD />
-        </button>
-        <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 20, border: 'none', background: '#F5F5F5', fontSize: 12, fontWeight: 500, color: '#777', cursor: 'pointer' }}>
-          <UsersIcon /> All staff <ChevD />
-        </button>
+        <div data-filter-dd style={{ position: 'relative' }}>
+          <button onClick={() => { setShowStatusDD(!showStatusDD); setShowStaffDD(false) }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 20, border: 'none', background: statusFilter !== 'all' ? '#1B433212' : '#F5F5F5', fontSize: 12, fontWeight: statusFilter !== 'all' ? 600 : 500, color: statusFilter !== 'all' ? '#1B4332' : '#777', cursor: 'pointer' }}>
+            <FilterIcon /> {statusFilter === 'all' ? 'All status' : statusFilter} <ChevD />
+          </button>
+          {showStatusDD && (
+            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #E8E4DD', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 100, minWidth: 140, padding: '4px 0' }}>
+              {['all', 'confirmed', 'pending', 'completed', 'no_show', 'cancelled'].map(s => (
+                <button key={s} onClick={() => { setStatusFilter(s); setShowStatusDD(false) }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', border: 'none', background: statusFilter === s ? '#1B433212' : 'transparent', fontSize: 12, fontWeight: statusFilter === s ? 600 : 400, color: statusFilter === s ? '#1B4332' : '#555', cursor: 'pointer' }}>
+                  {s === 'all' ? 'All status' : s === 'no_show' ? 'No-show' : s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div data-filter-dd style={{ position: 'relative' }}>
+          <button onClick={() => { setShowStaffDD(!showStaffDD); setShowStatusDD(false) }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 20, border: 'none', background: staffFilter !== 'all' ? '#1B433212' : '#F5F5F5', fontSize: 12, fontWeight: staffFilter !== 'all' ? 600 : 500, color: staffFilter !== 'all' ? '#1B4332' : '#777', cursor: 'pointer' }}>
+            <UsersIcon /> {staffFilter === 'all' ? 'All staff' : staffColumns.find(s => s.id === staffFilter)?.name || 'Staff'} <ChevD />
+          </button>
+          {showStaffDD && (
+            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #E8E4DD', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 100, minWidth: 160, padding: '4px 0' }}>
+              <button onClick={() => { setStaffFilter('all'); setShowStaffDD(false) }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', border: 'none', background: staffFilter === 'all' ? '#1B433212' : 'transparent', fontSize: 12, fontWeight: staffFilter === 'all' ? 600 : 400, color: staffFilter === 'all' ? '#1B4332' : '#555', cursor: 'pointer' }}>All staff</button>
+              {staffColumns.map(s => (
+                <button key={s.id} onClick={() => { setStaffFilter(s.id); setShowStaffDD(false) }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', border: 'none', background: staffFilter === s.id ? '#1B433212' : 'transparent', fontSize: 12, fontWeight: staffFilter === s.id ? 600 : 400, color: staffFilter === s.id ? '#1B4332' : '#555', cursor: 'pointer' }}>{s.name}</button>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Color mode */}
         <button onClick={() => setCm(cm === 'service' ? 'staff' : cm === 'staff' ? 'status' : 'service')} style={{
@@ -356,7 +394,7 @@ const Calendar = () => {
         {/* Search */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 16px', borderRadius: 20, background: '#F5F5F5', height: 38, flex: 1, minWidth: 160 }}>
           <SearchIcon />
-          <input placeholder="Search clients, services..." style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 12, color: '#1B4332', width: '100%', fontWeight: 500, fontFamily: "'Figtree', system-ui, sans-serif" }} />
+          <input value={calSearch} onChange={e => setCalSearch(e.target.value)} placeholder="Search clients, services..." style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 12, color: '#1B4332', width: '100%', fontWeight: 500, fontFamily: "'Figtree', system-ui, sans-serif" }} />
         </div>
 
         {/* KPI toggle */}
@@ -429,7 +467,7 @@ const Calendar = () => {
                   </div>
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#1B4332', lineHeight: 1.2 }}>{s.name}</div>
-                    <div style={{ fontSize: 10, color: '#666', fontWeight: 600 }}>{bookings.filter(b => b.staffId === s.id).length} bookings</div>
+                    <div style={{ fontSize: 10, color: '#666', fontWeight: 600 }}>{filteredBookings.filter(b => b.staffId === s.id).length} bookings</div>
                   </div>
                 </div>
               ))}
@@ -492,7 +530,7 @@ const Calendar = () => {
                     ))}
 
                     {/* Booking blocks */}
-                    {bookings.filter(a => a.staffId === staff.id).map(a => <Bl key={a.id} a={a} />)}
+                    {filteredBookings.filter(a => a.staffId === staff.id).map(a => <Bl key={a.id} a={a} />)}
                   </div>
                 ))}
 
@@ -505,7 +543,7 @@ const Calendar = () => {
               </div>
 
               {/* Empty state */}
-              {bookings.length === 0 && (
+              {filteredBookings.length === 0 && (
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}><CalIcon /></div>

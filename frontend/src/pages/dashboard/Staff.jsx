@@ -2,7 +2,8 @@
  * Run 5: Staff Management — team list, working hours, permissions, invites
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
 
@@ -26,6 +27,7 @@ const ROLES = ['Senior Stylist', 'Stylist', 'Junior Stylist', 'Receptionist', 'M
 
 const Staff = () => {
   const { business, tier } = useBusiness()
+  const navigate = useNavigate()
   const [staff, setStaff] = useState([])
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
@@ -34,10 +36,51 @@ const Staff = () => {
   const [upgradeModal, setUpgradeModal] = useState(null)
   const [saving, setSaving] = useState(false)
   const [addSuccess, setAddSuccess] = useState(null)
+  const [filter, setFilter] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showFilterMenu, setShowFilterMenu] = useState(false)
+  const filterRef = useRef(null)
+
+  // Close filter dropdown on click outside
+  useEffect(() => {
+    const handler = e => {
+      if (filterRef.current && !filterRef.current.contains(e.target)) setShowFilterMenu(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   const staffLimit = STAFF_TIER_LIMITS[tier] ?? STAFF_TIER_LIMITS.free
   const atLimit = staff.length >= staffLimit
   const canAdd = !atLimit
+
+  const filteredStaff = staff.filter(s => {
+    if (filter === 'active' && !s.isWorkingToday) return false
+    if (filter === 'pending' && s.inviteStatus !== 'pending') return false
+    if (filter === 'holiday' && s.status !== 'holiday') return false
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase()
+      return (s.name || '').toLowerCase().includes(q) || (s.role || '').toLowerCase().includes(q)
+    }
+    return true
+  })
+
+  const handleExport = () => {
+    const headers = ['Name', 'Role', 'Email', 'Status', 'Permissions']
+    const rows = staff.map(s => [
+      s.name || '', s.role || '', s.email || '',
+      s.status === 'holiday' ? 'Holiday' : s.inviteStatus === 'pending' ? 'Pending' : s.isWorkingToday ? 'Active' : 'Off',
+      s.permissions || ''
+    ])
+    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `staff-export-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   const fetchStaff = async () => {
     if (!business?.id) return
@@ -200,19 +243,36 @@ const Staff = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="text-sm font-semibold text-gray-500 hover:text-primary border border-border rounded-lg px-4 py-2.5 hover:bg-gray-50 transition-colors flex items-center gap-2">
+          <button onClick={handleExport} className="text-sm font-semibold text-gray-500 hover:text-primary border border-border rounded-lg px-4 py-2.5 hover:bg-gray-50 transition-colors flex items-center gap-2">
             <i className="fa-solid fa-download text-xs" /> Export
           </button>
-          <button className="text-sm font-semibold text-gray-500 hover:text-primary border border-border rounded-lg px-4 py-2.5 hover:bg-gray-50 transition-colors flex items-center gap-2">
-            <i className="fa-solid fa-filter text-xs" /> Filter
-          </button>
+          <div className="relative" ref={filterRef}>
+            <button onClick={() => setShowFilterMenu(!showFilterMenu)} className={`text-sm font-semibold border border-border rounded-lg px-4 py-2.5 hover:bg-gray-50 transition-colors flex items-center gap-2 ${filter !== 'all' ? 'text-primary border-primary bg-primary/5' : 'text-gray-500 hover:text-primary'}`}>
+              <i className="fa-solid fa-filter text-xs" /> Filter{filter !== 'all' && ` · ${filter}`}
+            </button>
+            {showFilterMenu && (
+              <div className="absolute right-0 top-full mt-1 bg-white border border-border rounded-lg shadow-xl py-1 z-50 min-w-[140px]">
+                {[
+                  { value: 'all', label: 'All Staff' },
+                  { value: 'active', label: 'Active' },
+                  { value: 'pending', label: 'Pending' },
+                  { value: 'holiday', label: 'On Holiday' },
+                ].map(f => (
+                  <button key={f.value} onClick={() => { setFilter(f.value); setShowFilterMenu(false) }}
+                    className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${filter === f.value ? 'text-primary font-semibold' : 'text-gray-600'}`}>
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <button
             onClick={handleAddClick}
             disabled={!canAdd}
-            className={`bg-primary text-white font-bold text-sm px-4 py-2.5 rounded-lg shadow-lg hover:bg-primary-hover transition-colors flex items-center gap-2 ${!canAdd ? 'opacity-75 cursor-not-allowed' : ''}`}
+            className={`w-11 h-11 rounded-full bg-primary text-white shadow-lg hover:bg-primary-hover transition-all flex items-center justify-center ${!canAdd ? 'opacity-75 cursor-not-allowed' : 'hover:scale-105'}`}
+            title={canAdd ? 'Add Staff Member' : 'Upgrade to add more staff'}
           >
-            {!canAdd && <i className="fa-solid fa-lock" />}
-            <i className="fa-solid fa-plus text-xs" /> Add Staff Member
+            {!canAdd ? <i className="fa-solid fa-lock text-sm" /> : <i className="fa-solid fa-plus text-lg" />}
           </button>
         </div>
       </div>
@@ -231,13 +291,14 @@ const Staff = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-          {staff.map((s) => (
+          {filteredStaff.map((s) => (
             <StaffCard
               key={s.id}
               staff={s}
               onEdit={() => handleEditClick(s)}
               onDelete={() => handleDelete(s)}
               onReinvite={() => handleReinvite(s)}
+              onSchedule={() => navigate('/dashboard/calendar')}
             />
           ))}
         </div>
@@ -268,7 +329,7 @@ const Staff = () => {
   )
 }
 
-const StaffCard = ({ staff, onEdit, onDelete, onReinvite }) => {
+const StaffCard = ({ staff, onEdit, onDelete, onReinvite, onSchedule }) => {
   const initials = (staff.name || '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
   const statusLabel =
     staff.status === 'holiday'
@@ -350,7 +411,7 @@ const StaffCard = ({ staff, onEdit, onDelete, onReinvite }) => {
           <i className="fa-solid fa-pen-to-square text-xs" /> Edit
         </button>
         <button
-          onClick={() => (window.location.href = '/dashboard/calendar')}
+          onClick={onSchedule}
           className="flex-1 text-sm font-bold text-primary border border-border rounded-lg px-3 py-2.5 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
         >
           <i className="fa-regular fa-calendar text-xs" /> Schedule

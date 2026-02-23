@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurants</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rezvo: {
+                            dark: '#0A1F14',
+                            forest: '#1B4332',
+                            mint: '#52B788',
+                            gold: '#D4A017',
+                            cream: '#FEFBF4',
+                            white: '#FFFFFF',
+                            border: '#E2E5DF',
+                            text: '#1B4332'
+                        }
+                    },
+                    fontFamily: {
+                        heading: ['"Bricolage Grotesque"', 'sans-serif'],
+                        body: ['"Figtree"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(27, 67, 50, 0.08)',
+                        'glow': '0 0 20px rgba(82, 183, 136, 0.3)',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+                        'slide-up': 'slide-up 0.6s ease-out',
+                        'fade-in': 'fade-in 0.8s ease-out',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(82, 183, 136, 0.4)' },
+                            '50%': { boxShadow: '0 0 40px rgba(82, 183, 136, 0.8)' },
+                        },
+                        'slide-up': {
+                            '0%': { transform: 'translateY(30px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        'fade-in': {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        .bg-grain {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+        .nav-blur {
+            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body class="bg-rezvo-cream font-body text-rezvo-text antialiased overflow-x-hidden">
+
+    <nav class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-rezvo-border/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-[72px]">
+                <a href="/" class="flex-shrink-0 flex items-center gap-3 cursor-pointer no-underline">
+                    <div class="w-10 h-10 bg-rezvo-mint rounded-xl flex items-center justify-center">
+                        <span class="text-rezvo-gold font-heading font-extrabold text-xl">R</span>
+                    </div>
+                    <span class="text-rezvo-forest font-heading font-extrabold text-[22px] tracking-tight">REZVO</span>
+                </a>
+                <div class="hidden lg:flex items-center gap-1" id="nav-links">
+                    <a href="/" class="px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all">Home</a>
+                    <button class="nav-drop-btn flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all" data-target="features-panel">
+                        Features <i class="fa-solid fa-chevron-down text-[10px] ml-0.5 opacity-60 transition-transform duration-200"></i>
+                    </button>
+                    <button class="nav-drop-btn flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all" data-target="industries-panel">
+                        Industries <i class="fa-solid fa-chevron-down text-[10px] ml-0.5 opacity-60 transition-transform duration-200"></i>
+                    </button>
+                    <a href="/for-business" class="px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all">For Business</a>
+                    <button class="nav-drop-btn flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all" data-target="company-panel">
+                        Company <i class="fa-solid fa-chevron-down text-[10px] ml-0.5 opacity-60 transition-transform duration-200"></i>
+                    </button>
+                </div>
+                <div class="hidden lg:flex items-center gap-3">
+                    <a href="/login" class="text-rezvo-forest font-semibold text-sm hover:text-rezvo-mint transition-colors">Log in</a>
+                    <a href="/signup" class="bg-rezvo-forest hover:bg-rezvo-dark text-white font-semibold text-sm py-2.5 px-6 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl">
+                        Get Started Free
+                    </a>
+                </div>
+                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center text-rezvo-forest hover:bg-rezvo-forest/5">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- FEATURES MEGA PANEL -->
+        <div id="features-panel" class="nav-panel hidden absolute left-0 right-0 top-[72px] bg-white border-t border-b border-rezvo-border shadow-xl z-50" style="animation:fadeDown .2s ease-out">
+            <div class="max-w-7xl mx-auto px-6 py-8">
+                <div class="grid grid-cols-3 gap-8">
+                    <div class="col-span-2">
+                        <p class="text-[11px] font-bold text-rezvo-forest/40 uppercase tracking-widest mb-4">Platform Features</p>
+                        <div class="grid grid-cols-2 gap-1">
+                            <a href="/features/restaurants.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-utensils text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">For Restaurants</p><p class="text-xs text-rezvo-forest/45 m-0">Floor plans, covers & ordering</p></div>
+                            </a>
+                            <a href="/features/calendar.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-calendar-check text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Smart Calendar</p><p class="text-xs text-rezvo-forest/45 m-0">Flexible, intelligent scheduling</p></div>
+                            </a>
+                            <a href="/features/payments.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-credit-card text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Stripe Payments</p><p class="text-xs text-rezvo-forest/45 m-0">Direct payouts, no middleman</p></div>
+                            </a>
+                            <a href="/features/mobile-app.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-mobile-screen text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Mobile App</p><p class="text-xs text-rezvo-forest/45 m-0">Voice AI & smart assistant</p></div>
+                            </a>
+                            <a href="/features/integrations.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-plug text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Integrations</p><p class="text-xs text-rezvo-forest/45 m-0">Google Cal, Outlook & more</p></div>
+                            </a>
+                            <a href="/features/uber-direct.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-truck-fast text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Uber Direct</p><p class="text-xs text-rezvo-forest/45 m-0">Delivery without commission</p></div>
+                            </a>
+                            <a href="/features/team-up.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-user-group text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Team Up & Save</p><p class="text-xs text-rezvo-forest/45 m-0">Refer & get 50% off forever</p></div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="bg-rezvo-forest rounded-2xl p-6 flex flex-col justify-between">
+                        <div>
+                            <p class="text-rezvo-mint font-bold text-sm mb-2">Zero Commission</p>
+                            <p class="text-white font-extrabold text-xl mb-2 font-heading">Keep 100% of your revenue</p>
+                            <p class="text-white/60 text-sm">No per-booking fees. No contracts. Just a simple monthly plan.</p>
+                        </div>
+                        <a href="/signup" class="mt-4 inline-flex items-center gap-2 bg-rezvo-mint text-rezvo-forest font-bold text-sm py-2.5 px-5 rounded-full hover:bg-white transition-all w-fit no-underline">
+                            Start Free <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INDUSTRIES MEGA PANEL -->
+        <div id="industries-panel" class="nav-panel hidden absolute left-0 right-0 top-[72px] bg-white border-t border-b border-rezvo-border shadow-xl z-50" style="animation:fadeDown .2s ease-out">
+            <div class="max-w-7xl mx-auto px-6 py-8">
+                <div class="grid grid-cols-3 gap-8">
+                    <div class="col-span-2">
+                        <p class="text-[11px] font-bold text-rezvo-forest/40 uppercase tracking-widest mb-4">Who We Serve</p>
+                        <div class="grid grid-cols-4 gap-1">
+                            <a href="/industries/restaurants" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-utensils text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Restaurants</span></a>
+                            <a href="/industries/barbers" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-scissors text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Barbers</span></a>
+                            <a href="/industries/salons-spas" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-spa text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Salons & Spas</span></a>
+                            <a href="/industries/personal-trainers" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-dumbbell text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Personal Trainers</span></a>
+                            <a href="/industries/tattoo-studios" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-palette text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Tattoo Studios</span></a>
+                            <a href="/industries/dentists" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-tooth text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Dentists</span></a>
+                            <a href="/industries/photographers" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-camera text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Photographers</span></a>
+                            <a href="/industries/fitness-studios" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-bolt text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Fitness Studios</span></a>
+                        </div>
+                        <a href="/industries" class="mt-4 inline-flex items-center gap-2 text-sm font-bold text-rezvo-mint hover:text-rezvo-forest transition-colors no-underline">View all industries <i class="fa-solid fa-arrow-right text-xs"></i></a>
+                    </div>
+                    <div class="bg-gradient-to-br from-rezvo-mint/10 to-rezvo-forest/5 rounded-2xl p-6 border border-rezvo-mint/20">
+                        <p class="text-rezvo-forest font-extrabold text-lg mb-2 font-heading">One platform, every business</p>
+                        <p class="text-rezvo-forest/60 text-sm mb-4">From barbers to restaurants — if you take bookings, Rezvo is for you.</p>
+                        <a href="/for-business" class="inline-flex items-center gap-2 bg-rezvo-forest text-white font-bold text-sm py-2.5 px-5 rounded-full hover:bg-rezvo-dark transition-all no-underline">Learn More <i class="fa-solid fa-arrow-right text-xs"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPANY PANEL -->
+        <div id="company-panel" class="nav-panel hidden absolute right-0 top-[72px] w-[360px] bg-white border border-rezvo-border rounded-b-2xl shadow-xl z-50 p-3" style="animation:fadeDown .2s ease-out;right:10%">
+            <a href="/about.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-info-circle text-sm text-rezvo-forest/50"></i></div>
+                <div><p class="text-sm font-semibold text-rezvo-forest m-0">About Us</p><p class="text-xs text-rezvo-forest/45 m-0">Our mission & story</p></div>
+            </a>
+            <a href="/faqs" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-circle-question text-sm text-rezvo-forest/50"></i></div>
+                <div><p class="text-sm font-semibold text-rezvo-forest m-0">FAQs</p><p class="text-xs text-rezvo-forest/45 m-0">Common questions answered</p></div>
+            </a>
+            <a href="/support.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-headset text-sm text-rezvo-forest/50"></i></div>
+                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Support Center</p><p class="text-xs text-rezvo-forest/45 m-0">Help when you need it</p></div>
+            </a>
+            <a href="/contact.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-envelope text-sm text-rezvo-forest/50"></i></div>
+                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Contact</p><p class="text-xs text-rezvo-forest/45 m-0">Get in touch</p></div>
+            </a>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-rezvo-border px-4 py-4 max-h-[80vh] overflow-y-auto">
+            <a href="/" class="block py-3 text-base font-semibold text-rezvo-forest">Home</a>
+            <p class="text-xs font-bold text-rezvo-forest/40 uppercase tracking-wider mt-2 mb-1 px-1">Features</p>
+            <a href="/features/restaurants.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">For Restaurants</a>
+            <a href="/features/calendar.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Smart Calendar</a>
+            <a href="/features/payments.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Stripe Payments</a>
+            <a href="/features/mobile-app.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Mobile App</a>
+            <a href="/features/integrations.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Integrations</a>
+            <a href="/features/uber-direct.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Uber Direct</a>
+            <a href="/features/team-up.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Team Up & Save</a>
+            <p class="text-xs font-bold text-rezvo-forest/40 uppercase tracking-wider mt-3 mb-1 px-1">Industries</p>
+            <a href="/industries/restaurants" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Restaurants</a>
+            <a href="/industries/barbers" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Barbers</a>
+            <a href="/industries/salons-spas" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Salons & Spas</a>
+            <a href="/industries" class="block py-2 pl-3 text-sm font-bold text-rezvo-mint">View all →</a>
+            <a href="/for-business" class="block py-3 text-base font-semibold text-rezvo-forest">For Business</a>
+            <a href="/about.html" class="block py-3 text-base font-semibold text-rezvo-forest">About</a>
+            <a href="/faqs" class="block py-3 text-base font-semibold text-rezvo-forest">FAQs</a>
+            <div class="border-t border-rezvo-border mt-3 pt-3 flex flex-col gap-2">
+                <a href="/login" class="text-center text-rezvo-forest font-bold text-sm py-3 rounded-xl border border-rezvo-forest/20">Log in</a>
+                <a href="/signup" class="text-center bg-rezvo-forest text-white font-bold text-sm py-3 rounded-full">Get Started Free</a>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+    (function(){
+        var current = null;
+        var btns = document.querySelectorAll('.nav-drop-btn');
+        var panels = document.querySelectorAll('.nav-panel');
+        
+        btns.forEach(function(btn){
+            btn.addEventListener('click', function(e){
+                e.stopPropagation();
+                var target = btn.getAttribute('data-target');
+                var panel = document.getElementById(target);
+                if(current === target){
+                    panel.classList.add('hidden');
+                    btn.classList.remove('bg-rezvo-forest/10','text-rezvo-forest');
+                    var chev = btn.querySelector('i');
+                    if(chev) chev.style.transform = '';
+                    current = null;
+                } else {
+                    panels.forEach(function(p){ p.classList.add('hidden'); });
+                    btns.forEach(function(b){ 
+                        b.classList.remove('bg-rezvo-forest/10','text-rezvo-forest');
+                        var c = b.querySelector('i');
+                        if(c) c.style.transform = '';
+                    });
+                    panel.classList.remove('hidden');
+                    btn.classList.add('bg-rezvo-forest/10','text-rezvo-forest');
+                    var chev = btn.querySelector('i');
+                    if(chev) chev.style.transform = 'rotate(180deg)';
+                    current = target;
+                }
+            });
+        });
+        
+        document.addEventListener('click', function(e){
+            if(!e.target.closest('nav')){
+                panels.forEach(function(p){ p.classList.add('hidden'); });
+                btns.forEach(function(b){
+                    b.classList.remove('bg-rezvo-forest/10','text-rezvo-forest');
+                    var c = b.querySelector('i');
+                    if(c) c.style.transform = '';
+                });
+                current = null;
+            }
+        });
+    })();
+    </script>
+
+    <style>
+    @keyframes fadeDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+
+<section id="hero-restaurants" class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden h-[700px] flex items-center">
+        <div class="absolute inset-0 z-0 bg-gradient-to-br from-rezvo-forest via-[#0F2E1F] to-rezvo-forest">
+            <div class="absolute inset-0 bg-grain opacity-30"></div>
+        </div>
+        
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <div class="inline-flex items-center gap-2 bg-rezvo-mint/20 border border-rezvo-mint/40 rounded-full px-5 py-2 mb-6">
+                        <i class="fa-solid fa-utensils text-rezvo-mint text-sm"></i>
+                        <span class="text-sm font-bold text-rezvo-mint">For Restaurants</span>
+                    </div>
+
+                    <h1 class="font-heading font-extrabold text-5xl lg:text-6xl text-white leading-[1.1] mb-6">
+                        Built for Restaurants, Not Adapted from a Salon App
+                    </h1>
+                    
+                    <p class="text-xl lg:text-2xl text-rezvo-mint/90 font-semibold mb-10 leading-relaxed">
+                        Floor plans, service periods, covers tracking, and zero-commission online ordering. Finally, a platform that speaks restaurant.
+                    </p>
+
+                    <a href="/signup" class="inline-flex items-center gap-3 bg-rezvo-mint hover:bg-white text-rezvo-forest font-bold py-4 px-10 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl">
+                        <i class="fa-solid fa-rocket"></i>
+                        Start Free
+                    </a>
+                </div>
+
+                <div class="relative">
+                    <div class="bg-white rounded-3xl shadow-2xl p-6 border-2 border-rezvo-mint/20">
+                        <div class="bg-gradient-to-br from-rezvo-forest to-rezvo-dark rounded-2xl p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="font-heading font-bold text-white text-lg">Friday Evening Service</h3>
+                                <div class="flex items-center gap-2 bg-rezvo-mint/20 px-3 py-1 rounded-full">
+                                    <i class="fa-solid fa-users text-rezvo-mint text-xs"></i>
+                                    <span class="text-rezvo-mint text-sm font-bold">48 Covers</span>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-4 gap-3">
+                                <div class="bg-green-500 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm">T1</div>
+                                <div class="bg-yellow-500 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm">T2</div>
+                                <div class="bg-green-500 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm">T3</div>
+                                <div class="bg-blue-500 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm">T4</div>
+                                <div class="bg-yellow-500 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm">T5</div>
+                                <div class="bg-green-500 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm">T6</div>
+                                <div class="bg-blue-500 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm">T7</div>
+                                <div class="bg-yellow-500 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm">T8</div>
+                                <div class="bg-green-500 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm">T9</div>
+                                <div class="bg-green-500 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm">T10</div>
+                                <div class="bg-blue-500 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm">T11</div>
+                                <div class="bg-yellow-500 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm">T12</div>
+                            </div>
+
+                            <div class="flex items-center gap-6 mt-6 pt-4 border-t border-white/10">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 bg-green-500 rounded"></div>
+                                    <span class="text-white/80 text-sm">Available</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 bg-yellow-500 rounded"></div>
+                                    <span class="text-white/80 text-sm">Occupied</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 bg-blue-500 rounded"></div>
+                                    <span class="text-white/80 text-sm">Reserved</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="floor-plan-feature" class="py-20 lg:py-28 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="order-2 lg:order-1">
+                    <div class="bg-gradient-to-br from-gray-50 to-white rounded-3xl shadow-2xl p-8 border-2 border-rezvo-border">
+                        <div class="flex items-center justify-between mb-6">
+                            <h4 class="font-heading font-bold text-rezvo-forest text-xl">Floor Plan View</h4>
+                            <div class="flex gap-2">
+                                <button class="bg-rezvo-forest text-white px-4 py-2 rounded-lg text-sm font-bold">Main</button>
+                                <button class="bg-gray-200 text-rezvo-forest px-4 py-2 rounded-lg text-sm font-bold">Terrace</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-5 gap-4">
+                            <div class="col-span-2 bg-green-500 h-24 rounded-2xl flex flex-col items-center justify-center text-white shadow-lg">
+                                <span class="font-bold text-lg">Table 1</span>
+                                <span class="text-xs opacity-80">4 seats</span>
+                            </div>
+                            <div class="col-span-2 bg-yellow-500 h-24 rounded-2xl flex flex-col items-center justify-center text-white shadow-lg">
+                                <span class="font-bold text-lg">Table 2</span>
+                                <span class="text-xs opacity-80">2 seats</span>
+                            </div>
+                            <div class="bg-blue-500 h-24 rounded-2xl flex flex-col items-center justify-center text-white shadow-lg">
+                                <span class="font-bold text-lg">T3</span>
+                                <span class="text-xs opacity-80">6</span>
+                            </div>
+                            <div class="col-span-2 bg-green-500 h-24 rounded-2xl flex flex-col items-center justify-center text-white shadow-lg">
+                                <span class="font-bold text-lg">Table 4</span>
+                                <span class="text-xs opacity-80">4 seats</span>
+                            </div>
+                            <div class="bg-yellow-500 h-24 rounded-2xl flex flex-col items-center justify-center text-white shadow-lg">
+                                <span class="font-bold text-lg">T5</span>
+                                <span class="text-xs opacity-80">2</span>
+                            </div>
+                            <div class="col-span-2 bg-blue-500 h-24 rounded-2xl flex flex-col items-center justify-center text-white shadow-lg">
+                                <span class="font-bold text-lg">Table 6</span>
+                                <span class="text-xs opacity-80">8 seats</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 p-4 bg-rezvo-mint/10 rounded-xl">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-rezvo-forest font-semibold">19:30 Booking</span>
+                                <span class="text-rezvo-forest">Party of 4 - Smith</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-1 lg:order-2">
+                    <div class="inline-flex items-center gap-2 bg-green-100 border border-green-300 rounded-full px-5 py-2 mb-6">
+                        <i class="fa-solid fa-map text-green-600 text-sm"></i>
+                        <span class="text-sm font-bold text-green-700">Real-Time Floor Plan</span>
+                    </div>
+
+                    <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
+                        See Every Table at a Glance
+                    </h2>
+                    
+                    <p class="text-xl text-rezvo-forest/70 mb-8 leading-relaxed">
+                        Green means available, amber means occupied, blue means reserved. Tap to seat, clear, or assign. Works on a tablet at the host stand.
+                    </p>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-check text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-rezvo-forest mb-1">Visual Status Updates</h4>
+                                <p class="text-rezvo-forest/60 text-sm">Color-coded tables update in real-time as guests are seated or leave</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-check text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-rezvo-forest mb-1">Drag & Drop Seating</h4>
+                                <p class="text-rezvo-forest/60 text-sm">Move reservations between tables with a simple tap</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-check text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-rezvo-forest mb-1">Multi-Room Support</h4>
+                                <p class="text-rezvo-forest/60 text-sm">Switch between dining room, terrace, and private areas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="online-booking-feature" class="py-20 lg:py-28 bg-rezvo-cream">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="inline-flex items-center gap-2 bg-blue-100 border border-blue-300 rounded-full px-5 py-2 mb-6">
+                        <i class="fa-solid fa-calendar-check text-blue-600 text-sm"></i>
+                        <span class="text-sm font-bold text-blue-700">Online Booking</span>
+                    </div>
+
+                    <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
+                        Online Booking That Makes Sense
+                    </h2>
+                    
+                    <p class="text-xl text-rezvo-forest/70 mb-8 leading-relaxed">
+                        Customers book by covers and time slot, not by 'service'. Set service periods (lunch, dinner, late night) with different capacities.
+                    </p>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-rezvo-mint rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-users text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-rezvo-forest mb-1">Party Size Selection</h4>
+                                <p class="text-rezvo-forest/60 text-sm">Customers choose covers, not confusing appointment slots</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-rezvo-mint rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-clock text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-rezvo-forest mb-1">Service Period Control</h4>
+                                <p class="text-rezvo-forest/60 text-sm">Define lunch (12-3pm), dinner (6-10pm), and late service with different table availability</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-rezvo-mint rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-ban text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-rezvo-forest mb-1">Smart Capacity Limits</h4>
+                                <p class="text-rezvo-forest/60 text-sm">Prevent overbooking with automatic cover tracking per service</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="bg-white rounded-3xl shadow-2xl p-8 border-2 border-rezvo-border">
+                        <div class="text-center mb-6">
+                            <h3 class="font-heading font-bold text-2xl text-rezvo-forest mb-2">Book a Table</h3>
+                            <p class="text-rezvo-forest/60">The Ivy Garden</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold text-rezvo-forest mb-2">Party Size</label>
+                                <div class="grid grid-cols-4 gap-2">
+                                    <button class="border-2 border-rezvo-border hover:border-rezvo-mint py-3 rounded-xl font-bold text-rezvo-forest transition-colors">2</button>
+                                    <button class="border-2 border-rezvo-mint bg-rezvo-mint/10 py-3 rounded-xl font-bold text-rezvo-forest">4</button>
+                                    <button class="border-2 border-rezvo-border hover:border-rezvo-mint py-3 rounded-xl font-bold text-rezvo-forest transition-colors">6</button>
+                                    <button class="border-2 border-rezvo-border hover:border-rezvo-mint py-3 rounded-xl font-bold text-rezvo-forest transition-colors">8+</button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-rezvo-forest mb-2">Date</label>
+                                <input type="date" class="w-full border-2 border-rezvo-border rounded-xl px-4 py-3 focus:border-rezvo-mint focus:outline-none" value="2024-02-15">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-rezvo-forest mb-2">Time</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button class="border-2 border-rezvo-border hover:border-rezvo-mint py-3 rounded-xl text-sm font-bold text-rezvo-forest transition-colors">18:00</button>
+                                    <button class="border-2 border-rezvo-border hover:border-rezvo-mint py-3 rounded-xl text-sm font-bold text-rezvo-forest transition-colors">18:30</button>
+                                    <button class="border-2 border-rezvo-mint bg-rezvo-mint/10 py-3 rounded-xl text-sm font-bold text-rezvo-forest">19:00</button>
+                                    <button class="border-2 border-rezvo-border hover:border-rezvo-mint py-3 rounded-xl text-sm font-bold text-rezvo-forest transition-colors">19:30</button>
+                                    <button class="border-2 border-rezvo-border hover:border-rezvo-mint py-3 rounded-xl text-sm font-bold text-rezvo-forest transition-colors">20:00</button>
+                                    <button class="border-2 border-rezvo-border hover:border-rezvo-mint py-3 rounded-xl text-sm font-bold text-rezvo-forest transition-colors">20:30</button>
+                                </div>
+                            </div>
+
+                            <button class="w-full bg-rezvo-forest hover:bg-rezvo-dark text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl">
+                                Reserve Table
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="orders-board-feature" class="py-20 lg:py-28 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="order-2 lg:order-1">
+                    <div class="bg-gradient-to-br from-gray-50 to-white rounded-3xl shadow-2xl p-8 border-2 border-rezvo-border">
+                        <h4 class="font-heading font-bold text-rezvo-forest text-xl mb-6">Orders Board</h4>
+
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <div class="bg-yellow-100 border-2 border-yellow-300 rounded-xl p-3 mb-3">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="font-bold text-rezvo-forest text-sm">Table 3</span>
+                                        <span class="text-xs text-rezvo-forest/60">19:15</span>
+                                    </div>
+                                    <p class="text-xs text-rezvo-forest/70">2x Steak, 1x Pasta</p>
+                                </div>
+                                <div class="bg-yellow-100 border-2 border-yellow-300 rounded-xl p-3">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="font-bold text-rezvo-forest text-sm">Table 7</span>
+                                        <span class="text-xs text-rezvo-forest/60">19:22</span>
+                                    </div>
+                                    <p class="text-xs text-rezvo-forest/70">4x Fish & Chips</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="bg-blue-100 border-2 border-blue-300 rounded-xl p-3 mb-3">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="font-bold text-rezvo-forest text-sm">Table 1</span>
+                                        <span class="text-xs text-rezvo-forest/60">19:05</span>
+                                    </div>
+                                    <p class="text-xs text-rezvo-forest/70">3x Burger</p>
+                                </div>
+                                <div class="bg-blue-100 border-2 border-blue-300 rounded-xl p-3">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="font-bold text-rezvo-forest text-sm">Table 5</span>
+                                        <span class="text-xs text-rezvo-forest/60">19:18</span>
+                                    </div>
+                                    <p class="text-xs text-rezvo-forest/70">2x Risotto</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="bg-green-100 border-2 border-green-300 rounded-xl p-3">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="font-bold text-rezvo-forest text-sm">Table 2</span>
+                                        <span class="text-xs text-rezvo-forest/60">18:55</span>
+                                    </div>
+                                    <p class="text-xs text-rezvo-forest/70">2x Salad</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-6 pt-4 border-t border-rezvo-border">
+                            <div class="text-center">
+                                <div class="w-3 h-3 bg-yellow-400 rounded-full mx-auto mb-1"></div>
+                                <span class="text-xs text-rezvo-forest/60">Accept</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-3 h-3 bg-blue-400 rounded-full mx-auto mb-1"></div>
+                                <span class="text-xs text-rezvo-forest/60">Prepare</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-3 h-3 bg-green-400 rounded-full mx-auto mb-1"></div>
+                                <span class="text-xs text-rezvo-forest/60">Serve</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-1 lg:order-2">
+                    <div class="inline-flex items-center gap-2 bg-purple-100 border border-purple-300 rounded-full px-5 py-2 mb-6">
+                        <i class="fa-solid fa-list-check text-purple-600 text-sm"></i>
+                        <span class="text-sm font-bold text-purple-700">Orders Board</span>
+                    </div>
+
+                    <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
+                        Accept, Prepare, Serve
+                    </h2>
+                    
+                    <p class="text-xl text-rezvo-forest/70 mb-8 leading-relaxed">
+                        Every order flows through a simple board your team can manage during the busiest service.
+                    </p>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-rezvo-mint rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-bolt text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-rezvo-forest mb-1">Live Order Flow</h4>
+                                <p class="text-rezvo-forest/60 text-sm">Orders appear instantly on kitchen screens and tablets</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-rezvo-mint rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-arrows-left-right text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-rezvo-forest mb-1">Drag to Update</h4>
+                                <p class="text-rezvo-forest/60 text-sm">Move orders between columns as they progress through the kitchen</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-rezvo-mint rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-bell text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-rezvo-forest mb-1">Service Alerts</h4>
+                                <p class="text-rezvo-forest/60 text-sm">Waiters get notified when dishes are ready to serve</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="analytics-feature" class="py-20 lg:py-28 bg-rezvo-cream">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="inline-flex items-center gap-2 bg-orange-100 border border-orange-300 rounded-full px-5 py-2 mb-6">
+                        <i class="fa-solid fa-chart-line text-orange-600 text-sm"></i>
+                        <span class="text-sm font-bold text-orange-700">Analytics That Matter</span>
+                    </div>
+
+                    <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
+                        The Metrics Restaurant Owners Actually Need
+                    </h2>
+                    
+                    <p class="text-xl text-rezvo-forest/70 mb-8 leading-relaxed">
+                        Covers per service period. Revenue per table. Average party size. Table turnover rate.
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white rounded-2xl p-6 border-2 border-rezvo-border">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-users text-white"></i>
+                                </div>
+                                <span class="text-sm font-bold text-rezvo-forest/60">Covers Today</span>
+                            </div>
+                            <p class="font-heading font-extrabold text-4xl text-rezvo-forest">142</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-6 border-2 border-rezvo-border">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-sterling-sign text-white"></i>
+                                </div>
+                                <span class="text-sm font-bold text-rezvo-forest/60">Revenue</span>
+                            </div>
+                            <p class="font-heading font-extrabold text-4xl text-rezvo-forest">£3.2k</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-6 border-2 border-rezvo-border">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-clock text-white"></i>
+                                </div>
+                                <span class="text-sm font-bold text-rezvo-forest/60">Avg Turnover</span>
+                            </div>
+                            <p class="font-heading font-extrabold text-4xl text-rezvo-forest">87min</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-6 border-2 border-rezvo-border">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-user-group text-white"></i>
+                                </div>
+                                <span class="text-sm font-bold text-rezvo-forest/60">Party Size</span>
+                            </div>
+                            <p class="font-heading font-extrabold text-4xl text-rezvo-forest">3.4</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="bg-white rounded-3xl shadow-2xl p-8 border-2 border-rezvo-border">
+                        <h4 class="font-heading font-bold text-rezvo-forest text-xl mb-6">This Week's Performance</h4>
+
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-bold text-rezvo-forest">Monday</span>
+                                    <span class="text-sm font-bold text-rezvo-forest">78 covers</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="bg-rezvo-mint h-3 rounded-full" style="width: 52%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-bold text-rezvo-forest">Tuesday</span>
+                                    <span class="text-sm font-bold text-rezvo-forest">92 covers</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="bg-rezvo-mint h-3 rounded-full" style="width: 61%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-bold text-rezvo-forest">Wednesday</span>
+                                    <span class="text-sm font-bold text-rezvo-forest">105 covers</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="bg-rezvo-mint h-3 rounded-full" style="width: 70%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-bold text-rezvo-forest">Thursday</span>
+                                    <span class="text-sm font-bold text-rezvo-forest">118 covers</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="bg-rezvo-mint h-3 rounded-full" style="width: 79%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-bold text-rezvo-forest">Friday</span>
+                                    <span class="text-sm font-bold text-rezvo-forest">142 covers</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="bg-green-500 h-3 rounded-full" style="width: 95%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-bold text-rezvo-forest">Saturday</span>
+                                    <span class="text-sm font-bold text-rezvo-forest">150 covers</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="bg-green-500 h-3 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="zero-commission-feature" class="py-20 lg:py-28 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center gap-2 bg-red-100 border border-red-300 rounded-full px-5 py-2 mb-6">
+                    <i class="fa-solid fa-ban text-red-600 text-sm"></i>
+                    <span class="text-sm font-bold text-red-700">Zero Commission</span>
+                </div>
+
+                <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
+                    Zero Commission Ordering
+                </h2>
+                
+                <p class="text-xl text-rezvo-forest/70 max-w-3xl mx-auto mb-12 leading-relaxed">
+                    Deliveroo takes 30%. JustEat takes 25%. Rezvo takes 0%. Your customers order from YOUR menu on YOUR branded page. Payments go straight to YOU.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 mb-16">
+                <div class="bg-gradient-to-br from-red-50 to-white rounded-3xl p-8 border-2 border-red-200">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-14 h-14 bg-red-500 rounded-2xl flex items-center justify-center">
+                            <i class="fa-solid fa-motorcycle text-white text-xl"></i>
+                        </div>
+                        <h3 class="font-heading font-bold text-xl text-rezvo-forest">Deliveroo</h3>
+                    </div>
+                    <div class="text-center py-6 bg-white rounded-2xl border-2 border-red-300 mb-4">
+                        <p class="text-5xl font-heading font-extrabold text-red-600">30%</p>
+                        <p class="text-sm text-rezvo-forest/60 mt-2">Commission Fee</p>
+                    </div>
+                    <p class="text-sm text-rezvo-forest/70 text-center">On every single order</p>
+                </div>
+
+                <div class="bg-gradient-to-br from-orange-50 to-white rounded-3xl p-8 border-2 border-orange-200">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center">
+                            <i class="fa-solid fa-utensils text-white text-xl"></i>
+                        </div>
+                        <h3 class="font-heading font-bold text-xl text-rezvo-forest">JustEat</h3>
+                    </div>
+                    <div class="text-center py-6 bg-white rounded-2xl border-2 border-orange-300 mb-4">
+                        <p class="text-5xl font-heading font-extrabold text-orange-600">25%</p>
+                        <p class="text-sm text-rezvo-forest/60 mt-2">Commission Fee</p>
+                    </div>
+                    <p class="text-sm text-rezvo-forest/70 text-center">Plus service charges</p>
+                </div>
+
+                <div class="bg-gradient-to-br from-green-50 to-white rounded-3xl p-8 border-2 border-green-300 relative overflow-hidden">
+                    <div class="absolute top-4 right-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                        BEST DEAL
+                    </div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-14 h-14 bg-rezvo-forest rounded-2xl flex items-center justify-center">
+                            <span class="font-heading font-extrabold text-2xl text-rezvo-mint">R</span>
+                        </div>
+                        <h3 class="font-heading font-bold text-xl text-rezvo-forest">Rezvo</h3>
+                    </div>
+                    <div class="text-center py-6 bg-white rounded-2xl border-2 border-green-400 mb-4">
+                        <p class="text-5xl font-heading font-extrabold text-green-600">0%</p>
+                        <p class="text-sm text-rezvo-forest/60 mt-2">Commission Fee</p>
+                    </div>
+                    <p class="text-sm text-rezvo-forest/70 text-center">Keep 100% of revenue</p>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-rezvo-mint/10 to-rezvo-mint/5 rounded-3xl p-12 border-2 border-rezvo-mint/20">
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div>
+                        <div class="w-16 h-16 bg-rezvo-mint rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i class="fa-solid fa-palette text-white text-2xl"></i>
+                        </div>
+                        <h4 class="font-heading font-bold text-xl text-rezvo-forest mb-2">Your Brand</h4>
+                        <p class="text-rezvo-forest/70">Custom branded ordering page with your logo and colors</p>
+                    </div>
+
+                    <div>
+                        <div class="w-16 h-16 bg-rezvo-mint rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i class="fa-solid fa-credit-card text-white text-2xl"></i>
+                        </div>
+                        <h4 class="font-heading font-bold text-xl text-rezvo-forest mb-2">Direct Payments</h4>
+                        <p class="text-rezvo-forest/70">Money goes straight to your bank account via Stripe</p>
+                    </div>
+
+                    <div>
+                        <div class="w-16 h-16 bg-rezvo-mint rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i class="fa-solid fa-users text-white text-2xl"></i>
+                        </div>
+                        <h4 class="font-heading font-bold text-xl text-rezvo-forest mb-2">Your Customers</h4>
+                        <p class="text-rezvo-forest/70">Build your own customer database and relationships</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing-callout" class="py-20 lg:py-28 bg-rezvo-cream">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="bg-gradient-to-br from-rezvo-forest to-rezvo-dark rounded-3xl p-12 lg:p-16 text-white relative overflow-hidden">
+                <div class="absolute inset-0 bg-grain opacity-10"></div>
+                <div class="absolute top-0 right-0 w-64 h-64 bg-rezvo-mint rounded-full filter blur-[120px] opacity-20"></div>
+                
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-2 bg-rezvo-mint/20 border border-rezvo-mint/40 rounded-full px-5 py-2 mb-6">
+                        <i class="fa-solid fa-tag text-rezvo-mint text-sm"></i>
+                        <span class="text-sm font-bold text-rezvo-mint">Simple Pricing</span>
+                    </div>
+
+                    <h2 class="font-heading font-extrabold text-4xl lg:text-5xl mb-6">
+                        From £29/month
+                    </h2>
+                    
+                    <p class="text-xl text-rezvo-mint/90 mb-8 max-w-2xl mx-auto leading-relaxed">
+                        No commission. No contracts. No hidden fees.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+                        <a href="/signup" class="bg-rezvo-mint hover:bg-white text-rezvo-forest font-bold py-4 px-10 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
+                            <i class="fa-solid fa-rocket"></i>
+                            Start Free
+                        </a>
+                        <a href="/contact.html" class="bg-white/10 hover:bg-white/20 text-white font-bold py-4 px-10 rounded-full transition-all duration-300 border-2 border-white/20">
+                            View Full Pricing
+                        </a>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-rezvo-mint"></i>
+                            <span>30-day free trial</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-rezvo-mint"></i>
+                            <span>No credit card required</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-rezvo-mint"></i>
+                            <span>Cancel anytime</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="footer" class="bg-rezvo-dark text-white pt-20 pb-10 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-10 mb-16">
+                <!-- Brand -->
+                <div class="col-span-2">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="bg-rezvo-mint text-rezvo-forest w-10 h-10 rounded-xl flex items-center justify-center">
+                            <span class="font-heading font-extrabold text-xl">R</span>
+                        </div>
+                        <span class="font-heading font-extrabold text-2xl text-white tracking-tight">REZVO</span>
+                    </div>
+                    <p class="text-white/50 text-sm leading-relaxed mb-6 max-w-xs">The zero-commission booking &amp; ordering platform helping UK restaurants and service businesses thrive.</p>
+                    <div class="flex gap-3">
+                        <a href="https://instagram.com/rezvouk" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://linkedin.com/company/rezvo" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="https://twitter.com/rezvouk" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+
+                <!-- Discover -->
+                <div>
+                    <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-4">Discover</h4>
+                    <ul class="space-y-2.5 text-sm text-white/50">
+                        <li><a href="/search?vertical=restaurants" class="hover:text-rezvo-mint transition-colors">Restaurants</a></li>
+                        <li><a href="/search?vertical=salons" class="hover:text-rezvo-mint transition-colors">Hair Salons</a></li>
+                        <li><a href="/search?vertical=barbers" class="hover:text-rezvo-mint transition-colors">Barbers</a></li>
+                        <li><a href="/search?vertical=spas" class="hover:text-rezvo-mint transition-colors">Spas &amp; Wellness</a></li>
+                        <li><a href="/search" class="hover:text-rezvo-mint transition-colors">Browse All</a></li>
+                    </ul>
+                </div>
+
+                <!-- Features -->
+                <div>
+                    <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-4">Features</h4>
+                    <ul class="space-y-2.5 text-sm text-white/50">
+                        <li><a href="/features/restaurants.html" class="hover:text-rezvo-mint transition-colors">For Restaurants</a></li>
+                        <li><a href="/features/calendar.html" class="hover:text-rezvo-mint transition-colors">Smart Calendar</a></li>
+                        <li><a href="/features/payments.html" class="hover:text-rezvo-mint transition-colors">Stripe Payments</a></li>
+                        <li><a href="/features/mobile-app.html" class="hover:text-rezvo-mint transition-colors">Mobile App</a></li>
+                        <li><a href="/features/integrations.html" class="hover:text-rezvo-mint transition-colors">Integrations</a></li>
+                        <li><a href="/features/uber-direct.html" class="hover:text-rezvo-mint transition-colors">Uber Direct</a></li>
+                    </ul>
+                </div>
+
+                <!-- For Business -->
+                <div>
+                    <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-4">For Business</h4>
+                    <ul class="space-y-2.5 text-sm text-white/50">
+                        <li><a href="/for-business" class="hover:text-rezvo-mint transition-colors">How It Works</a></li>
+                        <li><a href="/for-business#pricing" class="hover:text-rezvo-mint transition-colors">Pricing</a></li>
+                        <li><a href="/features/team-up.html" class="hover:text-rezvo-mint transition-colors">Team Up &amp; Save</a></li>
+                        <li><a href="/signup" class="hover:text-rezvo-mint transition-colors">Get Started</a></li>
+                        <li><a href="/login" class="hover:text-rezvo-mint transition-colors">Partner Login</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-4">Company</h4>
+                    <ul class="space-y-2.5 text-sm text-white/50">
+                        <li><a href="/about.html" class="hover:text-rezvo-mint transition-colors">About Us</a></li>
+                        <li><a href="/faqs" class="hover:text-rezvo-mint transition-colors">FAQs</a></li>
+                        <li><a href="/support.html" class="hover:text-rezvo-mint transition-colors">Support Center</a></li>
+                        <li><a href="/contact.html" class="hover:text-rezvo-mint transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Divider + giant watermark -->
+            <div class="border-t border-white/10 pt-10 text-center">
+                <h1 class="font-heading font-extrabold text-[12vw] leading-none text-rezvo-mint opacity-10 select-none">REZVO</h1>
+            </div>
+
+            <!-- Bottom bar -->
+            <div class="flex flex-col md:flex-row justify-between items-center mt-10 pt-6 border-t border-white/5 text-xs text-white/40">
+                <p>&copy; 2026 Rezvo Ltd. All rights reserved.</p>
+                <div class="flex items-center gap-6 mt-4 md:mt-0">
+                    <a href="/privacy.html" class="hover:text-rezvo-mint transition-colors">Privacy Policy</a>
+                    <a href="/terms.html" class="hover:text-rezvo-mint transition-colors">Terms of Service</a>
+                    <a href="/cookies.html" class="hover:text-rezvo-mint transition-colors">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+<script>window.scrollTo(0,0);</script>
+<script id="scroll-to-top-handler">document.addEventListener("click",function(e){var a=e.target.closest("a");if(a&&a.href&&a.href.startsWith(window.location.origin)&&!a.href.includes("#")){sessionStorage.setItem("scrollTop","1")}});if(sessionStorage.getItem("scrollTop")){sessionStorage.removeItem("scrollTop");window.scrollTo(0,0)}</script>
+</body>
+</html>

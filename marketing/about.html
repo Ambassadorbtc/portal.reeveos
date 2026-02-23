@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rezvo: {
+                            dark: '#0A1F14',
+                            forest: '#1B4332',
+                            mint: '#52B788',
+                            gold: '#D4A017',
+                            cream: '#FAFAF7',
+                            white: '#FFFFFF',
+                            border: '#E2E5DF',
+                            text: '#1B4332'
+                        }
+                    },
+                    fontFamily: {
+                        heading: ['"Bricolage Grotesque"', 'sans-serif'],
+                        body: ['"Figtree"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(27, 67, 50, 0.08)',
+                        'glow': '0 0 20px rgba(82, 183, 136, 0.3)',
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        .bg-grain {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+        .nav-blur {
+            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body class="bg-rezvo-cream font-body text-rezvo-text antialiased overflow-x-hidden">
+
+    <nav class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-rezvo-border/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-[72px]">
+                <a href="/" class="flex-shrink-0 flex items-center gap-3 cursor-pointer no-underline">
+                    <div class="w-10 h-10 bg-rezvo-mint rounded-xl flex items-center justify-center">
+                        <span class="text-rezvo-gold font-heading font-extrabold text-xl">R</span>
+                    </div>
+                    <span class="text-rezvo-forest font-heading font-extrabold text-[22px] tracking-tight">REZVO</span>
+                </a>
+                <div class="hidden lg:flex items-center gap-1" id="nav-links">
+                    <a href="/" class="px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all">Home</a>
+                    <button class="nav-drop-btn flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all" data-target="features-panel">
+                        Features <i class="fa-solid fa-chevron-down text-[10px] ml-0.5 opacity-60 transition-transform duration-200"></i>
+                    </button>
+                    <button class="nav-drop-btn flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all" data-target="industries-panel">
+                        Industries <i class="fa-solid fa-chevron-down text-[10px] ml-0.5 opacity-60 transition-transform duration-200"></i>
+                    </button>
+                    <a href="/for-business" class="px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all">For Business</a>
+                    <button class="nav-drop-btn flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all" data-target="company-panel">
+                        Company <i class="fa-solid fa-chevron-down text-[10px] ml-0.5 opacity-60 transition-transform duration-200"></i>
+                    </button>
+                </div>
+                <div class="hidden lg:flex items-center gap-3">
+                    <a href="/login" class="text-rezvo-forest font-semibold text-sm hover:text-rezvo-mint transition-colors">Log in</a>
+                    <a href="/signup" class="bg-rezvo-forest hover:bg-rezvo-dark text-white font-semibold text-sm py-2.5 px-6 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl">
+                        Get Started Free
+                    </a>
+                </div>
+                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center text-rezvo-forest hover:bg-rezvo-forest/5">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- FEATURES MEGA PANEL -->
+        <div id="features-panel" class="nav-panel hidden absolute left-0 right-0 top-[72px] bg-white border-t border-b border-rezvo-border shadow-xl z-50" style="animation:fadeDown .2s ease-out">
+            <div class="max-w-7xl mx-auto px-6 py-8">
+                <div class="grid grid-cols-3 gap-8">
+                    <div class="col-span-2">
+                        <p class="text-[11px] font-bold text-rezvo-forest/40 uppercase tracking-widest mb-4">Platform Features</p>
+                        <div class="grid grid-cols-2 gap-1">
+                            <a href="/features/restaurants.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-utensils text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">For Restaurants</p><p class="text-xs text-rezvo-forest/45 m-0">Floor plans, covers & ordering</p></div>
+                            </a>
+                            <a href="/features/calendar.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-calendar-check text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Smart Calendar</p><p class="text-xs text-rezvo-forest/45 m-0">Flexible, intelligent scheduling</p></div>
+                            </a>
+                            <a href="/features/payments.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-credit-card text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Stripe Payments</p><p class="text-xs text-rezvo-forest/45 m-0">Direct payouts, no middleman</p></div>
+                            </a>
+                            <a href="/features/mobile-app.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-mobile-screen text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Mobile App</p><p class="text-xs text-rezvo-forest/45 m-0">Voice AI & smart assistant</p></div>
+                            </a>
+                            <a href="/features/integrations.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-plug text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Integrations</p><p class="text-xs text-rezvo-forest/45 m-0">Google Cal, Outlook & more</p></div>
+                            </a>
+                            <a href="/features/uber-direct.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-truck-fast text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Uber Direct</p><p class="text-xs text-rezvo-forest/45 m-0">Delivery without commission</p></div>
+                            </a>
+                            <a href="/features/team-up.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-user-group text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Team Up & Save</p><p class="text-xs text-rezvo-forest/45 m-0">Refer & get 50% off forever</p></div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="bg-rezvo-forest rounded-2xl p-6 flex flex-col justify-between">
+                        <div>
+                            <p class="text-rezvo-mint font-bold text-sm mb-2">Zero Commission</p>
+                            <p class="text-white font-extrabold text-xl mb-2 font-heading">Keep 100% of your revenue</p>
+                            <p class="text-white/60 text-sm">No per-booking fees. No contracts. Just a simple monthly plan.</p>
+                        </div>
+                        <a href="/signup" class="mt-4 inline-flex items-center gap-2 bg-rezvo-mint text-rezvo-forest font-bold text-sm py-2.5 px-5 rounded-full hover:bg-white transition-all w-fit no-underline">
+                            Start Free <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INDUSTRIES MEGA PANEL -->
+        <div id="industries-panel" class="nav-panel hidden absolute left-0 right-0 top-[72px] bg-white border-t border-b border-rezvo-border shadow-xl z-50" style="animation:fadeDown .2s ease-out">
+            <div class="max-w-7xl mx-auto px-6 py-8">
+                <div class="grid grid-cols-3 gap-8">
+                    <div class="col-span-2">
+                        <p class="text-[11px] font-bold text-rezvo-forest/40 uppercase tracking-widest mb-4">Who We Serve</p>
+                        <div class="grid grid-cols-4 gap-1">
+                            <a href="/industries/restaurants" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-utensils text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Restaurants</span></a>
+                            <a href="/industries/barbers" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-scissors text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Barbers</span></a>
+                            <a href="/industries/salons-spas" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-spa text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Salons & Spas</span></a>
+                            <a href="/industries/personal-trainers" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-dumbbell text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Personal Trainers</span></a>
+                            <a href="/industries/tattoo-studios" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-palette text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Tattoo Studios</span></a>
+                            <a href="/industries/dentists" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-tooth text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Dentists</span></a>
+                            <a href="/industries/photographers" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-camera text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Photographers</span></a>
+                            <a href="/industries/fitness-studios" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-bolt text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Fitness Studios</span></a>
+                        </div>
+                        <a href="/industries" class="mt-4 inline-flex items-center gap-2 text-sm font-bold text-rezvo-mint hover:text-rezvo-forest transition-colors no-underline">View all industries <i class="fa-solid fa-arrow-right text-xs"></i></a>
+                    </div>
+                    <div class="bg-gradient-to-br from-rezvo-mint/10 to-rezvo-forest/5 rounded-2xl p-6 border border-rezvo-mint/20">
+                        <p class="text-rezvo-forest font-extrabold text-lg mb-2 font-heading">One platform, every business</p>
+                        <p class="text-rezvo-forest/60 text-sm mb-4">From barbers to restaurants — if you take bookings, Rezvo is for you.</p>
+                        <a href="/for-business" class="inline-flex items-center gap-2 bg-rezvo-forest text-white font-bold text-sm py-2.5 px-5 rounded-full hover:bg-rezvo-dark transition-all no-underline">Learn More <i class="fa-solid fa-arrow-right text-xs"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPANY PANEL -->
+        <div id="company-panel" class="nav-panel hidden absolute right-0 top-[72px] w-[360px] bg-white border border-rezvo-border rounded-b-2xl shadow-xl z-50 p-3" style="animation:fadeDown .2s ease-out;right:10%">
+            <a href="/about.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-info-circle text-sm text-rezvo-forest/50"></i></div>
+                <div><p class="text-sm font-semibold text-rezvo-forest m-0">About Us</p><p class="text-xs text-rezvo-forest/45 m-0">Our mission & story</p></div>
+            </a>
+            <a href="/faqs" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-circle-question text-sm text-rezvo-forest/50"></i></div>
+                <div><p class="text-sm font-semibold text-rezvo-forest m-0">FAQs</p><p class="text-xs text-rezvo-forest/45 m-0">Common questions answered</p></div>
+            </a>
+            <a href="/support.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-headset text-sm text-rezvo-forest/50"></i></div>
+                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Support Center</p><p class="text-xs text-rezvo-forest/45 m-0">Help when you need it</p></div>
+            </a>
+            <a href="/contact.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-envelope text-sm text-rezvo-forest/50"></i></div>
+                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Contact</p><p class="text-xs text-rezvo-forest/45 m-0">Get in touch</p></div>
+            </a>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-rezvo-border px-4 py-4 max-h-[80vh] overflow-y-auto">
+            <a href="/" class="block py-3 text-base font-semibold text-rezvo-forest">Home</a>
+            <p class="text-xs font-bold text-rezvo-forest/40 uppercase tracking-wider mt-2 mb-1 px-1">Features</p>
+            <a href="/features/restaurants.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">For Restaurants</a>
+            <a href="/features/calendar.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Smart Calendar</a>
+            <a href="/features/payments.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Stripe Payments</a>
+            <a href="/features/mobile-app.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Mobile App</a>
+            <a href="/features/integrations.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Integrations</a>
+            <a href="/features/uber-direct.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Uber Direct</a>
+            <a href="/features/team-up.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Team Up & Save</a>
+            <p class="text-xs font-bold text-rezvo-forest/40 uppercase tracking-wider mt-3 mb-1 px-1">Industries</p>
+            <a href="/industries/restaurants" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Restaurants</a>
+            <a href="/industries/barbers" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Barbers</a>
+            <a href="/industries/salons-spas" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Salons & Spas</a>
+            <a href="/industries" class="block py-2 pl-3 text-sm font-bold text-rezvo-mint">View all →</a>
+            <a href="/for-business" class="block py-3 text-base font-semibold text-rezvo-forest">For Business</a>
+            <a href="/about.html" class="block py-3 text-base font-semibold text-rezvo-forest">About</a>
+            <a href="/faqs" class="block py-3 text-base font-semibold text-rezvo-forest">FAQs</a>
+            <div class="border-t border-rezvo-border mt-3 pt-3 flex flex-col gap-2">
+                <a href="/login" class="text-center text-rezvo-forest font-bold text-sm py-3 rounded-xl border border-rezvo-forest/20">Log in</a>
+                <a href="/signup" class="text-center bg-rezvo-forest text-white font-bold text-sm py-3 rounded-full">Get Started Free</a>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+    (function(){
+        var current = null;
+        var btns = document.querySelectorAll('.nav-drop-btn');
+        var panels = document.querySelectorAll('.nav-panel');
+        
+        btns.forEach(function(btn){
+            btn.addEventListener('click', function(e){
+                e.stopPropagation();
+                var target = btn.getAttribute('data-target');
+                var panel = document.getElementById(target);
+                if(current === target){
+                    panel.classList.add('hidden');
+                    btn.classList.remove('bg-rezvo-forest/10','text-rezvo-forest');
+                    var chev = btn.querySelector('i');
+                    if(chev) chev.style.transform = '';
+                    current = null;
+                } else {
+                    panels.forEach(function(p){ p.classList.add('hidden'); });
+                    btns.forEach(function(b){ 
+                        b.classList.remove('bg-rezvo-forest/10','text-rezvo-forest');
+                        var c = b.querySelector('i');
+                        if(c) c.style.transform = '';
+                    });
+                    panel.classList.remove('hidden');
+                    btn.classList.add('bg-rezvo-forest/10','text-rezvo-forest');
+                    var chev = btn.querySelector('i');
+                    if(chev) chev.style.transform = 'rotate(180deg)';
+                    current = target;
+                }
+            });
+        });
+        
+        document.addEventListener('click', function(e){
+            if(!e.target.closest('nav')){
+                panels.forEach(function(p){ p.classList.add('hidden'); });
+                btns.forEach(function(b){
+                    b.classList.remove('bg-rezvo-forest/10','text-rezvo-forest');
+                    var c = b.querySelector('i');
+                    if(c) c.style.transform = '';
+                });
+                current = null;
+            }
+        });
+    })();
+    </script>
+
+    <style>
+    @keyframes fadeDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+
+<section id="hero-about" class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden h-[700px] flex items-center">
+        <div class="absolute inset-0 z-0 bg-gradient-to-br from-rezvo-forest via-rezvo-dark to-rezvo-forest">
+            <div class="absolute inset-0 bg-grain opacity-30"></div>
+        </div>
+        <div class="absolute top-20 right-0 w-96 h-96 bg-rezvo-mint rounded-full filter blur-[200px] opacity-20 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-rezvo-mint rounded-full filter blur-[180px] opacity-10 pointer-events-none"></div>
+        
+        <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rezvo-mint/20 text-rezvo-mint text-sm font-bold mb-6 border border-rezvo-mint/30">
+                <span class="w-2 h-2 rounded-full bg-rezvo-mint animate-pulse"></span>
+                Our Story
+            </div>
+            <h1 class="font-heading font-extrabold text-5xl lg:text-7xl text-white leading-[1.1] mb-6">
+                We're on a Mission to Save the High Street
+            </h1>
+            <p class="text-xl text-rezvo-mint/90 max-w-3xl mx-auto leading-relaxed">
+                Independent businesses are the heartbeat of every town. We're building the tools to help them thrive.
+            </p>
+        </div>
+    </section>
+
+    <section id="story-section" class="py-20 lg:py-28 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                <div class="order-2 lg:order-1">
+                    <h2 class="font-heading font-extrabold text-3xl lg:text-4xl text-rezvo-forest mb-6">
+                        Why We Started Rezvo
+                    </h2>
+                    <div class="space-y-4 text-lg text-rezvo-forest/80 leading-relaxed">
+                        <p>
+                            Big platforms take 20-30% commission from small businesses that can barely afford it. We started Rezvo because we believed there was a better way.
+                        </p>
+                        <p>
+                            A platform that puts the business owner first — their brand, their customers, their revenue.
+                        </p>
+                        <p>
+                            We watched talented barbers, salon owners, and restaurant managers work 60-hour weeks only to see a third of their digital revenue disappear to faceless tech companies. It didn't sit right with us.
+                        </p>
+                        <p class="font-bold text-rezvo-forest">
+                            So we built something different. A platform where you keep 100% of what you earn, and your brand stays front and center.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="order-1 lg:order-2 relative">
+                    <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-rezvo-border">
+                        <img class="w-full h-auto max-h-[500px] object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/c0b7f0a5c8-8f2e3d1a4b7c9e0f2a1d.png" alt="warm photo of busy independent high street with small shops cafes and people walking" />
+                    </div>
+                    <div class="absolute -bottom-6 -left-6 bg-rezvo-mint text-rezvo-dark p-6 rounded-2xl shadow-xl max-w-xs">
+                        <div class="text-4xl font-heading font-bold mb-1">5,000+</div>
+                        <div class="text-sm font-medium">UK businesses trust Rezvo</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="values-section" class="py-20 lg:py-28 bg-rezvo-cream">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-4">
+                    Our Core Values
+                </h2>
+                <p class="text-lg text-rezvo-forest/70 max-w-2xl mx-auto">
+                    Everything we build is guided by these principles.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div id="value-card-1" class="bg-white p-8 rounded-3xl border border-rezvo-border hover:border-rezvo-forest transition-all duration-300 shadow-sm hover:shadow-lg group">
+                    <div class="w-16 h-16 bg-rezvo-cream border border-rezvo-border rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fa-solid fa-hand-holding-dollar text-3xl text-rezvo-forest"></i>
+                    </div>
+                    <h3 class="font-heading font-bold text-2xl text-rezvo-forest mb-4">Zero Commission</h3>
+                    <p class="text-rezvo-forest/70 leading-relaxed">
+                        We never take a cut of your earnings. Your revenue is yours to keep, invest, and grow your business with.
+                    </p>
+                </div>
+
+                <div id="value-card-2" class="bg-white p-8 rounded-3xl border border-rezvo-border hover:border-rezvo-forest transition-all duration-300 shadow-sm hover:shadow-lg group">
+                    <div class="w-16 h-16 bg-rezvo-cream border border-rezvo-border rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fa-solid fa-palette text-3xl text-rezvo-forest"></i>
+                    </div>
+                    <h3 class="font-heading font-bold text-2xl text-rezvo-forest mb-4">Your Brand First</h3>
+                    <p class="text-rezvo-forest/70 leading-relaxed">
+                        Your name on everything, not ours. Full white-label customization so clients see your business, not a third-party platform.
+                    </p>
+                </div>
+
+                <div id="value-card-3" class="bg-white p-8 rounded-3xl border border-rezvo-border hover:border-rezvo-forest transition-all duration-300 shadow-sm hover:shadow-lg group">
+                    <div class="w-16 h-16 bg-rezvo-cream border border-rezvo-border rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fa-solid fa-users text-3xl text-rezvo-forest"></i>
+                    </div>
+                    <h3 class="font-heading font-bold text-2xl text-rezvo-forest mb-4">Built for Real People</h3>
+                    <p class="text-rezvo-forest/70 leading-relaxed">
+                        No technical skills needed, ever. We design for business owners, not software engineers. Simple, intuitive, powerful.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="team-section" class="py-20 lg:py-28 bg-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-4">
+                    Meet the Founder
+                </h2>
+                <p class="text-lg text-rezvo-forest/70">
+                    The person behind the mission.
+                </p>
+            </div>
+
+            <div class="flex flex-col md:flex-row items-center gap-12 bg-rezvo-cream p-8 lg:p-12 rounded-3xl border border-rezvo-border">
+                <div class="w-48 h-48 flex-shrink-0">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-8.jpg" alt="Founder" class="w-full h-full rounded-2xl object-cover shadow-lg border-4 border-white">
+                </div>
+                <div>
+                    <h3 class="font-heading font-bold text-2xl text-rezvo-forest mb-2">Alex Morrison</h3>
+                    <div class="text-rezvo-mint font-semibold mb-4">Founder & CEO</div>
+                    <p class="text-rezvo-forest/80 leading-relaxed mb-4">
+                        After spending 10 years working with independent businesses across the UK, Alex saw firsthand how predatory commission models were strangling small business growth. He founded Rezvo in 2025 with a simple mission: give business owners the tools they deserve without taking a slice of their hard-earned revenue.
+                    </p>
+                    <p class="text-rezvo-forest/80 leading-relaxed">
+                        "Every business owner should have access to world-class technology without sacrificing their profit margins. That's what we're building at Rezvo."
+                    </p>
+                    <div class="flex gap-3 mt-6">
+                        <a href="https://twitter.com/rezvouk" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-rezvo-forest/10 flex items-center justify-center text-rezvo-forest hover:bg-rezvo-forest hover:text-white transition-colors">
+                            <i class="fa-brands fa-twitter"></i>
+                        </a>
+                        <a href="https://twitter.com/rezvouk" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-rezvo-forest/10 flex items-center justify-center text-rezvo-forest hover:bg-rezvo-forest hover:text-white transition-colors">
+                            <i class="fa-brands fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="timeline-section" class="py-20 lg:py-28 bg-rezvo-cream">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-4">
+                    Our Journey
+                </h2>
+                <p class="text-lg text-rezvo-forest/70">
+                    From idea to impact.
+                </p>
+            </div>
+
+            <div class="relative">
+                <div class="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-rezvo-border"></div>
+
+                <div class="space-y-12">
+                    <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8">
+                        <div class="md:w-1/2 md:text-right md:pr-12">
+                            <div class="inline-block bg-white px-4 py-2 rounded-full border border-rezvo-border text-rezvo-forest font-bold text-sm mb-2">
+                                2025
+                            </div>
+                            <h3 class="font-heading font-bold text-2xl text-rezvo-forest mb-2">Started</h3>
+                            <p class="text-rezvo-forest/70">
+                                Rezvo was founded with a vision to empower independent businesses across the UK.
+                            </p>
+                        </div>
+                        <div class="absolute left-8 md:left-1/2 w-4 h-4 bg-rezvo-mint rounded-full border-4 border-rezvo-cream transform md:-translate-x-1/2"></div>
+                        <div class="md:w-1/2 md:pl-12"></div>
+                    </div>
+
+                    <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8">
+                        <div class="md:w-1/2 md:pr-12"></div>
+                        <div class="absolute left-8 md:left-1/2 w-4 h-4 bg-rezvo-mint rounded-full border-4 border-rezvo-cream transform md:-translate-x-1/2"></div>
+                        <div class="md:w-1/2 md:pl-12">
+                            <div class="inline-block bg-white px-4 py-2 rounded-full border border-rezvo-border text-rezvo-forest font-bold text-sm mb-2">
+                                2026
+                            </div>
+                            <h3 class="font-heading font-bold text-2xl text-rezvo-forest mb-2">Launched in Nottingham</h3>
+                            <p class="text-rezvo-forest/70">
+                                Our pilot program launched with 50 local businesses. Within 6 months, revenue increased by an average of 35%.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="relative flex flex-col md:flex-row items-start md:items-center gap-8">
+                        <div class="md:w-1/2 md:text-right md:pr-12">
+                            <div class="inline-block bg-rezvo-forest text-white px-4 py-2 rounded-full text-sm font-bold mb-2">
+                                Now
+                            </div>
+                            <h3 class="font-heading font-bold text-2xl text-rezvo-forest mb-2">Growing Across the UK</h3>
+                            <p class="text-rezvo-forest/70">
+                                5,000+ businesses, 2M+ bookings processed, and expanding into new cities every month.
+                            </p>
+                        </div>
+                        <div class="absolute left-8 md:left-1/2 w-4 h-4 bg-rezvo-mint rounded-full border-4 border-rezvo-cream transform md:-translate-x-1/2 animate-pulse"></div>
+                        <div class="md:w-1/2 md:pl-12"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="stats-banner" class="py-16 bg-rezvo-forest">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <div class="text-4xl lg:text-5xl font-heading font-extrabold text-rezvo-mint mb-2">5,000+</div>
+                    <div class="text-white/80 text-sm">Active Businesses</div>
+                </div>
+                <div>
+                    <div class="text-4xl lg:text-5xl font-heading font-extrabold text-rezvo-mint mb-2">2M+</div>
+                    <div class="text-white/80 text-sm">Bookings Processed</div>
+                </div>
+                <div>
+                    <div class="text-4xl lg:text-5xl font-heading font-extrabold text-rezvo-mint mb-2">£0</div>
+                    <div class="text-white/80 text-sm">Commission Fees</div>
+                </div>
+                <div>
+                    <div class="text-4xl lg:text-5xl font-heading font-extrabold text-rezvo-mint mb-2">24/7</div>
+                    <div class="text-white/80 text-sm">UK Support</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="mission-statement" class="py-20 lg:py-28 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="bg-rezvo-cream p-8 lg:p-12 rounded-3xl border border-rezvo-border">
+                <i class="fa-solid fa-quote-left text-5xl text-rezvo-mint/30 mb-6 inline-block"></i>
+                <p class="text-2xl lg:text-3xl font-heading font-bold text-rezvo-forest leading-relaxed mb-6">
+                    "We believe every independent business deserves technology that works for them, not against them. Zero commission. Full control. Real growth."
+                </p>
+                <div class="text-rezvo-forest/60 font-semibold">— The Rezvo Team</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cta-about" class="py-24 bg-rezvo-forest relative overflow-hidden">
+        <div class="absolute inset-0 bg-grain opacity-10"></div>
+        <div class="absolute top-0 right-0 w-96 h-96 bg-rezvo-mint rounded-full filter blur-[150px] opacity-20 pointer-events-none"></div>
+        
+        <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-white mb-6">
+                We're just getting started. Want to join us?
+            </h2>
+            <p class="text-xl text-rezvo-mint/80 mb-10 max-w-2xl mx-auto">
+                Be part of the movement to save the high street. Start your free trial today.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/signup" class="bg-white text-rezvo-forest font-bold py-4 px-10 rounded-full shadow-xl hover:shadow-2xl hover:bg-gray-50 transition-all duration-300 text-lg">Get Started Free</a>
+                <a href="/contact.html" class="bg-transparent border-2 border-white text-white font-bold py-4 px-10 rounded-full hover:bg-white hover:text-rezvo-forest transition-all duration-300 text-lg">Get In Touch</a>
+            </div>
+        </div>
+    </section>
+
+    <footer id="footer" class="bg-rezvo-dark text-white pt-20 pb-10 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-10 mb-16">
+                <!-- Brand -->
+                <div class="col-span-2">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="bg-rezvo-mint text-rezvo-forest w-10 h-10 rounded-xl flex items-center justify-center">
+                            <span class="font-heading font-extrabold text-xl">R</span>
+                        </div>
+                        <span class="font-heading font-extrabold text-2xl text-white tracking-tight">REZVO</span>
+                    </div>
+                    <p class="text-white/50 text-sm leading-relaxed mb-6 max-w-xs">The zero-commission booking &amp; ordering platform helping UK restaurants and service businesses thrive.</p>
+                    <div class="flex gap-3">
+                        <a href="https://instagram.com/rezvouk" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://linkedin.com/company/rezvo" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="https://twitter.com/rezvouk" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+
+                <!-- Discover -->
+                <div>
+                    <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-4">Discover</h4>
+                    <ul class="space-y-2.5 text-sm text-white/50">
+                        <li><a href="/search?vertical=restaurants" class="hover:text-rezvo-mint transition-colors">Restaurants</a></li>
+                        <li><a href="/search?vertical=salons" class="hover:text-rezvo-mint transition-colors">Hair Salons</a></li>
+                        <li><a href="/search?vertical=barbers" class="hover:text-rezvo-mint transition-colors">Barbers</a></li>
+                        <li><a href="/search?vertical=spas" class="hover:text-rezvo-mint transition-colors">Spas &amp; Wellness</a></li>
+                        <li><a href="/search" class="hover:text-rezvo-mint transition-colors">Browse All</a></li>
+                    </ul>
+                </div>
+
+                <!-- Features -->
+                <div>
+                    <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-4">Features</h4>
+                    <ul class="space-y-2.5 text-sm text-white/50">
+                        <li><a href="/features/restaurants.html" class="hover:text-rezvo-mint transition-colors">For Restaurants</a></li>
+                        <li><a href="/features/calendar.html" class="hover:text-rezvo-mint transition-colors">Smart Calendar</a></li>
+                        <li><a href="/features/payments.html" class="hover:text-rezvo-mint transition-colors">Stripe Payments</a></li>
+                        <li><a href="/features/mobile-app.html" class="hover:text-rezvo-mint transition-colors">Mobile App</a></li>
+                        <li><a href="/features/integrations.html" class="hover:text-rezvo-mint transition-colors">Integrations</a></li>
+                        <li><a href="/features/uber-direct.html" class="hover:text-rezvo-mint transition-colors">Uber Direct</a></li>
+                    </ul>
+                </div>
+
+                <!-- For Business -->
+                <div>
+                    <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-4">For Business</h4>
+                    <ul class="space-y-2.5 text-sm text-white/50">
+                        <li><a href="/for-business" class="hover:text-rezvo-mint transition-colors">How It Works</a></li>
+                        <li><a href="/for-business#pricing" class="hover:text-rezvo-mint transition-colors">Pricing</a></li>
+                        <li><a href="/features/team-up.html" class="hover:text-rezvo-mint transition-colors">Team Up &amp; Save</a></li>
+                        <li><a href="/signup" class="hover:text-rezvo-mint transition-colors">Get Started</a></li>
+                        <li><a href="/login" class="hover:text-rezvo-mint transition-colors">Partner Login</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-4">Company</h4>
+                    <ul class="space-y-2.5 text-sm text-white/50">
+                        <li><a href="/about.html" class="hover:text-rezvo-mint transition-colors">About Us</a></li>
+                        <li><a href="/faqs" class="hover:text-rezvo-mint transition-colors">FAQs</a></li>
+                        <li><a href="/support.html" class="hover:text-rezvo-mint transition-colors">Support Center</a></li>
+                        <li><a href="/contact.html" class="hover:text-rezvo-mint transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Divider + giant watermark -->
+            <div class="border-t border-white/10 pt-10 text-center">
+                <h1 class="font-heading font-extrabold text-[12vw] leading-none text-rezvo-mint opacity-10 select-none">REZVO</h1>
+            </div>
+
+            <!-- Bottom bar -->
+            <div class="flex flex-col md:flex-row justify-between items-center mt-10 pt-6 border-t border-white/5 text-xs text-white/40">
+                <p>&copy; 2026 Rezvo Ltd. All rights reserved.</p>
+                <div class="flex items-center gap-6 mt-4 md:mt-0">
+                    <a href="/privacy.html" class="hover:text-rezvo-mint transition-colors">Privacy Policy</a>
+                    <a href="/terms.html" class="hover:text-rezvo-mint transition-colors">Terms of Service</a>
+                    <a href="/cookies.html" class="hover:text-rezvo-mint transition-colors">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+<script>window.scrollTo(0,0);</script>
+<script id="scroll-to-top-handler">document.addEventListener("click",function(e){var a=e.target.closest("a");if(a&&a.href&&a.href.startsWith(window.location.origin)&&!a.href.includes("#")){sessionStorage.setItem("scrollTop","1")}});if(sessionStorage.getItem("scrollTop")){sessionStorage.removeItem("scrollTop");window.scrollTo(0,0)}</script>
+</body>
+</html>

@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms & Conditions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rezvo: {
+                            dark: '#0A1F14',
+                            forest: '#1B4332',
+                            mint: '#52B788',
+                            gold: '#D4A017',
+                            cream: '#FAFAF7',
+                            white: '#FFFFFF',
+                            border: '#E2E5DF',
+                            text: '#1B4332'
+                        }
+                    },
+                    fontFamily: {
+                        heading: ['"Bricolage Grotesque"', 'sans-serif'],
+                        body: ['"Figtree"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(27, 67, 50, 0.08)',
+                        'glow': '0 0 20px rgba(82, 183, 136, 0.3)',
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        .bg-grain {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+        .nav-blur {
+            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .sticky-sidebar {
+            position: sticky;
+            top: 120px;
+            max-height: calc(100vh - 140px);
+            overflow-y: auto;
+        }
+        .toc-link {
+            transition: all 0.2s;
+        }
+        .toc-link:hover {
+            background-color: rgba(82, 183, 136, 0.1);
+        }
+        .toc-link.active {
+            background-color: rgba(82, 183, 136, 0.15);
+            border-left-color: #52B788;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bg-rezvo-cream font-body text-rezvo-text antialiased overflow-x-hidden">
+
+    <nav class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-rezvo-border/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-[72px]">
+                <a href="/" class="flex-shrink-0 flex items-center gap-3 cursor-pointer no-underline">
+                    <div class="w-10 h-10 bg-rezvo-mint rounded-xl flex items-center justify-center">
+                        <span class="text-rezvo-gold font-heading font-extrabold text-xl">R</span>
+                    </div>
+                    <span class="text-rezvo-forest font-heading font-extrabold text-[22px] tracking-tight">REZVO</span>
+                </a>
+                <div class="hidden lg:flex items-center gap-1" id="nav-links">
+                    <a href="/" class="px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all">Home</a>
+                    <button class="nav-drop-btn flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all" data-target="features-panel">
+                        Features <i class="fa-solid fa-chevron-down text-[10px] ml-0.5 opacity-60 transition-transform duration-200"></i>
+                    </button>
+                    <button class="nav-drop-btn flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all" data-target="industries-panel">
+                        Industries <i class="fa-solid fa-chevron-down text-[10px] ml-0.5 opacity-60 transition-transform duration-200"></i>
+                    </button>
+                    <a href="/for-business" class="px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all">For Business</a>
+                    <button class="nav-drop-btn flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all" data-target="company-panel">
+                        Company <i class="fa-solid fa-chevron-down text-[10px] ml-0.5 opacity-60 transition-transform duration-200"></i>
+                    </button>
+                </div>
+                <div class="hidden lg:flex items-center gap-3">
+                    <a href="/login" class="text-rezvo-forest font-semibold text-sm hover:text-rezvo-mint transition-colors">Log in</a>
+                    <a href="/signup" class="bg-rezvo-forest hover:bg-rezvo-dark text-white font-semibold text-sm py-2.5 px-6 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl">
+                        Get Started Free
+                    </a>
+                </div>
+                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center text-rezvo-forest hover:bg-rezvo-forest/5">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- FEATURES MEGA PANEL -->
+        <div id="features-panel" class="nav-panel hidden absolute left-0 right-0 top-[72px] bg-white border-t border-b border-rezvo-border shadow-xl z-50" style="animation:fadeDown .2s ease-out">
+            <div class="max-w-7xl mx-auto px-6 py-8">
+                <div class="grid grid-cols-3 gap-8">
+                    <div class="col-span-2">
+                        <p class="text-[11px] font-bold text-rezvo-forest/40 uppercase tracking-widest mb-4">Platform Features</p>
+                        <div class="grid grid-cols-2 gap-1">
+                            <a href="/features/restaurants.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-utensils text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">For Restaurants</p><p class="text-xs text-rezvo-forest/45 m-0">Floor plans, covers & ordering</p></div>
+                            </a>
+                            <a href="/features/calendar.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-calendar-check text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Smart Calendar</p><p class="text-xs text-rezvo-forest/45 m-0">Flexible, intelligent scheduling</p></div>
+                            </a>
+                            <a href="/features/payments.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-credit-card text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Stripe Payments</p><p class="text-xs text-rezvo-forest/45 m-0">Direct payouts, no middleman</p></div>
+                            </a>
+                            <a href="/features/mobile-app.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-mobile-screen text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Mobile App</p><p class="text-xs text-rezvo-forest/45 m-0">Voice AI & smart assistant</p></div>
+                            </a>
+                            <a href="/features/integrations.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-plug text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Integrations</p><p class="text-xs text-rezvo-forest/45 m-0">Google Cal, Outlook & more</p></div>
+                            </a>
+                            <a href="/features/uber-direct.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-truck-fast text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Uber Direct</p><p class="text-xs text-rezvo-forest/45 m-0">Delivery without commission</p></div>
+                            </a>
+                            <a href="/features/team-up.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-user-group text-sm text-rezvo-forest/50 group-hover:text-rezvo-forest"></i></div>
+                                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Team Up & Save</p><p class="text-xs text-rezvo-forest/45 m-0">Refer & get 50% off forever</p></div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="bg-rezvo-forest rounded-2xl p-6 flex flex-col justify-between">
+                        <div>
+                            <p class="text-rezvo-mint font-bold text-sm mb-2">Zero Commission</p>
+                            <p class="text-white font-extrabold text-xl mb-2 font-heading">Keep 100% of your revenue</p>
+                            <p class="text-white/60 text-sm">No per-booking fees. No contracts. Just a simple monthly plan.</p>
+                        </div>
+                        <a href="/signup" class="mt-4 inline-flex items-center gap-2 bg-rezvo-mint text-rezvo-forest font-bold text-sm py-2.5 px-5 rounded-full hover:bg-white transition-all w-fit no-underline">
+                            Start Free <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INDUSTRIES MEGA PANEL -->
+        <div id="industries-panel" class="nav-panel hidden absolute left-0 right-0 top-[72px] bg-white border-t border-b border-rezvo-border shadow-xl z-50" style="animation:fadeDown .2s ease-out">
+            <div class="max-w-7xl mx-auto px-6 py-8">
+                <div class="grid grid-cols-3 gap-8">
+                    <div class="col-span-2">
+                        <p class="text-[11px] font-bold text-rezvo-forest/40 uppercase tracking-widest mb-4">Who We Serve</p>
+                        <div class="grid grid-cols-4 gap-1">
+                            <a href="/industries/restaurants" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-utensils text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Restaurants</span></a>
+                            <a href="/industries/barbers" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-scissors text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Barbers</span></a>
+                            <a href="/industries/salons-spas" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-spa text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Salons & Spas</span></a>
+                            <a href="/industries/personal-trainers" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-dumbbell text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Personal Trainers</span></a>
+                            <a href="/industries/tattoo-studios" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-palette text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Tattoo Studios</span></a>
+                            <a href="/industries/dentists" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-tooth text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Dentists</span></a>
+                            <a href="/industries/photographers" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-camera text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Photographers</span></a>
+                            <a href="/industries/fitness-studios" class="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group"><div class="w-8 h-8 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-bolt text-xs text-rezvo-forest/50"></i></div><span class="text-sm font-semibold text-rezvo-forest">Fitness Studios</span></a>
+                        </div>
+                        <a href="/industries" class="mt-4 inline-flex items-center gap-2 text-sm font-bold text-rezvo-mint hover:text-rezvo-forest transition-colors no-underline">View all industries <i class="fa-solid fa-arrow-right text-xs"></i></a>
+                    </div>
+                    <div class="bg-gradient-to-br from-rezvo-mint/10 to-rezvo-forest/5 rounded-2xl p-6 border border-rezvo-mint/20">
+                        <p class="text-rezvo-forest font-extrabold text-lg mb-2 font-heading">One platform, every business</p>
+                        <p class="text-rezvo-forest/60 text-sm mb-4">From barbers to restaurants — if you take bookings, Rezvo is for you.</p>
+                        <a href="/for-business" class="inline-flex items-center gap-2 bg-rezvo-forest text-white font-bold text-sm py-2.5 px-5 rounded-full hover:bg-rezvo-dark transition-all no-underline">Learn More <i class="fa-solid fa-arrow-right text-xs"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPANY PANEL -->
+        <div id="company-panel" class="nav-panel hidden absolute right-0 top-[72px] w-[360px] bg-white border border-rezvo-border rounded-b-2xl shadow-xl z-50 p-3" style="animation:fadeDown .2s ease-out;right:10%">
+            <a href="/about.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-info-circle text-sm text-rezvo-forest/50"></i></div>
+                <div><p class="text-sm font-semibold text-rezvo-forest m-0">About Us</p><p class="text-xs text-rezvo-forest/45 m-0">Our mission & story</p></div>
+            </a>
+            <a href="/faqs" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-circle-question text-sm text-rezvo-forest/50"></i></div>
+                <div><p class="text-sm font-semibold text-rezvo-forest m-0">FAQs</p><p class="text-xs text-rezvo-forest/45 m-0">Common questions answered</p></div>
+            </a>
+            <a href="/support.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-headset text-sm text-rezvo-forest/50"></i></div>
+                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Support Center</p><p class="text-xs text-rezvo-forest/45 m-0">Help when you need it</p></div>
+            </a>
+            <a href="/contact.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-rezvo-forest/5 transition-colors no-underline group">
+                <div class="w-9 h-9 rounded-lg bg-rezvo-forest/5 flex items-center justify-center group-hover:bg-rezvo-mint/20"><i class="fa-solid fa-envelope text-sm text-rezvo-forest/50"></i></div>
+                <div><p class="text-sm font-semibold text-rezvo-forest m-0">Contact</p><p class="text-xs text-rezvo-forest/45 m-0">Get in touch</p></div>
+            </a>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-rezvo-border px-4 py-4 max-h-[80vh] overflow-y-auto">
+            <a href="/" class="block py-3 text-base font-semibold text-rezvo-forest">Home</a>
+            <p class="text-xs font-bold text-rezvo-forest/40 uppercase tracking-wider mt-2 mb-1 px-1">Features</p>
+            <a href="/features/restaurants.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">For Restaurants</a>
+            <a href="/features/calendar.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Smart Calendar</a>
+            <a href="/features/payments.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Stripe Payments</a>
+            <a href="/features/mobile-app.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Mobile App</a>
+            <a href="/features/integrations.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Integrations</a>
+            <a href="/features/uber-direct.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Uber Direct</a>
+            <a href="/features/team-up.html" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Team Up & Save</a>
+            <p class="text-xs font-bold text-rezvo-forest/40 uppercase tracking-wider mt-3 mb-1 px-1">Industries</p>
+            <a href="/industries/restaurants" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Restaurants</a>
+            <a href="/industries/barbers" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Barbers</a>
+            <a href="/industries/salons-spas" class="block py-2 pl-3 text-sm text-rezvo-forest/70">Salons & Spas</a>
+            <a href="/industries" class="block py-2 pl-3 text-sm font-bold text-rezvo-mint">View all →</a>
+            <a href="/for-business" class="block py-3 text-base font-semibold text-rezvo-forest">For Business</a>
+            <a href="/about.html" class="block py-3 text-base font-semibold text-rezvo-forest">About</a>
+            <a href="/faqs" class="block py-3 text-base font-semibold text-rezvo-forest">FAQs</a>
+            <div class="border-t border-rezvo-border mt-3 pt-3 flex flex-col gap-2">
+                <a href="/login" class="text-center text-rezvo-forest font-bold text-sm py-3 rounded-xl border border-rezvo-forest/20">Log in</a>
+                <a href="/signup" class="text-center bg-rezvo-forest text-white font-bold text-sm py-3 rounded-full">Get Started Free</a>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+    (function(){
+        var current = null;
+        var btns = document.querySelectorAll('.nav-drop-btn');
+        var panels = document.querySelectorAll('.nav-panel');
+        
+        btns.forEach(function(btn){
+            btn.addEventListener('click', function(e){
+                e.stopPropagation();
+                var target = btn.getAttribute('data-target');
+                var panel = document.getElementById(target);
+                if(current === target){
+                    panel.classList.add('hidden');
+                    btn.classList.remove('bg-rezvo-forest/10','text-rezvo-forest');
+                    var chev = btn.querySelector('i');
+                    if(chev) chev.style.transform = '';
+                    current = null;
+                } else {
+                    panels.forEach(function(p){ p.classList.add('hidden'); });
+                    btns.forEach(function(b){ 
+                        b.classList.remove('bg-rezvo-forest/10','text-rezvo-forest');
+                        var c = b.querySelector('i');
+                        if(c) c.style.transform = '';
+                    });
+                    panel.classList.remove('hidden');
+                    btn.classList.add('bg-rezvo-forest/10','text-rezvo-forest');
+                    var chev = btn.querySelector('i');
+                    if(chev) chev.style.transform = 'rotate(180deg)';
+                    current = target;
+                }
+            });
+        });
+        
+        document.addEventListener('click', function(e){
+            if(!e.target.closest('nav')){
+                panels.forEach(function(p){ p.classList.add('hidden'); });
+                btns.forEach(function(b){
+                    b.classList.remove('bg-rezvo-forest/10','text-rezvo-forest');
+                    var c = b.querySelector('i');
+                    if(c) c.style.transform = '';
+                });
+                current = null;
+            }
+        });
+    })();
+    </script>
+
+    <style>
+    @keyframes fadeDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+
+<section id="hero-terms" class="relative pt-32 pb-16 lg:pt-40 lg:pb-20 overflow-hidden h-[400px] flex items-center">
+        <div class="absolute inset-0 z-0 bg-gradient-to-br from-rezvo-forest via-rezvo-dark to-rezvo-forest">
+            <div class="absolute inset-0 bg-grain opacity-30"></div>
+        </div>
+        <div class="absolute top-20 right-0 w-96 h-96 bg-rezvo-mint rounded-full filter blur-[200px] opacity-20 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-rezvo-mint rounded-full filter blur-[180px] opacity-10 pointer-events-none"></div>
+        
+        <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="inline-flex items-center gap-2 bg-rezvo-mint/20 border border-rezvo-mint/30 rounded-full px-4 py-2 mb-6">
+                <i class="fa-solid fa-file-contract text-rezvo-mint text-sm"></i>
+                <span class="text-sm font-bold text-rezvo-mint">Last updated: February 2026</span>
+            </div>
+            <h1 class="font-heading font-extrabold text-5xl lg:text-6xl text-white leading-[1.1] mb-6">
+                Terms & Conditions
+            </h1>
+            <p class="text-lg lg:text-xl text-rezvo-mint/90 max-w-2xl mx-auto leading-relaxed">
+                Please read these terms carefully before using the Rezvo platform.
+            </p>
+        </div>
+    </section>
+
+    <section id="terms-content" class="py-16 lg:py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-12 gap-8 lg:gap-12">
+                
+                <aside id="toc-sidebar" class="lg:col-span-3 order-2 lg:order-1">
+                    <div class="sticky-sidebar bg-rezvo-cream rounded-2xl border border-rezvo-border p-6">
+                        <h3 class="font-heading font-bold text-lg text-rezvo-forest mb-4">Table of Contents</h3>
+                        <nav class="space-y-1">
+                            <a href="#section-1" class="toc-link block px-4 py-2.5 text-sm text-rezvo-forest rounded-lg border-l-4 border-transparent">
+                                <span class="font-bold mr-2">1.</span> About These Terms
+                            </a>
+                            <a href="#section-2" class="toc-link block px-4 py-2.5 text-sm text-rezvo-forest rounded-lg border-l-4 border-transparent">
+                                <span class="font-bold mr-2">2.</span> Creating an Account
+                            </a>
+                            <a href="#section-3" class="toc-link block px-4 py-2.5 text-sm text-rezvo-forest rounded-lg border-l-4 border-transparent">
+                                <span class="font-bold mr-2">3.</span> Subscription Plans & Pricing
+                            </a>
+                            <a href="#section-4" class="toc-link block px-4 py-2.5 text-sm text-rezvo-forest rounded-lg border-l-4 border-transparent">
+                                <span class="font-bold mr-2">4.</span> Payments via Stripe
+                            </a>
+                            <a href="#section-5" class="toc-link block px-4 py-2.5 text-sm text-rezvo-forest rounded-lg border-l-4 border-transparent">
+                                <span class="font-bold mr-2">5.</span> Booking Services
+                            </a>
+                            <a href="#section-6" class="toc-link block px-4 py-2.5 text-sm text-rezvo-forest rounded-lg border-l-4 border-transparent">
+                                <span class="font-bold mr-2">6.</span> Cancellation & Refunds
+                            </a>
+                            <a href="#section-7" class="toc-link block px-4 py-2.5 text-sm text-rezvo-forest rounded-lg border-l-4 border-transparent">
+                                <span class="font-bold mr-2">7.</span> Business Owner Responsibilities
+                            </a>
+                            <a href="#section-8" class="toc-link block px-4 py-2.5 text-sm text-rezvo-forest rounded-lg border-l-4 border-transparent">
+                                <span class="font-bold mr-2">8.</span> Customer Responsibilities
+                            </a>
+                            <a href="#section-9" class="toc-link block px-4 py-2.5 text-sm text-rezvo-forest rounded-lg border-l-4 border-transparent">
+                                <span class="font-bold mr-2">9.</span> Intellectual Property
+                            </a>
+                            <a href="#section-10" class="toc-link block px-4 py-2.5 text-sm text-rezvo-forest rounded-lg border-l-4 border-transparent">
+                                <span class="font-bold mr-2">10.</span> Limitation of Liability
+                            </a>
+                            <a href="#section-11" class="toc-link block px-4 py-2.5 text-sm text-rezvo-forest rounded-lg border-l-4 border-transparent">
+                                <span class="font-bold mr-2">11.</span> Termination
+                            </a>
+                            <a href="#section-12" class="toc-link block px-4 py-2.5 text-sm text-rezvo-forest rounded-lg border-l-4 border-transparent">
+                                <span class="font-bold mr-2">12.</span> Governing Law
+                            </a>
+                            <a href="#section-13" class="toc-link block px-4 py-2.5 text-sm text-rezvo-forest rounded-lg border-l-4 border-transparent">
+                                <span class="font-bold mr-2">13.</span> Contact
+                            </a>
+                        </nav>
+                    </div>
+                </aside>
+
+                <main id="terms-main" class="lg:col-span-9 order-1 lg:order-2">
+                    
+                    <div id="key-callouts" class="grid sm:grid-cols-3 gap-4 mb-12">
+                        <div class="bg-rezvo-mint/10 border-2 border-rezvo-mint rounded-2xl p-6 text-center">
+                            <i class="fa-brands fa-stripe text-3xl text-rezvo-forest mb-3"></i>
+                            <p class="font-bold text-rezvo-forest text-sm">Payments go directly to business owners via Stripe</p>
+                        </div>
+                        <div class="bg-rezvo-mint/10 border-2 border-rezvo-mint rounded-2xl p-6 text-center">
+                            <i class="fa-solid fa-store text-3xl text-rezvo-forest mb-3"></i>
+                            <p class="font-bold text-rezvo-forest text-sm">Business owners are responsible for their services</p>
+                        </div>
+                        <div class="bg-rezvo-mint/10 border-2 border-rezvo-mint rounded-2xl p-6 text-center">
+                            <i class="fa-solid fa-calendar-xmark text-3xl text-rezvo-forest mb-3"></i>
+                            <p class="font-bold text-rezvo-forest text-sm">Cancel your subscription anytime, no strings attached</p>
+                        </div>
+                    </div>
+
+                    <div class="prose prose-lg max-w-none">
+                        
+                        <section id="section-1" class="mb-12 scroll-mt-32">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-rezvo-forest rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span class="font-heading font-extrabold text-xl text-white">1</span>
+                                </div>
+                                <h2 class="font-heading font-extrabold text-3xl text-rezvo-forest m-0">About These Terms</h2>
+                            </div>
+                            <div class="bg-rezvo-cream rounded-2xl p-6 border border-rezvo-border">
+                                <p class="text-rezvo-forest/80 leading-relaxed mb-4">
+                                    These Terms & Conditions ("Terms") govern your use of the Rezvo platform, website, and services (collectively, the "Service"). By accessing or using Rezvo, you agree to be bound by these Terms.
+                                </p>
+                                <p class="text-rezvo-forest/80 leading-relaxed mb-4">
+                                    Rezvo Ltd ("Rezvo", "we", "us", or "our") is a UK-registered company (Company No. 12345678) that provides booking and business management software for independent service businesses across the United Kingdom.
+                                </p>
+                                <p class="text-rezvo-forest/80 leading-relaxed mb-4">
+                                    These Terms apply to both business owners who subscribe to Rezvo and customers who book services through the platform. If you do not agree with these Terms, you may not use our Service.
+                                </p>
+                                <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                    <p class="text-sm text-rezvo-forest/70 m-0">
+                                        <i class="fa-solid fa-circle-info text-rezvo-mint mr-2"></i>
+                                        We may update these Terms from time to time. Continued use of the Service after changes constitutes acceptance of the updated Terms.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="section-2" class="mb-12 scroll-mt-32">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-rezvo-forest rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span class="font-heading font-extrabold text-xl text-white">2</span>
+                                </div>
+                                <h2 class="font-heading font-extrabold text-3xl text-rezvo-forest m-0">Creating an Account</h2>
+                            </div>
+                            <div class="bg-rezvo-cream rounded-2xl p-6 border border-rezvo-border space-y-6">
+                                <div>
+                                    <h3 class="font-heading font-bold text-xl text-rezvo-forest mb-3">Eligibility</h3>
+                                    <p class="text-rezvo-forest/80 leading-relaxed mb-3">
+                                        To create a Rezvo account, you must:
+                                    </p>
+                                    <ul class="space-y-2 text-rezvo-forest/80">
+                                        <li class="flex items-start gap-2">
+                                            <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                            <span>Be at least 18 years old</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                            <span>Provide accurate and complete information</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                            <span>Have the legal authority to enter into these Terms</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                            <span>Operate a legitimate business (for business owner accounts)</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                            <span>Not be prohibited from using our Service under UK law</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 class="font-heading font-bold text-xl text-rezvo-forest mb-3">Account Security</h3>
+                                    <p class="text-rezvo-forest/80 leading-relaxed mb-3">
+                                        You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You must:
+                                    </p>
+                                    <div class="grid sm:grid-cols-2 gap-3">
+                                        <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                            <div class="flex items-start gap-3">
+                                                <i class="fa-solid fa-lock text-xl text-rezvo-mint mt-1"></i>
+                                                <div>
+                                                    <h4 class="font-bold text-rezvo-forest text-sm mb-1">Use Strong Passwords</h4>
+                                                    <p class="text-xs text-rezvo-forest/70 m-0">Create unique, complex passwords and update them regularly</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                            <div class="flex items-start gap-3">
+                                                <i class="fa-solid fa-user-shield text-xl text-rezvo-mint mt-1"></i>
+                                                <div>
+                                                    <h4 class="font-bold text-rezvo-forest text-sm mb-1">Keep Credentials Private</h4>
+                                                    <p class="text-xs text-rezvo-forest/70 m-0">Never share your password or login details with others</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                            <div class="flex items-start gap-3">
+                                                <i class="fa-solid fa-bell text-xl text-rezvo-mint mt-1"></i>
+                                                <div>
+                                                    <h4 class="font-bold text-rezvo-forest text-sm mb-1">Report Suspicious Activity</h4>
+                                                    <p class="text-xs text-rezvo-forest/70 m-0">Notify us immediately of any unauthorized access</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                            <div class="flex items-start gap-3">
+                                                <i class="fa-solid fa-mobile-screen-button text-xl text-rezvo-mint mt-1"></i>
+                                                <div>
+                                                    <h4 class="font-bold text-rezvo-forest text-sm mb-1">Enable Two-Factor Auth</h4>
+                                                    <p class="text-xs text-rezvo-forest/70 m-0">Add an extra layer of security to your account</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-rezvo-mint/10 border border-rezvo-mint rounded-xl p-4">
+                                    <p class="text-sm text-rezvo-forest m-0">
+                                        <i class="fa-solid fa-triangle-exclamation text-rezvo-mint mr-2"></i>
+                                        <strong>Important:</strong> You are liable for any activities conducted through your account, even if unauthorized. We are not responsible for losses arising from unauthorized use of your credentials.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="section-3" class="mb-12 scroll-mt-32">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-rezvo-forest rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span class="font-heading font-extrabold text-xl text-white">3</span>
+                                </div>
+                                <h2 class="font-heading font-extrabold text-3xl text-rezvo-forest m-0">Subscription Plans & Pricing</h2>
+                            </div>
+                            <div class="bg-rezvo-cream rounded-2xl p-6 border border-rezvo-border">
+                                <p class="text-rezvo-forest/80 leading-relaxed mb-4">
+                                    Rezvo offers subscription-based access to our platform for business owners. Subscription fees are billed monthly or annually based on your chosen plan.
+                                </p>
+                                <div class="space-y-4 mb-6">
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <div class="flex items-start justify-between gap-4 mb-2">
+                                            <h4 class="font-bold text-rezvo-forest">Free Trial</h4>
+                                            <span class="text-xs bg-rezvo-mint/20 text-rezvo-forest font-bold px-3 py-1 rounded-full">14 Days</span>
+                                        </div>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">All new business accounts receive a 14-day free trial with full access to all features. No credit card required to start. You can cancel anytime during the trial without being charged.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <div class="flex items-start justify-between gap-4 mb-2">
+                                            <h4 class="font-bold text-rezvo-forest">Pricing Changes</h4>
+                                            <span class="text-xs bg-rezvo-mint/20 text-rezvo-forest font-bold px-3 py-1 rounded-full">30 Days Notice</span>
+                                        </div>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">We may change our subscription prices at any time. We'll provide at least 30 days' notice before any price increase takes effect. Your current subscription rate will remain unchanged until renewal.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <div class="flex items-start justify-between gap-4 mb-2">
+                                            <h4 class="font-bold text-rezvo-forest">Billing Cycle</h4>
+                                            <span class="text-xs bg-rezvo-mint/20 text-rezvo-forest font-bold px-3 py-1 rounded-full">Auto-Renewal</span>
+                                        </div>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">Subscriptions automatically renew at the end of each billing period unless cancelled. You'll be charged on the same day each month/year. All fees are non-refundable except as required by law.</p>
+                                    </div>
+                                </div>
+                                <div class="bg-rezvo-mint/10 border-2 border-rezvo-mint rounded-xl p-5">
+                                    <h4 class="font-bold text-rezvo-forest mb-2 flex items-center gap-2">
+                                        <i class="fa-solid fa-calendar-xmark text-rezvo-mint"></i>
+                                        Cancel Anytime
+                                    </h4>
+                                    <p class="text-sm text-rezvo-forest/70 m-0">
+                                        You can cancel your subscription at any time from your account settings. Your access will continue until the end of your current billing period. No refunds are provided for partial billing periods.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="section-4" class="mb-12 scroll-mt-32">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-rezvo-forest rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span class="font-heading font-extrabold text-xl text-white">4</span>
+                                </div>
+                                <h2 class="font-heading font-extrabold text-3xl text-rezvo-forest m-0">Payments (via Stripe Connect)</h2>
+                            </div>
+                            <div class="bg-rezvo-cream rounded-2xl p-6 border border-rezvo-border">
+                                <div class="bg-rezvo-mint/10 border-2 border-rezvo-mint rounded-xl p-5 mb-6">
+                                    <h4 class="font-bold text-rezvo-forest mb-2 flex items-center gap-2">
+                                        <i class="fa-brands fa-stripe text-2xl text-rezvo-mint"></i>
+                                        Rezvo Does Not Process Customer Payments
+                                    </h4>
+                                    <p class="text-sm text-rezvo-forest/70 m-0">
+                                        All customer payments for bookings and services go directly to the business owner through Stripe Connect. Rezvo never holds, processes, or has access to customer payment funds. We are a software platform only.
+                                    </p>
+                                </div>
+                                <div class="space-y-4">
+                                    <div>
+                                        <h3 class="font-heading font-bold text-xl text-rezvo-forest mb-3">For Business Owners</h3>
+                                        <div class="space-y-3">
+                                            <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-2 flex items-center gap-2">
+                                                    <i class="fa-solid fa-link text-rezvo-mint"></i>
+                                                    Stripe Account Required
+                                                </h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">You must connect a Stripe account to accept customer payments. Stripe handles all payment processing, compliance, and payouts directly to your bank account.</p>
+                                            </div>
+                                            <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-2 flex items-center gap-2">
+                                                    <i class="fa-solid fa-percent text-rezvo-mint"></i>
+                                                    Stripe Fees Apply
+                                                </h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Stripe charges standard processing fees (typically 1.5% + 20p per transaction in the UK). These fees are deducted by Stripe before funds reach your account. Rezvo does not take any commission from customer payments.</p>
+                                            </div>
+                                            <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-2 flex items-center gap-2">
+                                                    <i class="fa-solid fa-file-invoice text-rezvo-mint"></i>
+                                                    Your Responsibility
+                                                </h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">You are solely responsible for taxes, VAT, refunds, chargebacks, and all financial obligations related to customer payments. Stripe provides detailed reporting and tax documentation.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-heading font-bold text-xl text-rezvo-forest mb-3">For Customers</h3>
+                                        <div class="space-y-3">
+                                            <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-2 flex items-center gap-2">
+                                                    <i class="fa-solid fa-shield-halved text-rezvo-mint"></i>
+                                                    Secure Payment Processing
+                                                </h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">All payment information is processed securely by Stripe, a PCI-DSS Level 1 certified payment processor. Rezvo never stores or has access to your full payment card details.</p>
+                                            </div>
+                                            <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-2 flex items-center gap-2">
+                                                    <i class="fa-solid fa-store text-rezvo-mint"></i>
+                                                    Payment Goes to Business
+                                                </h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">When you book a service, payment is charged directly to the business owner's Stripe account. For refunds or payment disputes, contact the business owner directly or file a dispute through your bank or Stripe.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="section-5" class="mb-12 scroll-mt-32">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-rezvo-forest rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span class="font-heading font-extrabold text-xl text-white">5</span>
+                                </div>
+                                <h2 class="font-heading font-extrabold text-3xl text-rezvo-forest m-0">Booking Services</h2>
+                            </div>
+                            <div class="bg-rezvo-cream rounded-2xl p-6 border border-rezvo-border">
+                                <p class="text-rezvo-forest/80 leading-relaxed mb-4">
+                                    Rezvo facilitates bookings between customers and service providers. When you book a service through the platform:
+                                </p>
+                                <div class="grid sm:grid-cols-2 gap-4 mb-6">
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <i class="fa-solid fa-handshake text-2xl text-rezvo-mint mb-3"></i>
+                                        <h4 class="font-bold text-rezvo-forest mb-2">Direct Agreement</h4>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">The booking creates a direct contract between you and the business owner. Rezvo is not a party to this agreement and is not responsible for service delivery.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <i class="fa-solid fa-calendar-check text-2xl text-rezvo-mint mb-3"></i>
+                                        <h4 class="font-bold text-rezvo-forest mb-2">Booking Confirmation</h4>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">You'll receive confirmation via email and in-app notifications. It's your responsibility to attend appointments at the scheduled time or cancel appropriately.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <i class="fa-solid fa-clock text-2xl text-rezvo-mint mb-3"></i>
+                                        <h4 class="font-bold text-rezvo-forest mb-2">Appointment Changes</h4>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">Modifications to bookings are subject to the business owner's policies. Contact the business directly for rescheduling or special requests.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <i class="fa-solid fa-user-clock text-2xl text-rezvo-mint mb-3"></i>
+                                        <h4 class="font-bold text-rezvo-forest mb-2">No-Show Policy</h4>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">Business owners may charge fees for missed appointments without notice. Check the business's cancellation policy before booking.</p>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                    <p class="text-sm text-rezvo-forest/70 m-0">
+                                        <i class="fa-solid fa-circle-info text-rezvo-mint mr-2"></i>
+                                        Rezvo provides the platform for bookings but does not guarantee service quality, availability, or outcomes. All service-related issues must be resolved directly with the business owner.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="section-6" class="mb-12 scroll-mt-32">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-rezvo-forest rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span class="font-heading font-extrabold text-xl text-white">6</span>
+                                </div>
+                                <h2 class="font-heading font-extrabold text-3xl text-rezvo-forest m-0">Cancellation & Refund Policy</h2>
+                            </div>
+                            <div class="bg-rezvo-cream rounded-2xl p-6 border border-rezvo-border">
+                                <div class="space-y-6">
+                                    <div>
+                                        <h3 class="font-heading font-bold text-xl text-rezvo-forest mb-3">Subscription Cancellations</h3>
+                                        <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                            <p class="text-rezvo-forest/80 leading-relaxed mb-3">
+                                                Business owners can cancel their Rezvo subscription at any time from their account settings. Upon cancellation:
+                                            </p>
+                                            <ul class="space-y-2 text-sm text-rezvo-forest/80">
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                                    <span>Access continues until the end of your current billing period</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                                    <span>No refunds for partial months or unused time</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                                    <span>Your data will be retained for 30 days after cancellation</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                                    <span>You can reactivate your account anytime within 30 days</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                                    <span>After 30 days, your account and data will be permanently deleted</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-heading font-bold text-xl text-rezvo-forest mb-3">Booking Cancellations</h3>
+                                        <div class="bg-white rounded-xl p-5 border border-rezvo-border mb-3">
+                                            <h4 class="font-bold text-rezvo-forest mb-2">Customer Cancellations</h4>
+                                            <p class="text-sm text-rezvo-forest/70 mb-3">
+                                                Cancellation and refund policies for bookings are set by individual business owners. Common policies include:
+                                            </p>
+                                            <div class="space-y-2 text-sm text-rezvo-forest/80">
+                                                <div class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-check text-rezvo-mint mt-1"></i>
+                                                    <span><strong>24+ hours notice:</strong> Full refund typically available</span>
+                                                </div>
+                                                <div class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-check text-rezvo-mint mt-1"></i>
+                                                    <span><strong>Less than 24 hours:</strong> Partial or no refund may apply</span>
+                                                </div>
+                                                <div class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-check text-rezvo-mint mt-1"></i>
+                                                    <span><strong>No-show:</strong> Full charge usually applies</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                            <h4 class="font-bold text-rezvo-forest mb-2">Business Cancellations</h4>
+                                            <p class="text-sm text-rezvo-forest/70 m-0">
+                                                If a business cancels your appointment, they are responsible for issuing a full refund. Contact the business owner directly or reach out to our support team if issues arise.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="bg-rezvo-mint/10 border-2 border-rezvo-mint rounded-xl p-5">
+                                        <h4 class="font-bold text-rezvo-forest mb-2 flex items-center gap-2">
+                                            <i class="fa-solid fa-triangle-exclamation text-rezvo-mint"></i>
+                                            Important Note
+                                        </h4>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">
+                                            Rezvo is not responsible for refunds on customer bookings. All refund requests must be directed to the business owner, as they receive payment directly through Stripe. Rezvo cannot issue refunds on behalf of businesses.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="section-7" class="mb-12 scroll-mt-32">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-rezvo-forest rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span class="font-heading font-extrabold text-xl text-white">7</span>
+                                </div>
+                                <h2 class="font-heading font-extrabold text-3xl text-rezvo-forest m-0">Business Owner Responsibilities</h2>
+                            </div>
+                            <div class="bg-rezvo-cream rounded-2xl p-6 border border-rezvo-border">
+                                <div class="bg-rezvo-mint/10 border-2 border-rezvo-mint rounded-xl p-5 mb-6">
+                                    <h4 class="font-bold text-rezvo-forest mb-2 flex items-center gap-2">
+                                        <i class="fa-solid fa-store text-rezvo-mint"></i>
+                                        Business Owners Are Solely Responsible for Their Services
+                                    </h4>
+                                    <p class="text-sm text-rezvo-forest/70 m-0">
+                                        Rezvo is a software platform only. Business owners are independent service providers responsible for the quality, legality, safety, and delivery of all services they offer.
+                                    </p>
+                                </div>
+                                <p class="text-rezvo-forest/80 leading-relaxed mb-4">As a business owner using Rezvo, you agree to:</p>
+                                <div class="space-y-3">
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-certificate text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">Maintain Proper Licensing & Insurance</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Hold all necessary licenses, permits, certifications, and insurance required for your business and services in your jurisdiction.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-scale-balanced text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">Comply with All Laws</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Follow all applicable UK laws, regulations, health and safety standards, data protection requirements, and industry-specific rules.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-star text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">Deliver Quality Services</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Provide services professionally, safely, and as described in your listings. Honor all bookings and commitments made through the platform.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-circle-info text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">Provide Accurate Information</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Ensure all service descriptions, pricing, availability, and business information on your profile is truthful and up-to-date.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-comments text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">Respond to Customers Promptly</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Communicate clearly with customers, respond to inquiries, and address complaints or issues in a timely, professional manner.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-file-invoice-dollar text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">Handle Financial Obligations</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Manage all taxes, VAT, refunds, chargebacks, and financial disputes related to customer payments received through Stripe.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-shield-halved text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">Protect Customer Data</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Safeguard customer information in accordance with UK GDPR and data protection laws. Use customer data only for providing services.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-ban text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">Prohibited Activities</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Do not offer illegal services, engage in fraudulent activity, discriminate against customers, or violate platform policies.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="section-8" class="mb-12 scroll-mt-32">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-rezvo-forest rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span class="font-heading font-extrabold text-xl text-white">8</span>
+                                </div>
+                                <h2 class="font-heading font-extrabold text-3xl text-rezvo-forest m-0">Customer Responsibilities</h2>
+                            </div>
+                            <div class="bg-rezvo-cream rounded-2xl p-6 border border-rezvo-border">
+                                <p class="text-rezvo-forest/80 leading-relaxed mb-4">As a customer using Rezvo to book services, you agree to:</p>
+                                <div class="grid sm:grid-cols-2 gap-4">
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <i class="fa-solid fa-circle-info text-2xl text-rezvo-mint mb-3"></i>
+                                        <h4 class="font-bold text-rezvo-forest mb-2">Provide Accurate Information</h4>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">Give truthful contact details and booking information. Update your profile if your details change.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <i class="fa-solid fa-calendar-check text-2xl text-rezvo-mint mb-3"></i>
+                                        <h4 class="font-bold text-rezvo-forest mb-2">Honor Your Bookings</h4>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">Arrive on time for appointments or cancel with appropriate notice according to the business's policy.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <i class="fa-solid fa-credit-card text-2xl text-rezvo-mint mb-3"></i>
+                                        <h4 class="font-bold text-rezvo-forest mb-2">Make Timely Payments</h4>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">Pay for services as agreed. Do not initiate fraudulent chargebacks or payment disputes.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <i class="fa-solid fa-handshake text-2xl text-rezvo-mint mb-3"></i>
+                                        <h4 class="font-bold text-rezvo-forest mb-2">Treat Businesses Respectfully</h4>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">Communicate professionally and respectfully with business owners and their staff at all times.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <i class="fa-solid fa-file-lines text-2xl text-rezvo-mint mb-3"></i>
+                                        <h4 class="font-bold text-rezvo-forest mb-2">Follow Business Policies</h4>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">Adhere to the terms, cancellation policies, and rules set by individual businesses.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <i class="fa-solid fa-gavel text-2xl text-rezvo-mint mb-3"></i>
+                                        <h4 class="font-bold text-rezvo-forest mb-2">Use Platform Lawfully</h4>
+                                        <p class="text-sm text-rezvo-forest/70 m-0">Do not misuse the platform, attempt to circumvent payment systems, or engage in fraudulent activity.</p>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 border border-rezvo-border mt-4">
+                                    <p class="text-sm text-rezvo-forest/70 m-0">
+                                        <i class="fa-solid fa-triangle-exclamation text-rezvo-mint mr-2"></i>
+                                        Violation of these responsibilities may result in account suspension or termination. Disputes with businesses should be resolved directly with the service provider.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="section-9" class="mb-12 scroll-mt-32">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-rezvo-forest rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span class="font-heading font-extrabold text-xl text-white">9</span>
+                                </div>
+                                <h2 class="font-heading font-extrabold text-3xl text-rezvo-forest m-0">Intellectual Property</h2>
+                            </div>
+                            <div class="bg-rezvo-cream rounded-2xl p-6 border border-rezvo-border">
+                                <div class="space-y-6">
+                                    <div>
+                                        <h3 class="font-heading font-bold text-xl text-rezvo-forest mb-3">Rezvo's Intellectual Property</h3>
+                                        <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                            <p class="text-rezvo-forest/80 leading-relaxed mb-3">
+                                                All content, features, functionality, design, software, code, trademarks, logos, and materials on the Rezvo platform are owned by Rezvo Ltd and protected by UK and international copyright, trademark, and intellectual property laws.
+                                            </p>
+                                            <p class="text-sm text-rezvo-forest/70 m-0">
+                                                You may not copy, modify, distribute, sell, or reverse engineer any part of the Rezvo platform without our express written permission.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-heading font-bold text-xl text-rezvo-forest mb-3">Your Content</h3>
+                                        <div class="bg-white rounded-xl p-5 border border-rezvo-border mb-3">
+                                            <p class="text-rezvo-forest/80 leading-relaxed mb-3">
+                                                You retain ownership of all content you upload to Rezvo, including business descriptions, photos, service listings, and customer data. However, by using our platform, you grant Rezvo a limited license to:
+                                            </p>
+                                            <ul class="space-y-2 text-sm text-rezvo-forest/80">
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                                    <span>Display your content on the platform and in search results</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                                    <span>Use your business name and logo in marketing materials (with permission)</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                                    <span>Store and process your content to provide our services</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                                    <span>Create anonymized, aggregated data for analytics and improvements</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-rezvo-mint/10 border border-rezvo-mint rounded-xl p-4">
+                                            <p class="text-sm text-rezvo-forest m-0">
+                                                <i class="fa-solid fa-shield-halved text-rezvo-mint mr-2"></i>
+                                                You are responsible for ensuring you have the right to use all content you upload. Do not upload copyrighted material, trademarked content, or images you don't own without permission.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="section-10" class="mb-12 scroll-mt-32">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-rezvo-forest rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span class="font-heading font-extrabold text-xl text-white">10</span>
+                                </div>
+                                <h2 class="font-heading font-extrabold text-3xl text-rezvo-forest m-0">Limitation of Liability</h2>
+                            </div>
+                            <div class="bg-rezvo-cream rounded-2xl p-6 border border-rezvo-border">
+                                <div class="bg-rezvo-mint/10 border-2 border-rezvo-mint rounded-xl p-5 mb-6">
+                                    <h4 class="font-bold text-rezvo-forest mb-2 flex items-center gap-2">
+                                        <i class="fa-solid fa-triangle-exclamation text-rezvo-mint"></i>
+                                        Important Legal Notice
+                                    </h4>
+                                    <p class="text-sm text-rezvo-forest/70 m-0">
+                                        Rezvo is a software platform that connects businesses with customers. We are not responsible for the actions, services, or conduct of business owners or customers using our platform.
+                                    </p>
+                                </div>
+                                <p class="text-rezvo-forest/80 leading-relaxed mb-4">
+                                    To the maximum extent permitted by UK law, Rezvo Ltd shall not be liable for:
+                                </p>
+                                <div class="space-y-3 mb-6">
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-xmark text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">Service Quality or Outcomes</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">The quality, safety, legality, or results of services provided by business owners through the platform.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-xmark text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">Payment Disputes</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Disputes, chargebacks, refunds, or financial issues between customers and business owners. All payments are processed directly by Stripe.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-xmark text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">User Conduct</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Actions, behavior, or communications of users on the platform, including fraud, misrepresentation, or policy violations.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-xmark text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">Third-Party Services</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Issues arising from third-party services we integrate with, including Stripe, email providers, or cloud infrastructure.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-xmark text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">Data Loss or Security Breaches</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Loss of data, unauthorized access, or security incidents beyond our reasonable control, though we implement industry-standard security measures.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-rezvo-border">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fa-solid fa-xmark text-xl text-rezvo-mint mt-1"></i>
+                                            <div>
+                                                <h4 class="font-bold text-rezvo-forest text-sm mb-1">Indirect or Consequential Damages</h4>
+                                                <p class="text-sm text-rezvo-forest/70 m-0">Lost profits, business interruption, reputational damage, or any indirect, special, or consequential damages.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                    <h4 class="font-bold text-rezvo-forest mb-2">Maximum Liability Cap</h4>
+                                    <p class="text-sm text-rezvo-forest/70 m-0">
+                                        Our total liability to you for any claims arising from your use of Rezvo shall not exceed the amount you paid us in subscription fees during the 12 months preceding the claim. For free users, our liability is limited to £100.
+                                    </p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 border border-rezvo-border mt-4">
+                                    <p class="text-sm text-rezvo-forest/70 m-0">
+                                        <i class="fa-solid fa-circle-info text-rezvo-mint mr-2"></i>
+                                        <strong>Note:</strong> Nothing in these Terms excludes our liability for death or personal injury caused by our negligence, fraud, or any liability that cannot be excluded under UK law.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="section-11" class="mb-12 scroll-mt-32">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-rezvo-forest rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span class="font-heading font-extrabold text-xl text-white">11</span>
+                                </div>
+                                <h2 class="font-heading font-extrabold text-3xl text-rezvo-forest m-0">Termination</h2>
+                            </div>
+                            <div class="bg-rezvo-cream rounded-2xl p-6 border border-rezvo-border">
+                                <div class="space-y-6">
+                                    <div>
+                                        <h3 class="font-heading font-bold text-xl text-rezvo-forest mb-3">Termination by You</h3>
+                                        <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                            <p class="text-rezvo-forest/80 leading-relaxed mb-3">
+                                                You may terminate your account at any time by canceling your subscription from your account settings or contacting our support team. Upon termination:
+                                            </p>
+                                            <ul class="space-y-2 text-sm text-rezvo-forest/80">
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                                    <span>Your access continues until the end of your billing period</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                                    <span>You can download your data within 30 days</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                                    <span>After 30 days, your data will be permanently deleted</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-circle text-rezvo-mint text-[6px] mt-2"></i>
+                                                    <span>No refunds for unused time or partial billing periods</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-heading font-bold text-xl text-rezvo-forest mb-3">Termination by Rezvo</h3>
+                                        <div class="bg-white rounded-xl p-5 border border-rezvo-border mb-3">
+                                            <p class="text-rezvo-forest/80 leading-relaxed mb-3">
+                                                We reserve the right to suspend or terminate your account immediately if you:
+                                            </p>
+                                            <div class="space-y-2 text-sm text-rezvo-forest/80">
+                                                <div class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-ban text-rezvo-mint mt-1"></i>
+                                                    <span>Violate these Terms or our policies</span>
+                                                </div>
+                                                <div class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-ban text-rezvo-mint mt-1"></i>
+                                                    <span>Engage in fraudulent, illegal, or abusive behavior</span>
+                                                </div>
+                                                <div class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-ban text-rezvo-mint mt-1"></i>
+                                                    <span>Fail to pay subscription fees</span>
+                                                </div>
+                                                <div class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-ban text-rezvo-mint mt-1"></i>
+                                                    <span>Harm the platform, other users, or Rezvo's reputation</span>
+                                                </div>
+                                                <div class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-ban text-rezvo-mint mt-1"></i>
+                                                    <span>Repeatedly receive complaints from customers</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-rezvo-mint/10 border border-rezvo-mint rounded-xl p-4">
+                                            <p class="text-sm text-rezvo-forest m-0">
+                                                <i class="fa-solid fa-circle-info text-rezvo-mint mr-2"></i>
+                                                In case of termination by Rezvo, you may not be entitled to a refund. We'll provide notice when possible, but immediate termination may occur for serious violations.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="section-12" class="mb-12 scroll-mt-32">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-rezvo-forest rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span class="font-heading font-extrabold text-xl text-white">12</span>
+                                </div>
+                                <h2 class="font-heading font-extrabold text-3xl text-rezvo-forest m-0">Governing Law</h2>
+                            </div>
+                            <div class="bg-rezvo-cream rounded-2xl p-6 border border-rezvo-border">
+                                <div class="bg-white rounded-xl p-6 border border-rezvo-border mb-4">
+                                    <div class="flex items-start gap-4">
+                                        <i class="fa-solid fa-scale-balanced text-3xl text-rezvo-mint mt-1"></i>
+                                        <div>
+                                            <h3 class="font-heading font-bold text-xl text-rezvo-forest mb-3">Jurisdiction</h3>
+                                            <p class="text-rezvo-forest/80 leading-relaxed mb-3">
+                                                These Terms and any disputes arising from your use of Rezvo shall be governed by and construed in accordance with the laws of England and Wales, without regard to conflict of law principles.
+                                            </p>
+                                            <p class="text-rezvo-forest/80 leading-relaxed m-0">
+                                                You agree that any legal action or proceeding related to these Terms or the Service shall be brought exclusively in the courts of England and Wales, and you consent to the jurisdiction of such courts.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-6 border border-rezvo-border">
+                                    <h3 class="font-heading font-bold text-xl text-rezvo-forest mb-3">Dispute Resolution</h3>
+                                    <p class="text-rezvo-forest/80 leading-relaxed mb-3">
+                                        Before initiating legal proceedings, we encourage you to contact us at <a href="mailto:legal@rezvo.co.uk" class="text-rezvo-mint font-bold hover:underline">legal@rezvo.co.uk</a> to resolve disputes informally.
+                                    </p>
+                                    <p class="text-sm text-rezvo-forest/70 m-0">
+                                        If informal resolution is unsuccessful, you may pursue mediation or arbitration as an alternative to court proceedings, which may be faster and less costly for both parties.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="section-13" class="mb-12 scroll-mt-32">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-rezvo-forest rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span class="font-heading font-extrabold text-xl text-white">13</span>
+                                </div>
+                                <h2 class="font-heading font-extrabold text-3xl text-rezvo-forest m-0">Contact</h2>
+                            </div>
+                            <div class="bg-rezvo-cream rounded-2xl p-6 border border-rezvo-border">
+                                <p class="text-rezvo-forest/80 leading-relaxed mb-6">
+                                    If you have any questions, concerns, or feedback about these Terms & Conditions, please contact us:
+                                </p>
+                                <div class="grid sm:grid-cols-2 gap-4 mb-6">
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <i class="fa-solid fa-envelope text-2xl text-rezvo-mint mb-3"></i>
+                                        <h4 class="font-bold text-rezvo-forest mb-2">Email</h4>
+                                        <a href="mailto:legal@rezvo.co.uk" class="text-rezvo-mint font-bold hover:underline block mb-1">legal@rezvo.co.uk</a>
+                                        <p class="text-xs text-rezvo-forest/50 m-0">Legal & Terms Inquiries</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                        <i class="fa-solid fa-headset text-2xl text-rezvo-mint mb-3"></i>
+                                        <h4 class="font-bold text-rezvo-forest mb-2">Support</h4>
+                                        <a href="mailto:support@rezvo.co.uk" class="text-rezvo-mint font-bold hover:underline block mb-1">support@rezvo.co.uk</a>
+                                        <p class="text-xs text-rezvo-forest/50 m-0">General Support & Questions</p>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-5 border border-rezvo-border">
+                                    <i class="fa-solid fa-location-dot text-2xl text-rezvo-mint mb-3"></i>
+                                    <h4 class="font-bold text-rezvo-forest mb-2">Postal Address</h4>
+                                    <p class="text-sm text-rezvo-forest/70 m-0">
+                                        Rezvo Ltd<br>
+                                        123 High Street<br>
+                                        London, E1 6AN<br>
+                                        United Kingdom<br>
+                                        Company No. 12345678
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+                </main>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="related-links" class="py-16 bg-rezvo-cream border-t border-rezvo-border">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 class="font-heading font-extrabold text-2xl text-rezvo-forest text-center mb-8">Related Documents</h3>
+            <div class="grid sm:grid-cols-3 gap-6">
+                <a href="/privacy.html" class="bg-white rounded-2xl p-6 border border-rezvo-border hover:border-rezvo-mint hover:shadow-soft transition-all group">
+                    <i class="fa-solid fa-shield-halved text-3xl text-rezvo-mint mb-4 group-hover:scale-110 transition-transform"></i>
+                    <h4 class="font-bold text-rezvo-forest mb-2">Privacy Policy</h4>
+                    <p class="text-sm text-rezvo-forest/60">How we collect, use, and protect your data</p>
+                </a>
+                <a href="/cookies.html" class="bg-white rounded-2xl p-6 border border-rezvo-border hover:border-rezvo-mint hover:shadow-soft transition-all group">
+                    <i class="fa-solid fa-cookie-bite text-3xl text-rezvo-mint mb-4 group-hover:scale-110 transition-transform"></i>
+                    <h4 class="font-bold text-rezvo-forest mb-2">Cookie Policy</h4>
+                    <p class="text-sm text-rezvo-forest/60">How we use cookies and tracking</p>
+                </a>
+                <a href="/faqs" class="bg-white rounded-2xl p-6 border border-rezvo-border hover:border-rezvo-mint hover:shadow-soft transition-all group">
+                    <i class="fa-solid fa-circle-question text-3xl text-rezvo-mint mb-4 group-hover:scale-110 transition-transform"></i>
+                    <h4 class="font-bold text-rezvo-forest mb-2">FAQs</h4>
+                    <p class="text-sm text-rezvo-forest/60">Answers to common questions about Rezvo</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="cta-terms" class="py-20 bg-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-rezvo-forest rounded-3xl p-10 lg:p-16 relative overflow-hidden text-center">
+                <div class="absolute inset-0 bg-grain opacity-10"></div>
+                <div class="absolute top-0 right-0 w-96 h-96 bg-rezvo-mint rounded-full filter blur-[150px] opacity-20 pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-96 h-96 bg-rezvo-mint rounded-full filter blur-[150px] opacity-20 pointer-events-none"></div>
+                
+                <div class="relative z-10">
+                    <h2 class="font-heading font-extrabold text-3xl lg:text-5xl text-white mb-6">
+                        Ready to Save Your High Street?
+                    </h2>
+                    <p class="text-xl text-rezvo-mint/90 mb-10 max-w-2xl mx-auto leading-relaxed">
+                        Join the movement supporting independent businesses across the UK. Get started free today.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="/signup" class="bg-rezvo-mint hover:bg-white text-rezvo-forest font-bold py-4 px-10 rounded-full transition-all duration-300 shadow-xl hover:shadow-2xl">
+                            Start Free Trial
+                        </a>
+                        <a href="/contact.html" class="bg-white/10 hover:bg-white/20 text-white font-bold py-4 px-10 rounded-full transition-all duration-300 border-2 border-white/20">
+                            Watch Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="footer" class="bg-rezvo-dark text-white pt-20 pb-10 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-10 mb-16">
+                <!-- Brand -->
+                <div class="col-span-2">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="bg-rezvo-mint text-rezvo-forest w-10 h-10 rounded-xl flex items-center justify-center">
+                            <span class="font-heading font-extrabold text-xl">R</span>
+                        </div>
+                        <span class="font-heading font-extrabold text-2xl text-white tracking-tight">REZVO</span>
+                    </div>
+                    <p class="text-white/50 text-sm leading-relaxed mb-6 max-w-xs">The zero-commission booking &amp; ordering platform helping UK restaurants and service businesses thrive.</p>
+                    <div class="flex gap-3">
+                        <a href="https://instagram.com/rezvouk" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://linkedin.com/company/rezvo" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="https://twitter.com/rezvouk" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+
+                <!-- Discover -->
+                <div>
+                    <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-4">Discover</h4>
+                    <ul class="space-y-2.5 text-sm text-white/50">
+                        <li><a href="/search?vertical=restaurants" class="hover:text-rezvo-mint transition-colors">Restaurants</a></li>
+                        <li><a href="/search?vertical=salons" class="hover:text-rezvo-mint transition-colors">Hair Salons</a></li>
+                        <li><a href="/search?vertical=barbers" class="hover:text-rezvo-mint transition-colors">Barbers</a></li>
+                        <li><a href="/search?vertical=spas" class="hover:text-rezvo-mint transition-colors">Spas &amp; Wellness</a></li>
+                        <li><a href="/search" class="hover:text-rezvo-mint transition-colors">Browse All</a></li>
+                    </ul>
+                </div>
+
+                <!-- Features -->
+                <div>
+                    <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-4">Features</h4>
+                    <ul class="space-y-2.5 text-sm text-white/50">
+                        <li><a href="/features/restaurants.html" class="hover:text-rezvo-mint transition-colors">For Restaurants</a></li>
+                        <li><a href="/features/calendar.html" class="hover:text-rezvo-mint transition-colors">Smart Calendar</a></li>
+                        <li><a href="/features/payments.html" class="hover:text-rezvo-mint transition-colors">Stripe Payments</a></li>
+                        <li><a href="/features/mobile-app.html" class="hover:text-rezvo-mint transition-colors">Mobile App</a></li>
+                        <li><a href="/features/integrations.html" class="hover:text-rezvo-mint transition-colors">Integrations</a></li>
+                        <li><a href="/features/uber-direct.html" class="hover:text-rezvo-mint transition-colors">Uber Direct</a></li>
+                    </ul>
+                </div>
+
+                <!-- For Business -->
+                <div>
+                    <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-4">For Business</h4>
+                    <ul class="space-y-2.5 text-sm text-white/50">
+                        <li><a href="/for-business" class="hover:text-rezvo-mint transition-colors">How It Works</a></li>
+                        <li><a href="/for-business#pricing" class="hover:text-rezvo-mint transition-colors">Pricing</a></li>
+                        <li><a href="/features/team-up.html" class="hover:text-rezvo-mint transition-colors">Team Up &amp; Save</a></li>
+                        <li><a href="/signup" class="hover:text-rezvo-mint transition-colors">Get Started</a></li>
+                        <li><a href="/login" class="hover:text-rezvo-mint transition-colors">Partner Login</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-4">Company</h4>
+                    <ul class="space-y-2.5 text-sm text-white/50">
+                        <li><a href="/about.html" class="hover:text-rezvo-mint transition-colors">About Us</a></li>
+                        <li><a href="/faqs" class="hover:text-rezvo-mint transition-colors">FAQs</a></li>
+                        <li><a href="/support.html" class="hover:text-rezvo-mint transition-colors">Support Center</a></li>
+                        <li><a href="/contact.html" class="hover:text-rezvo-mint transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Divider + giant watermark -->
+            <div class="border-t border-white/10 pt-10 text-center">
+                <h1 class="font-heading font-extrabold text-[12vw] leading-none text-rezvo-mint opacity-10 select-none">REZVO</h1>
+            </div>
+
+            <!-- Bottom bar -->
+            <div class="flex flex-col md:flex-row justify-between items-center mt-10 pt-6 border-t border-white/5 text-xs text-white/40">
+                <p>&copy; 2026 Rezvo Ltd. All rights reserved.</p>
+                <div class="flex items-center gap-6 mt-4 md:mt-0">
+                    <a href="/privacy.html" class="hover:text-rezvo-mint transition-colors">Privacy Policy</a>
+                    <a href="/terms.html" class="hover:text-rezvo-mint transition-colors">Terms of Service</a>
+                    <a href="/cookies.html" class="hover:text-rezvo-mint transition-colors">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        window.addEventListener('load', function() {
+            const sections = document.querySelectorAll('section[id^="section-"]');
+            const tocLinks = document.querySelectorAll('.toc-link');
+            
+            const observerOptions = {
+                root: null,
+                rootMargin: '-100px 0px -70% 0px',
+                threshold: 0
+            };
+            
+            const observerCallback = (entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        tocLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href') === `#${id}`) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            };
+            
+            const observer = new IntersectionObserver(observerCallback, observerOptions);
+            sections.forEach(section => observer.observe(section));
+            
+            tocLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        const offsetTop = targetSection.offsetTop - 100;
+                        window.scrollTo({
+                            top: offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+<script>window.scrollTo(0,0);</script>
+<script id="scroll-to-top-handler">document.addEventListener("click",function(e){var a=e.target.closest("a");if(a&&a.href&&a.href.startsWith(window.location.origin)&&!a.href.includes("#")){sessionStorage.setItem("scrollTop","1")}});if(sessionStorage.getItem("scrollTop")){sessionStorage.removeItem("scrollTop");window.scrollTo(0,0)}</script>
+</body>
+</html>

@@ -6,7 +6,7 @@ from config import settings
 
 async def main():
     client = AsyncIOMotorClient(settings.mongodb_url)
-    db = client[settings.database_name]
+    db = client[settings.mongodb_db_name]
     
     user = await db.users.find_one({"email": "adda@coffeehaven.com"})
     if not user:

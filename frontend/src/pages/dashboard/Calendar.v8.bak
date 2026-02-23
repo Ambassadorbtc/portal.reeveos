@@ -1,7 +1,8 @@
 /**
- * Rezvo Calendar v9 — Drag & Drop
- * Full drag-to-move (across time + staff columns) and drag-to-resize.
- * Built on top of v8 (polished Fresha-level design with live API data).
+ * Rezvo Calendar v8 — Polished, Fresha-level service calendar
+ * Merges the polished design (staff columns, solid colour blocks,
+ * crosshair hover, FAB, animated badges, KPI strip, popover)
+ * with live API data from the Rezvo backend.
  */
 
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
@@ -10,8 +11,6 @@ import api from '../../utils/api'
 
 /* ───────────────────── Constants ───────────────────── */
 const SH = 8, EH = 20, HH = 80, TCW = 52
-const SNAP_MINS = 15
-const SNAP_PX = HH * (SNAP_MINS / 60) // 20px per 15min
 
 const SERVICE_COLORS = {
   cut: '#D4A574', colour: '#E8845E', style: '#6BA3C7',
@@ -36,9 +35,6 @@ const fmt = t => { const h = Math.floor(t), m = Math.round((t - h) * 60); return
 const fmtAP = h => { const hr = h > 12 ? h - 12 : h === 0 ? 12 : h; return `${hr}${h >= 12 ? 'pm' : 'am'}` }
 const gtp = () => { const n = new Date(); return Math.max(0, (n.getHours() + n.getMinutes() / 60 - SH) * HH) }
 const gts = () => { const n = new Date(); return `${n.getHours()}:${String(n.getMinutes()).padStart(2, '0')}` }
-const snapToGrid = (px) => Math.round(px / SNAP_PX) * SNAP_PX
-const pxToTime = (px) => SH + px / HH
-const timeToPx = (t) => (t - SH) * HH
 
 /* Inline SVG icons */
 const SICheck = ({ s = 10, c = '#fff' }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="3.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
@@ -62,8 +58,6 @@ const EditIcon = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="non
 const CheckIcon = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
 const TrashIcon = () => <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
 const UserIcon = () => <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-const GripIcon = () => <svg width={10} height={10} viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><circle cx="8" cy="4" r="2"/><circle cx="16" cy="4" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="8" cy="20" r="2"/><circle cx="16" cy="20" r="2"/></svg>
-const UndoIcon = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
 
 /* Mini sparkline */
 const Spark = ({ data, color }) => {
@@ -131,13 +125,6 @@ const Calendar = () => {
   const [showStatusDD, setShowStatusDD] = useState(false)
   const [showStaffDD, setShowStaffDD] = useState(false)
   const scrollRef = useRef(null)
-  const gridRef = useRef(null)
-
-  /* ── Drag & Drop State ── */
-  const [drag, setDrag] = useState(null)
-  const dragRef = useRef(null)
-  const [undoToast, setUndoToast] = useState(null)
-  const staffColRefs = useRef({})
 
   const isRestaurant = businessType === 'restaurant'
   const isToday = selectedDate === new Date().toISOString().slice(0, 10)
@@ -208,12 +195,13 @@ const Calendar = () => {
   const bookings = data?.bookings || []
   const blocks = data?.blocks || []
 
+  // Apply filters
   const filteredBookings = bookings.filter(b => {
     if (statusFilter !== 'all' && b.status !== statusFilter) return false
     if (staffFilter !== 'all' && b.staffId !== staffFilter) return false
     if (calSearch) {
       const q = calSearch.toLowerCase()
-      return (b.customerName || '').toLowerCase().includes(q) || (b.service || '').toLowerCase().includes(q)
+      return (b.clientName || '').toLowerCase().includes(q) || (b.serviceName || '').toLowerCase().includes(q)
     }
     return true
   })
@@ -229,169 +217,6 @@ const Calendar = () => {
 
   const revenue = bookings.reduce((s, a) => s + (a.price || 0), 0)
   const totHrs = EH - SH
-
-  /* ═══════════════════ DRAG & DROP LOGIC ═══════════════════ */
-
-  const getStaffIdAtX = useCallback((clientX) => {
-    for (const [sid, el] of Object.entries(staffColRefs.current)) {
-      if (!el) continue
-      const r = el.getBoundingClientRect()
-      if (clientX >= r.left && clientX <= r.right) return sid
-    }
-    return null
-  }, [])
-
-  const getGridY = useCallback((clientY) => {
-    if (!scrollRef.current) return 0
-    const rect = scrollRef.current.getBoundingClientRect()
-    return clientY - rect.top + scrollRef.current.scrollTop
-  }, [])
-
-  const startDragMove = useCallback((e, a) => {
-    if (e.button !== 0) return
-    e.preventDefault()
-    e.stopPropagation()
-    const gridY = getGridY(e.clientY)
-    const blockTop = timeToPx(a.start)
-    const offsetY = gridY - blockTop
-    const d = {
-      id: a.id, type: 'move', offsetY,
-      origStart: a.start, origDur: a.dur, origStaffId: a.staffId,
-      ghostTop: blockTop, ghostH: a.dur * HH, ghostStaffId: a.staffId,
-    }
-    dragRef.current = d
-    setDrag(d)
-    setSelA(null)
-    document.body.style.cursor = 'grabbing'
-    document.body.style.userSelect = 'none'
-  }, [getGridY])
-
-  const startDragResize = useCallback((e, a) => {
-    if (e.button !== 0) return
-    e.preventDefault()
-    e.stopPropagation()
-    const d = {
-      id: a.id, type: 'resize', offsetY: 0,
-      origStart: a.start, origDur: a.dur, origStaffId: a.staffId,
-      ghostTop: timeToPx(a.start), ghostH: a.dur * HH, ghostStaffId: a.staffId,
-    }
-    dragRef.current = d
-    setDrag(d)
-    setSelA(null)
-    document.body.style.cursor = 'ns-resize'
-    document.body.style.userSelect = 'none'
-  }, [])
-
-  useEffect(() => {
-    const onMove = (e) => {
-      const d = dragRef.current
-      if (!d) return
-      const gridY = getGridY(e.clientY)
-
-      if (d.type === 'move') {
-        const rawTop = gridY - d.offsetY
-        const snappedTop = snapToGrid(Math.max(0, Math.min(rawTop, totHrs * HH - d.ghostH)))
-        const newStaffId = getStaffIdAtX(e.clientX) || d.ghostStaffId
-        const updated = { ...d, ghostTop: snappedTop, ghostStaffId: newStaffId }
-        dragRef.current = updated
-        setDrag(updated)
-      } else if (d.type === 'resize') {
-        const blockTop = d.ghostTop
-        const rawBottom = gridY
-        const minH = SNAP_PX
-        const maxBottom = totHrs * HH
-        const snappedH = snapToGrid(Math.max(minH, Math.min(rawBottom - blockTop, maxBottom - blockTop)))
-        const updated = { ...d, ghostH: snappedH }
-        dragRef.current = updated
-        setDrag(updated)
-      }
-    }
-
-    const onUp = () => {
-      const d = dragRef.current
-      if (!d) return
-
-      const newStart = pxToTime(d.ghostTop)
-      const newDur = d.ghostH / HH
-      const newStaffId = d.type === 'move' ? d.ghostStaffId : d.origStaffId
-
-      const changed = (
-        Math.abs(newStart - d.origStart) > 0.01 ||
-        Math.abs(newDur - d.origDur) > 0.01 ||
-        newStaffId !== d.origStaffId
-      )
-
-      if (changed) {
-        setData(prev => {
-          if (!prev) return prev
-          return {
-            ...prev,
-            bookings: prev.bookings.map(b =>
-              b.id === d.id ? { ...b, start: newStart, dur: newDur, staffId: newStaffId } : b
-            )
-          }
-        })
-
-        const toastTimer = setTimeout(() => setUndoToast(null), 5000)
-        setUndoToast({
-          id: d.id, origStart: d.origStart, origDur: d.origDur, origStaffId: d.origStaffId,
-          msg: d.type === 'move'
-            ? `Moved to ${fmt(newStart)}${newStaffId !== d.origStaffId ? ' · ' + (staffColumns.find(s => s.id === newStaffId)?.name || '') : ''}`
-            : `Resized to ${Math.round(newDur * 60)}min`,
-          timer: toastTimer,
-        })
-
-        if (!isDemo && bid) {
-          const timeStr = `${Math.floor(newStart)}:${String(Math.round((newStart % 1) * 60)).padStart(2, '0')}`
-          api.patch(`/bookings/${d.id}`, {
-            time: timeStr,
-            duration: Math.round(newDur * 60),
-            staffId: newStaffId,
-          }).catch(err => {
-            console.error('Failed to save drag change:', err)
-            setData(prev => {
-              if (!prev) return prev
-              return {
-                ...prev,
-                bookings: prev.bookings.map(b =>
-                  b.id === d.id ? { ...b, start: d.origStart, dur: d.origDur, staffId: d.origStaffId } : b
-                )
-              }
-            })
-          })
-        }
-      }
-
-      dragRef.current = null
-      setDrag(null)
-      document.body.style.cursor = ''
-      document.body.style.userSelect = ''
-    }
-
-    if (drag) {
-      window.addEventListener('mousemove', onMove)
-      window.addEventListener('mouseup', onUp)
-      return () => {
-        window.removeEventListener('mousemove', onMove)
-        window.removeEventListener('mouseup', onUp)
-      }
-    }
-  }, [drag, totHrs, getGridY, getStaffIdAtX, staffColumns, isDemo, bid])
-
-  const handleUndo = useCallback(() => {
-    if (!undoToast) return
-    const { id, origStart, origDur, origStaffId, timer } = undoToast
-    clearTimeout(timer)
-    setData(prev => {
-      if (!prev) return prev
-      return { ...prev, bookings: prev.bookings.map(b => b.id === id ? { ...b, start: origStart, dur: origDur, staffId: origStaffId } : b) }
-    })
-    if (!isDemo && bid) {
-      const timeStr = `${Math.floor(origStart)}:${String(Math.round((origStart % 1) * 60)).padStart(2, '0')}`
-      api.patch(`/bookings/${id}`, { time: timeStr, duration: Math.round(origDur * 60), staffId: origStaffId }).catch(err => console.error('Undo API error:', err))
-    }
-    setUndoToast(null)
-  }, [undoToast, isDemo, bid])
 
   /* ── Popover ── */
   const Pop = ({ a }) => {
@@ -432,69 +257,45 @@ const Calendar = () => {
     )
   }
 
-  /* ── Booking Block with drag ── */
+  /* ── Booking Block ── */
   const Bl = ({ a }) => {
-    const isDragging = drag?.id === a.id
-    const top = isDragging ? drag.ghostTop : timeToPx(a.start)
-    const h = isDragging ? drag.ghostH : a.dur * HH
-    const bg = gc(a)
-    const hov = hovA === a.id
-    const sel = selA === a.id
+    const top = (a.start - SH) * HH, h = a.dur * HH, bg = gc(a)
+    const hov = hovA === a.id, sel = selA === a.id
     const done = a.status === 'completed'
     const tiny = h <= 32, sm = h <= 52
-
-    if (isDragging && drag.type === 'move' && drag.ghostStaffId !== a.staffId) return null
-
     return (
       <>
-        <div data-ap="1"
-          onMouseEnter={() => !drag && setHovA(a.id)}
-          onMouseLeave={() => !drag && setHovA(null)}
-          onMouseDown={e => {
-            if (e.target.closest('[data-resize]')) return
-            startDragMove(e, a)
-          }}
-          onClick={e => {
-            if (drag) return
-            e.stopPropagation()
-            setSelA(sel ? null : a.id)
-          }}
+        <div data-ap="1" onMouseEnter={() => setHovA(a.id)} onMouseLeave={() => setHovA(null)}
+          onClick={e => { e.stopPropagation(); setSelA(sel ? null : a.id) }}
           style={{
             position: 'absolute', top: top + 1, left: 4, right: 4, height: h - 2,
-            borderRadius: 6, background: done ? `${bg}60` : bg,
-            opacity: isDragging ? 0.85 : done ? 0.7 : a.status === 'no_show' ? 0.55 : 1,
-            cursor: isDragging ? 'grabbing' : 'grab',
-            overflow: 'hidden', color: '#111',
-            transition: isDragging ? 'none' : 'all 0.2s cubic-bezier(0.22,1,0.36,1)',
-            transform: isDragging ? 'scale(1.03)' : hov && !sel ? 'scale(1.012) translateY(-1px)' : 'none',
-            boxShadow: isDragging ? `0 12px 36px ${bg}40, 0 0 0 2px #fff, 0 0 0 4px ${bg}`
-              : sel ? `0 0 0 2.5px #fff, 0 0 0 4.5px ${bg}, 0 8px 24px ${bg}25`
+            borderRadius: 4, background: done ? `${bg}60` : bg,
+            opacity: done ? 0.7 : a.status === 'no_show' ? 0.55 : 1,
+            cursor: 'pointer', overflow: 'hidden', color: '#111',
+            transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)',
+            transform: hov && !sel ? 'scale(1.012) translateY(-1px)' : 'none',
+            boxShadow: sel ? `0 0 0 2.5px #fff, 0 0 0 4.5px ${bg}, 0 8px 24px ${bg}25`
               : hov ? `0 8px 24px ${bg}30` : `0 2px 6px ${bg}12`,
-            zIndex: isDragging ? 40 : sel ? 30 : hov ? 20 : 2,
+            zIndex: sel ? 30 : hov ? 20 : 2,
             padding: tiny ? '2px 8px' : sm ? '4px 9px' : '7px 11px',
             display: 'flex', flexDirection: 'column',
           }}>
-          {!tiny && !isDragging && (
-            <div style={{ position: 'absolute', top: 4, left: 6, opacity: hov ? 0.6 : 0, transition: 'opacity 0.15s' }}>
-              <GripIcon />
-            </div>
-          )}
           {!tiny && <div style={{ position: 'absolute', top: 6, right: 7, opacity: 0.7 }}>{(a.status === 'confirmed' || a.status === 'completed') ? <SICheck s={10} c="#111" /> : a.status === 'pending' ? <SIClock s={10} c="#111" /> : null}</div>}
           <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0 }}>
             {tiny ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, height: '100%' }}>
-                <span style={{ fontSize: 9, opacity: 0.85, fontWeight: 600 }}>{fmt(isDragging ? pxToTime(drag.ghostTop) : a.start)}</span>
+                <span style={{ fontSize: 9, opacity: 0.85, fontWeight: 600 }}>{fmt(a.start)}</span>
                 <span style={{ fontSize: 10, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.customerName}</span>
               </div>
             ) : sm ? (
               <>
-                <div style={{ fontSize: 9, opacity: 0.85, fontWeight: 600 }}>{fmt(isDragging ? pxToTime(drag.ghostTop) : a.start)}-{fmt((isDragging ? pxToTime(drag.ghostTop) : a.start) + (isDragging ? drag.ghostH / HH : a.dur))}</div>
+                <div style={{ fontSize: 9, opacity: 0.85, fontWeight: 600 }}>{fmt(a.start)}-{fmt(a.start + a.dur)}</div>
                 <div style={{ fontSize: 12, fontWeight: 700, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.customerName}</div>
                 <div style={{ fontSize: 10, opacity: 0.85, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.service}</div>
               </>
             ) : (
               <>
-                <div style={{ fontSize: 9, opacity: 0.85, fontWeight: 700, letterSpacing: 0.3, marginBottom: 2 }}>{fmt(isDragging ? pxToTime(drag.ghostTop) : a.start)} - {fmt((isDragging ? pxToTime(drag.ghostTop) : a.start) + (isDragging ? drag.ghostH / HH : a.dur))}</div>
+                <div style={{ fontSize: 9, opacity: 0.85, fontWeight: 700, letterSpacing: 0.3, marginBottom: 2 }}>{fmt(a.start)} - {fmt(a.start + a.dur)}</div>
                 <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.2, marginBottom: 2 }}>{a.customerName}</div>
                 <div style={{ fontSize: 11, opacity: 0.85, fontWeight: 500 }}>{a.service}</div>
                 {a.isNewClient && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 6, fontSize: 9, fontWeight: 800, letterSpacing: 1, background: 'linear-gradient(110deg, #1B4332 30%, #2D6A4F 50%, #1B4332 70%)', backgroundSize: '200% 100%', borderRadius: 20, padding: '4px 12px 4px 9px', textTransform: 'uppercase', width: 'fit-content', color: '#fff', animation: 'newPulse 2s ease-in-out infinite, shimmer 3s linear infinite', boxShadow: '0 2px 12px rgba(27,67,50,0.4)' }}><StarIcon /> New Client</span>}
@@ -503,43 +304,9 @@ const Calendar = () => {
               </>
             )}
           </div>
-          <div data-resize="1" onMouseDown={e => startDragResize(e, a)} style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0, height: 8,
-            cursor: 'ns-resize', zIndex: 5,
-            background: (hov || isDragging) ? `linear-gradient(transparent, ${bg}40)` : 'transparent',
-            borderRadius: '0 0 6px 6px',
-          }}>
-            {(hov || isDragging) && (
-              <div style={{ position: 'absolute', bottom: 2, left: '50%', transform: 'translateX(-50%)', width: 20, height: 3, borderRadius: 2, background: '#00000030' }} />
-            )}
-          </div>
         </div>
-        {sel && !isDragging && <Pop a={a} />}
+        {sel && <Pop a={a} />}
       </>
-    )
-  }
-
-  const DragGhost = () => {
-    if (!drag || drag.type !== 'move') return null
-    const a = bookings.find(b => b.id === drag.id)
-    if (!a || a.staffId === drag.ghostStaffId) return null
-    const bg = gc(a)
-    return (
-      <div style={{
-        position: 'absolute', top: drag.ghostTop + 1, left: 4, right: 4,
-        height: drag.ghostH - 2, borderRadius: 6,
-        background: bg, opacity: 0.85,
-        boxShadow: `0 12px 36px ${bg}40, 0 0 0 2px #fff, 0 0 0 4px ${bg}`,
-        zIndex: 40, transform: 'scale(1.03)',
-        padding: '7px 11px', color: '#111', overflow: 'hidden',
-        display: 'flex', flexDirection: 'column', pointerEvents: 'none',
-      }}>
-        <div style={{ fontSize: 9, opacity: 0.85, fontWeight: 700, letterSpacing: 0.3, marginBottom: 2 }}>
-          {fmt(pxToTime(drag.ghostTop))} - {fmt(pxToTime(drag.ghostTop) + drag.ghostH / HH)}
-        </div>
-        <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.2, marginBottom: 2 }}>{a.customerName}</div>
-        <div style={{ fontSize: 11, opacity: 0.85, fontWeight: 500 }}>{a.service}</div>
-      </div>
     )
   }
 
@@ -549,7 +316,6 @@ const Calendar = () => {
       <style>{`
         @keyframes newPulse{0%,100%{box-shadow:0 0 0 0 rgba(27,67,50,0.6)}50%{box-shadow:0 0 0 8px rgba(27,67,50,0)}}
         @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
-        @keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
       `}</style>
 
       {/* ═══ TOP CONTROLS ═══ */}
@@ -557,19 +323,39 @@ const Calendar = () => {
         display: 'flex', alignItems: 'center', padding: '10px 16px', gap: 8,
         background: '#fff', borderBottom: '1px solid #EBEBEB', flexShrink: 0, zIndex: 35, flexWrap: 'wrap',
       }}>
+        {/* Date nav */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 2, background: '#F5F5F5', borderRadius: 24, padding: '3px 4px' }}>
           <button onClick={goPrev} style={{ width: 34, height: 34, borderRadius: '50%', border: 'none', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1B4332', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}><ChevL /></button>
           <span style={{ fontSize: 14, fontWeight: 700, color: '#1B4332', padding: '0 8px', whiteSpace: 'nowrap' }}>{dateLabel}</span>
           <button onClick={goNext} style={{ width: 34, height: 34, borderRadius: '50%', border: 'none', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1B4332', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}><ChevR /></button>
         </div>
-        <button onClick={goToday} style={{ padding: '8px 18px', borderRadius: 20, border: 'none', background: isToday ? '#1B4332' : '#F5F5F5', color: isToday ? '#fff' : '#1B4332', fontSize: 12, fontWeight: 700, cursor: 'pointer', boxShadow: isToday ? '0 2px 8px rgba(27,67,50,0.2)' : 'none' }}>Today</button>
+
+        {/* Today pill */}
+        <button onClick={goToday} style={{
+          padding: '8px 18px', borderRadius: 20, border: 'none',
+          background: isToday ? '#1B4332' : '#F5F5F5', color: isToday ? '#fff' : '#1B4332', fontSize: 12, fontWeight: 700,
+          cursor: 'pointer', boxShadow: isToday ? '0 2px 8px rgba(27,67,50,0.2)' : 'none',
+        }}>Today</button>
+
         <div style={{ width: 1, height: 24, background: '#EBEBEB' }} />
+
+        {/* View pills */}
         <div style={{ display: 'flex', background: '#F5F5F5', borderRadius: 20, padding: 3 }}>
           {['Day', 'Week', 'Month'].map(v => (
-            <button key={v} onClick={() => setViewMode(v)} style={{ padding: '7px 18px', borderRadius: 18, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: viewMode === v ? 700 : 500, background: viewMode === v ? '#fff' : 'transparent', color: viewMode === v ? '#1B4332' : '#999', boxShadow: viewMode === v ? '0 2px 6px rgba(0,0,0,0.06)' : 'none', transition: 'all 0.15s' }}>{v}</button>
+            <button key={v} onClick={() => setViewMode(v)} style={{
+              padding: '7px 18px', borderRadius: 18, border: 'none', cursor: 'pointer',
+              fontSize: 12, fontWeight: viewMode === v ? 700 : 500,
+              background: viewMode === v ? '#fff' : 'transparent',
+              color: viewMode === v ? '#1B4332' : '#999',
+              boxShadow: viewMode === v ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+              transition: 'all 0.15s',
+            }}>{v}</button>
           ))}
         </div>
+
         <div style={{ width: 1, height: 24, background: '#EBEBEB' }} />
+
+        {/* Filter pills */}
         <div data-filter-dd style={{ position: 'relative' }}>
           <button onClick={() => { setShowStatusDD(!showStatusDD); setShowStaffDD(false) }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 20, border: 'none', background: statusFilter !== 'all' ? '#1B433212' : '#F5F5F5', fontSize: 12, fontWeight: statusFilter !== 'all' ? 600 : 500, color: statusFilter !== 'all' ? '#1B4332' : '#777', cursor: 'pointer' }}>
             <FilterIcon /> {statusFilter === 'all' ? 'All status' : statusFilter} <ChevD />
@@ -597,16 +383,30 @@ const Calendar = () => {
             </div>
           )}
         </div>
-        <button onClick={() => setCm(cm === 'service' ? 'staff' : cm === 'staff' ? 'status' : 'service')} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 20, border: 'none', background: '#F5F5F5', fontSize: 12, fontWeight: 500, color: '#777', cursor: 'pointer' }}>
+
+        {/* Color mode */}
+        <button onClick={() => setCm(cm === 'service' ? 'staff' : cm === 'staff' ? 'status' : 'service')} style={{
+          display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 20, border: 'none', background: '#F5F5F5', fontSize: 12, fontWeight: 500, color: '#777', cursor: 'pointer',
+        }}>
           <TagIcon /> {cm === 'service' ? 'Service' : cm === 'staff' ? 'Staff' : 'Status'}
         </button>
+
+        {/* Search */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 16px', borderRadius: 20, background: '#F5F5F5', height: 38, flex: 1, minWidth: 160 }}>
           <SearchIcon />
           <input value={calSearch} onChange={e => setCalSearch(e.target.value)} placeholder="Search clients, services..." style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 12, color: '#1B4332', width: '100%', fontWeight: 500, fontFamily: "'Figtree', system-ui, sans-serif" }} />
         </div>
-        <button onClick={() => setShowKPI(!showKPI)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 20, border: 'none', background: showKPI ? '#1B433212' : '#F5F5F5', fontSize: 12, fontWeight: 600, color: showKPI ? '#1B4332' : '#999', cursor: 'pointer' }}>
+
+        {/* KPI toggle */}
+        <button onClick={() => setShowKPI(!showKPI)} style={{
+          display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 20, border: 'none',
+          background: showKPI ? '#1B433212' : '#F5F5F5', fontSize: 12, fontWeight: 600,
+          color: showKPI ? '#1B4332' : '#999', cursor: 'pointer',
+        }}>
           <BarChartIcon /> Insights {showKPI ? <ChevU /> : <ChevD />}
         </button>
+
+        {/* Bell */}
         <button style={{ width: 38, height: 38, borderRadius: '50%', border: 'none', background: '#F5F5F5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', color: '#888' }}>
           <BellIcon />
           <div style={{ position: 'absolute', top: 6, right: 7, width: 8, height: 8, borderRadius: '50%', background: '#EF4444', border: '2px solid #F5F5F5' }} />
@@ -627,7 +427,9 @@ const Calendar = () => {
                 <div style={{ fontSize: 10, color: '#888', fontWeight: 500, marginBottom: 2 }}>{k.label}</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
                   <span style={{ fontSize: 20, fontWeight: 800, color: '#1B4332', lineHeight: 1 }}>{k.value}</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: k.up ? '#22C55E' : '#EF4444', display: 'flex', alignItems: 'center', gap: 2 }}>{k.up ? '↑' : '↓'}{k.change}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: k.up ? '#22C55E' : '#EF4444', display: 'flex', alignItems: 'center', gap: 2 }}>
+                    {k.up ? '↑' : '↓'}{k.change}
+                  </span>
                 </div>
               </div>
               <Spark data={k.spark} color={k.color} />
@@ -648,15 +450,17 @@ const Calendar = () => {
       ) : (
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+
+            {/* Staff header */}
             <div style={{ display: 'flex', height: 60, borderBottom: '1px solid #EBEBEB', background: '#fff', flexShrink: 0, zIndex: 10 }}>
               <div style={{ width: TCW, flexShrink: 0 }} />
               {staffColumns.map(s => (
                 <div key={s.id} style={{
                   flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                   borderLeft: '1px solid #EBEBEB',
-                  background: (hoverCol === s.id || drag?.ghostStaffId === s.id) ? '#F0FAF4' : '#fff',
+                  background: hoverCol === s.id ? '#F0FAF4' : '#fff',
                   transition: 'background 0.15s ease',
-                  borderBottom: (hoverCol === s.id || drag?.ghostStaffId === s.id) ? '2px solid #1B4332' : '2px solid transparent',
+                  borderBottom: hoverCol === s.id ? '2px solid #1B4332' : '2px solid transparent',
                 }}>
                   <div style={{ width: 40, height: 40, borderRadius: '50%', border: `2px solid ${s.color}`, padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: `linear-gradient(135deg,${s.color},${s.color}BB)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: '#fff' }}>{s.initials}</div>
@@ -669,8 +473,10 @@ const Calendar = () => {
               ))}
             </div>
 
+            {/* Grid scroll area */}
             <div ref={scrollRef} style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
-              <div ref={gridRef} style={{ display: 'flex', minHeight: totHrs * HH }}>
+              <div style={{ display: 'flex', minHeight: totHrs * HH }}>
+                {/* Time column */}
                 <div style={{ width: TCW, flexShrink: 0, position: 'sticky', left: 0, zIndex: 5, background: '#FFFFFF' }}>
                   {Array.from({ length: totHrs }, (_, i) => (
                     <div key={i} style={{ height: HH, position: 'relative', background: hoverRow === i ? '#F0FAF4' : 'transparent', transition: 'background 0.15s ease' }}>
@@ -682,13 +488,12 @@ const Calendar = () => {
                   )}
                 </div>
 
+                {/* Staff columns */}
                 {staffColumns.map(staff => (
                   <div key={staff.id}
-                    ref={el => { staffColRefs.current[staff.id] = el }}
-                    onMouseEnter={() => { if (!drag) { setHovS(staff.id); setHoverCol(staff.id) } }}
-                    onMouseLeave={() => { if (!drag) { setHovS(null); setHovSlot(null); setHoverCol(null); setHoverRow(null) } }}
+                    onMouseEnter={() => { setHovS(staff.id); setHoverCol(staff.id) }}
+                    onMouseLeave={() => { setHovS(null); setHovSlot(null); setHoverCol(null); setHoverRow(null) }}
                     onMouseMove={e => {
-                      if (drag) return
                       const r = e.currentTarget.getBoundingClientRect()
                       const y = e.clientY - r.top + (scrollRef.current?.scrollTop || 0)
                       setHoverRow(Math.floor(y / HH))
@@ -696,9 +501,8 @@ const Calendar = () => {
                     }}
                     style={{
                       flex: 1, position: 'relative', borderLeft: '1px solid #EBEBEB',
-                      background: drag?.ghostStaffId === staff.id ? 'rgba(27,67,50,0.03)' : hoverCol === staff.id ? 'rgba(27,67,50,0.015)' : 'transparent',
-                      cursor: drag ? (drag.type === 'resize' ? 'ns-resize' : 'grabbing') : hovA ? 'pointer' : 'cell',
-                      transition: 'background 0.15s ease',
+                      background: hoverCol === staff.id ? 'rgba(27,67,50,0.015)' : 'transparent',
+                      cursor: hovA ? 'pointer' : 'cell', transition: 'background 0.15s ease',
                     }}>
                     {Array.from({ length: totHrs }, (_, i) => (
                       <div key={i}>
@@ -707,9 +511,13 @@ const Calendar = () => {
                         <div style={{ position: 'absolute', top: i * HH + HH / 2, left: 0, right: 0, borderTop: '1px dashed #F0F0F0' }} />
                       </div>
                     ))}
-                    {!drag && hovS === staff.id && !hovA && !selA && hovSlot !== null && (
+
+                    {/* Hover slot indicator */}
+                    {hovS === staff.id && !hovA && !selA && hovSlot !== null && (
                       <div style={{ position: 'absolute', top: hovSlot, left: 4, right: 4, height: HH / 2, borderRadius: 4, border: '2px dashed #D4A57440', background: '#D4A57406', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', zIndex: 1 }}><PlusIcon size={16} /></div>
                     )}
+
+                    {/* Break/meeting blocks */}
                     {blocks.filter(b => b.allStaff || b.staffId === staff.id).map((b, i) => (
                       <div key={`b${i}`} style={{
                         position: 'absolute', top: (b.start - SH) * HH + 1, left: 4, right: 4,
@@ -720,15 +528,13 @@ const Calendar = () => {
                         <span style={{ fontSize: 9, fontWeight: 800, color: '#999', textTransform: 'uppercase', letterSpacing: 2 }}>{b.label}</span>
                       </div>
                     ))}
+
+                    {/* Booking blocks */}
                     {filteredBookings.filter(a => a.staffId === staff.id).map(a => <Bl key={a.id} a={a} />)}
-                    {drag?.type === 'move' && drag.ghostStaffId === staff.id && (() => {
-                      const a = bookings.find(b => b.id === drag.id)
-                      if (!a || a.staffId === staff.id) return null
-                      return <DragGhost />
-                    })()}
                   </div>
                 ))}
 
+                {/* Current time line */}
                 {isToday && tp > 0 && tp < totHrs * HH && (
                   <div style={{ position: 'absolute', top: tp, left: TCW - 3, right: 0, height: 2, background: '#EF4444', zIndex: 15, pointerEvents: 'none' }}>
                     <div style={{ position: 'absolute', left: 0, top: -3.5, width: 9, height: 9, borderRadius: '50%', background: '#EF4444' }} />
@@ -736,6 +542,7 @@ const Calendar = () => {
                 )}
               </div>
 
+              {/* Empty state */}
               {filteredBookings.length === 0 && (
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                   <div style={{ textAlign: 'center' }}>
@@ -747,32 +554,6 @@ const Calendar = () => {
               )}
             </div>
           </div>
-        </div>
-      )}
-
-      {/* ═══ UNDO TOAST ═══ */}
-      {undoToast && (
-        <div style={{
-          position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
-          display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px',
-          background: '#1B4332', color: '#fff', borderRadius: 14,
-          boxShadow: '0 12px 40px rgba(27,67,50,0.35)', zIndex: 100,
-          animation: 'toastIn 0.25s ease-out', fontSize: 13, fontWeight: 600,
-        }}>
-          <span>{undoToast.msg}</span>
-          <button onClick={handleUndo} style={{
-            display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px',
-            borderRadius: 8, border: '1px solid rgba(255,255,255,0.3)',
-            background: 'rgba(255,255,255,0.15)', color: '#fff',
-            cursor: 'pointer', fontSize: 12, fontWeight: 700,
-          }}>
-            <UndoIcon /> Undo
-          </button>
-          <button onClick={() => { clearTimeout(undoToast.timer); setUndoToast(null) }} style={{
-            background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: 4,
-          }}>
-            <XIcon />
-          </button>
         </div>
       )}
 

@@ -28,24 +28,18 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # Backend: use existing venv from /opt/rezvo or create new one
+            # Backend: install deps with system pip
             cd /opt/rezvo-app/backend
-            if [ -d "/opt/rezvo/backend/venv" ] && [ ! -d "venv" ]; then
-              echo "Copying existing venv..."
-              cp -r /opt/rezvo/backend/venv .
-            fi
-            if [ ! -d "venv" ]; then
-              python3 -m venv venv
-            fi
-            venv/bin/python -m pip install -r requirements.txt -q
+            rm -rf venv
+            pip3 install -r requirements.txt --break-system-packages -q 2>/dev/null || pip3 install -r requirements.txt -q
 
             # Frontend: install + build
             cd /opt/rezvo-app/frontend
             npm install --silent
             npm run build
 
-            # Update systemd service
-            printf '[Unit]\nDescription=Rezvo Backend API\nAfter=network.target mongod.service\n\n[Service]\nType=simple\nUser=root\nWorkingDirectory=/opt/rezvo-app/backend\nExecStart=/opt/rezvo-app/backend/venv/bin/uvicorn server:app --host 0.0.0.0 --port 8000\nRestart=always\nRestartSec=10\nEnvironment=PATH=/opt/rezvo-app/backend/venv/bin:/usr/local/bin:/usr/bin:/bin\n\n[Install]\nWantedBy=multi-user.target\n' > /etc/systemd/system/rezvo-backend.service
+            # Update systemd service - use system uvicorn
+            printf '[Unit]\nDescription=Rezvo Backend API\nAfter=network.target mongod.service\n\n[Service]\nType=simple\nUser=root\nWorkingDirectory=/opt/rezvo-app/backend\nExecStart=/usr/local/bin/uvicorn server:app --host 0.0.0.0 --port 8000\nRestart=always\nRestartSec=10\n\n[Install]\nWantedBy=multi-user.target\n' > /etc/systemd/system/rezvo-backend.service
 
             systemctl daemon-reload
             systemctl restart rezvo-backend

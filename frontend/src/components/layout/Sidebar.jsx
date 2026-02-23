@@ -327,13 +327,13 @@ const Sidebar = ({ open, onNavigate }) => {
       <div className="shrink-0 flex items-center justify-between h-16 px-4 border-b border-[#F0EDE7]">
         {expanded ? (
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-[#52B788] rounded-xl flex items-center justify-center">
+            <div className="w-9 h-9 bg-[#1B4332] rounded-xl flex items-center justify-center">
               <span className="text-[#D4A017] font-extrabold text-lg">R</span>
             </div>
             <span className="font-extrabold text-[17px] text-[#1B4332] tracking-tight">REZVO</span>
           </div>
         ) : (
-          <div className="w-9 h-9 bg-[#52B788] rounded-xl flex items-center justify-center mx-auto">
+          <div className="w-9 h-9 bg-[#1B4332] rounded-xl flex items-center justify-center mx-auto">
             <span className="text-[#D4A017] font-extrabold text-lg">R</span>
           </div>
         )}

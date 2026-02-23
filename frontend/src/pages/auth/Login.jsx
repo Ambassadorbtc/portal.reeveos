@@ -39,10 +39,10 @@ const Login = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-[#1B4332] via-[#1B4332]/80 to-[#1B4332]/40" />
         </div>
         <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-primary">
-            <i className="fa-solid fa-calendar-check text-xl" />
+          <div className="w-11 h-11 bg-[#52B788] rounded-xl flex items-center justify-center">
+            <span className="text-[#D4A017] font-extrabold text-2xl" style={{fontFamily:'Figtree,sans-serif'}}>R</span>
           </div>
-          <span className="font-heading font-bold text-2xl tracking-tight">Rezvo</span>
+          <span className="font-heading font-extrabold text-2xl tracking-tight">Rezvo</span>
         </div>
         <div className="relative z-10 max-w-xl mb-12">
           <div className="flex gap-1 mb-6 text-yellow-400">

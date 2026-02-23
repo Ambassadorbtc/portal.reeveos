@@ -61,10 +61,10 @@ const Register = () => {
 
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-            <span className="text-primary font-heading font-bold text-lg">R</span>
+          <div className="w-11 h-11 bg-[#52B788] rounded-xl flex items-center justify-center">
+            <span className="text-[#D4A017] font-extrabold text-2xl" style={{fontFamily:'Figtree,sans-serif'}}>R</span>
           </div>
-          <span className="font-heading font-bold text-2xl tracking-tight">Rezvo</span>
+          <span className="font-heading font-extrabold text-2xl tracking-tight">Rezvo</span>
         </div>
 
         {/* Testimonial */}

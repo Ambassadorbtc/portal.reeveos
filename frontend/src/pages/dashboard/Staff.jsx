@@ -365,7 +365,6 @@ const StaffCard = ({ staff, onEdit, onDelete, onReinvite }) => {
           </button>
         )}
       </div>
-      </div>
     </div>
   )
 }

@@ -19,7 +19,6 @@ jobs:
           script: |
             set -e
 
-            # Clone if first time
             if [ ! -d "/opt/rezvo-app/.git" ]; then
               git clone https://github.com/Ambassadorbtc/Rezvo.app.git /opt/rezvo-app
             fi
@@ -28,24 +27,17 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # Backend: copy .env from old location if missing
-            if [ ! -f /opt/rezvo-app/backend/.env ] && [ -f /opt/rezvo/backend/.env ]; then
-              cp /opt/rezvo/backend/.env /opt/rezvo-app/backend/.env
-              echo "Copied .env from old backend"
-            fi
-
-            # Backend: install deps
+            # Backend deps
             cd /opt/rezvo-app/backend
             pip3 install -r requirements.txt --break-system-packages -q 2>/dev/null || pip3 install -r requirements.txt -q
 
-            # Frontend: install + build
+            # Frontend build
             cd /opt/rezvo-app/frontend
             npm install --silent
             npm run build
 
-            # Update systemd service
+            # Systemd
             printf '[Unit]\nDescription=Rezvo Backend API\nAfter=network.target mongod.service\n\n[Service]\nType=simple\nUser=root\nWorkingDirectory=/opt/rezvo-app/backend\nExecStart=/usr/local/bin/uvicorn server:app --host 0.0.0.0 --port 8000\nRestart=always\nRestartSec=10\n\n[Install]\nWantedBy=multi-user.target\n' > /etc/systemd/system/rezvo-backend.service
-
             systemctl daemon-reload
             systemctl restart rezvo-backend
 
@@ -55,5 +47,35 @@ jobs:
             nginx -t && systemctl reload nginx
 
             sleep 3
-            curl -s -o /dev/null -w "Backend: %{http_code}\n" http://127.0.0.1:8000/ || echo "Backend not responding"
-            echo "✅ REZVO.APP DEPLOYMENT COMPLETE"
+
+            # ONE-TIME: Setup Coffee Haven enterprise
+            cd /opt/rezvo-app/backend
+            python3 -c "
+import asyncio
+from motor.motor_asyncio import AsyncIOMotorClient
+from datetime import datetime
+from config import settings
+
+async def main():
+    client = AsyncIOMotorClient(settings.mongodb_url)
+    db = client[settings.database_name]
+    user = await db.users.find_one({'email': 'adda@coffeehaven.com'})
+    if not user:
+        print('USER NOT FOUND'); return
+    print(f'Found: {user[\"name\"]}')
+    if user.get('business_ids') and len(user['business_ids']) > 0:
+        bid = user['business_ids'][0]
+        from bson import ObjectId
+        try: await db.businesses.update_one({'_id': ObjectId(bid)}, {'\$set': {'tier': 'enterprise', 'rezvo_tier': 'enterprise'}})
+        except: await db.businesses.update_one({'_id': bid}, {'\$set': {'tier': 'enterprise', 'rezvo_tier': 'enterprise'}})
+        print(f'Updated existing business {bid} to enterprise')
+        return
+    biz = {'name': 'Coffee Haven', 'type': 'restaurant', 'category': 'cafe', 'tier': 'enterprise', 'rezvo_tier': 'enterprise', 'owner_id': str(user['_id']), 'slug': 'coffee-haven', 'email': 'adda@coffeehaven.com', 'address': {'city': 'Nottingham', 'country': 'UK'}, 'staff': [{'id': 'staff-1', 'name': 'Manager', 'role': 'manager', 'active': True}, {'id': 'staff-2', 'name': 'Barista 1', 'role': 'staff', 'active': True}], 'booking_settings': {'slot_duration': 30, 'opening_hours': {'open': '07:00', 'close': '22:00'}}, 'features_enabled': ['calendar','bookings','staff','services','floor_plan','tables','analytics','reviews','crm','marketing','orders','payments','online_booking','booking_link'], 'created_at': datetime.utcnow(), 'updated_at': datetime.utcnow()}
+    r = await db.businesses.insert_one(biz)
+    bid = str(r.inserted_id)
+    await db.users.update_one({'_id': user['_id']}, {'\$set': {'business_ids': [bid], 'role': 'owner'}})
+    print(f'Created Coffee Haven ({bid}) - Enterprise')
+
+asyncio.run(main())
+"
+            echo "✅ DEPLOY + SETUP COMPLETE"

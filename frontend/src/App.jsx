@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import { TierProvider } from './contexts/TierContext'
 import { BusinessProvider } from './contexts/BusinessContext'
 import ScrollToTop from './components/ScrollToTop'
+import ChatWidget from './components/ChatWidget'
 
 import DashboardLayout from './layouts/DashboardLayout'
 
@@ -35,6 +36,7 @@ import BookingManage from './pages/booking/BookingManage'
 
 const App = () => {
   return (
+    <>
     <Router>
       <ScrollToTop />
       <AuthProvider>
@@ -85,6 +87,8 @@ const App = () => {
         </TierProvider>
       </AuthProvider>
     </Router>
+    <ChatWidget />
+    </>
   )
 }
 

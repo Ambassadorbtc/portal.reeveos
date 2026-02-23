@@ -93,7 +93,7 @@ async def create_business(
     )
 
 
-@router.get("/{business_id}", response_model=BusinessResponse)
+@router.get("/{business_id}")
 async def get_business(business_id: str):
     db = get_database()
     
@@ -104,26 +104,46 @@ async def get_business(business_id: str):
             detail="Business not found"
         )
     
-    return BusinessResponse(
-        id=str(business["_id"]),
-        name=business["name"],
-        slug=business["slug"],
-        category=business["category"],
-        address=business["address"],
-        phone=business.get("phone"),
-        website=business.get("website"),
-        lat=business["lat"],
-        lng=business["lng"],
-        rating=business.get("rating"),
-        review_count=business["review_count"],
-        price_level=business.get("price_level"),
-        photo_refs=business.get("photo_refs", []),
-        claimed=business["claimed"],
-        rezvo_tier=RezvoTier(business["rezvo_tier"]),
-        tier=business.get("tier"),
-        promoted=business.get("promoted", False),
-        opening_hours=business.get("opening_hours")
-    )
+    # Normalize address — could be string or dict
+    addr = business.get("address", "")
+    if isinstance(addr, dict):
+        addr_str = ", ".join(filter(None, [addr.get("line1"), addr.get("city"), addr.get("postcode")]))
+        lat = addr.get("lat", 0)
+        lng = addr.get("lng", 0)
+    else:
+        addr_str = addr
+        lat = business.get("lat", 0)
+        lng = business.get("lng", 0)
+
+    return {
+        "id": str(business["_id"]),
+        "name": business.get("name", ""),
+        "slug": business.get("slug", ""),
+        "type": business.get("type", "services"),
+        "category": business.get("category", ""),
+        "address": addr_str,
+        "phone": business.get("phone"),
+        "email": business.get("email"),
+        "website": business.get("website"),
+        "description": business.get("description"),
+        "lat": lat,
+        "lng": lng,
+        "rating": business.get("rating"),
+        "review_count": business.get("review_count", 0),
+        "price_level": business.get("price_level"),
+        "photo_refs": business.get("photo_refs", []),
+        "claimed": business.get("claimed", False),
+        "owner_id": str(business.get("owner_id", "")),
+        "rezvo_tier": business.get("rezvo_tier", "free"),
+        "tier": business.get("tier", "solo"),
+        "promoted": business.get("promoted", False),
+        "opening_hours": business.get("opening_hours"),
+        "booking_settings": business.get("booking_settings"),
+        "staff": business.get("staff", []),
+        "tables": business.get("tables", []),
+        "features_enabled": business.get("features_enabled", []),
+        "stripe_connected": business.get("stripe_connected", False),
+    }
 
 
 @router.patch("/{business_id}", response_model=BusinessResponse)

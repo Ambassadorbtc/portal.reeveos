@@ -389,23 +389,26 @@
                     <div class="pl-14">
                         <div class="text-sm text-rezvo-forest/60 mb-3 font-semibold">Popular questions:</div>
                         <div class="flex flex-wrap gap-3">
-                            <button class="px-4 py-2.5 bg-white border-2 border-rezvo-border rounded-full text-sm text-rezvo-forest hover:border-rezvo-forest hover:bg-rezvo-cream transition-all duration-300">
+                            <button class="support-quick-btn px-4 py-2.5 bg-white border-2 border-rezvo-border rounded-full text-sm text-rezvo-forest hover:border-rezvo-forest hover:bg-rezvo-cream transition-all duration-300" data-q="How do I add a new service?">
                                 How do I add a new service?
                             </button>
-                            <button class="px-4 py-2.5 bg-white border-2 border-rezvo-border rounded-full text-sm text-rezvo-forest hover:border-rezvo-forest hover:bg-rezvo-cream transition-all duration-300">
+                            <button class="support-quick-btn px-4 py-2.5 bg-white border-2 border-rezvo-border rounded-full text-sm text-rezvo-forest hover:border-rezvo-forest hover:bg-rezvo-cream transition-all duration-300" data-q="How do I connect Stripe?">
                                 How do I connect Stripe?
                             </button>
-                            <button class="px-4 py-2.5 bg-white border-2 border-rezvo-border rounded-full text-sm text-rezvo-forest hover:border-rezvo-forest hover:bg-rezvo-cream transition-all duration-300">
+                            <button class="support-quick-btn px-4 py-2.5 bg-white border-2 border-rezvo-border rounded-full text-sm text-rezvo-forest hover:border-rezvo-forest hover:bg-rezvo-cream transition-all duration-300" data-q="Can I change my booking page colours?">
                                 Can I change my booking page colours?
                             </button>
                         </div>
                     </div>
                 </div>
 
+                <!-- Dynamic messages -->
+                <div id="support-messages" class="px-8 pb-4 space-y-4 max-h-96 overflow-y-auto"></div>
+
                 <div class="p-6 border-t border-rezvo-border bg-rezvo-cream/50">
                     <div class="flex gap-3">
-                        <input type="text" placeholder="Type your question here..." class="flex-1 px-5 py-4 rounded-full bg-white border-2 border-rezvo-border focus:border-rezvo-forest focus:outline-none text-rezvo-forest placeholder-rezvo-forest/40">
-                        <button class="w-14 h-14 bg-rezvo-forest hover:bg-rezvo-dark text-white rounded-full flex items-center justify-center flex-shrink-0 transition-colors shadow-lg">
+                        <input id="support-chat-input" type="text" placeholder="Type your question here..." class="flex-1 px-5 py-4 rounded-full bg-white border-2 border-rezvo-border focus:border-rezvo-forest focus:outline-none text-rezvo-forest placeholder-rezvo-forest/40">
+                        <button id="support-chat-send" class="w-14 h-14 bg-rezvo-forest hover:bg-rezvo-dark text-white rounded-full flex items-center justify-center flex-shrink-0 transition-colors shadow-lg">
                             <i class="fa-solid fa-paper-plane text-lg"></i>
                         </button>
                     </div>
@@ -737,6 +740,77 @@
 
 <script>window.scrollTo(0,0);</script>
 <script id="scroll-to-top-handler">document.addEventListener("click",function(e){var a=e.target.closest("a");if(a&&a.href&&a.href.startsWith(window.location.origin)&&!a.href.includes("#")){sessionStorage.setItem("scrollTop","1")}});if(sessionStorage.getItem("scrollTop")){sessionStorage.removeItem("scrollTop");window.scrollTo(0,0)}</script>
+<script>
+(function(){
+  const KB = [
+    {keys:['service','add service','new service','create service'],answer:"To add a new service:\n\n1. Go to **Dashboard → Services**\n2. Click **\"+ Add Service\"**\n3. Enter the service name, duration, and price\n4. Assign staff members who offer it\n5. Click **Save**\n\nYour service will immediately appear on your booking page!"},
+    {keys:['stripe','connect stripe','payment','pay','card','deposit'],answer:"To connect Stripe:\n\n1. Go to **Dashboard → Settings → Payments**\n2. Click **\"Connect with Stripe\"**\n3. Follow the Stripe onboarding (takes ~5 minutes)\n4. Once connected, payments and deposits go directly to your bank\n\nRezvo never touches your money — it flows straight to your Stripe account."},
+    {keys:['colour','color','brand','customise','customize','theme','booking page','look'],answer:"Yes! You can customize your booking page:\n\n1. Go to **Dashboard → Settings → Branding**\n2. Upload your logo\n3. Choose your primary and accent colours\n4. Preview changes in real-time\n5. Click **Save**\n\nOn the **Scale plan**, you get full white-label branding with custom domain support."},
+    {keys:['price','pricing','cost','how much','plan','plans','subscription','free'],answer:"**Rezvo Pricing:**\n\n• **Free** — £0/mo · 1 staff, 100 bookings\n• **Starter** — £8.99/mo · 3 staff, reminders\n• **Growth** — £29/mo · 5 staff, deposits, CRM\n• **Scale** — £59/mo · Unlimited staff, floor plans, white-label\n• **Enterprise** — Custom pricing\n\nAll plans: zero commission, no contracts, 30-day free trial."},
+    {keys:['booking','book','appointment','reserve','calendar','reschedule','cancel'],answer:"**Managing Bookings:**\n\n• **View all bookings** in your drag-and-drop calendar\n• **Reschedule** by dragging to a new time slot\n• **Cancel** with one click — customers are notified automatically\n• **Walk-ins** can be quick-added from the calendar\n• **SMS & email reminders** are sent automatically to reduce no-shows"},
+    {keys:['staff','team','member','employee','invite','permission'],answer:"**Adding Staff:**\n\n1. Go to **Dashboard → Team**\n2. Click **\"+ Invite Member\"**\n3. Enter their name and email\n4. Set their role and permissions\n5. They'll get an email invite to join\n\nEach staff member gets their own calendar column."},
+    {keys:['delivery','uber','order','ordering','takeaway'],answer:"**Zero-Commission Delivery:**\n\nRezvo integrates with Uber Direct for delivery. Customers order from YOUR branded page, payments go to YOUR Stripe account, and Uber handles the driver. No 25-30% commission like Deliveroo or JustEat."},
+    {keys:['restaurant','table','floor plan','covers'],answer:"**Restaurant Features:**\n\n• Floor plan view with real-time table status\n• Covers tracking by party size\n• Service period management (lunch, dinner, late)\n• Online booking widget\n• Kitchen orders board\n• Analytics & cover trends"},
+    {keys:['no show','no-show','deposit','cancellation'],answer:"**No-show Protection:**\n\n• Collect card-on-file deposits at booking\n• Set custom deposit amounts\n• Automated reminders reduce no-shows by up to 70%\n• Charge no-show fees automatically\n\nAvailable on Growth plan and above."},
+    {keys:['analytics','report','data','insight','crm','customer'],answer:"**CRM & Analytics:**\n\n• Full customer database with visit history\n• Booking trends and peak time analysis\n• Revenue tracking and forecasting\n• Staff performance metrics\n• No-show rate monitoring\n\nYOU own your data — unlike third-party platforms."},
+    {keys:['contact','help','email','phone','speak','human','person'],answer:"**Get in touch:**\n\n• **Email:** hello@rezvo.app\n• **Contact page:** rezvo.app/contact.html\n• We typically reply within a few hours\n\nOur UK-based team is always happy to help!"},
+    {keys:['start','get started','sign up','register','trial','begin'],answer:"**Getting Started:**\n\n1. Sign up free at rezvo.app — no credit card needed\n2. Set up your profile, services, and staff\n3. Start accepting bookings immediately\n\n30-day free trial on any plan!"}
+  ];
+
+  function findAnswer(q){
+    const low=q.toLowerCase();
+    let best=null,bestScore=0;
+    for(const t of KB){
+      let score=0;
+      for(const k of t.keys){if(low.includes(k))score+=k.split(' ').length;}
+      if(score>bestScore){bestScore=score;best=t;}
+    }
+    return best?best.answer:"Great question! I want to make sure you get the best answer. You can reach our team at **hello@rezvo.app** or visit our [contact page](/contact.html). Is there anything else I can help with?";
+  }
+
+  function fmt(t){return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>').replace(/• /g,'<span class="inline-block w-1.5 h-1.5 bg-rezvo-forest rounded-full mr-2 relative top-[-2px]"></span>');}
+
+  const msgs=document.getElementById('support-messages');
+  const input=document.getElementById('support-chat-input');
+  const sendBtn=document.getElementById('support-chat-send');
+  if(!msgs||!input||!sendBtn)return;
+
+  function addMsg(text,sender){
+    const wrap=document.createElement('div');
+    wrap.className='flex gap-4'+(sender==='user'?' flex-row-reverse':'');
+    if(sender==='bot'){
+      wrap.innerHTML='<div class="w-10 h-10 bg-rezvo-mint rounded-full flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-robot text-lg text-rezvo-forest"></i></div><div class="bg-rezvo-cream p-5 rounded-3xl rounded-tl-none max-w-xl"><p class="text-rezvo-forest leading-relaxed text-sm">'+fmt(text)+'</p></div>';
+    } else {
+      wrap.innerHTML='<div class="bg-rezvo-forest p-5 rounded-3xl rounded-tr-none max-w-xl"><p class="text-white leading-relaxed text-sm">'+text.replace(/</g,'&lt;')+'</p></div>';
+    }
+    msgs.appendChild(wrap);
+    msgs.scrollTop=msgs.scrollHeight;
+    msgs.parentElement.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+
+  function send(text){
+    if(!text.trim())return;
+    addMsg(text,'user');
+    input.value='';
+    const dots=document.createElement('div');
+    dots.className='flex gap-4';
+    dots.id='support-typing';
+    dots.innerHTML='<div class="w-10 h-10 bg-rezvo-mint rounded-full flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-robot text-lg text-rezvo-forest"></i></div><div class="bg-rezvo-cream p-4 rounded-3xl rounded-tl-none"><div class="flex gap-1"><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0s"></span><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.15s"></span><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.3s"></span></div></div>';
+    msgs.appendChild(dots);
+    msgs.scrollTop=msgs.scrollHeight;
+    setTimeout(function(){
+      var t=document.getElementById('support-typing');if(t)t.remove();
+      addMsg(findAnswer(text),'bot');
+    },400+Math.random()*600);
+  }
+
+  sendBtn.addEventListener('click',function(){send(input.value);});
+  input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();send(input.value);}});
+  document.querySelectorAll('.support-quick-btn').forEach(function(b){
+    b.addEventListener('click',function(){send(b.getAttribute('data-q'));});
+  });
+})();
+</script>
 <script src="/js/rezvo-chat.js" defer></script>
 </body>
 </html>

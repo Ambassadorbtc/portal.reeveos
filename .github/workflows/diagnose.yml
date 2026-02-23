@@ -14,30 +14,20 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "=== NGINX CONFIG TEST ==="
-            nginx -t 2>&1
+            echo "=== VITE_API_URL in built JS ==="
+            grep -o 'VITE_API_URL[^"]*"[^"]*"' /opt/rezvo-app/frontend/dist/assets/*.js 2>/dev/null || echo "not found as named"
+            grep -o 'http://localhost:8000' /opt/rezvo-app/frontend/dist/assets/*.js 2>/dev/null && echo "STILL USING LOCALHOST" || echo "no localhost refs"
+            grep -o '/api' /opt/rezvo-app/frontend/dist/assets/*.js 2>/dev/null | head -5
 
-            echo "=== NGINX ERROR LOG ==="
-            tail -20 /var/log/nginx/error.log
+            echo "=== TEST API DIRECTLY ==="
+            curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/auth/register 2>&1 || echo "cant reach"
+            curl -s http://127.0.0.1:8000/ 2>&1 | head -5
 
-            echo "=== REZVO.APP FILES ==="
-            ls -la /opt/rezvo-app/ 2>/dev/null || echo "NOT FOUND"
-            ls -la /opt/rezvo-app/frontend/dist/ 2>/dev/null || echo "NO DIST"
-            ls -la /var/www/rezvo-app/ 2>/dev/null || echo "NO /var/www/rezvo-app"
+            echo "=== TEST NGINX PROXY ==="
+            curl -sk -o /dev/null -w "%{http_code}" https://rezvo.app/api/auth/register 2>&1
 
-            echo "=== SSL CERTS ==="
-            ls -la /etc/letsencrypt/live/ 2>/dev/null || echo "NO CERTS DIR"
-            ls /etc/letsencrypt/live/rezvo.app/ 2>/dev/null || echo "NO rezvo.app CERT"
-            ls /etc/letsencrypt/live/rezvo.co.uk/ 2>/dev/null || echo "NO rezvo.co.uk CERT"
+            echo "=== BACKEND LOG ==="
+            journalctl -u rezvo-backend --no-pager -n 15
 
-            echo "=== NGINX SITES ==="
-            ls -la /etc/nginx/sites-enabled/
-
-            echo "=== ACTIVE NGINX CONFIG ==="
-            cat /etc/nginx/sites-enabled/rezvo-app 2>/dev/null || echo "NO rezvo-app config"
-
-            echo "=== BACKEND STATUS ==="
-            systemctl status rezvo-backend 2>&1 | head -15
-
-            echo "=== PORT 8000 ==="
-            ss -tlnp | grep 8000
+            echo "=== CHECK .env.production ==="
+            cat /opt/rezvo-app/frontend/.env.production 2>/dev/null || echo "NO .env.production"

@@ -28,6 +28,11 @@ import Help from './pages/dashboard/Help'
 
 import Onboarding from './pages/onboarding/Onboarding'
 
+/* Booking flow (public, no auth) */
+import BookingFlow from './pages/booking/BookingFlow'
+import BookingConfirmation from './pages/booking/BookingConfirmation'
+import BookingManage from './pages/booking/BookingManage'
+
 const App = () => {
   return (
     <Router>
@@ -67,6 +72,11 @@ const App = () => {
               <Route path="settings" element={<Settings />} />
               <Route path="help" element={<Help />} />
             </Route>
+
+            {/* Public booking flow */}
+            <Route path="/book/:businessSlug" element={<BookingFlow />} />
+            <Route path="/book/:businessSlug/confirm/:bookingId" element={<BookingConfirmation />} />
+            <Route path="/book/:businessSlug/manage/:bookingId" element={<BookingManage />} />
 
             {/* Root → dashboard (marketing is served as static HTML by Nginx) */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />

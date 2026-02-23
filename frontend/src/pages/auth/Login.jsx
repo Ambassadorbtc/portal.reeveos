@@ -38,12 +38,12 @@ const Login = () => {
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-t from-[#1B4332] via-[#1B4332]/80 to-[#1B4332]/40" />
         </div>
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="w-11 h-11 bg-[#52B788] rounded-xl flex items-center justify-center">
+        <a href="/" className="relative z-10 flex items-center gap-3 no-underline">
+          <div className="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm">
             <span className="text-[#D4A017] font-extrabold text-2xl" style={{fontFamily:'Figtree,sans-serif'}}>R</span>
           </div>
-          <span className="font-heading font-extrabold text-2xl tracking-tight">Rezvo</span>
-        </div>
+          <span className="font-heading font-extrabold text-2xl tracking-tight text-white">Rezvo</span>
+        </a>
         <div className="relative z-10 max-w-xl mb-12">
           <div className="flex gap-1 mb-6 text-yellow-400">
             {[1,2,3,4,5].map(i => <i key={i} className="fa-solid fa-star" />)}
@@ -59,6 +59,11 @@ const Login = () => {
             </div>
           </div>
         </div>
+
+        {/* Back button - bottom left */}
+        <a href="/" className="relative z-10 w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white/60 transition-all no-underline">
+          <i className="fa-solid fa-arrow-left text-sm" />
+        </a>
       </section>
 
       {/* Right: Login Form */}

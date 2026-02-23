@@ -164,53 +164,48 @@ nav, nav *, #navbar, #navbar * {
     <!-- Navigation -->
         <nav id="navbar" class="fixed top-0 w-full z-50 nav-blur border-b border-rezvo-border transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <!-- Left: Logo (links to homepage) -->
-                <a href="/" class="flex-shrink-0 flex items-center gap-3 no-underline">
-                    <div class="bg-rezvo-forest text-rezvo-cream w-10 h-10 rounded-lg flex items-center justify-center">
-                        <span class="font-heading font-extrabold text-2xl">R</span>
+            <div class="flex justify-between items-center h-16 sm:h-20">
+                <a href="/" class="flex-shrink-0 flex items-center gap-2 sm:gap-3 no-underline">
+                    <div class="bg-rezvo-forest text-rezvo-cream w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center">
+                        <span class="font-heading font-extrabold text-xl sm:text-2xl">R</span>
                     </div>
-                    <span class="font-heading text-3xl text-rezvo-forest tracking-tight uppercase" style="font-weight:900;letter-spacing:0.02em">REZVO</span>
+                    <span class="font-heading text-2xl sm:text-3xl text-rezvo-forest tracking-tight uppercase" style="font-weight:900;letter-spacing:0.02em">REZVO</span>
                 </a>
-
-                <!-- Center: Desktop Links -->
-                <div class="hidden md:flex space-x-8">
+                <div class="hidden md:flex items-center space-x-8">
                     <a href="/#pricing" class="text-rezvo-forest font-semibold hover:text-rezvo-mint transition-colors">Pricing</a>
-                    <a href="/#compare" class="text-rezvo-forest font-semibold hover:text-rezvo-mint transition-colors">Compare</a>
+                    <a href="/#industries" class="text-rezvo-forest font-semibold hover:text-rezvo-mint transition-colors">Industries</a>
                     <a href="/#faq" class="text-rezvo-forest font-semibold hover:text-rezvo-mint transition-colors">FAQs</a>
                 </div>
-
-                <!-- Right: CTAs + Mobile Menu Button -->
-                <div class="flex items-center gap-4">
-                    <a href="/login" class="hidden sm:block text-rezvo-forest font-semibold hover:text-rezvo-mint transition-colors">Log in</a>
-                    <a href="/signup" class="hidden sm:block bg-rezvo-forest hover:bg-rezvo-dark text-white font-semibold py-2.5 px-6 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl">
-                        Get Started Free
-                    </a>
-                    <!-- Hamburger (mobile only) -->
-                    <button id="mobile-menu-btn" class="md:hidden flex flex-col gap-1.5 p-2 rounded-lg hover:bg-rezvo-pale/50 transition-colors" aria-label="Menu">
-                        <span class="block w-6 h-0.5 bg-rezvo-forest transition-all duration-300" id="bar1"></span>
-                        <span class="block w-6 h-0.5 bg-rezvo-forest transition-all duration-300" id="bar2"></span>
-                        <span class="block w-6 h-0.5 bg-rezvo-forest transition-all duration-300" id="bar3"></span>
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <a href="/login" class="hidden sm:block text-rezvo-forest font-semibold hover:text-rezvo-mint transition-colors text-sm">Log in</a>
+                    <a href="/signup" class="bg-rezvo-forest hover:bg-rezvo-dark text-white font-semibold py-2 px-4 sm:py-2.5 sm:px-6 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base">Get Started Free</a>
+                    <button id="mobile-menu-btn" class="md:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-rezvo-pale/50 transition-colors" aria-label="Open menu">
+                        <svg id="hamburger-icon" class="w-6 h-6 text-rezvo-forest" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        <svg id="close-icon" class="w-6 h-6 text-rezvo-forest hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
             </div>
         </div>
-
-        <!-- Mobile Menu Dropdown -->
-        <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-rezvo-border shadow-lg">
-            <div class="px-4 py-6 space-y-4">
-                <a href="/" class="block text-rezvo-forest font-semibold text-lg hover:text-rezvo-mint transition-colors">Home</a>
-                <a href="/#pricing" class="block text-rezvo-forest font-semibold text-lg hover:text-rezvo-mint transition-colors">Pricing</a>
-                <a href="/#compare" class="block text-rezvo-forest font-semibold text-lg hover:text-rezvo-mint transition-colors">Compare</a>
-                <a href="/#faq" class="block text-rezvo-forest font-semibold text-lg hover:text-rezvo-mint transition-colors">FAQs</a>
-                <hr class="border-rezvo-border">
-                <a href="/login" class="block text-rezvo-forest font-semibold text-lg hover:text-rezvo-mint transition-colors">Log in</a>
-                <a href="/signup" class="block bg-rezvo-forest hover:bg-rezvo-dark text-white font-semibold py-3 px-6 rounded-full text-center transition-all duration-300 shadow-lg">
-                    Get Started Free
-                </a>
+        <div id="mobile-menu" class="hidden md:hidden border-t border-rezvo-border bg-white/95 backdrop-blur-lg">
+            <div class="px-4 py-4 space-y-1">
+                <a href="/" class="block py-3 px-4 rounded-lg text-rezvo-forest font-semibold hover:bg-rezvo-pale/50 transition-colors">Home</a>
+                <a href="/#pricing" class="block py-3 px-4 rounded-lg text-rezvo-forest font-semibold hover:bg-rezvo-pale/50 transition-colors">Pricing</a>
+                <a href="/#industries" class="block py-3 px-4 rounded-lg text-rezvo-forest font-semibold hover:bg-rezvo-pale/50 transition-colors">Industries</a>
+                <a href="/#faq" class="block py-3 px-4 rounded-lg text-rezvo-forest font-semibold hover:bg-rezvo-pale/50 transition-colors">FAQs</a>
+                <div class="pt-2 border-t border-rezvo-border mt-2">
+                    <a href="/login" class="block py-3 px-4 rounded-lg text-rezvo-forest font-semibold hover:bg-rezvo-pale/50 transition-colors">Log in</a>
+                    <a href="/signup" class="block py-3 px-4 mt-1 rounded-lg bg-rezvo-forest text-white font-semibold text-center hover:bg-rezvo-dark transition-colors">Get Started Free</a>
+                </div>
             </div>
         </div>
     </nav>
+    <script>
+    (function(){
+        var btn=document.getElementById('mobile-menu-btn'),menu=document.getElementById('mobile-menu'),h=document.getElementById('hamburger-icon'),c=document.getElementById('close-icon');
+        if(btn&&menu){btn.addEventListener('click',function(){menu.classList.toggle('hidden');h.classList.toggle('hidden');c.classList.toggle('hidden');});
+        menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.add('hidden');h.classList.remove('hidden');c.classList.add('hidden');});});}
+    })();
+    </script>
 
     <!-- Mobile Menu JS -->
     <script>
@@ -1541,10 +1536,9 @@ nav, nav *, #navbar, #navbar * {
     </section>
 
     <!-- Footer -->
-        <footer id="footer" class="bg-rezvo-dark text-white pt-20 pb-10 border-t border-white/10">
+        <footer id="footer" class="bg-rezvo-dark text-white pt-16 sm:pt-20 pb-8 sm:pb-10 border-t border-white/10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-start gap-12 mb-16">
-                <!-- Brand -->
+            <div class="flex flex-col md:flex-row justify-between items-start gap-10 sm:gap-12 mb-12 sm:mb-16">
                 <div class="max-w-xs">
                     <a href="/" class="flex items-center gap-3 mb-6 no-underline">
                         <div class="bg-rezvo-forest text-rezvo-cream w-10 h-10 rounded-lg flex items-center justify-center">
@@ -1552,62 +1546,51 @@ nav, nav *, #navbar, #navbar * {
                         </div>
                         <span class="font-heading text-2xl text-white tracking-tight uppercase" style="font-weight:900">REZVO</span>
                     </a>
-                    <p class="text-white/60 text-sm mb-6">Zero-commission bookings &amp; delivery for UK restaurants and service businesses.</p>
+                    <p class="text-white/60 text-sm mb-6">The zero-commission booking &amp; ordering platform helping UK restaurants and service businesses thrive.</p>
                     <div class="flex gap-4">
-                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="https://instagram.com/rezvo.app" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://linkedin.com/company/rezvo" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="https://twitter.com/rezvoapp" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rezvo-mint hover:text-rezvo-dark transition-colors"><i class="fa-brands fa-twitter"></i></a>
                     </div>
                 </div>
-
-                <!-- Links -->
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-8 lg:gap-16 w-full md:w-auto">
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-8 lg:gap-16 w-full md:w-auto">
                     <div>
-                        <h4 class="font-bold text-white mb-4">Product</h4>
-                        <ul class="space-y-2 text-sm text-white/60">
-                            <li><a href="/" class="hover:text-rezvo-mint transition-colors">Home</a></li>
+                        <h4 class="font-bold text-white mb-4 text-sm uppercase tracking-wider">Platform</h4>
+                        <ul class="space-y-2.5 text-sm text-white/60">
+                            <li><a href="/#features" class="hover:text-rezvo-mint transition-colors">Features</a></li>
                             <li><a href="/#pricing" class="hover:text-rezvo-mint transition-colors">Pricing</a></li>
-                            <li><a href="/#compare" class="hover:text-rezvo-mint transition-colors">Compare</a></li>
+                            <li><a href="/#industries" class="hover:text-rezvo-mint transition-colors">Industries</a></li>
                             <li><a href="/#faq" class="hover:text-rezvo-mint transition-colors">FAQs</a></li>
                         </ul>
                     </div>
                     <div>
-                        <h4 class="font-bold text-white mb-4">Compare</h4>
-                        <ul class="space-y-2 text-sm text-white/60">
+                        <h4 class="font-bold text-white mb-4 text-sm uppercase tracking-wider">Compare</h4>
+                        <ul class="space-y-2.5 text-sm text-white/60">
                             <li><a href="/competitors/rezvo-vs-opentable" class="hover:text-rezvo-mint transition-colors">vs OpenTable</a></li>
-                            <li><a href="/competitors/rezvo-vs-resdiary" class="hover:text-rezvo-mint transition-colors">vs ResDiary</a></li>
                             <li><a href="/competitors/rezvo-vs-resy" class="hover:text-rezvo-mint transition-colors">vs Resy</a></li>
                             <li><a href="/competitors/rezvo-vs-thefork" class="hover:text-rezvo-mint transition-colors">vs TheFork</a></li>
+                            <li><a href="/competitors/rezvo-vs-resdiary" class="hover:text-rezvo-mint transition-colors">vs ResDiary</a></li>
                             <li><a href="/competitors/rezvo-vs-fresha" class="hover:text-rezvo-mint transition-colors">vs Fresha</a></li>
                             <li><a href="/competitors/rezvo-vs-treatwell" class="hover:text-rezvo-mint transition-colors">vs Treatwell</a></li>
                             <li><a href="/competitors/rezvo-vs-booksy" class="hover:text-rezvo-mint transition-colors">vs Booksy</a></li>
                         </ul>
                     </div>
                     <div>
-                        <h4 class="font-bold text-white mb-4">Company</h4>
-                        <ul class="space-y-2 text-sm text-white/60">
-                            <li><a href="/" class="hover:text-rezvo-mint transition-colors">About Us</a></li>
-                            <li><a href="/" class="hover:text-rezvo-mint transition-colors">Contact</a></li>
-                            <li><a href="/" class="hover:text-rezvo-mint transition-colors">Privacy Policy</a></li>
-                            <li><a href="/" class="hover:text-rezvo-mint transition-colors">Terms of Service</a></li>
+                        <h4 class="font-bold text-white mb-4 text-sm uppercase tracking-wider">Company</h4>
+                        <ul class="space-y-2.5 text-sm text-white/60">
+                            <li><a href="/" class="hover:text-rezvo-mint transition-colors">Home</a></li>
+                            <li><a href="/login" class="hover:text-rezvo-mint transition-colors">Log in</a></li>
+                            <li><a href="/signup" class="hover:text-rezvo-mint transition-colors">Sign up Free</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
-
-            <!-- Giant Wordmark -->
             <div class="border-t border-white/10 pt-8 overflow-hidden" style="max-height:22vw">
                 <h1 class="font-heading select-none text-center" style="font-size:18vw;line-height:0.9;font-weight:900;color:#52B788;opacity:0.35;letter-spacing:-0.02em;margin:0;padding:0">REZVO</h1>
             </div>
-
-            <div class="flex flex-col md:flex-row justify-between items-center mt-10 pt-6 border-t border-white/5 text-xs text-white/40">
+            <div class="flex flex-col sm:flex-row justify-between items-center mt-8 sm:mt-10 pt-6 border-t border-white/5 text-xs text-white/40 gap-3">
                 <p>&copy; 2025 Rezvo Ltd. All rights reserved. Registered in England &amp; Wales.</p>
-                <div class="flex items-center gap-4 mt-4 md:mt-0">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-circle text-green-500 text-[8px]"></i>
-                        <span>Systems Operational</span>
-                    </div>
-                </div>
+                <div class="flex items-center gap-2"><i class="fa-solid fa-circle text-green-500 text-[8px]"></i><span>Systems Operational</span></div>
             </div>
         </div>
     </footer>

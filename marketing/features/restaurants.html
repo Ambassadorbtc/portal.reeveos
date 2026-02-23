@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurants</title>
+    <title>Restaurant Booking &amp; Table Management | Rezvo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };
@@ -24,7 +24,7 @@
                         }
                     },
                     fontFamily: {
-                        heading: ['"Bricolage Grotesque"', 'sans-serif'],
+                        heading: ['"Figtree"', 'sans-serif'],
                         body: ['"Figtree"', 'sans-serif'],
                     },
                     boxShadow: {
@@ -62,7 +62,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
     <style>
         ::-webkit-scrollbar { display: none; }
         .bg-grain {
@@ -81,9 +81,9 @@
             <div class="flex items-center justify-between h-[72px]">
                 <a href="/" class="flex-shrink-0 flex items-center gap-3 cursor-pointer no-underline">
                     <div class="w-10 h-10 bg-rezvo-forest rounded-xl flex items-center justify-center">
-                        <span class="text-white font-heading font-extrabold text-xl">R</span>
+                        <span class="text-white font-sans font-extrabold text-xl">R</span>
                     </div>
-                    <span class="text-rezvo-forest font-heading font-extrabold text-[22px] tracking-tight">REZVO</span>
+                    <span class="text-rezvo-forest font-sans font-extrabold text-[22px] tracking-tight">REZVO</span>
                 </a>
                 <div class="hidden lg:flex items-center gap-1" id="nav-links">
                     <a href="/" class="px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all">Home</a>
@@ -150,7 +150,7 @@
                     <div class="bg-rezvo-forest rounded-2xl p-6 flex flex-col justify-between">
                         <div>
                             <p class="text-rezvo-mint font-bold text-sm mb-2">Zero Commission</p>
-                            <p class="text-white font-extrabold text-xl mb-2 font-heading">Keep 100% of your revenue</p>
+                            <p class="text-white font-extrabold text-xl mb-2 font-sans">Keep 100% of your revenue</p>
                             <p class="text-white/60 text-sm">No per-booking fees. No contracts. Just a simple monthly plan.</p>
                         </div>
                         <a href="/signup" class="mt-4 inline-flex items-center gap-2 bg-rezvo-mint text-rezvo-forest font-bold text-sm py-2.5 px-5 rounded-full hover:bg-white transition-all w-fit no-underline">
@@ -180,7 +180,7 @@
                         <a href="/industries" class="mt-4 inline-flex items-center gap-2 text-sm font-bold text-rezvo-mint hover:text-rezvo-forest transition-colors no-underline">View all industries <i class="fa-solid fa-arrow-right text-xs"></i></a>
                     </div>
                     <div class="bg-gradient-to-br from-rezvo-mint/10 to-rezvo-forest/5 rounded-2xl p-6 border border-rezvo-mint/20">
-                        <p class="text-rezvo-forest font-extrabold text-lg mb-2 font-heading">One platform, every business</p>
+                        <p class="text-rezvo-forest font-extrabold text-lg mb-2 font-sans">One platform, every business</p>
                         <p class="text-rezvo-forest/60 text-sm mb-4">From barbers to restaurants — if you take bookings, Rezvo is for you.</p>
                         <a href="/for-business" class="inline-flex items-center gap-2 bg-rezvo-forest text-white font-bold text-sm py-2.5 px-5 rounded-full hover:bg-rezvo-dark transition-all no-underline">Learn More <i class="fa-solid fa-arrow-right text-xs"></i></a>
                     </div>
@@ -298,7 +298,7 @@
                         <span class="text-sm font-bold text-rezvo-mint">For Restaurants</span>
                     </div>
 
-                    <h1 class="font-heading font-extrabold text-5xl lg:text-6xl text-white leading-[1.1] mb-6">
+                    <h1 class="font-sans font-extrabold text-5xl lg:text-6xl text-white leading-[1.1] mb-6">
                         Built for Restaurants, Not Adapted from a Salon App
                     </h1>
                     
@@ -316,7 +316,7 @@
                     <div class="bg-white rounded-3xl shadow-2xl p-6 border-2 border-rezvo-mint/20">
                         <div class="bg-gradient-to-br from-rezvo-forest to-rezvo-dark rounded-2xl p-6">
                             <div class="flex items-center justify-between mb-6">
-                                <h3 class="font-heading font-bold text-white text-lg">Friday Evening Service</h3>
+                                <h3 class="font-sans font-bold text-white text-lg">Friday Evening Service</h3>
                                 <div class="flex items-center gap-2 bg-rezvo-mint/20 px-3 py-1 rounded-full">
                                     <i class="fa-solid fa-users text-rezvo-mint text-xs"></i>
                                     <span class="text-rezvo-mint text-sm font-bold">48 Covers</span>
@@ -365,7 +365,7 @@
                 <div class="order-2 lg:order-1">
                     <div class="bg-gradient-to-br from-gray-50 to-white rounded-3xl shadow-2xl p-8 border-2 border-rezvo-border">
                         <div class="flex items-center justify-between mb-6">
-                            <h4 class="font-heading font-bold text-rezvo-forest text-xl">Floor Plan View</h4>
+                            <h4 class="font-sans font-bold text-rezvo-forest text-xl">Floor Plan View</h4>
                             <div class="flex gap-2">
                                 <button class="bg-rezvo-forest text-white px-4 py-2 rounded-lg text-sm font-bold">Main</button>
                                 <button class="bg-gray-200 text-rezvo-forest px-4 py-2 rounded-lg text-sm font-bold">Terrace</button>
@@ -414,7 +414,7 @@
                         <span class="text-sm font-bold text-green-700">Real-Time Floor Plan</span>
                     </div>
 
-                    <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
+                    <h2 class="font-sans font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
                         See Every Table at a Glance
                     </h2>
                     
@@ -467,7 +467,7 @@
                         <span class="text-sm font-bold text-blue-700">Online Booking</span>
                     </div>
 
-                    <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
+                    <h2 class="font-sans font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
                         Online Booking That Makes Sense
                     </h2>
                     
@@ -511,7 +511,7 @@
                 <div>
                     <div class="bg-white rounded-3xl shadow-2xl p-8 border-2 border-rezvo-border">
                         <div class="text-center mb-6">
-                            <h3 class="font-heading font-bold text-2xl text-rezvo-forest mb-2">Book a Table</h3>
+                            <h3 class="font-sans font-bold text-2xl text-rezvo-forest mb-2">Book a Table</h3>
                             <p class="text-rezvo-forest/60">The Ivy Garden</p>
                         </div>
 
@@ -558,7 +558,7 @@
             <div class="grid lg:grid-cols-2 gap-16 items-center">
                 <div class="order-2 lg:order-1">
                     <div class="bg-gradient-to-br from-gray-50 to-white rounded-3xl shadow-2xl p-8 border-2 border-rezvo-border">
-                        <h4 class="font-heading font-bold text-rezvo-forest text-xl mb-6">Orders Board</h4>
+                        <h4 class="font-sans font-bold text-rezvo-forest text-xl mb-6">Orders Board</h4>
 
                         <div class="grid grid-cols-3 gap-4">
                             <div>
@@ -629,7 +629,7 @@
                         <span class="text-sm font-bold text-purple-700">Orders Board</span>
                     </div>
 
-                    <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
+                    <h2 class="font-sans font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
                         Accept, Prepare, Serve
                     </h2>
                     
@@ -682,7 +682,7 @@
                         <span class="text-sm font-bold text-orange-700">Analytics That Matter</span>
                     </div>
 
-                    <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
+                    <h2 class="font-sans font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
                         The Metrics Restaurant Owners Actually Need
                     </h2>
                     
@@ -698,7 +698,7 @@
                                 </div>
                                 <span class="text-sm font-bold text-rezvo-forest/60">Covers Today</span>
                             </div>
-                            <p class="font-heading font-extrabold text-4xl text-rezvo-forest">142</p>
+                            <p class="font-sans font-extrabold text-4xl text-rezvo-forest">142</p>
                         </div>
 
                         <div class="bg-white rounded-2xl p-6 border-2 border-rezvo-border">
@@ -708,7 +708,7 @@
                                 </div>
                                 <span class="text-sm font-bold text-rezvo-forest/60">Revenue</span>
                             </div>
-                            <p class="font-heading font-extrabold text-4xl text-rezvo-forest">£3.2k</p>
+                            <p class="font-sans font-extrabold text-4xl text-rezvo-forest">£3.2k</p>
                         </div>
 
                         <div class="bg-white rounded-2xl p-6 border-2 border-rezvo-border">
@@ -718,7 +718,7 @@
                                 </div>
                                 <span class="text-sm font-bold text-rezvo-forest/60">Avg Turnover</span>
                             </div>
-                            <p class="font-heading font-extrabold text-4xl text-rezvo-forest">87min</p>
+                            <p class="font-sans font-extrabold text-4xl text-rezvo-forest">87min</p>
                         </div>
 
                         <div class="bg-white rounded-2xl p-6 border-2 border-rezvo-border">
@@ -728,14 +728,14 @@
                                 </div>
                                 <span class="text-sm font-bold text-rezvo-forest/60">Party Size</span>
                             </div>
-                            <p class="font-heading font-extrabold text-4xl text-rezvo-forest">3.4</p>
+                            <p class="font-sans font-extrabold text-4xl text-rezvo-forest">3.4</p>
                         </div>
                     </div>
                 </div>
 
                 <div>
                     <div class="bg-white rounded-3xl shadow-2xl p-8 border-2 border-rezvo-border">
-                        <h4 class="font-heading font-bold text-rezvo-forest text-xl mb-6">This Week's Performance</h4>
+                        <h4 class="font-sans font-bold text-rezvo-forest text-xl mb-6">This Week's Performance</h4>
 
                         <div class="space-y-6">
                             <div>
@@ -812,7 +812,7 @@
                     <span class="text-sm font-bold text-red-700">Zero Commission</span>
                 </div>
 
-                <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
+                <h2 class="font-sans font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
                     Zero Commission Ordering
                 </h2>
                 
@@ -827,10 +827,10 @@
                         <div class="w-14 h-14 bg-red-500 rounded-2xl flex items-center justify-center">
                             <i class="fa-solid fa-motorcycle text-white text-xl"></i>
                         </div>
-                        <h3 class="font-heading font-bold text-xl text-rezvo-forest">Deliveroo</h3>
+                        <h3 class="font-sans font-bold text-xl text-rezvo-forest">Deliveroo</h3>
                     </div>
                     <div class="text-center py-6 bg-white rounded-2xl border-2 border-red-300 mb-4">
-                        <p class="text-5xl font-heading font-extrabold text-red-600">30%</p>
+                        <p class="text-5xl font-sans font-extrabold text-red-600">30%</p>
                         <p class="text-sm text-rezvo-forest/60 mt-2">Commission Fee</p>
                     </div>
                     <p class="text-sm text-rezvo-forest/70 text-center">On every single order</p>
@@ -841,10 +841,10 @@
                         <div class="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center">
                             <i class="fa-solid fa-utensils text-white text-xl"></i>
                         </div>
-                        <h3 class="font-heading font-bold text-xl text-rezvo-forest">JustEat</h3>
+                        <h3 class="font-sans font-bold text-xl text-rezvo-forest">JustEat</h3>
                     </div>
                     <div class="text-center py-6 bg-white rounded-2xl border-2 border-orange-300 mb-4">
-                        <p class="text-5xl font-heading font-extrabold text-orange-600">25%</p>
+                        <p class="text-5xl font-sans font-extrabold text-orange-600">25%</p>
                         <p class="text-sm text-rezvo-forest/60 mt-2">Commission Fee</p>
                     </div>
                     <p class="text-sm text-rezvo-forest/70 text-center">Plus service charges</p>
@@ -856,12 +856,12 @@
                     </div>
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-14 h-14 bg-rezvo-forest rounded-2xl flex items-center justify-center">
-                            <span class="font-heading font-extrabold text-2xl text-rezvo-mint">R</span>
+                            <span class="font-sans font-extrabold text-2xl text-rezvo-mint">R</span>
                         </div>
-                        <h3 class="font-heading font-bold text-xl text-rezvo-forest">Rezvo</h3>
+                        <h3 class="font-sans font-bold text-xl text-rezvo-forest">Rezvo</h3>
                     </div>
                     <div class="text-center py-6 bg-white rounded-2xl border-2 border-green-400 mb-4">
-                        <p class="text-5xl font-heading font-extrabold text-green-600">0%</p>
+                        <p class="text-5xl font-sans font-extrabold text-green-600">0%</p>
                         <p class="text-sm text-rezvo-forest/60 mt-2">Commission Fee</p>
                     </div>
                     <p class="text-sm text-rezvo-forest/70 text-center">Keep 100% of revenue</p>
@@ -874,7 +874,7 @@
                         <div class="w-16 h-16 bg-rezvo-mint rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <i class="fa-solid fa-palette text-white text-2xl"></i>
                         </div>
-                        <h4 class="font-heading font-bold text-xl text-rezvo-forest mb-2">Your Brand</h4>
+                        <h4 class="font-sans font-bold text-xl text-rezvo-forest mb-2">Your Brand</h4>
                         <p class="text-rezvo-forest/70">Custom branded ordering page with your logo and colors</p>
                     </div>
 
@@ -882,7 +882,7 @@
                         <div class="w-16 h-16 bg-rezvo-mint rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <i class="fa-solid fa-credit-card text-white text-2xl"></i>
                         </div>
-                        <h4 class="font-heading font-bold text-xl text-rezvo-forest mb-2">Direct Payments</h4>
+                        <h4 class="font-sans font-bold text-xl text-rezvo-forest mb-2">Direct Payments</h4>
                         <p class="text-rezvo-forest/70">Money goes straight to your bank account via Stripe</p>
                     </div>
 
@@ -890,7 +890,7 @@
                         <div class="w-16 h-16 bg-rezvo-mint rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <i class="fa-solid fa-users text-white text-2xl"></i>
                         </div>
-                        <h4 class="font-heading font-bold text-xl text-rezvo-forest mb-2">Your Customers</h4>
+                        <h4 class="font-sans font-bold text-xl text-rezvo-forest mb-2">Your Customers</h4>
                         <p class="text-rezvo-forest/70">Build your own customer database and relationships</p>
                     </div>
                 </div>
@@ -910,7 +910,7 @@
                         <span class="text-sm font-bold text-rezvo-mint">Simple Pricing</span>
                     </div>
 
-                    <h2 class="font-heading font-extrabold text-4xl lg:text-5xl mb-6">
+                    <h2 class="font-sans font-extrabold text-4xl lg:text-5xl mb-6">
                         From £29/month
                     </h2>
                     
@@ -954,9 +954,9 @@
                 <div class="col-span-2">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="bg-rezvo-mint text-rezvo-forest w-10 h-10 rounded-xl flex items-center justify-center">
-                            <span class="font-heading font-extrabold text-xl">R</span>
+                            <span class="font-sans font-extrabold text-xl">R</span>
                         </div>
-                        <span class="font-heading font-extrabold text-2xl text-white tracking-tight">REZVO</span>
+                        <span class="font-sans font-extrabold text-2xl text-white tracking-tight">REZVO</span>
                     </div>
                     <p class="text-white/50 text-sm leading-relaxed mb-6 max-w-xs">The zero-commission booking &amp; ordering platform helping UK restaurants and service businesses thrive.</p>
                     <div class="flex gap-3">
@@ -1017,7 +1017,7 @@
 
             <!-- Divider + giant watermark -->
             <div class="border-t border-white/10 pt-10 text-center">
-                <h1 class="font-heading font-extrabold text-[12vw] leading-none text-rezvo-mint opacity-10 select-none">REZVO</h1>
+                <h1 class="font-sans font-extrabold text-[12vw] leading-none text-rezvo-mint opacity-10 select-none">REZVO</h1>
             </div>
 
             <!-- Bottom bar -->

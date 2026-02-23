@@ -10,11 +10,20 @@ import { getBookingPage, createBooking } from '../../utils/bookingApi'
 import PickService from './steps/services/PickService'
 import PickDateTime from './steps/services/PickDateTime'
 import YourDetails from './steps/services/YourDetails'
+import PickGuestsDate from './steps/restaurant/PickGuestsDate'
+import PickTimeSlot from './steps/restaurant/PickTimeSlot'
+import YourDetailsRestaurant from './steps/restaurant/YourDetailsRestaurant'
 
 const SERVICES_STEPS = [
   { id: 'pick-service', component: PickService },
   { id: 'pick-datetime', component: PickDateTime },
   { id: 'your-details', component: YourDetails },
+]
+
+const RESTAURANT_STEPS = [
+  { id: 'pick-guests-date', component: PickGuestsDate },
+  { id: 'pick-time', component: PickTimeSlot },
+  { id: 'your-details', component: YourDetailsRestaurant },
 ]
 
 const BookingFlow = () => {
@@ -83,13 +92,13 @@ const BookingFlow = () => {
   }
 
   const bizType = data.business?.type || 'services'
-  const steps = bizType === 'restaurant' ? [] : SERVICES_STEPS
+  const steps = bizType === 'restaurant' ? RESTAURANT_STEPS : SERVICES_STEPS
   const StepComponent = steps[step]?.component
 
   if (!StepComponent) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#FEFBF4] px-5">
-        <p className="text-gray-500">Restaurant booking coming soon</p>
+        <p className="text-gray-500">Something went wrong</p>
       </div>
     )
   }

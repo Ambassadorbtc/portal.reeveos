@@ -9,7 +9,7 @@ body, p, span, a, button, input, select, textarea, li, td, th, label, div {
 
 h1, h2, h3, h4, h5, h6,
 .font-heading, .font-display {
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif !important;
+  font-family: 'Figtree', system-ui, sans-serif !important;
 }
 
 @layer base {

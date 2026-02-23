@@ -1,0 +1,25 @@
+# Rezvo (rezvo.app)
+> Zero-commission booking, ordering, and business management platform for UK restaurants, salons, barbers, and service businesses.
+
+Rezvo is a "Save the High Street" platform that replaces high-commission platforms like Deliveroo (up to 35%), UberEats (30%), and OpenTable (£2.50/cover). Businesses keep 100% of their revenue with Rezvo's flat monthly pricing.
+
+## For Businesses
+- Online booking with real-time availability
+- Table management with interactive floor plans
+- Delivery ordering via Uber Direct integration
+- Stripe Connect for direct payments
+- CRM, analytics, and marketing tools
+- Mobile apps for owners and staff
+
+## Pricing
+- Free: £0/mo (1 staff, 100 bookings)
+- Starter: £8.99/mo (3 staff)
+- Growth: £29/mo (5 staff, deposits, CRM)
+- Scale: £59/mo (unlimited, floor plan, white-label)
+- Enterprise: Custom pricing
+
+## Links
+- Business Platform: https://rezvo.app
+- Consumer Directory: https://rezvo.co.uk
+- Features: https://rezvo.app/features/
+- Industries: https://rezvo.app/industries/

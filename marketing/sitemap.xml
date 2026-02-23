@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://rezvo.app/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://rezvo.app/about.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://rezvo.app/contact.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://rezvo.app/support.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://rezvo.app/features/restaurants.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://rezvo.app/features/calendar.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://rezvo.app/features/payments.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://rezvo.app/features/mobile-app.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://rezvo.app/features/integrations.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://rezvo.app/features/uber-direct.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://rezvo.app/features/team-up.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://rezvo.app/industries/restaurants.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://rezvo.app/industries/salons-spas.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://rezvo.app/industries/barbers.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://rezvo.app/industries/index.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://rezvo.app/competitors/rezvo-vs-fresha.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://rezvo.app/competitors/rezvo-vs-opentable.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://rezvo.app/competitors/rezvo-vs-booksy.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://rezvo.app/competitors/rezvo-vs-treatwell.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://rezvo.app/privacy.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://rezvo.app/terms.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://rezvo.app/cookies.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+</urlset>

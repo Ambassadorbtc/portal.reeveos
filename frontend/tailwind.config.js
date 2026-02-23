@@ -48,8 +48,8 @@ export default {
       },
       fontFamily: {
         sans: ['Figtree', 'system-ui', 'sans-serif'],
-        display: ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
-        heading: ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+        display: ['Figtree', 'system-ui', 'sans-serif'],
+        heading: ['Figtree', 'system-ui', 'sans-serif'],
         body: ['Figtree', 'system-ui', 'sans-serif'],
       },
       borderRadius: {

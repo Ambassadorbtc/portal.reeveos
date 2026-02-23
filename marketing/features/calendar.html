@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar</title>
+    <title>Smart Booking Calendar | Rezvo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };
@@ -24,7 +24,7 @@
                         }
                     },
                     fontFamily: {
-                        heading: ['"Bricolage Grotesque"', 'sans-serif'],
+                        heading: ['"Figtree"', 'sans-serif'],
                         body: ['"Figtree"', 'sans-serif'],
                     },
                     boxShadow: {
@@ -62,7 +62,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
     <style>
         ::-webkit-scrollbar { display: none; }
         .bg-grain {
@@ -81,9 +81,9 @@
             <div class="flex items-center justify-between h-[72px]">
                 <a href="/" class="flex-shrink-0 flex items-center gap-3 cursor-pointer no-underline">
                     <div class="w-10 h-10 bg-rezvo-forest rounded-xl flex items-center justify-center">
-                        <span class="text-white font-heading font-extrabold text-xl">R</span>
+                        <span class="text-white font-sans font-extrabold text-xl">R</span>
                     </div>
-                    <span class="text-rezvo-forest font-heading font-extrabold text-[22px] tracking-tight">REZVO</span>
+                    <span class="text-rezvo-forest font-sans font-extrabold text-[22px] tracking-tight">REZVO</span>
                 </a>
                 <div class="hidden lg:flex items-center gap-1" id="nav-links">
                     <a href="/" class="px-3 py-2 rounded-lg text-sm font-semibold text-rezvo-forest/70 hover:text-rezvo-forest hover:bg-rezvo-forest/5 transition-all">Home</a>
@@ -150,7 +150,7 @@
                     <div class="bg-rezvo-forest rounded-2xl p-6 flex flex-col justify-between">
                         <div>
                             <p class="text-rezvo-mint font-bold text-sm mb-2">Zero Commission</p>
-                            <p class="text-white font-extrabold text-xl mb-2 font-heading">Keep 100% of your revenue</p>
+                            <p class="text-white font-extrabold text-xl mb-2 font-sans">Keep 100% of your revenue</p>
                             <p class="text-white/60 text-sm">No per-booking fees. No contracts. Just a simple monthly plan.</p>
                         </div>
                         <a href="/signup" class="mt-4 inline-flex items-center gap-2 bg-rezvo-mint text-rezvo-forest font-bold text-sm py-2.5 px-5 rounded-full hover:bg-white transition-all w-fit no-underline">
@@ -180,7 +180,7 @@
                         <a href="/industries" class="mt-4 inline-flex items-center gap-2 text-sm font-bold text-rezvo-mint hover:text-rezvo-forest transition-colors no-underline">View all industries <i class="fa-solid fa-arrow-right text-xs"></i></a>
                     </div>
                     <div class="bg-gradient-to-br from-rezvo-mint/10 to-rezvo-forest/5 rounded-2xl p-6 border border-rezvo-mint/20">
-                        <p class="text-rezvo-forest font-extrabold text-lg mb-2 font-heading">One platform, every business</p>
+                        <p class="text-rezvo-forest font-extrabold text-lg mb-2 font-sans">One platform, every business</p>
                         <p class="text-rezvo-forest/60 text-sm mb-4">From barbers to restaurants — if you take bookings, Rezvo is for you.</p>
                         <a href="/for-business" class="inline-flex items-center gap-2 bg-rezvo-forest text-white font-bold text-sm py-2.5 px-5 rounded-full hover:bg-rezvo-dark transition-all no-underline">Learn More <i class="fa-solid fa-arrow-right text-xs"></i></a>
                     </div>
@@ -293,7 +293,7 @@
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid lg:grid-cols-2 gap-12 items-center">
                 <div class="text-center lg:text-left">
-                    <h1 class="font-heading font-extrabold text-5xl lg:text-7xl text-white leading-[1.1] mb-6">
+                    <h1 class="font-sans font-extrabold text-5xl lg:text-7xl text-white leading-[1.1] mb-6">
                         A Calendar That Actually Works
                     </h1>
                     
@@ -312,7 +312,7 @@
                         <div class="bg-rezvo-forest p-4 flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <i class="fa-solid fa-calendar-days text-rezvo-mint text-xl"></i>
-                                <span class="font-heading font-bold text-white text-lg">Today's Schedule</span>
+                                <span class="font-sans font-bold text-white text-lg">Today's Schedule</span>
                             </div>
                             <div class="flex gap-2">
                                 <button class="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors">
@@ -327,7 +327,7 @@
                         <div class="p-6 bg-gradient-to-b from-white to-gray-50">
                             <div class="grid grid-cols-3 gap-4 mb-6">
                                 <div class="text-center">
-                                    <div class="font-heading font-bold text-sm text-rezvo-forest/60 mb-1">Sarah</div>
+                                    <div class="font-sans font-bold text-sm text-rezvo-forest/60 mb-1">Sarah</div>
                                     <div class="space-y-2">
                                         <div class="bg-rezvo-mint rounded-lg p-3 text-white">
                                             <div class="text-xs font-bold">9:00 AM</div>
@@ -347,7 +347,7 @@
                                 </div>
 
                                 <div class="text-center">
-                                    <div class="font-heading font-bold text-sm text-rezvo-forest/60 mb-1">Mike</div>
+                                    <div class="font-sans font-bold text-sm text-rezvo-forest/60 mb-1">Mike</div>
                                     <div class="space-y-2">
                                         <div class="bg-blue-500 rounded-lg p-3 text-white">
                                             <div class="text-xs font-bold">9:30 AM</div>
@@ -363,7 +363,7 @@
                                 </div>
 
                                 <div class="text-center">
-                                    <div class="font-heading font-bold text-sm text-rezvo-forest/60 mb-1">Emma</div>
+                                    <div class="font-sans font-bold text-sm text-rezvo-forest/60 mb-1">Emma</div>
                                     <div class="space-y-2">
                                         <div class="bg-yellow-400/20 border-2 border-dashed border-yellow-400 rounded-lg p-3">
                                             <div class="text-xs font-bold text-rezvo-forest">9:00 AM</div>
@@ -401,7 +401,7 @@
     <section id="pain-points" class="py-20 lg:py-28 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
+                <h2 class="font-sans font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
                     Sound Familiar?
                 </h2>
                 <p class="text-xl text-rezvo-forest/70 max-w-2xl mx-auto">
@@ -416,7 +416,7 @@
                         <div class="w-16 h-16 bg-red-500 rounded-2xl flex items-center justify-center mb-6">
                             <i class="fa-solid fa-clock text-white text-2xl"></i>
                         </div>
-                        <h3 class="font-heading font-extrabold text-2xl text-rezvo-forest mb-4">Rigid Time Blocks</h3>
+                        <h3 class="font-sans font-extrabold text-2xl text-rezvo-forest mb-4">Rigid Time Blocks</h3>
                         <p class="text-rezvo-forest/70 leading-relaxed mb-4">
                             Your calendar blocks 60 minutes even for a 15-minute consultation
                         </p>
@@ -441,7 +441,7 @@
                         <div class="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mb-6">
                             <i class="fa-solid fa-phone text-white text-2xl"></i>
                         </div>
-                        <h3 class="font-heading font-extrabold text-2xl text-rezvo-forest mb-4">Manual Juggling</h3>
+                        <h3 class="font-sans font-extrabold text-2xl text-rezvo-forest mb-4">Manual Juggling</h3>
                         <p class="text-rezvo-forest/70 leading-relaxed mb-4">
                             You can't squeeze someone in without calling three people
                         </p>
@@ -468,14 +468,14 @@
                         <div class="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center mb-6">
                             <i class="fa-solid fa-hourglass-half text-white text-2xl"></i>
                         </div>
-                        <h3 class="font-heading font-extrabold text-2xl text-rezvo-forest mb-4">Lost Revenue</h3>
+                        <h3 class="font-sans font-extrabold text-2xl text-rezvo-forest mb-4">Lost Revenue</h3>
                         <p class="text-rezvo-forest/70 leading-relaxed mb-4">
                             You're losing 10+ hours of bookable time every week because of gaps
                         </p>
                         <div class="bg-white rounded-xl p-4 border border-yellow-200">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-xs text-rezvo-forest/60">Weekly gaps</span>
-                                <span class="text-2xl font-heading font-extrabold text-yellow-600">12h</span>
+                                <span class="text-2xl font-sans font-extrabold text-yellow-600">12h</span>
                             </div>
                             <div class="text-xs text-yellow-700 font-bold">
                                 <i class="fa-solid fa-sterling-sign mr-1"></i>
@@ -495,7 +495,7 @@
                 <span class="text-sm font-bold text-rezvo-mint">The Solution</span>
             </div>
 
-            <h2 class="font-heading font-extrabold text-4xl lg:text-6xl text-rezvo-forest mb-6">
+            <h2 class="font-sans font-extrabold text-4xl lg:text-6xl text-rezvo-forest mb-6">
                 Rezvo's Smart Calendar
             </h2>
             <p class="text-xl text-rezvo-forest/70 leading-relaxed max-w-3xl mx-auto">
@@ -513,7 +513,7 @@
                         <div class="w-16 h-16 bg-rezvo-mint rounded-2xl flex items-center justify-center mb-6">
                             <i class="fa-solid fa-layer-group text-white text-2xl"></i>
                         </div>
-                        <h3 class="font-heading font-extrabold text-3xl text-rezvo-forest mb-4">Mixed Durations</h3>
+                        <h3 class="font-sans font-extrabold text-3xl text-rezvo-forest mb-4">Mixed Durations</h3>
                         <p class="text-lg text-rezvo-forest/70 leading-relaxed mb-6">
                             15-min consult and 90-min facial on the same day? No problem. The calendar adapts to each service.
                         </p>
@@ -542,7 +542,7 @@
                         <div class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mb-6">
                             <i class="fa-solid fa-brain text-white text-2xl"></i>
                         </div>
-                        <h3 class="font-heading font-extrabold text-3xl text-rezvo-forest mb-4">Smart Scheduling</h3>
+                        <h3 class="font-sans font-extrabold text-3xl text-rezvo-forest mb-4">Smart Scheduling</h3>
                         <p class="text-lg text-rezvo-forest/70 leading-relaxed mb-6">
                             We only show customers time slots that fill gaps — not random slots that create dead time.
                         </p>
@@ -575,7 +575,7 @@
                         <div class="w-14 h-14 bg-purple-500 rounded-xl flex items-center justify-center mb-6">
                             <i class="fa-solid fa-hand text-white text-xl"></i>
                         </div>
-                        <h3 class="font-heading font-extrabold text-2xl text-rezvo-forest mb-4">Drag & Drop</h3>
+                        <h3 class="font-sans font-extrabold text-2xl text-rezvo-forest mb-4">Drag & Drop</h3>
                         <p class="text-rezvo-forest/70 leading-relaxed mb-4">
                             Move bookings with a tap. Resize with a drag. No phone calls needed.
                         </p>
@@ -598,7 +598,7 @@
                         <div class="w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center mb-6">
                             <i class="fa-solid fa-users text-white text-xl"></i>
                         </div>
-                        <h3 class="font-heading font-extrabold text-2xl text-rezvo-forest mb-4">Staff Views</h3>
+                        <h3 class="font-sans font-extrabold text-2xl text-rezvo-forest mb-4">Staff Views</h3>
                         <p class="text-rezvo-forest/70 leading-relaxed mb-4">
                             See each team member's day side-by-side. Know who's free at a glance.
                         </p>
@@ -627,7 +627,7 @@
                         <div class="w-14 h-14 bg-pink-500 rounded-xl flex items-center justify-center mb-6">
                             <i class="fa-solid fa-table-cells text-white text-xl"></i>
                         </div>
-                        <h3 class="font-heading font-extrabold text-2xl text-rezvo-forest mb-4">Day / Week / Month</h3>
+                        <h3 class="font-sans font-extrabold text-2xl text-rezvo-forest mb-4">Day / Week / Month</h3>
                         <p class="text-rezvo-forest/70 leading-relaxed mb-4">
                             Switch views instantly. See the big picture or drill into the detail.
                         </p>
@@ -655,7 +655,7 @@
                 <span class="text-sm font-bold text-rezvo-mint">Real Impact</span>
             </div>
 
-            <h2 class="font-heading font-extrabold text-5xl lg:text-7xl text-white mb-8">
+            <h2 class="font-sans font-extrabold text-5xl lg:text-7xl text-white mb-8">
                 8 Hours
             </h2>
             <p class="text-2xl lg:text-3xl text-rezvo-mint/90 font-semibold leading-relaxed mb-12">
@@ -664,15 +664,15 @@
 
             <div class="grid sm:grid-cols-3 gap-8 max-w-3xl mx-auto">
                 <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                    <div class="text-4xl font-heading font-extrabold text-rezvo-mint mb-2">94%</div>
+                    <div class="text-4xl font-sans font-extrabold text-rezvo-mint mb-2">94%</div>
                     <div class="text-sm text-white/80">Fewer gaps</div>
                 </div>
                 <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                    <div class="text-4xl font-heading font-extrabold text-rezvo-mint mb-2">£400</div>
+                    <div class="text-4xl font-sans font-extrabold text-rezvo-mint mb-2">£400</div>
                     <div class="text-sm text-white/80">Extra revenue/week</div>
                 </div>
                 <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                    <div class="text-4xl font-heading font-extrabold text-rezvo-mint mb-2">2.5x</div>
+                    <div class="text-4xl font-sans font-extrabold text-rezvo-mint mb-2">2.5x</div>
                     <div class="text-sm text-white/80">Faster booking</div>
                 </div>
             </div>
@@ -681,7 +681,7 @@
 
     <section id="cta-section" class="py-20 lg:py-28 bg-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="font-heading font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
+            <h2 class="font-sans font-extrabold text-4xl lg:text-5xl text-rezvo-forest mb-6">
                 Ready to Stop Losing Time?
             </h2>
             <p class="text-xl text-rezvo-forest/70 mb-10 max-w-2xl mx-auto leading-relaxed">
@@ -722,9 +722,9 @@
                 <div class="col-span-2">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="bg-rezvo-mint text-rezvo-forest w-10 h-10 rounded-xl flex items-center justify-center">
-                            <span class="font-heading font-extrabold text-xl">R</span>
+                            <span class="font-sans font-extrabold text-xl">R</span>
                         </div>
-                        <span class="font-heading font-extrabold text-2xl text-white tracking-tight">REZVO</span>
+                        <span class="font-sans font-extrabold text-2xl text-white tracking-tight">REZVO</span>
                     </div>
                     <p class="text-white/50 text-sm leading-relaxed mb-6 max-w-xs">The zero-commission booking &amp; ordering platform helping UK restaurants and service businesses thrive.</p>
                     <div class="flex gap-3">
@@ -785,7 +785,7 @@
 
             <!-- Divider + giant watermark -->
             <div class="border-t border-white/10 pt-10 text-center">
-                <h1 class="font-heading font-extrabold text-[12vw] leading-none text-rezvo-mint opacity-10 select-none">REZVO</h1>
+                <h1 class="font-sans font-extrabold text-[12vw] leading-none text-rezvo-mint opacity-10 select-none">REZVO</h1>
             </div>
 
             <!-- Bottom bar -->

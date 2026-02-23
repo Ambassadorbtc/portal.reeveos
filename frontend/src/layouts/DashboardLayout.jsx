@@ -52,17 +52,17 @@ const DashboardLayout = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF7F2]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
-          <p className="mt-4 text-muted">Loading...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1B4332] mx-auto" />
+          <p className="mt-4 text-[#7A776F]">Loading...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="h-screen flex overflow-hidden bg-background">
+    <div className="h-screen flex overflow-hidden bg-[#FAF7F2]">
       <Sidebar open={sidebarOpen} onNavigate={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col overflow-hidden min-w-0 transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]">

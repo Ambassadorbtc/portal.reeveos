@@ -1,3 +1,4 @@
+/** Rezvo Brand Tokens — LOCKED Feb 2026 */
 export default {
   content: [
     "./index.html",
@@ -6,66 +7,52 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#1B4332',
-        'primary-hover': '#143326',
-        background: '#FEFBF4',
-        card: '#FFFFFF',
-        border: '#E8E0D4',
-        success: '#22C55E',
-        warning: '#F59E0B',
-        error: '#EF4444',
-        info: '#3B82F6',
-        text: {
-          main: '#1B4332',
-          muted: '#6B7280',
-          light: '#9CA3AF',
-        },
-        forest: {
-          DEFAULT: '#1B4332',
-          dark: '#0A1F14',
-          darker: '#061209'
-        },
-        sage: '#2D6A4F',
-        green: '#40916C',
-        mint: '#52B788',
-        'light-green': '#74C69D',
-        'pale-green': '#D8F3DC',
-        cream: '#FAFAF7',
-        warm: '#F4F0E8',
-        sand: '#E8E0D0',
-        latte: '#D4C5A9',
-        brown: '#8B7355',
-        espresso: '#5C4A32',
-        gold: '#D4A017',
-        amber: '#B8860B',
-        coral: '#E8634A',
-        'off-white': '#F4F5F0',
-        border: '#E2E5DF',
-        'warm-border': '#DDD5C5',
-        text: '#2A2A28',
-        muted: '#6B706D',
-        subtle: '#9CA09E'
+        /* ── Core palette ── */
+        forest:           { DEFAULT: '#1B4332', dark: '#0A1F14' },
+        fern:             '#2D6A4F',
+        sage:             '#40916C',
+        mint:             '#D8F3DC',
+        terracotta:       { DEFAULT: '#D4A373', dark: '#B8895A' },
+        cream:            '#FAF7F2',
+        ink:              '#141413',
+
+        /* ── Semantic ── */
+        text:             '#2C2C2A',
+        muted:            '#7A776F',
+        border:           { DEFAULT: '#E8E4DD', light: '#F0EDE7' },
+        background:       '#FAF7F2',
+        card:             '#FFFFFF',
+
+        /* ── Aliases (backward compat) ── */
+        primary:          '#1B4332',
+        'primary-hover':  '#143326',
+
+        /* ── Status ── */
+        'status-confirmed':     '#065F46',
+        'status-confirmed-bg':  '#ECFDF5',
+        'status-pending':       '#92400E',
+        'status-pending-bg':    '#FFFBEB',
+        'status-cancelled':     '#991B1B',
+        'status-cancelled-bg':  '#FEF2F2',
+        'status-seated':        '#1E40AF',
+        'status-seated-bg':     '#EFF6FF',
       },
       fontFamily: {
-        sans: ['Figtree', 'system-ui', 'sans-serif'],
-        display: ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
-        heading: ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
-        body: ['Figtree', 'system-ui', 'sans-serif'],
+        sans:     ['Figtree', 'system-ui', 'sans-serif'],
+        body:     ['Figtree', 'system-ui', 'sans-serif'],
+        heading:  ['Figtree', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
-        card: '16px',
+        card:  '12px',
         input: '8px',
-        pill: '100px'
+        pill:  '9999px',
       },
       boxShadow: {
-        card: '0 4px 20px -2px rgba(27, 67, 50, 0.08)',
-        'card-hover': '0 12px 40px -4px rgba(27, 67, 50, 0.15)'
+        soft:  '0 4px 20px -2px rgba(20, 20, 19, 0.06)',
+        card:  '0 4px 20px -2px rgba(20, 20, 19, 0.06)',
+        'card-hover': '0 12px 40px -4px rgba(20, 20, 19, 0.12)',
       },
-      transitionDuration: {
-        fast: '120ms',
-        normal: '200ms'
-      }
-    }
+    },
   },
-  plugins: []
+  plugins: [],
 }

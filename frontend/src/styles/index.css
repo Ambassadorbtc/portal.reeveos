@@ -2,14 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* BRAND ENFORCEMENT — DO NOT REMOVE */
-body, p, span, a, button, input, select, textarea, li, td, th, label, div {
-  font-family: 'Figtree', system-ui, sans-serif;
-}
+/* ═══ REZVO BRAND — LOCKED FEB 2026 ═══
+   Font: Figtree (single font system, all weights)
+   No Bricolage Grotesque anywhere.
+*/
 
-h1, h2, h3, h4, h5, h6,
-.font-heading, .font-display {
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif !important;
+body, p, span, a, button, input, select, textarea, li, td, th, label, div,
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: 'Figtree', system-ui, sans-serif;
 }
 
 @layer base {
@@ -18,57 +18,58 @@ h1, h2, h3, h4, h5, h6,
   }
 
   body {
-    @apply bg-background text-primary antialiased;
+    @apply bg-cream text-text antialiased;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
 @layer components {
   .btn {
-    @apply px-6 py-3 rounded-input font-medium transition-all duration-fast;
+    @apply px-6 py-3 rounded-input font-semibold transition-all duration-200;
   }
 
   .btn-primary {
-    @apply btn bg-forest text-white hover:bg-sage;
+    @apply btn bg-forest text-white hover:bg-fern;
   }
 
   .btn-secondary {
-    @apply btn bg-off-white text-text hover:bg-border;
+    @apply btn bg-cream text-text hover:bg-border;
   }
 
   .btn-outline {
     @apply btn border-2 border-forest text-forest hover:bg-forest hover:text-white;
   }
 
+  .btn-terracotta {
+    @apply btn bg-terracotta text-forest hover:bg-terracotta-dark;
+    border-radius: 9999px;
+  }
+
   .input {
-    @apply w-full px-4 py-3 rounded-input border border-border bg-white text-text placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-mint transition-all duration-fast;
+    @apply w-full px-4 py-3 rounded-input border border-border bg-white text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-sage/20 focus:border-sage transition-all duration-200;
   }
 
   .card {
-    @apply bg-white rounded-card shadow-card p-6;
+    @apply bg-white rounded-card shadow-card p-6 border border-border;
   }
 
   .badge {
-    @apply inline-flex items-center px-3 py-1 rounded-pill text-sm font-medium;
+    @apply inline-flex items-center px-3 py-1 rounded-pill text-sm font-semibold;
   }
 
-  .badge-success {
-    @apply badge bg-pale-green text-forest;
+  .badge-confirmed {
+    @apply badge bg-status-confirmed-bg text-status-confirmed;
+  }
+  .badge-pending {
+    @apply badge bg-status-pending-bg text-status-pending;
+  }
+  .badge-cancelled {
+    @apply badge bg-status-cancelled-bg text-status-cancelled;
+  }
+  .badge-seated {
+    @apply badge bg-status-seated-bg text-status-seated;
   }
 
-  .badge-warning {
-    @apply badge bg-gold/20 text-gold;
-  }
-
-  .badge-error {
-    @apply badge bg-coral/20 text-coral;
-  }
-
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 }

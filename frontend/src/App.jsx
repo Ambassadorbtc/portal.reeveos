@@ -3,7 +3,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import { TierProvider } from './contexts/TierContext'
 import { BusinessProvider } from './contexts/BusinessContext'
 import ScrollToTop from './components/ScrollToTop'
-// ChatWidget removed — RezvoSupportBot now in DashboardLayout
+import RezvoSupportBot from './components/RezvoSupportBot'
 
 import DashboardLayout from './layouts/DashboardLayout'
 import AdminLayout from './layouts/AdminLayout'
@@ -126,6 +126,7 @@ const App = () => {
         </TierProvider>
       </AuthProvider>
     </Router>
+    <RezvoSupportBot />
     </>
   )
 }

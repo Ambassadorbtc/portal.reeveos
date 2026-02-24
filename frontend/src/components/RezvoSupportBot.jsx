@@ -269,11 +269,11 @@ export default function RezvoSupportBot() {
         
         .rezvo-chat-bubble {
           position: fixed;
-          bottom: 24px;
-          right: 24px;
+          bottom: 20px;
+          right: 20px;
           z-index: 9999;
-          width: 64px;
-          height: 64px;
+          width: 52px;
+          height: 52px;
           border-radius: 50%;
           background: linear-gradient(135deg, #1B4332, #2D6A4F);
           color: white;
@@ -368,7 +368,7 @@ export default function RezvoSupportBot() {
       {fabOpen && !isOpen && !activePanel && (
         <>
           <div onClick={() => setFabOpen(false)} style={{ position:'fixed', inset:0, zIndex:9990 }} />
-          <div style={{ position:'fixed', bottom:100, right:24, zIndex:9998, display:'flex', flexDirection:'column', gap:8, alignItems:'flex-end' }}>
+          <div style={{ position:'fixed', bottom:84, right:20, zIndex:9998, display:'flex', flexDirection:'column', gap:8, alignItems:'flex-end' }}>
             {[
               { label: 'New Booking', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', action: () => { setActivePanel('booking'); setFabOpen(false); } },
               { label: 'Walk-in', icon: 'M13 10V3L4 14h7v7l9-11h-7z', action: () => { setActivePanel('walkin'); setFabOpen(false); } },
@@ -400,15 +400,15 @@ export default function RezvoSupportBot() {
       >
         {!isOpen && !activePanel && !fabOpen && pulseCount < 3 && <div className="pulse-ring" />}
         {isOpen || activePanel ? (
-          <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         ) : fabOpen ? (
-          <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         ) : (
-          <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
         )}
@@ -416,7 +416,7 @@ export default function RezvoSupportBot() {
 
       {/* ── New Booking Panel ── */}
       {activePanel === 'booking' && (
-        <div className="chat-window-enter" style={{ position:'fixed', bottom:100, right:24, width:380, maxHeight:'calc(100vh - 140px)', background:'white', borderRadius:20, boxShadow:'0 20px 60px rgba(0,0,0,.15)', zIndex:9998, overflow:'hidden', display:'flex', flexDirection:'column' }}>
+        <div className="chat-window-enter" style={{ position:'fixed', bottom:84, right:20, width:380, maxHeight:'calc(100vh - 140px)', background:'white', borderRadius:20, boxShadow:'0 20px 60px rgba(0,0,0,.15)', zIndex:9998, overflow:'hidden', display:'flex', flexDirection:'column' }}>
           <div style={{ background:'linear-gradient(135deg,#1B4332,#2D6A4F)', padding:'16px 20px', color:'white' }}>
             <div style={{ fontSize:16, fontWeight:700 }}>New Booking</div>
             <div style={{ fontSize:12, opacity:.7 }}>Add a reservation</div>
@@ -461,7 +461,7 @@ export default function RezvoSupportBot() {
 
       {/* ── Walk-in Panel ── */}
       {activePanel === 'walkin' && (
-        <div className="chat-window-enter" style={{ position:'fixed', bottom:100, right:24, width:380, background:'white', borderRadius:20, boxShadow:'0 20px 60px rgba(0,0,0,.15)', zIndex:9998, overflow:'hidden' }}>
+        <div className="chat-window-enter" style={{ position:'fixed', bottom:84, right:20, width:380, background:'white', borderRadius:20, boxShadow:'0 20px 60px rgba(0,0,0,.15)', zIndex:9998, overflow:'hidden' }}>
           <div style={{ background:'linear-gradient(135deg,#D4A373,#B8895A)', padding:'16px 20px', color:'white' }}>
             <div style={{ display:'flex', alignItems:'center', gap:8 }}>
               <div style={{ fontSize:16, fontWeight:700 }}>Walk-in</div>

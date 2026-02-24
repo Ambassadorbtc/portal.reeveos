@@ -123,14 +123,14 @@ const PickTimeSlot = ({ data, onContinue, onBack }) => {
         Back
       </button>
 
-      <div className="flex items-center gap-3 px-3 py-2 bg-[#1B4332]/[0.03] rounded-lg border border-[#1B4332]/10 mb-4">
-        <div className="flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-1 text-[#1B4332]">
-            <Users className="w-3.5 h-3.5" />
+      <div className="flex items-center gap-2 sm:gap-3 px-3 py-2 sm:p-3 bg-[#1B4332]/[0.03] rounded-lg sm:rounded-xl border border-[#1B4332]/10 mb-4 sm:mb-6">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-[#1B4332]">
+            <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="font-medium">{guests} {guests === 1 ? 'guest' : 'guests'}</span>
           </div>
-          <div className="flex items-center gap-1 text-[#1B4332]">
-            <Calendar className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-[#1B4332]">
+            <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="font-medium">{dateLabel}</span>
           </div>
         </div>

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Business Insights Report — Rezvo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --forest: #1B4332;
+  --forest-light: #2D6A4F;
+  --mint: #52B788;
+  --mint-light: #74C69D;
+  --cream: #FEFBF4;
+  --coral: #FF6B6B;
+  --amber: #F59E0B;
+  --blue: #3B82F6;
+  --green-score: #10B981;
+  --red-score: #EF4444;
+  --orange-score: #F97316;
+  --yellow-score: #EAB308;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Figtree', system-ui, sans-serif;
+  background: #f8f9fa;
+  color: #333;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Loading State ─── */
+#loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 20px;
+}
+.loader {
+  width: 50px; height: 50px;
+  border: 4px solid #e5e7eb;
+  border-top-color: var(--forest);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#loading p { color: #888; font-size: 14px; font-weight: 500; }
+
+/* ─── Error/Expired State ─── */
+#error-state {
+  display: none;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+.error-card {
+  max-width: 500px;
+  background: #fff;
+  border-radius: 24px;
+  padding: 48px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+}
+.error-card .emoji { font-size: 48px; margin-bottom: 16px; }
+.error-card h1 { font-size: 24px; font-weight: 800; color: var(--forest); margin-bottom: 12px; }
+.error-card p { color: #666; margin-bottom: 24px; }
+.error-card a {
+  display: inline-block;
+  background: var(--forest);
+  color: #fff;
+  padding: 12px 32px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+.error-card a:hover { background: var(--mint); color: var(--forest); }
+
+/* ─── Report Container ─── */
+#report { display: none; }
+
+/* ─── Hero Header ─── */
+.hero {
+  background: linear-gradient(135deg, var(--forest) 0%, var(--forest-light) 50%, var(--mint) 100%);
+  color: #fff;
+  padding: 48px 24px 64px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%; right: -20%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.hero-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.15);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+}
+.hero h1 {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+.hero .business-name { color: var(--mint-light); }
+.hero p { font-size: 16px; opacity: 0.85; max-width: 600px; }
+.hero .expiry-notice {
+  margin-top: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.1);
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.hero .expiry-notice.urgent { background: rgba(239,68,68,0.3); }
+
+/* ─── Score Ring ─── */
+.score-section {
+  max-width: 900px;
+  margin: -40px auto 0;
+  padding: 0 24px;
+  position: relative;
+  z-index: 2;
+}
+.score-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.score-ring-wrap {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+}
+.score-ring-wrap svg {
+  width: 160px;
+  height: 160px;
+  transform: rotate(-90deg);
+}
+.score-ring-bg {
+  fill: none;
+  stroke: #f0f0f0;
+  stroke-width: 10;
+}
+.score-ring-fill {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.5s ease-out;
+}
+.score-number {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.score-number .num {
+  font-size: 48px;
+  font-weight: 900;
+  line-height: 1;
+}
+.score-number .grade {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.6;
+}
+.score-details { flex: 1; min-width: 250px; }
+.score-details h2 { font-size: 22px; font-weight: 800; color: var(--forest); margin-bottom: 8px; }
+.score-details p { color: #666; font-size: 14px; margin-bottom: 16px; }
+.score-bars { display: flex; flex-direction: column; gap: 10px; }
+.score-bar-item { display: flex; align-items: center; gap: 12px; }
+.score-bar-label { font-size: 12px; font-weight: 600; color: #555; width: 100px; flex-shrink: 0; }
+.score-bar-track { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+.score-bar-fill { height: 100%; border-radius: 4px; transition: width 1.2s ease-out; }
+.score-bar-value { font-size: 12px; font-weight: 700; width: 35px; text-align: right; }
+
+/* ─── Sections ─── */
+.sections {
+  max-width: 900px;
+  margin: 32px auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.section-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  border: 1px solid #f0f0f0;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.section-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.section-header h3 { font-size: 18px; font-weight: 800; color: var(--forest); flex: 1; }
+.section-score-badge {
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.issue-list { display: flex; flex-direction: column; gap: 10px; }
+.issue-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #FEF2F2;
+  border-radius: 12px;
+  border-left: 3px solid var(--coral);
+  font-size: 13px;
+  color: #991B1B;
+  line-height: 1.5;
+}
+.issue-item.good {
+  background: #F0FDF4;
+  border-left-color: var(--green-score);
+  color: #166534;
+}
+.issue-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+/* ─── Recommendations ─── */
+.recs-card {
+  background: linear-gradient(135deg, var(--forest) 0%, var(--forest-light) 100%);
+  border-radius: 20px;
+  padding: 36px;
+  color: #fff;
+}
+.recs-card h3 {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+.rec-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.rec-item:last-child { border-bottom: none; }
+.rec-num {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+/* ─── Commission Savings ─── */
+.savings-card {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border-radius: 20px;
+  padding: 36px;
+  text-align: center;
+  border: 2px solid #F59E0B;
+}
+.savings-card .emoji { font-size: 36px; margin-bottom: 12px; }
+.savings-card h3 { font-size: 18px; font-weight: 800; color: #92400E; margin-bottom: 8px; }
+.savings-amount { font-size: 48px; font-weight: 900; color: #92400E; line-height: 1.2; }
+.savings-card p { font-size: 14px; color: #A16207; margin-top: 8px; }
+
+/* ─── CTA ─── */
+.cta-section {
+  max-width: 900px;
+  margin: 0 auto 60px;
+  padding: 0 24px;
+}
+.cta-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  border: 2px solid var(--mint);
+}
+.cta-card h3 { font-size: 24px; font-weight: 900; color: var(--forest); margin-bottom: 12px; }
+.cta-card p { color: #666; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto; }
+.cta-btn {
+  display: inline-block;
+  background: var(--forest);
+  color: #fff;
+  padding: 16px 40px;
+  border-radius: 14px;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 16px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 16px rgba(27,67,50,0.3);
+}
+.cta-btn:hover {
+  background: var(--mint);
+  color: var(--forest);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(27,67,50,0.2);
+}
+.cta-sub { font-size: 12px; color: #999; margin-top: 12px; }
+
+/* ─── Footer ─── */
+.report-footer {
+  text-align: center;
+  padding: 24px;
+  color: #bbb;
+  font-size: 12px;
+}
+.report-footer a { color: var(--mint); text-decoration: none; }
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+  .score-card { padding: 24px; gap: 24px; justify-content: center; text-align: center; }
+  .score-details { text-align: left; }
+  .score-bar-label { width: 80px; }
+  .section-card { padding: 24px; }
+  .hero { padding: 32px 20px 48px; }
+  .savings-amount { font-size: 36px; }
+}
+
+/* ─── Animations ─── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.6s ease-out forwards;
+}
+.fade-in:nth-child(2) { animation-delay: 0.1s; }
+.fade-in:nth-child(3) { animation-delay: 0.2s; }
+.fade-in:nth-child(4) { animation-delay: 0.3s; }
+.fade-in:nth-child(5) { animation-delay: 0.4s; }
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading">
+  <div class="loader"></div>
+  <p>Generating your business insights...</p>
+</div>
+
+<!-- Error/Expired State -->
+<div id="error-state">
+  <div class="error-card">
+    <div class="emoji" id="error-emoji">⏰</div>
+    <h1 id="error-title">Report Expired</h1>
+    <p id="error-message">This report is no longer available. Get in touch and we'll generate a fresh one for you.</p>
+    <a href="mailto:hello@rezvo.app?subject=Fresh%20Business%20Report">Request a Fresh Report</a>
+  </div>
+</div>
+
+<!-- Report Content -->
+<div id="report">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">📊 Business Insights Report</div>
+      <h1>Online Presence Audit for<br><span class="business-name" id="hero-name">Loading...</span></h1>
+      <p>A comprehensive review of your website, Google listing, social media, and online ordering — with actionable recommendations to grow your business.</p>
+      <div class="expiry-notice" id="expiry-notice">
+        🕐 <span id="expiry-text">This report expires in 15 days</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overall Score -->
+  <div class="score-section">
+    <div class="score-card fade-in">
+      <div class="score-ring-wrap">
+        <svg viewBox="0 0 160 160">
+          <circle class="score-ring-bg" cx="80" cy="80" r="65"/>
+          <circle class="score-ring-fill" id="score-ring" cx="80" cy="80" r="65"
+            stroke-dasharray="408.4" stroke-dashoffset="408.4"/>
+        </svg>
+        <div class="score-number">
+          <div class="num" id="score-num">0</div>
+          <div class="grade" id="score-grade">—</div>
+        </div>
+      </div>
+      <div class="score-details">
+        <h2 id="score-headline">Calculating...</h2>
+        <p id="score-summary">We've analysed your online presence across 4 key areas.</p>
+        <div class="score-bars">
+          <div class="score-bar-item">
+            <span class="score-bar-label">🌐 Website</span>
+            <div class="score-bar-track"><div class="score-bar-fill" id="bar-website" style="width:0%;background:var(--forest)"></div></div>
+            <span class="score-bar-value" id="val-website">0</span>
+          </div>
+          <div class="score-bar-item">
+            <span class="score-bar-label">📍 Google</span>
+            <div class="score-bar-track"><div class="score-bar-fill" id="bar-google" style="width:0%;background:var(--blue)"></div></div>
+            <span class="score-bar-value" id="val-google">0</span>
+          </div>
+          <div class="score-bar-item">
+            <span class="score-bar-label">📘 Facebook</span>
+            <div class="score-bar-track"><div class="score-bar-fill" id="bar-facebook" style="width:0%;background:var(--blue)"></div></div>
+            <span class="score-bar-value" id="val-facebook">0</span>
+          </div>
+          <div class="score-bar-item">
+            <span class="score-bar-label">🛵 Ordering</span>
+            <div class="score-bar-track"><div class="score-bar-fill" id="bar-ordering" style="width:0%;background:var(--amber)"></div></div>
+            <span class="score-bar-value" id="val-ordering">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sections -->
+  <div class="sections" id="sections-container">
+    <!-- Dynamically populated -->
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <div class="cta-card fade-in">
+      <h3>Ready to fix these issues?</h3>
+      <p>Rezvo gives you online booking, ordering, delivery, and customer management — all with zero commission. Start free today.</p>
+      <a href="https://rezvo.app/signup" class="cta-btn">Get Started Free →</a>
+      <div class="cta-sub">30-day free trial · No credit card needed · Cancel anytime</div>
+    </div>
+  </div>
+
+  <div class="report-footer">
+    <p>Generated by <a href="https://rezvo.app">Rezvo</a> · Your High Street, Booked · <a href="mailto:hello@rezvo.app">hello@rezvo.app</a></p>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // Extract slug and token from URL: /insights/{slug}/{token}
+  var parts = window.location.pathname.split('/').filter(Boolean);
+  var slug = parts[1] || '';
+  var token = parts[2] || '';
+
+  if (!slug || !token) {
+    showError('Invalid Link', 'This report link appears to be invalid. Please check the link in your email.', '🔗');
+    return;
+  }
+
+  // Fetch report
+  fetch('/api/insights/reports/' + slug + '/' + token)
+    .then(function(res) {
+      if (res.status === 410) {
+        return res.json().then(function(data) {
+          showError(
+            'Report Expired',
+            'This report for ' + (data.detail.business_name || 'your business') + ' has expired. Get in touch and we\'ll generate a fresh one!',
+            '⏰'
+          );
+          throw new Error('expired');
+        });
+      }
+      if (!res.ok) throw new Error('not_found');
+      return res.json();
+    })
+    .then(function(data) {
+      renderReport(data);
+    })
+    .catch(function(err) {
+      if (err.message === 'expired') return;
+      if (err.message === 'not_found') {
+        showError('Report Not Found', 'We couldn\'t find this report. It may have been removed or the link is incorrect.', '🔍');
+      }
+    });
+
+  function showError(title, message, emoji) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-state').style.display = 'flex';
+    document.getElementById('error-title').textContent = title;
+    document.getElementById('error-message').textContent = message;
+    document.getElementById('error-emoji').textContent = emoji;
+  }
+
+  function scoreColor(score) {
+    if (score >= 70) return 'var(--green-score)';
+    if (score >= 50) return 'var(--yellow-score)';
+    if (score >= 30) return 'var(--orange-score)';
+    return 'var(--red-score)';
+  }
+
+  function gradeText(grade, score) {
+    if (score >= 80) return 'Excellent — you\'re ahead of most competitors';
+    if (score >= 65) return 'Good — a few improvements could make a big difference';
+    if (score >= 50) return 'Average — there\'s significant room for growth';
+    if (score >= 35) return 'Below average — you\'re losing customers to competitors';
+    return 'Needs urgent attention — your online presence is hurting your business';
+  }
+
+  function renderReport(data) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('report').style.display = 'block';
+
+    // Hero
+    document.getElementById('hero-name').textContent = data.business_name;
+    document.title = data.business_name + ' — Business Insights Report | Rezvo';
+
+    // Expiry
+    var daysLeft = data.days_remaining || 0;
+    var expiryEl = document.getElementById('expiry-notice');
+    var expiryText = document.getElementById('expiry-text');
+    if (daysLeft <= 3) {
+      expiryEl.classList.add('urgent');
+      expiryText.textContent = '⚠️ This report expires in ' + daysLeft + ' day' + (daysLeft !== 1 ? 's' : '') + '!';
+    } else {
+      expiryText.textContent = 'This report expires in ' + daysLeft + ' days';
+    }
+
+    // Score ring
+    var score = data.overall_score || 0;
+    var ring = document.getElementById('score-ring');
+    var circumference = 408.4;
+    var offset = circumference - (score / 100) * circumference;
+    ring.style.stroke = scoreColor(score);
+
+    setTimeout(function() {
+      ring.style.strokeDashoffset = offset;
+      animateNumber('score-num', 0, score, 1500);
+    }, 300);
+
+    document.getElementById('score-grade').textContent = 'Grade: ' + (data.overall_grade || '?');
+    document.getElementById('score-headline').textContent = gradeText(data.overall_grade, score);
+
+    // Score bars
+    var w = data.website || {};
+    var g = data.google || {};
+    var f = data.facebook || {};
+    var o = data.ordering || {};
+
+    setTimeout(function() {
+      setBar('website', w.score || 0);
+      setBar('google', g.score || 0);
+      setBar('facebook', f.score || 0);
+      setBar('ordering', o.score || 0);
+    }, 600);
+
+    // Build sections
+    var container = document.getElementById('sections-container');
+    container.innerHTML = '';
+
+    // Website section
+    container.appendChild(buildSection('🌐', 'Website & SEO', w.score || 0, w.issues || [],
+      w.has_website ? '#E8F5E9' : '#FEF2F2'));
+
+    // Google section
+    container.appendChild(buildSection('📍', 'Google Business Profile', g.score || 0, g.issues || [],
+      g.has_google_profile ? '#E3F2FD' : '#FEF2F2'));
+
+    // Facebook section
+    container.appendChild(buildSection('📘', 'Facebook Presence', f.score || 0, f.issues || [],
+      '#E3F2FD'));
+
+    // Ordering section
+    container.appendChild(buildSection('🛵', 'Online Ordering & Delivery', o.score || 0, o.issues || [],
+      '#FFF8E1'));
+
+    // Commission savings
+    if (data.estimated_annual_commission_savings && data.estimated_annual_commission_savings > 0) {
+      var savingsEl = document.createElement('div');
+      savingsEl.className = 'savings-card fade-in';
+      savingsEl.innerHTML = '<div class="emoji">💸</div>' +
+        '<h3>Estimated Commission You\'re Losing Per Year</h3>' +
+        '<div class="savings-amount">£' + Math.round(data.estimated_annual_commission_savings).toLocaleString() + '</div>' +
+        '<p>By switching to Rezvo with Uber Direct, you could keep most of this revenue. Zero marketplace commission — just a flat monthly fee.</p>';
+      container.appendChild(savingsEl);
+    }
+
+    // Recommendations
+    var recs = data.top_recommendations || [];
+    if (recs.length > 0) {
+      var recsEl = document.createElement('div');
+      recsEl.className = 'recs-card fade-in';
+      var recsHTML = '<h3>🎯 Top Recommendations</h3>';
+      recs.forEach(function(rec, i) {
+        recsHTML += '<div class="rec-item"><div class="rec-num">' + (i + 1) + '</div><div>' + rec + '</div></div>';
+      });
+      recsEl.innerHTML = recsHTML;
+      container.appendChild(recsEl);
+    }
+  }
+
+  function buildSection(icon, title, score, issues, bgColor) {
+    var card = document.createElement('div');
+    card.className = 'section-card fade-in';
+
+    var html = '<div class="section-header">' +
+      '<div class="section-icon" style="background:' + bgColor + '">' + icon + '</div>' +
+      '<h3>' + title + '</h3>' +
+      '<div class="section-score-badge" style="background:' + scoreColor(score) + '">' + score + '/100</div>' +
+      '</div>';
+
+    if (issues.length > 0) {
+      html += '<div class="issue-list">';
+      issues.forEach(function(issue) {
+        var isGood = issue.toLowerCase().indexOf('great') !== -1 ||
+                     issue.toLowerCase().indexOf('you have') !== -1;
+        html += '<div class="issue-item ' + (isGood ? 'good' : '') + '">' +
+          '<span class="issue-icon">' + (isGood ? '✅' : '⚠️') + '</span>' +
+          '<span>' + issue + '</span></div>';
+      });
+      html += '</div>';
+    } else {
+      html += '<div class="issue-item good"><span class="issue-icon">✅</span><span>Looking good! No major issues found.</span></div>';
+    }
+
+    card.innerHTML = html;
+    return card;
+  }
+
+  function setBar(id, score) {
+    document.getElementById('bar-' + id).style.width = score + '%';
+    document.getElementById('bar-' + id).style.background = scoreColor(score);
+    document.getElementById('val-' + id).textContent = score;
+  }
+
+  function animateNumber(id, start, end, duration) {
+    var el = document.getElementById(id);
+    var range = end - start;
+    var startTime = null;
+    function step(timestamp) {
+      if (!startTime) startTime = timestamp;
+      var progress = Math.min((timestamp - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(start + range * eased);
+      el.style.color = scoreColor(Math.round(start + range * eased));
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+})();
+</script>
+</body>
+</html>

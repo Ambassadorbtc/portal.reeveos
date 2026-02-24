@@ -24,6 +24,7 @@ from .run6_booking_page import router as run6_booking_page_router
 from .run7_clients import router as run7_clients_router
 from .run13_settings import router as run13_settings_router
 from .chatbot import router as chatbot_router
+from .insights import router as insights_router
 
 __all__ = [
     "auth_router",
@@ -52,4 +53,5 @@ __all__ = [
     "run7_clients_router",
     "run13_settings_router",
     "chatbot_router",
+    "insights_router",
 ]

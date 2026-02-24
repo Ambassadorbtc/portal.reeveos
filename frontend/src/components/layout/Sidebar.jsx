@@ -12,7 +12,8 @@ import {
   LayoutDashboard, Calendar, ClipboardList, Link2, UtensilsCrossed, Scissors,
   Users, Globe, ShoppingBag, BookUser, Star, BarChart3, CreditCard,
   LayoutGrid, Megaphone, Settings, HelpCircle,
-  ChevronLeft, ChevronRight, ChevronDown, Lock
+  ChevronLeft, ChevronRight, ChevronDown, Lock,
+  Send, Bot, Linkedin
 } from 'lucide-react'
 
 /* ── Color tokens ── */
@@ -44,6 +45,9 @@ const ICON_MAP = {
   'fa-bullhorn': Megaphone,
   'fa-gear': Settings,
   'fa-circle-question': HelpCircle,
+  'fa-paper-plane': Send,
+  'fa-robot': Bot,
+  'fa-linkedin': Linkedin,
 }
 
 /* ── Build grouped sections from nav config ── */

@@ -31,6 +31,13 @@ def _register_tasks():
         process_onboarding_drip,
         learn_from_conversations,
     )
+    from agent.tasks.outreach import (
+        outreach_warmup_cycle,
+        outreach_daily_advance,
+        outreach_process_campaigns,
+        outreach_health_scoring,
+        outreach_campaign_status_check,
+    )
 
     global _task_schedule
     _task_schedule = [
@@ -46,8 +53,14 @@ def _register_tasks():
         ("lead_research",       24 * 60 * 60,   research_and_outreach_leads, None, True, 10), # 10 AM
         ("seo_content",         24 * 60 * 60,   generate_seo_content,       None, True,  3),  # 3 AM
         ("knowledge_learning",  24 * 60 * 60,   learn_from_conversations,   None, True,  2),  # 2 AM
+        # ═══ Outreach Engine Tasks ═══
+        ("outreach_warmup",     2 * 60 * 60,    outreach_warmup_cycle,      None, False, None),   # Every 2h
+        ("outreach_daily",      24 * 60 * 60,   outreach_daily_advance,     None, True,  0),      # Midnight
+        ("outreach_campaigns",  30 * 60,        outreach_process_campaigns, None, False, None),    # Every 30m
+        ("outreach_health",     6 * 60 * 60,    outreach_health_scoring,    None, False, None),    # Every 6h
+        ("outreach_status",     60 * 60,        outreach_campaign_status_check, None, False, None), # Every 1h
     ]
-    logger.info(f"Registered {len(_task_schedule)} agent tasks")
+    logger.info(f"Registered {len(_task_schedule)} agent tasks (including outreach engine)")
 
 
 async def run_agent_tick():

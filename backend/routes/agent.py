@@ -204,6 +204,11 @@ async def run_task_manually(req: ManualTaskRequest):
         process_dunning, generate_seo_content, process_onboarding_drip,
         learn_from_conversations,
     )
+    from agent.tasks.outreach import (
+        outreach_warmup_cycle, outreach_daily_advance,
+        outreach_process_campaigns, outreach_health_scoring,
+        outreach_campaign_status_check,
+    )
     
     task_map = {
         "health_check": health_check,
@@ -217,6 +222,12 @@ async def run_task_manually(req: ManualTaskRequest):
         "seo_content": generate_seo_content,
         "onboarding_drip": process_onboarding_drip,
         "knowledge_learning": learn_from_conversations,
+        # Outreach engine tasks
+        "outreach_warmup": outreach_warmup_cycle,
+        "outreach_daily": outreach_daily_advance,
+        "outreach_campaigns": outreach_process_campaigns,
+        "outreach_health": outreach_health_scoring,
+        "outreach_status": outreach_campaign_status_check,
     }
     
     func = task_map.get(req.task)

@@ -71,7 +71,46 @@ async def ensure_agent_indexes():
         await db.linkedin_posts.create_index("status")
         await db.linkedin_posts.create_index([("created_at", -1)])
 
-        logger.info("Agent indexes created successfully")
+        # ═══ Outreach Engine Indexes ═══
+
+        # Outreach domains
+        await db.outreach_domains.create_index("domain", unique=True)
+        await db.outreach_domains.create_index("status")
+
+        # Outreach accounts
+        await db.outreach_accounts.create_index("email", unique=True)
+        await db.outreach_accounts.create_index("domain")
+        await db.outreach_accounts.create_index("status")
+
+        # Outreach campaigns
+        await db.outreach_campaigns.create_index("status")
+        await db.outreach_campaigns.create_index([("city", 1), ("cuisine", 1)])
+        await db.outreach_campaigns.create_index([("created_at", -1)])
+
+        # Outreach sends — high-traffic collection, needs good indexes
+        await db.outreach_sends.create_index([("campaign_id", 1), ("step_number", 1)])
+        await db.outreach_sends.create_index("lead_id")
+        await db.outreach_sends.create_index("status")
+        await db.outreach_sends.create_index("resend_message_id")
+        await db.outreach_sends.create_index([("account_email", 1), ("created_at", -1)])
+        await db.outreach_sends.create_index("queued_at")
+        await db.outreach_sends.create_index([("to_email", 1), ("created_at", -1)])
+
+        # Outreach replies
+        await db.outreach_replies.create_index("campaign_id")
+        await db.outreach_replies.create_index("classification")
+        await db.outreach_replies.create_index("is_read")
+        await db.outreach_replies.create_index([("received_at", -1)])
+
+        # Outreach warmup log
+        await db.outreach_warmup_log.create_index([("account_email", 1), ("date", -1)])
+        await db.outreach_warmup_log.create_index([("domain", 1), ("day_number", 1)])
+
+        # Outreach templates
+        await db.outreach_templates.create_index([("angle", 1), ("step_number", 1)])
+        await db.outreach_templates.create_index("category")
+
+        logger.info("Agent indexes created successfully (including outreach engine)")
 
     except Exception as e:
         logger.error(f"Index creation error: {e}")

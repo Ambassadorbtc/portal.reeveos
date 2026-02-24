@@ -30,6 +30,7 @@ export const getNavItems = (businessType) => {
       { id: 'marketing', label: 'Marketing', icon: 'fa-bullhorn', path: '/dashboard/marketing', minTier: 'growth' },
       { id: 'linkedin', label: 'LinkedIn AI', icon: 'fa-linkedin', path: '/dashboard/linkedin', minTier: 'growth' },
       { id: 'ai-ops', label: 'AI Ops Centre', icon: 'fa-robot', path: '/dashboard/ai-ops', minTier: 'growth' },
+      { id: 'email-outreach', label: 'Email Outreach', icon: 'fa-paper-plane', path: '/dashboard/email-outreach', minTier: 'growth' },
     ],
     system: [
       { id: 'settings', label: 'Settings', icon: 'fa-gear', path: '/dashboard/settings', minTier: 'free' },

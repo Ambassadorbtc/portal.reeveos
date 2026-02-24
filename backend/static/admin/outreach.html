@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Ops Centre - Email Outreach Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'DM Sans', sans-serif; background-color: #F0F1F3; color: #1A1A1A; }
+        .sidebar-gradient { background: linear-gradient(180deg, #1A1A1A 0%, #2D3748 100%); }
+        .card-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-effect { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .pulse-green { animation: pulseGreen 2s infinite; }
+        @keyframes pulseGreen { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .warmup-bar { transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tab-active { border-bottom: 2px solid #1B4332; color: #1A1A1A; font-weight: 600; }
+        .tab-inactive { border-bottom: 2px solid transparent; color: #9CA3AF; }
+        .tab-inactive:hover { color: #6B7280; border-color: #E5E7EB; }
+        .modal-backdrop { background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); }
+        .reply-bubble { border-radius: 16px 16px 16px 4px; }
+        .reply-bubble-out { border-radius: 16px 16px 4px 16px; }
+        .health-ring { transition: stroke-dashoffset 1s ease-in-out; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#1A1A1A',
+                            green: '#1B4332',
+                            accent: '#22C55E',
+                            danger: '#DC2626',
+                            warning: '#F59E0B',
+                            gray: '#6B7280',
+                            light: '#F0F1F3',
+                            muted: '#9CA3AF'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-[#F0F1F3] h-screen overflow-hidden flex text-sm text-[#6B7280]">
+
+    <!-- Floating Sidebar -->
+    <aside id="sidebar" class="fixed left-4 top-4 bottom-4 w-16 sidebar-gradient rounded-full flex flex-col items-center py-6 z-50 text-white shadow-xl justify-between">
+        <div class="flex flex-col items-center gap-6 w-full">
+            <div class="w-10 h-10 bg-gradient-to-br from-brand-accent to-brand-green rounded-full flex items-center justify-center mb-4 cursor-pointer hover:scale-105 transition-transform">
+                <i class="fa-solid fa-robot text-lg"></i>
+            </div>
+            <nav class="flex flex-col gap-5 w-full items-center">
+                <a href="#" class="group relative flex items-center justify-center w-10 h-10 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all">
+                    <i class="fa-solid fa-grid-2"></i>
+                    <span class="absolute left-14 bg-brand-dark text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">Overview</span>
+                </a>
+                <a href="#" class="group relative flex items-center justify-center w-10 h-10 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span class="absolute left-14 bg-brand-dark text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">Task Control</span>
+                </a>
+                <a href="#" class="group relative flex items-center justify-center w-10 h-10 rounded-full bg-white/20 text-white transition-all">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span class="absolute left-14 bg-brand-dark text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">Email Outreach</span>
+                </a>
+                <a href="#" class="group relative flex items-center justify-center w-10 h-10 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all">
+                    <i class="fa-solid fa-crosshairs"></i>
+                    <span class="absolute left-14 bg-brand-dark text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">Sales Pipeline</span>
+                </a>
+                <a href="#" class="group relative flex items-center justify-center w-10 h-10 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <span class="absolute left-14 bg-brand-dark text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">Churn Risk</span>
+                </a>
+                <a href="#" class="group relative flex items-center justify-center w-10 h-10 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <span class="absolute left-14 bg-brand-dark text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">SEO Pages</span>
+                </a>
+                <a href="#" class="group relative flex items-center justify-center w-10 h-10 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all">
+                    <i class="fa-solid fa-scroll"></i>
+                    <span class="absolute left-14 bg-brand-dark text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">Audit Log</span>
+                </a>
+                <a href="#" class="group relative flex items-center justify-center w-10 h-10 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all">
+                    <i class="fa-solid fa-brain"></i>
+                    <span class="absolute left-14 bg-brand-dark text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">Ask Agent</span>
+                </a>
+            </nav>
+        </div>
+        <div class="flex flex-col gap-5 w-full items-center">
+            <button class="text-white/60 hover:text-white transition-colors"><i class="fa-regular fa-circle-question"></i></button>
+            <button class="relative text-white/60 hover:text-white transition-colors">
+                <i class="fa-regular fa-bell"></i>
+                <span class="absolute top-0 right-0 w-2 h-2 bg-brand-accent rounded-full border border-brand-dark"></span>
+            </button>
+            <button class="text-white/60 hover:text-white transition-colors"><i class="fa-solid fa-gear"></i></button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-24 flex-1 h-full flex flex-col overflow-hidden relative">
+
+        <!-- Header -->
+        <header class="h-20 px-8 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-4">
+                <button class="flex items-center gap-2 text-[#1A1A1A] font-semibold text-lg hover:opacity-80 transition-opacity">
+                    Email Outreach Engine
+                    <i class="fa-solid fa-chevron-down text-xs text-brand-gray"></i>
+                </button>
+                <span class="text-xs text-brand-muted bg-white px-3 py-1 rounded-full">Beta</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="relative w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
+                    <input type="text" placeholder="Search campaigns, leads, replies..." class="w-full bg-white pl-10 pr-4 py-2.5 rounded-full text-sm border-none focus:ring-2 focus:ring-brand-light outline-none shadow-sm text-gray-700 placeholder-gray-400">
+                </div>
+                <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-100">
+                    <span class="w-2 h-2 bg-brand-accent rounded-full animate-pulse"></span>
+                    <span class="text-xs font-semibold text-brand-green">3 WARMING</span>
+                </div>
+                <div class="w-9 h-9 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="Admin" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </header>
+
+        <!-- Sub-Navigation Tabs -->
+        <div class="px-8 flex gap-6 border-b border-gray-200 shrink-0">
+            <button onclick="switchTab('overview')" id="tab-overview" class="pb-3 text-sm tab-active transition-all">Overview</button>
+            <button onclick="switchTab('campaigns')" id="tab-campaigns" class="pb-3 text-sm tab-inactive transition-all">Campaigns</button>
+            <button onclick="switchTab('inbox')" id="tab-inbox" class="pb-3 text-sm tab-inactive transition-all relative">
+                Inbox
+                <span class="absolute -top-1 -right-4 w-5 h-5 bg-brand-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">7</span>
+            </button>
+            <button onclick="switchTab('accounts')" id="tab-accounts" class="pb-3 text-sm tab-inactive transition-all">Accounts & Health</button>
+            <button onclick="switchTab('templates')" id="tab-templates" class="pb-3 text-sm tab-inactive transition-all">Templates</button>
+            <button onclick="switchTab('analytics')" id="tab-analytics" class="pb-3 text-sm tab-inactive transition-all">Analytics</button>
+        </div>
+
+        <!-- Content Container -->
+        <div class="flex-1 overflow-y-auto overflow-x-hidden p-8 pt-6 hide-scrollbar">
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- TAB: OVERVIEW -->
+            <!-- ═══════════════════════════════════════ -->
+            <div id="panel-overview" class="max-w-[1600px] mx-auto fade-in">
+
+                <!-- Top Metrics Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-8">
+                    <!-- Metric 1: Sent Today -->
+                    <div class="bg-white rounded-3xl p-5 card-shadow">
+                        <div class="flex justify-between items-start mb-3">
+                            <p class="text-xs font-bold tracking-wider text-brand-gray uppercase">SENT TODAY</p>
+                            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-[#1A1A1A]">284</h3>
+                        <div class="flex items-center gap-1 mt-1">
+                            <i class="fa-solid fa-caret-up text-brand-accent text-xs"></i>
+                            <span class="text-xs text-brand-accent font-medium">12% vs yesterday</span>
+                        </div>
+                    </div>
+
+                    <!-- Metric 2: Delivered -->
+                    <div class="bg-white rounded-3xl p-5 card-shadow">
+                        <div class="flex justify-between items-start mb-3">
+                            <p class="text-xs font-bold tracking-wider text-brand-gray uppercase">DELIVERED</p>
+                            <div class="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-brand-accent">
+                                <i class="fa-solid fa-check-double text-xs"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-[#1A1A1A]">97.2<span class="text-lg font-normal text-gray-400">%</span></h3>
+                        <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2">
+                            <div class="bg-brand-accent h-full rounded-full" style="width: 97.2%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Metric 3: Reply Rate -->
+                    <div class="bg-white rounded-3xl p-5 card-shadow">
+                        <div class="flex justify-between items-start mb-3">
+                            <p class="text-xs font-bold tracking-wider text-brand-gray uppercase">REPLY RATE</p>
+                            <div class="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
+                                <i class="fa-solid fa-reply text-xs"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-[#1A1A1A]">4.8<span class="text-lg font-normal text-gray-400">%</span></h3>
+                        <div class="flex items-center gap-1 mt-1">
+                            <i class="fa-solid fa-caret-up text-brand-accent text-xs"></i>
+                            <span class="text-xs text-brand-accent font-medium">0.6% above target</span>
+                        </div>
+                    </div>
+
+                    <!-- Metric 4: Warm Leads -->
+                    <div class="bg-white rounded-3xl p-5 card-shadow">
+                        <div class="flex justify-between items-start mb-3">
+                            <p class="text-xs font-bold tracking-wider text-brand-gray uppercase">WARM LEADS</p>
+                            <div class="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600">
+                                <i class="fa-solid fa-fire text-xs"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-[#1A1A1A]">23</h3>
+                        <p class="text-xs text-gray-400 mt-1">This week from outreach</p>
+                    </div>
+
+                    <!-- Metric 5: Bounce Rate -->
+                    <div class="bg-white rounded-3xl p-5 card-shadow">
+                        <div class="flex justify-between items-start mb-3">
+                            <p class="text-xs font-bold tracking-wider text-brand-gray uppercase">BOUNCE RATE</p>
+                            <div class="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-brand-danger">
+                                <i class="fa-solid fa-exclamation text-xs"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-brand-accent">0.8<span class="text-lg font-normal text-gray-400">%</span></h3>
+                        <p class="text-xs text-brand-accent mt-1"><i class="fa-solid fa-check mr-1"></i>Under 2% limit</p>
+                    </div>
+                </div>
+
+                <!-- Main Content: Two Columns -->
+                <div class="flex gap-8">
+                    <!-- Left Column -->
+                    <div class="flex-1 flex flex-col gap-8">
+
+                        <!-- Active Campaigns -->
+                        <section>
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-lg font-semibold text-[#1A1A1A]">Active Campaigns</h2>
+                                <button onclick="openModal('campaign-modal')" class="bg-brand-dark text-white px-4 py-2 rounded-xl text-xs font-medium hover:bg-brand-green transition-colors flex items-center gap-2">
+                                    <i class="fa-solid fa-plus text-xs"></i> New Campaign
+                                </button>
+                            </div>
+
+                            <div class="space-y-3">
+                                <!-- Campaign Row 1 -->
+                                <div class="bg-white rounded-2xl p-5 card-shadow hover:scale-[1.005] transition-transform">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-full bg-green-50 text-brand-accent flex items-center justify-center">
+                                                <i class="fa-solid fa-bolt"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-bold text-[#1A1A1A]">Nottingham Curry Houses Q1</h3>
+                                                <p class="text-xs text-gray-400">Commission pain • 48 leads • Started 18 Feb</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-6">
+                                            <div class="text-center">
+                                                <p class="text-xs text-gray-400">Sent</p>
+                                                <p class="text-sm font-bold text-[#1A1A1A]">142</p>
+                                            </div>
+                                            <div class="text-center">
+                                                <p class="text-xs text-gray-400">Opens</p>
+                                                <p class="text-sm font-bold text-[#1A1A1A]">38%</p>
+                                            </div>
+                                            <div class="text-center">
+                                                <p class="text-xs text-gray-400">Replies</p>
+                                                <p class="text-sm font-bold text-brand-accent">5.6%</p>
+                                            </div>
+                                            <span class="px-3 py-1 bg-green-50 text-brand-accent text-xs font-bold rounded-full">ACTIVE</span>
+                                            <button class="text-gray-400 hover:text-[#1A1A1A]"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex gap-2">
+                                        <div class="flex-1 bg-gray-100 rounded-full h-1.5">
+                                            <div class="bg-brand-accent h-full rounded-full" style="width: 65%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-400">65% complete</span>
+                                    </div>
+                                </div>
+
+                                <!-- Campaign Row 2 -->
+                                <div class="bg-white rounded-2xl p-5 card-shadow hover:scale-[1.005] transition-transform">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                                                <i class="fa-solid fa-utensils"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-bold text-[#1A1A1A]">Nottingham Italian — Booking Pain</h3>
+                                                <p class="text-xs text-gray-400">No-call bookings • 31 leads • Started 20 Feb</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-6">
+                                            <div class="text-center">
+                                                <p class="text-xs text-gray-400">Sent</p>
+                                                <p class="text-sm font-bold text-[#1A1A1A]">62</p>
+                                            </div>
+                                            <div class="text-center">
+                                                <p class="text-xs text-gray-400">Opens</p>
+                                                <p class="text-sm font-bold text-[#1A1A1A]">42%</p>
+                                            </div>
+                                            <div class="text-center">
+                                                <p class="text-xs text-gray-400">Replies</p>
+                                                <p class="text-sm font-bold text-brand-accent">7.1%</p>
+                                            </div>
+                                            <span class="px-3 py-1 bg-green-50 text-brand-accent text-xs font-bold rounded-full">ACTIVE</span>
+                                            <button class="text-gray-400 hover:text-[#1A1A1A]"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex gap-2">
+                                        <div class="flex-1 bg-gray-100 rounded-full h-1.5">
+                                            <div class="bg-blue-400 h-full rounded-full" style="width: 38%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-400">38% complete</span>
+                                    </div>
+                                </div>
+
+                                <!-- Campaign Row 3 — Warming -->
+                                <div class="bg-white rounded-2xl p-5 card-shadow hover:scale-[1.005] transition-transform opacity-70">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
+                                                <i class="fa-solid fa-temperature-half"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-bold text-[#1A1A1A]">Birmingham Fast Casual</h3>
+                                                <p class="text-xs text-gray-400">Delivery costs • 85 leads • Warming since 22 Feb</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-6">
+                                            <div class="text-center">
+                                                <p class="text-xs text-gray-400">Warmup</p>
+                                                <p class="text-sm font-bold text-amber-600">Day 3</p>
+                                            </div>
+                                            <div class="text-center">
+                                                <p class="text-xs text-gray-400">Ready</p>
+                                                <p class="text-sm font-bold text-gray-400">~11 days</p>
+                                            </div>
+                                            <span class="px-3 py-1 bg-amber-50 text-amber-600 text-xs font-bold rounded-full">WARMING</span>
+                                            <button class="text-gray-400 hover:text-[#1A1A1A]"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex gap-2">
+                                        <div class="flex-1 bg-gray-100 rounded-full h-1.5">
+                                            <div class="bg-amber-400 h-full rounded-full warmup-bar" style="width: 21%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-400">21% warmed</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Send Volume Chart -->
+                        <section class="bg-white rounded-3xl p-6 card-shadow">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-[#1A1A1A]">Send Volume & Replies</h3>
+                                <div class="bg-gray-100 rounded-lg p-1 flex text-xs font-medium">
+                                    <button class="px-3 py-1 bg-white shadow-sm rounded-md text-[#1A1A1A]">7d</button>
+                                    <button class="px-3 py-1 text-gray-500 hover:text-[#1A1A1A]">30d</button>
+                                    <button class="px-3 py-1 text-gray-500 hover:text-[#1A1A1A]">90d</button>
+                                </div>
+                            </div>
+                            <div id="volume-chart" class="w-full h-[240px]"></div>
+                        </section>
+                    </div>
+
+                    <!-- Right Column (320px) -->
+                    <aside class="w-[320px] shrink-0 flex flex-col gap-6">
+
+                        <!-- Inbox Preview -->
+                        <div class="bg-white rounded-3xl p-6 card-shadow">
+                            <div class="flex justify-between items-center mb-5">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-[#1A1A1A]">Recent Replies</h3>
+                                    <span class="w-5 h-5 bg-brand-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">7</span>
+                                </div>
+                                <button onclick="switchTab('inbox')" class="text-xs font-bold text-brand-green hover:underline">VIEW ALL</button>
+                            </div>
+                            <div class="space-y-4">
+                                <!-- Reply 1 — Interested -->
+                                <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100">
+                                    <div class="w-8 h-8 rounded-full bg-green-100 text-brand-accent flex items-center justify-center text-xs shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-face-smile"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <p class="text-sm font-bold text-[#1A1A1A] truncate">Raj — Bombay Spice</p>
+                                            <span class="px-1.5 py-0.5 bg-green-50 text-brand-accent text-[10px] font-bold rounded shrink-0">INTERESTED</span>
+                                        </div>
+                                        <p class="text-xs text-gray-400 line-clamp-2">Yeah this sounds good mate. What's the catch? We're paying deliveroo 32% at the...</p>
+                                        <p class="text-[10px] text-gray-300 mt-1">14 min ago</p>
+                                    </div>
+                                </div>
+
+                                <!-- Reply 2 — Question -->
+                                <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100">
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-question"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <p class="text-sm font-bold text-[#1A1A1A] truncate">Marco — Trattoria Bella</p>
+                                            <span class="px-1.5 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded shrink-0">QUESTION</span>
+                                        </div>
+                                        <p class="text-xs text-gray-400 line-clamp-2">Do you integrate with our EPOS? We use Lightspeed at the moment and switching is...</p>
+                                        <p class="text-[10px] text-gray-300 mt-1">48 min ago</p>
+                                    </div>
+                                </div>
+
+                                <!-- Reply 3 — OOO -->
+                                <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100 opacity-50">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-xs shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-plane"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <p class="text-sm font-bold text-[#1A1A1A] truncate">Auto — Noodle House</p>
+                                            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-400 text-[10px] font-bold rounded shrink-0">OOO</span>
+                                        </div>
+                                        <p class="text-xs text-gray-400 line-clamp-2">I am currently out of the office until 3rd March. For urgent enquiries...</p>
+                                        <p class="text-[10px] text-gray-300 mt-1">2 hours ago</p>
+                                    </div>
+                                </div>
+
+                                <!-- Reply 4 — Not Interested -->
+                                <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100 opacity-50">
+                                    <div class="w-8 h-8 rounded-full bg-red-50 text-brand-danger flex items-center justify-center text-xs shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <p class="text-sm font-bold text-[#1A1A1A] truncate">Chen — Dragon Palace</p>
+                                            <span class="px-1.5 py-0.5 bg-red-50 text-brand-danger text-[10px] font-bold rounded shrink-0">NOT INTERESTED</span>
+                                        </div>
+                                        <p class="text-xs text-gray-400 line-clamp-2">Not interested thanks. Please remove me from your list.</p>
+                                        <p class="text-[10px] text-gray-300 mt-1">3 hours ago</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Health Summary -->
+                        <div class="bg-white rounded-3xl p-6 card-shadow">
+                            <div class="flex justify-between items-center mb-5">
+                                <p class="text-xs font-bold tracking-wider text-brand-gray uppercase">SENDER HEALTH</p>
+                                <button onclick="switchTab('accounts')" class="text-xs font-bold text-brand-gray hover:text-[#1A1A1A]">DETAILS</button>
+                            </div>
+                            <div class="space-y-3">
+                                <!-- Domain 1 -->
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
+                                            <svg class="w-6 h-6" viewBox="0 0 36 36">
+                                                <circle cx="18" cy="18" r="15" fill="none" stroke="#E5E7EB" stroke-width="3"/>
+                                                <circle cx="18" cy="18" r="15" fill="none" stroke="#22C55E" stroke-width="3" stroke-dasharray="94.2" stroke-dashoffset="4.7" stroke-linecap="round" transform="rotate(-90 18 18)" class="health-ring"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-[#1A1A1A]">getrezvo.co.uk</p>
+                                            <p class="text-[10px] text-gray-400">5 accounts • 142/150 daily</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm font-bold text-brand-accent">95</span>
+                                </div>
+                                <!-- Domain 2 -->
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
+                                            <svg class="w-6 h-6" viewBox="0 0 36 36">
+                                                <circle cx="18" cy="18" r="15" fill="none" stroke="#E5E7EB" stroke-width="3"/>
+                                                <circle cx="18" cy="18" r="15" fill="none" stroke="#22C55E" stroke-width="3" stroke-dasharray="94.2" stroke-dashoffset="7.5" stroke-linecap="round" transform="rotate(-90 18 18)" class="health-ring"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-[#1A1A1A]">tryrezvo.co.uk</p>
+                                            <p class="text-[10px] text-gray-400">5 accounts • 98/150 daily</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm font-bold text-brand-accent">92</span>
+                                </div>
+                                <!-- Domain 3 — Warming -->
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
+                                            <svg class="w-6 h-6" viewBox="0 0 36 36">
+                                                <circle cx="18" cy="18" r="15" fill="none" stroke="#E5E7EB" stroke-width="3"/>
+                                                <circle cx="18" cy="18" r="15" fill="none" stroke="#F59E0B" stroke-width="3" stroke-dasharray="94.2" stroke-dashoffset="56.5" stroke-linecap="round" transform="rotate(-90 18 18)" class="health-ring"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-[#1A1A1A]">rezvoreach.co.uk</p>
+                                            <p class="text-[10px] text-amber-600">Warming — Day 3 of 14</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm font-bold text-amber-500">40</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="bg-white rounded-3xl p-6 card-shadow">
+                            <p class="text-xs font-bold tracking-wider text-brand-gray uppercase mb-4">THIS MONTH</p>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Total Sent</span>
+                                    <span class="text-sm font-bold text-[#1A1A1A]">2,847</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Unique Leads Contacted</span>
+                                    <span class="text-sm font-bold text-[#1A1A1A]">412</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Positive Replies</span>
+                                    <span class="text-sm font-bold text-brand-accent">34</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Demos Booked</span>
+                                    <span class="text-sm font-bold text-brand-green">12</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Conversions</span>
+                                    <span class="text-sm font-bold text-brand-green">7</span>
+                                </div>
+                                <div class="border-t border-gray-100 pt-3 flex justify-between items-center">
+                                    <span class="text-sm font-medium text-[#1A1A1A]">New MRR from Outreach</span>
+                                    <span class="text-sm font-bold text-brand-green">+£203</span>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- TAB: CAMPAIGNS -->
+            <!-- ═══════════════════════════════════════ -->
+            <div id="panel-campaigns" class="max-w-[1600px] mx-auto hidden fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-lg font-semibold text-[#1A1A1A]">All Campaigns</h2>
+                        <div class="bg-gray-100 rounded-lg p-1 flex text-xs font-medium">
+                            <button class="px-3 py-1 bg-white shadow-sm rounded-md text-[#1A1A1A]">All</button>
+                            <button class="px-3 py-1 text-gray-500">Active</button>
+                            <button class="px-3 py-1 text-gray-500">Warming</button>
+                            <button class="px-3 py-1 text-gray-500">Draft</button>
+                            <button class="px-3 py-1 text-gray-500">Complete</button>
+                        </div>
+                    </div>
+                    <button onclick="openModal('campaign-modal')" class="bg-brand-dark text-white px-4 py-2 rounded-xl text-xs font-medium hover:bg-brand-green transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-plus text-xs"></i> New Campaign
+                    </button>
+                </div>
+
+                <!-- Campaign Cards Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <!-- Campaign Card -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow hover:scale-[1.01] transition-transform cursor-pointer">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 bg-green-50 text-brand-accent text-xs font-bold rounded-full">ACTIVE</span>
+                            <span class="text-xs text-gray-400">Started 18 Feb</span>
+                        </div>
+                        <h3 class="font-bold text-[#1A1A1A] mb-1">Nottingham Curry Houses Q1</h3>
+                        <p class="text-xs text-gray-400 mb-4">Commission pain angle • Two-touch sequence</p>
+                        <div class="grid grid-cols-4 gap-3 mb-4">
+                            <div class="text-center"><p class="text-lg font-bold text-[#1A1A1A]">48</p><p class="text-[10px] text-gray-400">Leads</p></div>
+                            <div class="text-center"><p class="text-lg font-bold text-[#1A1A1A]">142</p><p class="text-[10px] text-gray-400">Sent</p></div>
+                            <div class="text-center"><p class="text-lg font-bold text-[#1A1A1A]">38%</p><p class="text-[10px] text-gray-400">Opens</p></div>
+                            <div class="text-center"><p class="text-lg font-bold text-brand-accent">5.6%</p><p class="text-[10px] text-gray-400">Replies</p></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50 transition-colors">PAUSE</button>
+                            <button class="flex-1 py-2 rounded-lg border border-brand-green/20 text-brand-green text-xs font-bold hover:bg-green-50 transition-colors">DETAILS</button>
+                        </div>
+                    </div>
+
+                    <!-- Campaign Card 2 -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow hover:scale-[1.01] transition-transform cursor-pointer">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 bg-green-50 text-brand-accent text-xs font-bold rounded-full">ACTIVE</span>
+                            <span class="text-xs text-gray-400">Started 20 Feb</span>
+                        </div>
+                        <h3 class="font-bold text-[#1A1A1A] mb-1">Nottingham Italian — Booking Pain</h3>
+                        <p class="text-xs text-gray-400 mb-4">Free booking page angle • Two-touch sequence</p>
+                        <div class="grid grid-cols-4 gap-3 mb-4">
+                            <div class="text-center"><p class="text-lg font-bold text-[#1A1A1A]">31</p><p class="text-[10px] text-gray-400">Leads</p></div>
+                            <div class="text-center"><p class="text-lg font-bold text-[#1A1A1A]">62</p><p class="text-[10px] text-gray-400">Sent</p></div>
+                            <div class="text-center"><p class="text-lg font-bold text-[#1A1A1A]">42%</p><p class="text-[10px] text-gray-400">Opens</p></div>
+                            <div class="text-center"><p class="text-lg font-bold text-brand-accent">7.1%</p><p class="text-[10px] text-gray-400">Replies</p></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50 transition-colors">PAUSE</button>
+                            <button class="flex-1 py-2 rounded-lg border border-brand-green/20 text-brand-green text-xs font-bold hover:bg-green-50 transition-colors">DETAILS</button>
+                        </div>
+                    </div>
+
+                    <!-- Campaign Card 3 — Warming -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow hover:scale-[1.01] transition-transform cursor-pointer">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 bg-amber-50 text-amber-600 text-xs font-bold rounded-full">WARMING</span>
+                            <span class="text-xs text-gray-400">Day 3 of 14</span>
+                        </div>
+                        <h3 class="font-bold text-[#1A1A1A] mb-1">Birmingham Fast Casual</h3>
+                        <p class="text-xs text-gray-400 mb-4">Delivery costs angle • New domain warming</p>
+                        <div class="grid grid-cols-4 gap-3 mb-4">
+                            <div class="text-center"><p class="text-lg font-bold text-[#1A1A1A]">85</p><p class="text-[10px] text-gray-400">Leads</p></div>
+                            <div class="text-center"><p class="text-lg font-bold text-gray-300">—</p><p class="text-[10px] text-gray-400">Sent</p></div>
+                            <div class="text-center"><p class="text-lg font-bold text-gray-300">—</p><p class="text-[10px] text-gray-400">Opens</p></div>
+                            <div class="text-center"><p class="text-lg font-bold text-gray-300">—</p><p class="text-[10px] text-gray-400">Replies</p></div>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2 mb-3">
+                            <div class="bg-amber-400 h-full rounded-full warmup-bar" style="width: 21%"></div>
+                        </div>
+                        <button class="w-full py-2 rounded-lg border border-amber-200 text-amber-600 text-xs font-bold hover:bg-amber-50 transition-colors">VIEW WARMUP PROGRESS</button>
+                    </div>
+
+                    <!-- Campaign Card 4 — Draft -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow hover:scale-[1.01] transition-transform cursor-pointer border-2 border-dashed border-gray-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">DRAFT</span>
+                            <span class="text-xs text-gray-400">Created 23 Feb</span>
+                        </div>
+                        <h3 class="font-bold text-[#1A1A1A] mb-1">Manchester City Centre Restaurants</h3>
+                        <p class="text-xs text-gray-400 mb-4">EPOS upgrade angle • Needs templates</p>
+                        <div class="grid grid-cols-4 gap-3 mb-4">
+                            <div class="text-center"><p class="text-lg font-bold text-[#1A1A1A]">127</p><p class="text-[10px] text-gray-400">Leads</p></div>
+                            <div class="text-center"><p class="text-lg font-bold text-gray-300">—</p><p class="text-[10px] text-gray-400">Sent</p></div>
+                            <div class="text-center"><p class="text-lg font-bold text-gray-300">—</p><p class="text-[10px] text-gray-400">Opens</p></div>
+                            <div class="text-center"><p class="text-lg font-bold text-gray-300">—</p><p class="text-[10px] text-gray-400">Replies</p></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50 transition-colors">EDIT</button>
+                            <button class="flex-1 py-2 rounded-lg bg-brand-dark text-white text-xs font-bold hover:bg-brand-green transition-colors">LAUNCH</button>
+                        </div>
+                    </div>
+
+                    <!-- New Campaign Placeholder -->
+                    <div onclick="openModal('campaign-modal')" class="bg-white/50 rounded-3xl p-6 border-2 border-dashed border-gray-300 hover:border-brand-green hover:bg-white/80 transition-all cursor-pointer flex flex-col items-center justify-center min-h-[260px]">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-plus text-lg"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-500">Create New Campaign</p>
+                        <p class="text-xs text-gray-400 mt-1">AI-powered outreach sequences</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- TAB: INBOX -->
+            <!-- ═══════════════════════════════════════ -->
+            <div id="panel-inbox" class="max-w-[1600px] mx-auto hidden fade-in">
+                <div class="flex gap-6 h-[calc(100vh-220px)]">
+                    <!-- Reply List -->
+                    <div class="w-[380px] shrink-0 flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-semibold text-[#1A1A1A]">Unified Inbox</h2>
+                            <div class="flex gap-2">
+                                <button class="px-3 py-1.5 bg-brand-dark text-white text-xs rounded-lg font-medium">All</button>
+                                <button class="px-3 py-1.5 bg-white text-gray-500 text-xs rounded-lg font-medium hover:bg-gray-50 border border-gray-200">Interested</button>
+                                <button class="px-3 py-1.5 bg-white text-gray-500 text-xs rounded-lg font-medium hover:bg-gray-50 border border-gray-200">Unread</button>
+                            </div>
+                        </div>
+                        <div class="flex-1 overflow-y-auto space-y-1 pr-2 hide-scrollbar">
+                            <!-- Reply Item — Selected -->
+                            <div class="bg-white rounded-xl p-4 card-shadow border-l-4 border-brand-green cursor-pointer">
+                                <div class="flex items-center justify-between mb-1">
+                                    <p class="text-sm font-bold text-[#1A1A1A]">Raj Patel — Bombay Spice</p>
+                                    <span class="text-[10px] text-gray-400">14m</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">Re: Quick question about Bombay Spice's delivery costs</p>
+                                <p class="text-xs text-gray-400 line-clamp-2">Yeah this sounds good mate. What's the catch? We're paying deliveroo 32% at the moment and it's killing us...</p>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <span class="px-2 py-0.5 bg-green-50 text-brand-accent text-[10px] font-bold rounded">INTERESTED</span>
+                                    <span class="px-2 py-0.5 bg-orange-50 text-orange-600 text-[10px] font-bold rounded">CURRY HOUSES Q1</span>
+                                </div>
+                            </div>
+                            <!-- Reply Item -->
+                            <div class="bg-white rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors border-l-4 border-transparent">
+                                <div class="flex items-center justify-between mb-1">
+                                    <p class="text-sm font-bold text-[#1A1A1A]">Marco Rossi — Trattoria Bella</p>
+                                    <span class="text-[10px] text-gray-400">48m</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">Re: How Trattoria Bella could fill 20+ more covers</p>
+                                <p class="text-xs text-gray-400 line-clamp-2">Do you integrate with our EPOS? We use Lightspeed at the moment...</p>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded">QUESTION</span>
+                                    <span class="px-2 py-0.5 bg-blue-50 text-blue-400 text-[10px] font-bold rounded">ITALIAN BOOKING</span>
+                                </div>
+                            </div>
+                            <!-- Reply Item -->
+                            <div class="bg-white rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors border-l-4 border-transparent">
+                                <div class="flex items-center justify-between mb-1">
+                                    <p class="text-sm font-bold text-[#1A1A1A]">Priya Singh — Namaste Kitchen</p>
+                                    <span class="text-[10px] text-gray-400">1h</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">Re: Quick question about Namaste Kitchen's delivery costs</p>
+                                <p class="text-xs text-gray-400 line-clamp-2">Hi, can you tell me more about the setup process? We have 3 locations...</p>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <span class="px-2 py-0.5 bg-green-50 text-brand-accent text-[10px] font-bold rounded">INTERESTED</span>
+                                </div>
+                            </div>
+                            <!-- More replies -->
+                            <div class="bg-white rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors border-l-4 border-transparent opacity-50">
+                                <div class="flex items-center justify-between mb-1">
+                                    <p class="text-sm font-bold text-[#1A1A1A]">Auto — Noodle House</p>
+                                    <span class="text-[10px] text-gray-400">2h</span>
+                                </div>
+                                <p class="text-xs text-gray-400 line-clamp-2">Out of office auto-reply until 3rd March...</p>
+                                <span class="px-2 py-0.5 bg-gray-100 text-gray-400 text-[10px] font-bold rounded mt-2 inline-block">OOO</span>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 hover:bg-gray-50 cursor-pointer transition-colors border-l-4 border-transparent opacity-50">
+                                <div class="flex items-center justify-between mb-1">
+                                    <p class="text-sm font-bold text-[#1A1A1A]">Chen Wei — Dragon Palace</p>
+                                    <span class="text-[10px] text-gray-400">3h</span>
+                                </div>
+                                <p class="text-xs text-gray-400 line-clamp-2">Not interested thanks. Please remove me from your list.</p>
+                                <span class="px-2 py-0.5 bg-red-50 text-brand-danger text-[10px] font-bold rounded mt-2 inline-block">NOT INTERESTED</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conversation Thread -->
+                    <div class="flex-1 bg-white rounded-3xl card-shadow flex flex-col overflow-hidden">
+                        <!-- Thread Header -->
+                        <div class="p-5 border-b border-gray-100 flex items-center justify-between shrink-0">
+                            <div>
+                                <h3 class="font-bold text-[#1A1A1A]">Raj Patel — Bombay Spice</h3>
+                                <p class="text-xs text-gray-400">raj@bombayspicenottingham.co.uk • Nottingham Curry Houses Q1</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-3 py-1 bg-green-50 text-brand-accent text-xs font-bold rounded-full">INTERESTED</span>
+                                <button class="w-8 h-8 rounded-full border border-gray-200 text-gray-400 hover:text-brand-green hover:border-brand-green flex items-center justify-center transition-colors" title="Move to Pipeline">
+                                    <i class="fa-solid fa-crosshairs text-xs"></i>
+                                </button>
+                                <button class="w-8 h-8 rounded-full border border-gray-200 text-gray-400 hover:text-[#1A1A1A] hover:border-gray-400 flex items-center justify-center transition-colors" title="Archive">
+                                    <i class="fa-solid fa-archive text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Messages -->
+                        <div class="flex-1 overflow-y-auto p-5 space-y-4 hide-scrollbar">
+                            <!-- Outgoing -->
+                            <div class="flex justify-end">
+                                <div class="max-w-[70%]">
+                                    <div class="bg-brand-dark text-white p-4 reply-bubble-out text-sm leading-relaxed">
+                                        <p>Hi Raj,</p>
+                                        <p class="mt-2">I noticed Bombay Spice is on Deliveroo for deliveries. Most curry houses in Nottingham are paying 25-35% commission on every order — which on a busy week probably costs you £400+.</p>
+                                        <p class="mt-2">We built Rezvo specifically to fix this. Our restaurants keep 92-95% of every order.</p>
+                                        <p class="mt-2">I put together a quick breakdown of what Bombay Spice could save. Want me to send it over?</p>
+                                        <p class="mt-2">Best,<br>Alex</p>
+                                    </div>
+                                    <p class="text-[10px] text-gray-400 text-right mt-1">Sent via alex@getrezvo.co.uk • 21 Feb, 10:32 AM</p>
+                                </div>
+                            </div>
+
+                            <!-- Incoming -->
+                            <div class="flex justify-start">
+                                <div class="max-w-[70%]">
+                                    <div class="bg-gray-100 text-[#1A1A1A] p-4 reply-bubble text-sm leading-relaxed">
+                                        <p>Yeah this sounds good mate. What's the catch? We're paying deliveroo 32% at the moment and it's killing us. Last month alone I reckon they took near enough £2k.</p>
+                                        <p class="mt-2">How does it actually work? Do our riders use your app or what?</p>
+                                    </div>
+                                    <p class="text-[10px] text-gray-400 mt-1">Raj Patel • Today, 2:14 PM</p>
+                                </div>
+                            </div>
+
+                            <!-- AI Summary -->
+                            <div class="flex justify-center my-4">
+                                <div class="bg-purple-50 border border-purple-100 rounded-xl px-4 py-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-sparkles text-purple-500 text-xs"></i>
+                                    <p class="text-xs text-purple-700"><strong>AI:</strong> Lead is interested and asking about mechanics. High intent signal — paying £2K/mo in commission. Suggest explaining Uber Direct model + savings calculator.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reply Composer -->
+                        <div class="p-4 border-t border-gray-100 shrink-0">
+                            <div class="flex gap-3">
+                                <div class="flex-1 relative">
+                                    <textarea rows="3" placeholder="Type your reply..." class="w-full border border-gray-200 rounded-xl p-3 text-sm resize-none focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green outline-none"></textarea>
+                                    <div class="absolute bottom-2 left-3 flex gap-2">
+                                        <button class="text-gray-400 hover:text-purple-500 transition-colors" title="AI Draft Reply">
+                                            <i class="fa-solid fa-sparkles text-xs"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-gray-600 transition-colors" title="Use Template">
+                                            <i class="fa-solid fa-file-alt text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <button class="bg-brand-green text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-green-800 transition-colors flex items-center gap-2">
+                                        <i class="fa-solid fa-paper-plane text-xs"></i> Send
+                                    </button>
+                                    <select class="text-[10px] text-gray-400 border border-gray-200 rounded-lg px-2 py-1 bg-white">
+                                        <option>via alex@getrezvo.co.uk</option>
+                                        <option>via team@tryrezvo.co.uk</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- TAB: ACCOUNTS & HEALTH -->
+            <!-- ═══════════════════════════════════════ -->
+            <div id="panel-accounts" class="max-w-[1600px] mx-auto hidden fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-lg font-semibold text-[#1A1A1A]">Sending Domains & Account Health</h2>
+                    <button class="bg-brand-dark text-white px-4 py-2 rounded-xl text-xs font-medium hover:bg-brand-green transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-plus text-xs"></i> Add Domain
+                    </button>
+                </div>
+
+                <!-- Domain Cards -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Domain 1: getrezvo.co.uk -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-bold text-[#1A1A1A] text-lg">getrezvo.co.uk</h3>
+                                <p class="text-xs text-gray-400">Registered 10 Feb • Verified</p>
+                            </div>
+                            <span class="px-3 py-1 bg-green-50 text-brand-accent text-xs font-bold rounded-full">HEALTHY</span>
+                        </div>
+
+                        <!-- DNS Status -->
+                        <div class="space-y-2 mb-5">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-brand-accent"></i> SPF</span>
+                                <span class="text-brand-accent font-medium">Verified</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-brand-accent"></i> DKIM</span>
+                                <span class="text-brand-accent font-medium">Verified</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-brand-accent"></i> DMARC</span>
+                                <span class="text-brand-accent font-medium">p=quarantine</span>
+                            </div>
+                        </div>
+
+                        <!-- Accounts List -->
+                        <p class="text-xs font-bold tracking-wider text-brand-gray uppercase mb-3">ACCOUNTS (5)</p>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-xs font-medium text-[#1A1A1A]">alex@getrezvo.co.uk</p>
+                                    <p class="text-[10px] text-gray-400">28/30 sent today</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 bg-brand-accent rounded-full"></span>
+                                    <span class="text-xs font-bold text-brand-accent">98</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-xs font-medium text-[#1A1A1A]">team@getrezvo.co.uk</p>
+                                    <p class="text-[10px] text-gray-400">30/30 sent today</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 bg-brand-accent rounded-full"></span>
+                                    <span class="text-xs font-bold text-brand-accent">96</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-xs font-medium text-[#1A1A1A]">hello@getrezvo.co.uk</p>
+                                    <p class="text-[10px] text-gray-400">26/30 sent today</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 bg-brand-accent rounded-full"></span>
+                                    <span class="text-xs font-bold text-brand-accent">95</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-xs font-medium text-[#1A1A1A]">support@getrezvo.co.uk</p>
+                                    <p class="text-[10px] text-gray-400">30/30 sent today</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 bg-brand-accent rounded-full"></span>
+                                    <span class="text-xs font-bold text-brand-accent">94</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-xs font-medium text-[#1A1A1A]">founders@getrezvo.co.uk</p>
+                                    <p class="text-[10px] text-gray-400">28/30 sent today</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 bg-brand-accent rounded-full"></span>
+                                    <span class="text-xs font-bold text-brand-accent">92</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-100 text-center">
+                            <p class="text-xs text-gray-400">142 / 150 daily capacity used</p>
+                        </div>
+                    </div>
+
+                    <!-- Domain 2: tryrezvo.co.uk -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-bold text-[#1A1A1A] text-lg">tryrezvo.co.uk</h3>
+                                <p class="text-xs text-gray-400">Registered 10 Feb • Verified</p>
+                            </div>
+                            <span class="px-3 py-1 bg-green-50 text-brand-accent text-xs font-bold rounded-full">HEALTHY</span>
+                        </div>
+                        <div class="space-y-2 mb-5">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-brand-accent"></i> SPF</span>
+                                <span class="text-brand-accent font-medium">Verified</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-brand-accent"></i> DKIM</span>
+                                <span class="text-brand-accent font-medium">Verified</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-brand-accent"></i> DMARC</span>
+                                <span class="text-brand-accent font-medium">p=quarantine</span>
+                            </div>
+                        </div>
+                        <p class="text-xs font-bold tracking-wider text-brand-gray uppercase mb-3">ACCOUNTS (5)</p>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                                <div><p class="text-xs font-medium text-[#1A1A1A]">alex@tryrezvo.co.uk</p><p class="text-[10px] text-gray-400">22/30 sent today</p></div>
+                                <div class="flex items-center gap-2"><span class="w-2 h-2 bg-brand-accent rounded-full"></span><span class="text-xs font-bold text-brand-accent">96</span></div>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                                <div><p class="text-xs font-medium text-[#1A1A1A]">team@tryrezvo.co.uk</p><p class="text-[10px] text-gray-400">18/30 sent today</p></div>
+                                <div class="flex items-center gap-2"><span class="w-2 h-2 bg-brand-accent rounded-full"></span><span class="text-xs font-bold text-brand-accent">94</span></div>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                                <div><p class="text-xs font-medium text-[#1A1A1A]">hello@tryrezvo.co.uk</p><p class="text-[10px] text-gray-400">20/30 sent today</p></div>
+                                <div class="flex items-center gap-2"><span class="w-2 h-2 bg-brand-accent rounded-full"></span><span class="text-xs font-bold text-brand-accent">91</span></div>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                                <div><p class="text-xs font-medium text-[#1A1A1A]">support@tryrezvo.co.uk</p><p class="text-[10px] text-gray-400">19/30 sent today</p></div>
+                                <div class="flex items-center gap-2"><span class="w-2 h-2 bg-brand-accent rounded-full"></span><span class="text-xs font-bold text-brand-accent">89</span></div>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                                <div><p class="text-xs font-medium text-[#1A1A1A]">founders@tryrezvo.co.uk</p><p class="text-[10px] text-gray-400">19/30 sent today</p></div>
+                                <div class="flex items-center gap-2"><span class="w-2 h-2 bg-brand-accent rounded-full"></span><span class="text-xs font-bold text-brand-accent">88</span></div>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-100 text-center">
+                            <p class="text-xs text-gray-400">98 / 150 daily capacity used</p>
+                        </div>
+                    </div>
+
+                    <!-- Domain 3: rezvoreach.co.uk — WARMING -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow border-2 border-amber-200">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-bold text-[#1A1A1A] text-lg">rezvoreach.co.uk</h3>
+                                <p class="text-xs text-amber-600">Warming — Day 3 of 14</p>
+                            </div>
+                            <span class="px-3 py-1 bg-amber-50 text-amber-600 text-xs font-bold rounded-full animate-pulse">WARMING</span>
+                        </div>
+                        <div class="space-y-2 mb-5">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-brand-accent"></i> SPF</span>
+                                <span class="text-brand-accent font-medium">Verified</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-brand-accent"></i> DKIM</span>
+                                <span class="text-brand-accent font-medium">Verified</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-brand-accent"></i> DMARC</span>
+                                <span class="text-brand-accent font-medium">p=none (monitoring)</span>
+                            </div>
+                        </div>
+
+                        <!-- Warmup Progress -->
+                        <p class="text-xs font-bold tracking-wider text-brand-gray uppercase mb-3">WARMUP SCHEDULE</p>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-6 text-center"><i class="fa-solid fa-check-circle text-brand-accent text-xs"></i></div>
+                                <div class="flex-1"><p class="text-xs text-[#1A1A1A]">Day 1: 2 emails/account</p></div>
+                                <span class="text-[10px] text-brand-accent font-bold">DONE</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-6 text-center"><i class="fa-solid fa-check-circle text-brand-accent text-xs"></i></div>
+                                <div class="flex-1"><p class="text-xs text-[#1A1A1A]">Day 2: 4 emails/account</p></div>
+                                <span class="text-[10px] text-brand-accent font-bold">DONE</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-6 text-center"><i class="fa-solid fa-circle text-amber-400 text-xs animate-pulse"></i></div>
+                                <div class="flex-1"><p class="text-xs text-[#1A1A1A] font-medium">Day 3: 6 emails/account</p></div>
+                                <span class="text-[10px] text-amber-600 font-bold">IN PROGRESS</span>
+                            </div>
+                            <div class="flex items-center gap-3 opacity-40">
+                                <div class="w-6 text-center"><i class="fa-regular fa-circle text-gray-300 text-xs"></i></div>
+                                <div class="flex-1"><p class="text-xs">Day 4-7: 10-15/account</p></div>
+                            </div>
+                            <div class="flex items-center gap-3 opacity-40">
+                                <div class="w-6 text-center"><i class="fa-regular fa-circle text-gray-300 text-xs"></i></div>
+                                <div class="flex-1"><p class="text-xs">Day 8-14: 20-30/account</p></div>
+                            </div>
+                            <div class="flex items-center gap-3 opacity-40">
+                                <div class="w-6 text-center"><i class="fa-regular fa-circle text-gray-300 text-xs"></i></div>
+                                <div class="flex-1"><p class="text-xs">Day 15+: Ready for cold sends</p></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-50 rounded-xl p-3 text-xs text-amber-700">
+                            <i class="fa-solid fa-info-circle mr-1"></i>
+                            Warmup emails are being exchanged between our accounts. 100% open rate, 85% reply rate so far. On track.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- TAB: TEMPLATES -->
+            <!-- ═══════════════════════════════════════ -->
+            <div id="panel-templates" class="max-w-[1600px] mx-auto hidden fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-lg font-semibold text-[#1A1A1A]">Email Templates</h2>
+                    <button class="bg-brand-dark text-white px-4 py-2 rounded-xl text-xs font-medium hover:bg-brand-green transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-sparkles text-xs text-yellow-400"></i> AI Generate
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <!-- Template 1 -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h3 class="font-bold text-[#1A1A1A]">Commission Pain — Opener</h3>
+                                <p class="text-xs text-gray-400">Cold outreach • Step 1 of 2</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="px-2 py-1 bg-green-50 text-brand-accent text-[10px] font-bold rounded">5.6% reply</span>
+                                <span class="px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold rounded">38% open</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-4 text-xs text-gray-600 leading-relaxed font-mono">
+                            <p class="text-gray-400 mb-2">Subject: Quick question about {restaurant_name}'s delivery costs</p>
+                            <p>Hi {first_name},</p>
+                            <p class="mt-2">I noticed {restaurant_name} is on {current_platform} for deliveries. Most {cuisine} restaurants in {city} are paying 25-35% commission on every order — which on a busy week probably costs you £{estimated_weekly_cost}.</p>
+                            <p class="mt-2">We built Rezvo specifically to fix this. Our restaurants keep 92-95% of every order.</p>
+                            <p class="mt-2">I put together a quick breakdown of what {restaurant_name} could save. Want me to send it over?</p>
+                            <p class="mt-2">Best,<br>{sender_name}</p>
+                        </div>
+                        <div class="flex gap-2 mt-4">
+                            <button class="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50">EDIT</button>
+                            <button class="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50">DUPLICATE</button>
+                            <button class="flex-1 py-2 rounded-lg border border-brand-green/20 text-brand-green text-xs font-bold hover:bg-green-50">USE IN CAMPAIGN</button>
+                        </div>
+                    </div>
+
+                    <!-- Template 2 -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h3 class="font-bold text-[#1A1A1A]">Booking Pain — Opener</h3>
+                                <p class="text-xs text-gray-400">Cold outreach • Step 1 of 2</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="px-2 py-1 bg-green-50 text-brand-accent text-[10px] font-bold rounded">7.1% reply</span>
+                                <span class="px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold rounded">42% open</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-4 text-xs text-gray-600 leading-relaxed font-mono">
+                            <p class="text-gray-400 mb-2">Subject: How {restaurant_name} could fill 20+ more covers a week</p>
+                            <p>Hi {first_name},</p>
+                            <p class="mt-2">I was looking at {restaurant_name}'s Google profile — {rating} stars across {review_count} reviews is brilliant. {personalised_compliment}.</p>
+                            <p class="mt-2">One thing I noticed: there's no direct booking option on your listing. Every diner who wants to book has to call — and 60% of under-35s won't call.</p>
+                            <p class="mt-2">We built a free booking page for {restaurant_name}. Takes 2 minutes to set up.</p>
+                            <p class="mt-2">Want me to send you the link?</p>
+                            <p class="mt-2">{sender_name}</p>
+                        </div>
+                        <div class="flex gap-2 mt-4">
+                            <button class="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50">EDIT</button>
+                            <button class="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50">DUPLICATE</button>
+                            <button class="flex-1 py-2 rounded-lg border border-brand-green/20 text-brand-green text-xs font-bold hover:bg-green-50">USE IN CAMPAIGN</button>
+                        </div>
+                    </div>
+
+                    <!-- Template 3 — Follow-up -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h3 class="font-bold text-[#1A1A1A]">Commission Pain — Follow-up</h3>
+                                <p class="text-xs text-gray-400">Cold outreach • Step 2 of 2 • 3-day delay</p>
+                            </div>
+                            <span class="px-2 py-1 bg-purple-50 text-purple-600 text-[10px] font-bold rounded">+49% lift</span>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-4 text-xs text-gray-600 leading-relaxed font-mono">
+                            <p class="text-gray-400 mb-2">Subject: Re: Quick question about {restaurant_name}'s delivery costs</p>
+                            <p>Hi {first_name},</p>
+                            <p class="mt-2">Just bumping this up — I know restaurant owners are flat out midweek so totally understand if this got buried.</p>
+                            <p class="mt-2">The short version: we can probably save {restaurant_name} £{estimated_monthly_savings}/month on delivery commissions alone.</p>
+                            <p class="mt-2">Happy to send the breakdown if useful. No sales pitch, just the numbers.</p>
+                            <p class="mt-2">{sender_name}</p>
+                        </div>
+                        <div class="flex gap-2 mt-4">
+                            <button class="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50">EDIT</button>
+                            <button class="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50">DUPLICATE</button>
+                            <button class="flex-1 py-2 rounded-lg border border-brand-green/20 text-brand-green text-xs font-bold hover:bg-green-50">USE IN CAMPAIGN</button>
+                        </div>
+                    </div>
+
+                    <!-- Template 4 — Newsletter -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h3 class="font-bold text-[#1A1A1A]">Rezvo Restaurant Minute</h3>
+                                <p class="text-xs text-gray-400">Warm newsletter • Weekly Wednesday</p>
+                            </div>
+                            <span class="px-2 py-1 bg-amber-50 text-amber-600 text-[10px] font-bold rounded">NEWSLETTER</span>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-4 text-xs text-gray-600 leading-relaxed font-mono">
+                            <p class="text-gray-400 mb-2">Subject: Rezvo Restaurant Minute #{issue}: {hook}</p>
+                            <p>"{opening_quote}"</p>
+                            <p class="mt-2">{tactical_nugget_200_words}</p>
+                            <p class="mt-2 font-bold">{cta_text}</p>
+                            <p class="mt-2">— The Rezvo Team</p>
+                            <p class="mt-2 text-gray-400">PS: {ps_statement}</p>
+                        </div>
+                        <div class="flex gap-2 mt-4">
+                            <button class="flex-1 py-2 rounded-lg border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50">EDIT</button>
+                            <button class="flex-1 py-2 rounded-lg border border-brand-green/20 text-brand-green text-xs font-bold hover:bg-green-50">USE IN CAMPAIGN</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- TAB: ANALYTICS -->
+            <!-- ═══════════════════════════════════════ -->
+            <div id="panel-analytics" class="max-w-[1600px] mx-auto hidden fade-in">
+                <h2 class="text-lg font-semibold text-[#1A1A1A] mb-6">Outreach Analytics</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Funnel Chart -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow">
+                        <h3 class="font-bold text-[#1A1A1A] mb-4">Outreach Funnel — This Month</h3>
+                        <div id="funnel-chart" class="w-full h-[300px]"></div>
+                    </div>
+                    <!-- Reply Sentiment -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow">
+                        <h3 class="font-bold text-[#1A1A1A] mb-4">Reply Sentiment Breakdown</h3>
+                        <div id="sentiment-chart" class="w-full h-[300px]"></div>
+                    </div>
+                    <!-- Daily Performance -->
+                    <div class="bg-white rounded-3xl p-6 card-shadow lg:col-span-2">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-[#1A1A1A]">Daily Send Performance</h3>
+                            <div class="bg-gray-100 rounded-lg p-1 flex text-xs font-medium">
+                                <button class="px-3 py-1 bg-white shadow-sm rounded-md text-[#1A1A1A]">14d</button>
+                                <button class="px-3 py-1 text-gray-500">30d</button>
+                                <button class="px-3 py-1 text-gray-500">90d</button>
+                            </div>
+                        </div>
+                        <div id="daily-chart" class="w-full h-[280px]"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- NEW CAMPAIGN MODAL -->
+        <!-- ═══════════════════════════════════════ -->
+        <div id="campaign-modal" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop">
+            <div class="bg-white rounded-3xl w-full max-w-2xl mx-4 max-h-[85vh] overflow-y-auto card-shadow fade-in">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white rounded-t-3xl z-10">
+                    <h2 class="text-lg font-bold text-[#1A1A1A]">New Outreach Campaign</h2>
+                    <button onclick="closeModal('campaign-modal')" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+                        <i class="fa-solid fa-xmark text-gray-400"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-5">
+                    <!-- Campaign Name -->
+                    <div>
+                        <label class="text-xs font-bold text-brand-gray uppercase tracking-wider block mb-2">Campaign Name</label>
+                        <input type="text" placeholder="e.g. Nottingham Curry Houses Q1" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green outline-none">
+                    </div>
+                    <!-- Segment -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-bold text-brand-gray uppercase tracking-wider block mb-2">City</label>
+                            <select class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green outline-none">
+                                <option>Nottingham</option>
+                                <option>Birmingham</option>
+                                <option>Manchester</option>
+                                <option>London</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-brand-gray uppercase tracking-wider block mb-2">Cuisine</label>
+                            <select class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green outline-none">
+                                <option>All Cuisines</option>
+                                <option>Indian</option>
+                                <option>Italian</option>
+                                <option>Turkish</option>
+                                <option>Chinese</option>
+                                <option>British</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Angle -->
+                    <div>
+                        <label class="text-xs font-bold text-brand-gray uppercase tracking-wider block mb-2">Outreach Angle</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-brand-green transition-colors has-[:checked]:border-brand-green has-[:checked]:bg-green-50">
+                                <input type="radio" name="angle" checked class="accent-brand-green">
+                                <div>
+                                    <p class="text-sm font-medium text-[#1A1A1A]">Commission Pain</p>
+                                    <p class="text-[10px] text-gray-400">Save on delivery fees</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-brand-green transition-colors has-[:checked]:border-brand-green has-[:checked]:bg-green-50">
+                                <input type="radio" name="angle" class="accent-brand-green">
+                                <div>
+                                    <p class="text-sm font-medium text-[#1A1A1A]">Booking Friction</p>
+                                    <p class="text-[10px] text-gray-400">Free booking page</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-brand-green transition-colors has-[:checked]:border-brand-green has-[:checked]:bg-green-50">
+                                <input type="radio" name="angle" class="accent-brand-green">
+                                <div>
+                                    <p class="text-sm font-medium text-[#1A1A1A]">EPOS Upgrade</p>
+                                    <p class="text-[10px] text-gray-400">Modern restaurant tech</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-brand-green transition-colors has-[:checked]:border-brand-green has-[:checked]:bg-green-50">
+                                <input type="radio" name="angle" class="accent-brand-green">
+                                <div>
+                                    <p class="text-sm font-medium text-[#1A1A1A]">Visibility Gap</p>
+                                    <p class="text-[10px] text-gray-400">Get found on Rezvo</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Send Settings -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="text-xs font-bold text-brand-gray uppercase tracking-wider block mb-2">Send Days</label>
+                            <div class="flex gap-1">
+                                <button class="w-8 h-8 rounded-lg border border-gray-200 text-xs text-gray-400 hover:bg-gray-50">M</button>
+                                <button class="w-8 h-8 rounded-lg bg-brand-dark text-white text-xs">T</button>
+                                <button class="w-8 h-8 rounded-lg bg-brand-dark text-white text-xs">W</button>
+                                <button class="w-8 h-8 rounded-lg bg-brand-dark text-white text-xs">T</button>
+                                <button class="w-8 h-8 rounded-lg border border-gray-200 text-xs text-gray-400 hover:bg-gray-50">F</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-brand-gray uppercase tracking-wider block mb-2">Window</label>
+                            <select class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white">
+                                <option>10:00 — 15:00</option>
+                                <option>09:00 — 17:00</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-brand-gray uppercase tracking-wider block mb-2">Follow-up</label>
+                            <select class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white">
+                                <option>3 days after opener</option>
+                                <option>5 days after opener</option>
+                                <option>7 days after opener</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- AI Personalisation -->
+                    <div class="bg-purple-50 border border-purple-100 rounded-xl p-4 flex items-start gap-3">
+                        <i class="fa-solid fa-sparkles text-purple-500 mt-0.5"></i>
+                        <div>
+                            <p class="text-sm font-medium text-purple-800">AI Personalisation</p>
+                            <p class="text-xs text-purple-600 mt-1">Claude will personalise each email using restaurant name, cuisine, rating, review count, and website data from Google Places. Each lead gets a unique opening line and specific pain point mention.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                            <input type="checkbox" checked class="sr-only peer">
+                            <div class="w-9 h-5 bg-gray-200 peer-focus:ring-4 peer-focus:ring-purple-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-500"></div>
+                        </label>
+                    </div>
+                </div>
+                <div class="p-6 border-t border-gray-100 flex justify-between items-center sticky bottom-0 bg-white rounded-b-3xl">
+                    <button onclick="closeModal('campaign-modal')" class="px-6 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
+                    <div class="flex gap-3">
+                        <button class="px-6 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-[#1A1A1A] hover:bg-gray-50 transition-colors">Save Draft</button>
+                        <button class="px-6 py-2.5 bg-brand-green text-white rounded-xl text-sm font-medium hover:bg-green-800 transition-colors flex items-center gap-2 shadow-lg shadow-brand-green/20">
+                            <i class="fa-solid fa-rocket text-xs"></i> Launch Campaign
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ask Agent Overlay -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-2xl px-4 z-40">
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl border border-white/50 p-2 flex items-center gap-3 transition-all hover:bg-white focus-within:bg-white ring-1 ring-gray-900/5">
+                <div class="w-10 h-10 bg-brand-dark rounded-xl flex items-center justify-center text-white shrink-0">
+                    <i class="fa-solid fa-sparkles text-yellow-400"></i>
+                </div>
+                <input type="text" placeholder="Ask agent: 'Draft a campaign for Manchester' or 'Pause all warming'..." class="flex-1 bg-transparent border-none outline-none text-[#1A1A1A] placeholder-gray-500 font-medium">
+                <button class="bg-brand-green text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-green-800 transition-colors shadow-lg shadow-brand-green/20">
+                    Execute
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    // ═══ Tab Switching ═══
+    function switchTab(tab) {
+        const tabs = ['overview','campaigns','inbox','accounts','templates','analytics'];
+        tabs.forEach(t => {
+            document.getElementById('panel-' + t).classList.add('hidden');
+            document.getElementById('tab-' + t).classList.remove('tab-active');
+            document.getElementById('tab-' + t).classList.add('tab-inactive');
+        });
+        document.getElementById('panel-' + tab).classList.remove('hidden');
+        document.getElementById('tab-' + tab).classList.remove('tab-inactive');
+        document.getElementById('tab-' + tab).classList.add('tab-active');
+
+        // Init charts if needed
+        if (tab === 'analytics') { setTimeout(initAnalyticsCharts, 100); }
+        if (tab === 'overview') { setTimeout(initVolumeChart, 100); }
+    }
+
+    // ═══ Modals ═══
+    function openModal(id) {
+        const m = document.getElementById(id);
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+    }
+    function closeModal(id) {
+        const m = document.getElementById(id);
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+    }
+
+    // ═══ Volume Chart (Overview) ═══
+    function initVolumeChart() {
+        const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+        const sent = [180, 220, 284, 260, 310, 0, 0];
+        const replies = [5, 8, 12, 10, 14, 0, 0];
+
+        Plotly.newPlot('volume-chart', [
+            { x: days, y: sent, type: 'bar', name: 'Sent', marker: { color: '#E5E7EB', cornerradius: 5 }, width: 0.35 },
+            { x: days, y: replies, type: 'bar', name: 'Replies', marker: { color: '#22C55E', cornerradius: 5 }, width: 0.35, yaxis: 'y2' }
+        ], {
+            margin: { t: 10, r: 40, b: 30, l: 40 },
+            xaxis: { tickfont: { family: 'DM Sans', size: 11, color: '#9CA3AF' }, showgrid: false },
+            yaxis: { title: '', tickfont: { family: 'DM Sans', size: 11, color: '#9CA3AF' }, gridcolor: '#F3F4F6' },
+            yaxis2: { title: '', overlaying: 'y', side: 'right', tickfont: { family: 'DM Sans', size: 11, color: '#22C55E' }, showgrid: false },
+            showlegend: true, legend: { orientation: 'h', x: 0, y: 1.12, font: { family: 'DM Sans', size: 11, color: '#9CA3AF' } },
+            paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+            barmode: 'group', bargap: 0.3
+        }, { responsive: true, displayModeBar: false });
+    }
+
+    // ═══ Analytics Charts ═══
+    function initAnalyticsCharts() {
+        // Funnel
+        Plotly.newPlot('funnel-chart', [{
+            type: 'funnel',
+            y: ['Leads Discovered', 'Emails Sent', 'Delivered', 'Opened', 'Replied', 'Interested', 'Demo Booked', 'Converted'],
+            x: [412, 2847, 2766, 1082, 137, 34, 12, 7],
+            textinfo: 'value+percent initial',
+            marker: { color: ['#E5E7EB','#E5E7EB','#E5E7EB','#9CA3AF','#6B7280','#1B4332','#22C55E','#22C55E'] },
+            textfont: { family: 'DM Sans', size: 12 },
+            connector: { line: { color: '#E5E7EB', width: 1 } }
+        }], {
+            margin: { t: 10, r: 20, b: 10, l: 120 },
+            yaxis: { tickfont: { family: 'DM Sans', size: 11, color: '#6B7280' } },
+            paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+            showlegend: false
+        }, { responsive: true, displayModeBar: false });
+
+        // Sentiment
+        Plotly.newPlot('sentiment-chart', [{
+            type: 'pie', hole: 0.6,
+            labels: ['Interested', 'Question', 'Not Interested', 'Out of Office', 'Unsubscribe'],
+            values: [34, 28, 42, 18, 15],
+            marker: { colors: ['#22C55E','#3B82F6','#DC2626','#9CA3AF','#F59E0B'] },
+            textinfo: 'label+percent',
+            textfont: { family: 'DM Sans', size: 11 },
+            insidetextorientation: 'radial'
+        }], {
+            margin: { t: 10, r: 10, b: 10, l: 10 },
+            paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+            showlegend: false,
+            annotations: [{ text: '137<br>replies', showarrow: false, font: { family: 'DM Sans', size: 16, color: '#1A1A1A' } }]
+        }, { responsive: true, displayModeBar: false });
+
+        // Daily chart
+        const dates = Array.from({length: 14}, (_, i) => {
+            const d = new Date(); d.setDate(d.getDate() - (13 - i));
+            return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+        });
+        const sendData = [0, 0, 120, 185, 210, 0, 0, 245, 260, 284, 0, 0, 310, 290];
+        const openData = [0, 0, 42, 68, 82, 0, 0, 95, 104, 112, 0, 0, 128, 116];
+        const replyData = [0, 0, 3, 6, 8, 0, 0, 10, 11, 12, 0, 0, 14, 11];
+
+        Plotly.newPlot('daily-chart', [
+            { x: dates, y: sendData, type: 'scatter', mode: 'lines+markers', name: 'Sent', line: { color: '#E5E7EB', width: 2 }, marker: { size: 5 } },
+            { x: dates, y: openData, type: 'scatter', mode: 'lines+markers', name: 'Opened', line: { color: '#3B82F6', width: 2 }, marker: { size: 5 } },
+            { x: dates, y: replyData, type: 'scatter', mode: 'lines+markers', name: 'Replied', line: { color: '#22C55E', width: 2 }, marker: { size: 5 }, yaxis: 'y2' }
+        ], {
+            margin: { t: 10, r: 40, b: 30, l: 40 },
+            xaxis: { tickfont: { family: 'DM Sans', size: 10, color: '#9CA3AF' }, showgrid: false, tickangle: -30 },
+            yaxis: { title: '', tickfont: { family: 'DM Sans', size: 11, color: '#9CA3AF' }, gridcolor: '#F3F4F6' },
+            yaxis2: { title: '', overlaying: 'y', side: 'right', tickfont: { family: 'DM Sans', size: 11, color: '#22C55E' }, showgrid: false },
+            showlegend: true, legend: { orientation: 'h', x: 0, y: 1.12, font: { family: 'DM Sans', size: 11, color: '#9CA3AF' } },
+            paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'
+        }, { responsive: true, displayModeBar: false });
+    }
+
+    // ═══ Init ═══
+    window.addEventListener('load', function() {
+        initVolumeChart();
+    });
+    </script>
+</body>
+</html>

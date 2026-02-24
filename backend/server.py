@@ -35,6 +35,7 @@ from routes import (
     insights_router,
     marketing_router,
     email_webhooks_router,
+    linkedin_router,
 )
 
 
@@ -87,6 +88,7 @@ app.include_router(chatbot_router)
 app.include_router(insights_router)
 app.include_router(marketing_router)
 app.include_router(email_webhooks_router)
+app.include_router(linkedin_router)
 
 # Static uploads for booking page logo/cover
 static_dir = Path(__file__).parent / "static" / "uploads"

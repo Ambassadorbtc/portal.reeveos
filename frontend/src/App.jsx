@@ -24,6 +24,7 @@ import OnlineBooking from './pages/dashboard/OnlineBooking'
 import Orders from './pages/dashboard/Orders'
 import Clients from './pages/dashboard/Clients'
 import Marketing from './pages/dashboard/Marketing'
+import LinkedIn from './pages/dashboard/LinkedIn'
 import Payments from './pages/dashboard/Payments'
 import Help from './pages/dashboard/Help'
 
@@ -71,6 +72,7 @@ const App = () => {
               <Route path="analytics" element={<Analytics />} />
               <Route path="payments" element={<Payments />} />
               <Route path="marketing" element={<Marketing />} />
+              <Route path="linkedin" element={<LinkedIn />} />
               <Route path="settings" element={<Settings />} />
               <Route path="help" element={<Help />} />
             </Route>

@@ -27,6 +27,7 @@ from .chatbot import router as chatbot_router
 from .insights import router as insights_router
 from .marketing import router as marketing_router
 from .email_webhooks import router as email_webhooks_router
+from .linkedin import router as linkedin_router
 
 __all__ = [
     "auth_router",
@@ -58,4 +59,5 @@ __all__ = [
     "insights_router",
     "marketing_router",
     "email_webhooks_router",
+    "linkedin_router",
 ]

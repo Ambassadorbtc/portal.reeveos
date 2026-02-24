@@ -28,6 +28,7 @@ export const getNavItems = (businessType) => {
     advanced: [
       ...(isRestaurant ? [{ id: 'floor-plan', label: 'Floor Plan', icon: 'fa-table-cells-large', path: '/dashboard/floor-plan', minTier: 'scale' }] : []),
       { id: 'marketing', label: 'Marketing', icon: 'fa-bullhorn', path: '/dashboard/marketing', minTier: 'growth' },
+      { id: 'linkedin', label: 'LinkedIn AI', icon: 'fa-linkedin', path: '/dashboard/linkedin', minTier: 'growth' },
     ],
     system: [
       { id: 'settings', label: 'Settings', icon: 'fa-gear', path: '/dashboard/settings', minTier: 'free' },

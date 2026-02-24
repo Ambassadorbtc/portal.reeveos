@@ -1,6 +1,6 @@
 /**
- * Rezvo AI Support Chat Widget v1
- * Self-contained chatbot with Rezvo knowledge base
+ * Rezvo AI Support Chat Widget v2
+ * Session persistence, follow-up suggestions, scroll-to-top
  * Drop onto any page with: <script src="/js/rezvo-chat.js"></script>
  */
 (function () {
@@ -12,6 +12,7 @@
   const FOREST = '#1B4332';
   const MINT = '#52B788';
   const CREAM = '#FEFBF4';
+  const STORE_KEY = 'rezvo_chat_history';
 
   /* ─── Knowledge Base ─── */
   const KB = {
@@ -23,6 +24,7 @@
       "Right... that's not in my tiny brain. I know about 15 things really well and that wasn't one of them. The Smart AI (🎙️ mic button) is way sharper, or you can email the actual humans at hello@rezvo.app!",
       "I wish I could help with that but I'm literally a keyword matcher pretending to be intelligent. 😄 For real answers, use the mic button to chat with our Smart AI — it actually understands things."
     ],
+    followUp: "Was that helpful? Pick another topic or ask me something else 👇",
     topics: [
       {
         keys: ['price', 'pricing', 'cost', 'how much', 'plan', 'plans', 'subscription', 'free', 'tier'],
@@ -34,7 +36,7 @@
       },
       {
         keys: ['restaurant', 'table', 'floor plan', 'covers', 'seating', 'dine', 'dining'],
-        answer: "**Rezvo for Restaurants includes:**\n\n• **Floor Plan View** — Real-time table status with colour coding (green = available, amber = occupied, blue = reserved)\n• **Covers Tracking** — Manage by party size, not confusing appointment slots\n• **Service Periods** — Separate lunch, dinner, and late-night with different capacities\n• **Online Booking Widget** — Guests book directly from your website\n• **Orders Board** — Kitchen display for dine-in orders\n• **Analytics** — Cover trends, peak times, revenue tracking\n\nWant me to explain any of these in detail?"
+        answer: "**Rezvo for Restaurants includes:**\n\n• **Floor Plan View** — Real-time table status with colour coding (green = available, amber = occupied, blue = reserved)\n• **Covers Tracking** — Manage by party size, not confusing appointment slots\n• **Service Periods** — Separate lunch, dinner, and late-night with different capacities\n• **Online Booking Widget** — Guests book directly from your website\n• **Orders Board** — Kitchen display for dine-in orders\n• **Analytics** — Cover trends, peak times, revenue tracking"
       },
       {
         keys: ['delivery', 'uber', 'uber direct', 'deliveroo', 'just eat', 'justeat', 'takeaway', 'order', 'ordering'],
@@ -61,12 +63,8 @@
         answer: "**Getting started is easy:**\n\n1. **Sign up free** at rezvo.app — no credit card needed\n2. **Set up your profile** — add your business details, services, and staff\n3. **Go live** — start accepting bookings immediately\n\nYou get a full 30-day free trial on any plan. Our team can help with setup if you need it — just reach out at hello@rezvo.app"
       },
       {
-        keys: ['contact', 'support', 'help', 'email', 'phone', 'speak', 'talk', 'human', 'person', 'team'],
+        keys: ['contact', 'support', 'help', 'email', 'phone', 'speak', 'human', 'person', 'team'],
         answer: "**Get in touch:**\n\n• **Email:** hello@rezvo.app\n• **Contact page:** rezvo.app/contact.html\n• **Response time:** We typically reply within a few hours\n\nOur team is based in the UK and we're always happy to help with setup, migration, or any questions!"
-      },
-      {
-        keys: ['nottingham', 'launch', 'city', 'available', 'location', 'where', 'area', 'uk'],
-        answer: "Rezvo is launching city by city across the UK, starting with **Nottingham**. The platform is available nationwide for any UK business to sign up and use — our directory and featured placement launches are rolling out by city to ensure the best local experience for diners and customers."
       },
       {
         keys: ['directory', 'find', 'discover', 'search', 'browse', 'diner', 'customer', 'consumer'],
@@ -74,14 +72,14 @@
       },
       {
         keys: ['feature', 'what do', 'what can', 'include', 'offer', 'do you'],
-        answer: "**Rezvo's key features:**\n\n• Online booking with zero commission\n• Smart drag-and-drop calendar\n• Floor plan management (restaurants)\n• Stripe Connect payments & deposits\n• Customer CRM & analytics\n• Automated SMS/email reminders\n• Staff management & scheduling\n• Zero-commission online ordering\n• Uber Direct delivery integration\n• White-label branding options\n• Business directory listing\n\nAnything specific you'd like to know more about?"
+        answer: "**Rezvo's key features:**\n\n• Online booking with zero commission\n• Smart drag-and-drop calendar\n• Floor plan management (restaurants)\n• Stripe Connect payments & deposits\n• Customer CRM & analytics\n• Automated SMS/email reminders\n• Staff management & scheduling\n• Zero-commission online ordering\n• Uber Direct delivery integration\n• White-label branding options\n• Business directory listing"
       },
       {
         keys: ['crm', 'customer data', 'database', 'analytics', 'insight', 'report', 'data'],
         answer: "**CRM & Analytics:**\n\n• Full customer database — names, visit history, preferences, spend\n• Unlike third-party platforms, YOU own your customer data\n• Booking trends and peak time analysis\n• Revenue tracking and forecasting\n• Staff performance metrics\n• No-show rate monitoring\n• Available on Growth plan (£29/mo) and above"
       },
       {
-        keys: ['no show', 'no-show', 'cancel', 'cancellation', 'deposit'],
+        keys: ['no show', 'no-show', 'cancel', 'cancellation'],
         answer: "**No-show Protection:**\n\n• Collect card-on-file deposits when customers book\n• Set custom deposit amounts per service or time slot\n• Automatic reminders reduce no-shows by up to 70%\n• Easy cancellation policy management\n• Charge no-show fees automatically\n\nAvailable on Growth plan and above."
       },
       {
@@ -109,7 +107,7 @@
         answer: "I'm the Rezvo chatbot — basically a FAQ page that got promoted. I can answer the basics but let's be honest, I'm not winning any Turing tests. 😄 For the really smart conversations, hit the 🎙️ mic button and talk to our actual AI. That one has brains."
       },
       {
-        keys: ['smart ai', 'voice', 'mic', 'microphone', 'talk', 'speak'],
+        keys: ['smart ai', 'voice', 'mic', 'microphone'],
         answer: "The Smart AI is the clever one! 🎙️ Click the mic button and you can have an actual conversation about anything Rezvo-related. It understands context, remembers what you said, and doesn't just match keywords like yours truly. 😅"
       },
       {
@@ -131,22 +129,26 @@
     ]
   };
 
+  /* ─── Quick Buttons Config ─── */
+  const QUICK_BUTTONS = [
+    { emoji: '💰', label: 'Pricing', q: 'What are your pricing plans?' },
+    { emoji: '🍽️', label: 'Restaurants', q: 'Tell me about restaurant features' },
+    { emoji: '🚫', label: 'Zero Commission', q: 'How does zero commission work?' },
+    { emoji: '🚀', label: 'Get Started', q: 'How do I get started?' },
+    { emoji: '✨', label: 'Features', q: 'What features do you offer?' },
+    { emoji: '📧', label: 'Contact', q: 'How can I contact your team?' }
+  ];
+
   function findAnswer(msg) {
     const lower = msg.toLowerCase().trim();
     if (lower.length < 2) return KB.greeting;
-
     let best = null, bestScore = 0;
     for (const topic of KB.topics) {
       let score = 0;
       for (const key of topic.keys) {
-        if (lower.includes(key)) {
-          score += key.split(' ').length; // multi-word matches score higher
-        }
+        if (lower.includes(key)) score += key.split(' ').length;
       }
-      if (score > bestScore) {
-        bestScore = score;
-        best = topic;
-      }
+      if (score > bestScore) { bestScore = score; best = topic; }
     }
     return best ? best.answer : KB.fallbacks[Math.floor(Math.random() * KB.fallbacks.length)];
   }
@@ -158,6 +160,23 @@
       .replace(/\n\n/g, '<br><br>')
       .replace(/\n(\d+)\./g, '<br>$1.')
       .replace(/\n/g, '<br>');
+  }
+
+  /* ─── Session Storage ─── */
+  function saveChat(history) {
+    try {
+      sessionStorage.setItem(STORE_KEY, JSON.stringify({ messages: history, ts: Date.now() }));
+    } catch(e) {}
+  }
+
+  function loadChat() {
+    try {
+      const raw = sessionStorage.getItem(STORE_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (Date.now() - data.ts > 30 * 60 * 1000) { sessionStorage.removeItem(STORE_KEY); return null; }
+      return data.messages;
+    } catch(e) { return null; }
   }
 
   /* ─── Inject Styles ─── */
@@ -176,8 +195,11 @@
     #rezvo-chat-panel.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
     .rc-header{background:${FOREST};padding:18px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}
     .rc-header-avatar{width:40px;height:40px;border-radius:12px;background:${MINT};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:${FOREST}}
+    .rc-header-info{flex:1}
     .rc-header-info h3{color:#fff;font-size:15px;font-weight:700;margin:0;font-family:'Figtree',system-ui,sans-serif}
     .rc-header-info p{color:${MINT};font-size:11px;font-weight:600;margin:2px 0 0;opacity:.9}
+    .rc-header-clear{background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:11px;font-family:'Figtree',system-ui,sans-serif;padding:4px 8px;border-radius:6px;transition:all .2s}
+    .rc-header-clear:hover{color:#fff;background:rgba(255,255,255,0.1)}
     .rc-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background:#f9fafb}
     .rc-messages::-webkit-scrollbar{width:4px}
     .rc-messages::-webkit-scrollbar-thumb{background:#ddd;border-radius:4px}
@@ -186,11 +208,15 @@
     .rc-msg.bot strong{color:${FOREST};font-weight:700}
     .rc-msg.user{background:${FOREST};color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
     .rc-msg.typing{background:#fff;border:1px solid #e5e7eb;border-bottom-left-radius:4px;align-self:flex-start;padding:14px 20px}
+    .rc-msg.followup{background:transparent;border:none;box-shadow:none;padding:8px 0;align-self:flex-start;max-width:100%;font-size:12px;color:#999}
     .rc-dots{display:flex;gap:4px}
     .rc-dots span{width:7px;height:7px;border-radius:50%;background:#bbb;animation:rcDot 1.4s ease-in-out infinite}
     .rc-dots span:nth-child(2){animation-delay:.2s}
     .rc-dots span:nth-child(3){animation-delay:.4s}
     @keyframes rcDot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+    .rc-inline-quick{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+    .rc-inline-quick button{padding:4px 12px;border-radius:16px;border:1.5px solid #e5e7eb;background:#fff;font-size:10px;font-weight:600;color:${FOREST};cursor:pointer;font-family:'Figtree',system-ui,sans-serif;transition:all .2s;white-space:nowrap}
+    .rc-inline-quick button:hover{border-color:${MINT};background:${MINT}15}
     .rc-input-area{padding:12px 16px;border-top:1px solid #e5e7eb;background:#fff;display:flex;gap:8px;align-items:center;flex-shrink:0}
     .rc-input{flex:1;border:1.5px solid #e5e7eb;border-radius:12px;padding:10px 14px;font-size:13px;font-family:'Figtree',system-ui,sans-serif;outline:none;color:#333;transition:border-color .2s}
     .rc-input:focus{border-color:${MINT}}
@@ -202,11 +228,11 @@
     .rc-quick{padding:6px 14px;border-radius:20px;border:1.5px solid #e5e7eb;background:#fff;font-size:11px;font-weight:600;color:${FOREST};cursor:pointer;font-family:'Figtree',system-ui,sans-serif;transition:all .2s;white-space:nowrap}
     .rc-quick:hover{border-color:${MINT};background:${MINT}15;color:${FOREST}}
     .rc-powered{text-align:center;padding:6px;font-size:9px;color:#bbb;font-family:'Figtree',system-ui,sans-serif;background:#fff;border-top:1px solid #f0f0f0}
+    .rc-timestamp{font-size:9px;color:#bbb;text-align:center;padding:4px 0;font-family:'Figtree',system-ui,sans-serif}
   `;
   document.head.appendChild(style);
 
   /* ─── Create DOM ─── */
-  // FAB
   const fab = document.createElement('button');
   fab.id = 'rezvo-chat-fab';
   fab.innerHTML = `
@@ -216,7 +242,6 @@
   `;
   document.body.appendChild(fab);
 
-  // Panel
   const panel = document.createElement('div');
   panel.id = 'rezvo-chat-panel';
   panel.innerHTML = `
@@ -226,15 +251,11 @@
         <h3>Rezvo Support</h3>
         <p>● Online — typically replies instantly</p>
       </div>
+      <button class="rc-header-clear" id="rc-clear" title="Start new chat">🗑️ New</button>
     </div>
     <div class="rc-messages" id="rc-messages"></div>
     <div class="rc-quick-btns" id="rc-quick-btns">
-      <button class="rc-quick" data-q="What are your pricing plans?">💰 Pricing</button>
-      <button class="rc-quick" data-q="Tell me about restaurant features">🍽️ Restaurants</button>
-      <button class="rc-quick" data-q="How does zero commission work?">🚫 Zero Commission</button>
-      <button class="rc-quick" data-q="How do I get started?">🚀 Get Started</button>
-      <button class="rc-quick" data-q="What features do you offer?">✨ Features</button>
-      <button class="rc-quick" data-q="How can I contact your team?">📧 Contact</button>
+      ${QUICK_BUTTONS.map(b => '<button class="rc-quick" data-q="' + b.q + '">' + b.emoji + ' ' + b.label + '</button>').join('\n      ')}
     </div>
     <div class="rc-input-area">
       <input class="rc-input" id="rc-input" placeholder="Ask anything about Rezvo..." autocomplete="off">
@@ -249,23 +270,59 @@
   /* ─── State ─── */
   let isOpen = false;
   let hasOpened = false;
+  let chatHistory = [];
   const messagesEl = document.getElementById('rc-messages');
   const inputEl = document.getElementById('rc-input');
   const sendBtn = document.getElementById('rc-send');
   const quickBtns = document.getElementById('rc-quick-btns');
   const badge = document.getElementById('rezvo-chat-badge');
+  const clearBtn = document.getElementById('rc-clear');
 
-  function addMsg(text, sender) {
+  function addMsg(text, sender, save) {
+    if (save !== false) {
+      chatHistory.push({ sender: sender, text: text, ts: Date.now() });
+      saveChat(chatHistory);
+    }
     const div = document.createElement('div');
     div.className = 'rc-msg ' + sender;
     div.innerHTML = sender === 'bot' ? formatMsg(text) : text.replace(/</g, '&lt;');
     messagesEl.appendChild(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
     return div;
   }
 
+  function addFollowUp() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'rc-msg followup';
+
+    const label = document.createElement('div');
+    label.textContent = KB.followUp;
+    label.style.marginBottom = '6px';
+    wrapper.appendChild(label);
+
+    const btns = document.createElement('div');
+    btns.className = 'rc-inline-quick';
+    QUICK_BUTTONS.forEach(function(b) {
+      var btn = document.createElement('button');
+      btn.textContent = b.emoji + ' ' + b.label;
+      btn.addEventListener('click', function() {
+        wrapper.remove();
+        sendMessage(b.q);
+      });
+      btns.appendChild(btn);
+    });
+    wrapper.appendChild(btns);
+    messagesEl.appendChild(wrapper);
+    scrollTo(wrapper);
+  }
+
+  function scrollTo(el) {
+    requestAnimationFrame(function() {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
   function showTyping() {
-    const div = document.createElement('div');
+    var div = document.createElement('div');
     div.className = 'rc-msg typing';
     div.id = 'rc-typing';
     div.innerHTML = '<div class="rc-dots"><span></span><span></span><span></span></div>';
@@ -274,36 +331,85 @@
   }
 
   function hideTyping() {
-    const t = document.getElementById('rc-typing');
+    var t = document.getElementById('rc-typing');
     if (t) t.remove();
+  }
+
+  function removeFollowUps() {
+    messagesEl.querySelectorAll('.rc-msg.followup').forEach(function(el) { el.remove(); });
   }
 
   function sendMessage(text) {
     if (!text.trim()) return;
-    addMsg(text, 'user');
+    removeFollowUps();
+
+    var userMsg = addMsg(text, 'user');
     inputEl.value = '';
     inputEl.disabled = true;
     sendBtn.disabled = true;
 
-    // Hide quick buttons after first message
     if (quickBtns) quickBtns.style.display = 'none';
 
     showTyping();
 
-    // Simulate AI thinking delay (300-900ms)
-    const delay = 300 + Math.random() * 600;
-    setTimeout(() => {
+    var delay = 300 + Math.random() * 600;
+    setTimeout(function() {
       hideTyping();
-      const answer = findAnswer(text);
-      addMsg(answer, 'bot');
+      var answer = findAnswer(text);
+      var botMsg = addMsg(answer, 'bot');
+
+      // Scroll to the user's message so they see the full Q&A from top
+      scrollTo(userMsg);
+
+      // Show follow-up after a beat
+      setTimeout(function() {
+        addFollowUp();
+      }, 400);
+
       inputEl.disabled = false;
       sendBtn.disabled = false;
       inputEl.focus();
     }, delay);
   }
 
+  /* ─── Restore Saved Chat ─── */
+  function restoreChat() {
+    var saved = loadChat();
+    if (saved && saved.length > 0) {
+      var first = saved[0];
+      var when = new Date(first.ts);
+      var timeStr = when.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      var dateStr = when.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+      var ts = document.createElement('div');
+      ts.className = 'rc-timestamp';
+      ts.textContent = '💬 Chat from ' + dateStr + ' at ' + timeStr;
+      messagesEl.appendChild(ts);
+
+      saved.forEach(function(item) {
+        addMsg(item.text, item.sender, false);
+      });
+      chatHistory = saved;
+
+      if (quickBtns) quickBtns.style.display = 'none';
+      addFollowUp();
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      return true;
+    }
+    return false;
+  }
+
+  function clearChat() {
+    sessionStorage.removeItem(STORE_KEY);
+    chatHistory = [];
+    messagesEl.innerHTML = '';
+    if (quickBtns) quickBtns.style.display = '';
+    hasOpened = false;
+    setTimeout(function() { addMsg(KB.greeting, 'bot'); }, 200);
+  }
+
   /* ─── Events ─── */
-  fab.addEventListener('click', () => {
+  fab.addEventListener('click', function() {
     isOpen = !isOpen;
     panel.classList.toggle('open', isOpen);
     fab.classList.toggle('open', isOpen);
@@ -311,28 +417,31 @@
 
     if (isOpen && !hasOpened) {
       hasOpened = true;
-      setTimeout(() => addMsg(KB.greeting, 'bot'), 400);
+      var restored = restoreChat();
+      if (!restored) {
+        setTimeout(function() { addMsg(KB.greeting, 'bot'); }, 400);
+      }
     }
-    if (isOpen) setTimeout(() => inputEl.focus(), 350);
+    if (isOpen) setTimeout(function() { inputEl.focus(); }, 350);
   });
 
-  sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
-  inputEl.addEventListener('keydown', (e) => {
+  sendBtn.addEventListener('click', function() { sendMessage(inputEl.value); });
+  inputEl.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage(inputEl.value);
     }
   });
 
-  // Quick buttons
-  document.querySelectorAll('.rc-quick').forEach(btn => {
-    btn.addEventListener('click', () => {
+  document.querySelectorAll('.rc-quick').forEach(function(btn) {
+    btn.addEventListener('click', function() {
       sendMessage(btn.getAttribute('data-q'));
     });
   });
 
-  // Close on escape
-  document.addEventListener('keydown', (e) => {
+  clearBtn.addEventListener('click', function() { clearChat(); });
+
+  document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && isOpen) {
       isOpen = false;
       panel.classList.remove('open');

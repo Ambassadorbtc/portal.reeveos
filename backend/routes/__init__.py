@@ -30,6 +30,7 @@ from .email_webhooks import router as email_webhooks_router
 from .linkedin import router as linkedin_router
 from .agent import router as agent_router
 from .outreach import router as outreach_router
+from .admin import router as admin_router
 
 __all__ = [
     "auth_router",
@@ -64,4 +65,5 @@ __all__ = [
     "linkedin_router",
     "agent_router",
     "outreach_router",
+    "admin_router",
 ]

@@ -38,6 +38,7 @@ from routes import (
     linkedin_router,
     agent_router,
     outreach_router,
+    admin_router,
 )
 
 
@@ -102,6 +103,7 @@ app.include_router(email_webhooks_router)
 app.include_router(linkedin_router)
 app.include_router(agent_router)
 app.include_router(outreach_router)
+app.include_router(admin_router)
 
 # Static uploads for booking page logo/cover
 static_dir = Path(__file__).parent / "static" / "uploads"

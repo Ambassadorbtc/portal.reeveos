@@ -35,6 +35,11 @@ import AdminAIOps from './pages/admin/AIOps'
 import AdminOutreach from './pages/admin/EmailOutreach'
 import AdminLinkedIn from './pages/admin/LinkedIn'
 import AdminPlaceholder from './pages/admin/AdminPlaceholder'
+import AdminBusinesses from './pages/admin/AdminBusinesses'
+import AdminUsers from './pages/admin/AdminUsers'
+import AdminBookings from './pages/admin/AdminBookings'
+import AdminDirectory from './pages/admin/AdminDirectory'
+import AdminSubscriptions from './pages/admin/AdminSubscriptions'
 
 import Onboarding from './pages/onboarding/Onboarding'
 
@@ -91,11 +96,11 @@ const App = () => {
               <Route path="outreach" element={<AdminOutreach />} />
               <Route path="linkedin" element={<AdminLinkedIn />} />
               <Route path="pipeline" element={<AdminPlaceholder section="pipeline" />} />
-              <Route path="businesses" element={<AdminPlaceholder section="businesses" />} />
-              <Route path="bookings" element={<AdminPlaceholder section="bookings" />} />
-              <Route path="users" element={<AdminPlaceholder section="users" />} />
-              <Route path="subscriptions" element={<AdminPlaceholder section="subscriptions" />} />
-              <Route path="directory" element={<AdminPlaceholder section="directory" />} />
+              <Route path="businesses" element={<AdminBusinesses />} />
+              <Route path="bookings" element={<AdminBookings />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="subscriptions" element={<AdminSubscriptions />} />
+              <Route path="directory" element={<AdminDirectory />} />
               <Route path="support" element={<AdminPlaceholder section="support" />} />
               <Route path="reviews" element={<AdminPlaceholder section="reviews" />} />
               <Route path="churn" element={<AdminPlaceholder section="churn" />} />

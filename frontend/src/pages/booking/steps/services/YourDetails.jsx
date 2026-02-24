@@ -59,7 +59,7 @@ const YourDetails = ({ data, onCreate, onBack }) => {
   }
 
   return (
-    <div className="max-w-xl mx-auto px-5 pt-6">
+    <div className="max-w-xl mx-auto px-5 pt-6 overflow-hidden">
       {/* Back */}
       <button
         onClick={onBack}

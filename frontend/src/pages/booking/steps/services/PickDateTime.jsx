@@ -60,7 +60,7 @@ const PickDateTime = ({ data, onContinue, onBack }) => {
   const grouped = groupSlots(slots)
 
   return (
-    <div className="max-w-xl mx-auto px-5 pt-6">
+    <div className="max-w-xl mx-auto px-5 pt-6 overflow-hidden">
       {/* Back button */}
       <button
         onClick={onBack}
@@ -95,7 +95,7 @@ const PickDateTime = ({ data, onContinue, onBack }) => {
           {/* Date strip — horizontal scroll */}
           <div
             ref={scrollRef}
-            className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide -mx-5 px-5"
+            className="flex gap-2 flex-wrap pb-4"
           >
             {dateKeys.map((d) => {
               const dt = new Date(d + 'T12:00:00')

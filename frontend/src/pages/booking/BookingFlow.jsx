@@ -114,7 +114,7 @@ const BookingFlow = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FEFBF4]">
+    <div className="min-h-screen bg-[#FEFBF4] overflow-x-hidden">
       <StepComponent
         data={stepData}
         onContinue={handleContinue}

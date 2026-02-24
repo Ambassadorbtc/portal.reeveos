@@ -19,14 +19,14 @@ const PickService = ({ data, onContinue }) => {
     : services.filter((s) => s.category === category)
 
   return (
-    <div className="max-w-xl mx-auto px-5 pt-6">
+    <div className="max-w-xl mx-auto px-5 pt-6 overflow-hidden">
       <BookingHeader business={business} />
       <StepIndicator step={1} total={3} />
 
       <h2 className="text-base font-semibold text-[#1B4332] mb-3">Choose a service</h2>
 
       {/* Category pills — horizontal scroll */}
-      <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide -mx-5 px-5 mb-4">
+      <div className="flex gap-2 flex-wrap mb-4">
         {(categories || ['All']).map((cat) => (
           <button
             key={cat}

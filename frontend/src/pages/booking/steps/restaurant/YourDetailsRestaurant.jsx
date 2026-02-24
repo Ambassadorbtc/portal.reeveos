@@ -81,7 +81,7 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
   // Confirmation screen
   if (confirmed) {
     return (
-      <div className="max-w-xl mx-auto px-5 pt-6">
+      <div className="max-w-xl mx-auto px-5 pt-6 overflow-hidden">
         <div className="text-center pt-12 pb-8">
           <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-8 h-8 text-emerald-600" />
@@ -140,7 +140,7 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
   }
 
   return (
-    <div className="max-w-xl mx-auto px-5 pt-6">
+    <div className="max-w-xl mx-auto px-5 pt-6 overflow-hidden">
       <BookingHeader business={business} />
       <StepIndicator step={3} total={3} />
 
@@ -232,7 +232,7 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
 
       {/* Occasion */}
       <h2 className="text-base font-semibold text-[#1B4332] mb-3">What's the occasion?</h2>
-      <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide -mx-5 px-5 mb-6">
+      <div className="flex gap-2 flex-wrap mb-6">
         {OCCASIONS.map((occ) => (
           <button
             key={occ}

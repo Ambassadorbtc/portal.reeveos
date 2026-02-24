@@ -5,7 +5,7 @@ Campaign CRUD, audience segmentation, drip sequences, actual sending via Resend.
 Used by business owners to email their customers from the dashboard.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Query, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Depends, Query, BackgroundTasks, Body
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
@@ -904,4 +904,494 @@ async def get_marketing_stats(
         "active_drips": active_drips,
         "active_drip_enrollments": active_enrollments,
         "total_unsubscribes": unsub_count,
+    }
+
+
+# ═══════════════════════════════════════════════════════════
+# V10 — AI CAMPAIGN GENERATION
+# ═══════════════════════════════════════════════════════════
+
+AI_CAMPAIGN_PROMPTS = {
+    "win_back": {
+        "goal": "Re-engage inactive customers",
+        "subject": "We miss you at {business_name}! Here's a little something...",
+        "body": "Hi {client_name},\n\nIt's been a while since we last saw you at {business_name}, and honestly — we miss you!\n\nTo welcome you back, we'd love to offer you [OFFER]. Consider it our way of saying we'd love to see you again.\n\nYour table is always waiting.\n\nWarm regards,\n{business_name}",
+        "audience": "inactive",
+        "tone": "warm and personal",
+    },
+    "flash_sale": {
+        "goal": "Drive urgent bookings",
+        "subject": "⚡ {business_name} flash deal — today only!",
+        "body": "Hi {client_name},\n\nThis won't last long!\n\nFor the next 24 hours only, we're offering [OFFER] at {business_name}.\n\nSpaces are limited and first come, first served. Don't sleep on this one.\n\nBook now before it's gone!",
+        "audience": "all",
+        "tone": "urgent and exciting",
+    },
+    "thank_loyal": {
+        "goal": "Reward VIP customers",
+        "subject": "You're one of our favourites, {client_name} ⭐",
+        "body": "Hi {client_name},\n\nWe wanted to take a moment to say thank you. You've been one of our most loyal customers at {business_name}, and that means the world to us.\n\nAs a small token of our appreciation, we'd like to offer you [REWARD].\n\nYou deserve it. Thank you for choosing us, again and again.\n\nWith gratitude,\n{business_name}",
+        "audience": "vip",
+        "tone": "grateful and personal",
+    },
+    "new_launch": {
+        "goal": "Announce something new",
+        "subject": "Something exciting is coming to {business_name}... 🎉",
+        "body": "Hi {client_name},\n\nWe've been working on something special at {business_name}, and we're finally ready to share it with you.\n\nIntroducing: [NEW THING]\n\n[DESCRIPTION]\n\nWe can't wait for you to try it. Be one of the first!",
+        "audience": "all",
+        "tone": "excited and exclusive",
+    },
+    "seasonal": {
+        "goal": "Seasonal promotion",
+        "subject": "This season at {business_name} — you won't want to miss this",
+        "body": "Hi {client_name},\n\nThe season is changing, and so is our menu at {business_name}!\n\n[SEASONAL DETAILS]\n\nWhether you're a regular or it's been a while, now is the perfect time to visit.\n\nBook your spot today — the best tables go fast.",
+        "audience": "all",
+        "tone": "inviting and seasonal",
+    },
+    "review_ask": {
+        "goal": "Get more reviews",
+        "subject": "Quick favour, {client_name}? 🙏",
+        "body": "Hi {client_name},\n\nThanks for your recent visit to {business_name}! We really hope you enjoyed it.\n\nIf you have 30 seconds, we'd be incredibly grateful if you could leave us a quick review. It makes a huge difference for small businesses like ours.\n\n[REVIEW LINK]\n\nThank you — it really means a lot.\n\n{business_name}",
+        "audience": "recent",
+        "tone": "humble and grateful",
+    },
+    "referral": {
+        "goal": "Drive word-of-mouth",
+        "subject": "Know someone who'd love {business_name}?",
+        "body": "Hi {client_name},\n\nWe're so glad you enjoy {business_name}! The best compliment we could ever receive is a recommendation to someone you care about.\n\nRefer a friend and you'll both receive [INCENTIVE].\n\nJust forward this email or share the link below. Easy as that!\n\n{booking_link}",
+        "audience": "returning",
+        "tone": "friendly and rewarding",
+    },
+    "event": {
+        "goal": "Promote an event",
+        "subject": "You're invited: [EVENT] at {business_name}",
+        "body": "Hi {client_name},\n\nYou're invited to something special at {business_name}!\n\n📅 [DATE]\n🕐 [TIME]\n📍 {business_name}\n\n[EVENT DESCRIPTION]\n\nSpaces are limited, so book early to avoid disappointment.\n\nWe'd love to see you there!",
+        "audience": "all",
+        "tone": "exciting and exclusive",
+    },
+}
+
+
+@router.post("/ai/generate")
+async def ai_generate_campaign(
+    data: dict = Body(...),
+    current_user: dict = Depends(get_current_owner),
+):
+    """AI-generate a campaign from a prompt or template type."""
+    db = get_database()
+    business_id = await _get_business_id(current_user)
+    biz = await db.businesses.find_one({"_id": ObjectId(business_id)})
+    biz_name = biz.get("name", "Your Business") if biz else "Your Business"
+
+    prompt_type = data.get("type", "")
+    custom_prompt = data.get("prompt", "")
+    custom_offer = data.get("offer", "")
+
+    # Use AI template or generate from prompt
+    if prompt_type in AI_CAMPAIGN_PROMPTS:
+        tpl = AI_CAMPAIGN_PROMPTS[prompt_type]
+        subject = tpl["subject"].replace("{business_name}", biz_name)
+        body = tpl["body"].replace("{business_name}", biz_name)
+        if custom_offer:
+            body = body.replace("[OFFER]", custom_offer).replace("[REWARD]", custom_offer)
+            body = body.replace("[NEW THING]", custom_offer).replace("[DESCRIPTION]", "")
+            body = body.replace("[INCENTIVE]", custom_offer).replace("[SEASONAL DETAILS]", custom_offer)
+            body = body.replace("[EVENT]", custom_offer).replace("[EVENT DESCRIPTION]", custom_offer)
+            body = body.replace("[DATE]", "TBC").replace("[TIME]", "TBC")
+            body = body.replace("[REVIEW LINK]", "{booking_link}")
+        audience = tpl["audience"]
+        goal = tpl["goal"]
+    else:
+        # Fallback: generate from custom prompt
+        subject = f"News from {biz_name}"
+        body = f"Hi {{client_name}},\n\n{custom_prompt or 'We have exciting news to share!'}\n\nVisit us at {{business_name}} to find out more.\n\n{{booking_link}}"
+        audience = "all"
+        goal = custom_prompt or "Custom campaign"
+
+    # Generate A/B variant
+    subject_b = subject.replace("!", " 👀").replace("⚡", "🔥") if "!" in subject else subject + " — limited time"
+
+    return {
+        "subject": subject,
+        "subject_b": subject_b,
+        "body": body,
+        "audience": audience,
+        "goal": goal,
+        "type": prompt_type or "custom",
+    }
+
+
+# ═══════════════════════════════════════════════════════════
+# V10 — AUTO-CAMPAIGNS (FIRE AND FORGET)
+# ═══════════════════════════════════════════════════════════
+
+AUTO_CAMPAIGN_TYPES = [
+    {
+        "type": "welcome_series",
+        "name": "Welcome Series",
+        "description": "3-email welcome sequence for new customers",
+        "trigger": "new_client",
+        "steps": [
+            {"delay_days": 0, "subject": "Welcome to {business_name}! 🎉", "body": "Hi {client_name},\n\nWelcome to {business_name}! We're thrilled to have you.\n\nHere's what you can expect from us — great food, great service, and a few surprises along the way.\n\nSee you soon!\n{business_name}"},
+            {"delay_days": 3, "subject": "A little something about {business_name}", "body": "Hi {client_name},\n\nHope you enjoyed your first visit to {business_name}!\n\nDid you know we also offer [feature]? We think you'd love it.\n\nBook your next visit: {booking_link}"},
+            {"delay_days": 7, "subject": "How was your experience, {client_name}?", "body": "Hi {client_name},\n\nWe'd love to hear how your first experience at {business_name} went.\n\nYour feedback helps us keep improving. And if you loved it — tell a friend!\n\nBook again: {booking_link}"},
+        ],
+    },
+    {
+        "type": "post_visit_review",
+        "name": "Review Request",
+        "description": "Ask for a review 24h after visit",
+        "trigger": "post_visit",
+        "steps": [
+            {"delay_days": 1, "subject": "How was {business_name}, {client_name}?", "body": "Hi {client_name},\n\nThanks for visiting {business_name} yesterday! We hope you had a wonderful time.\n\nIf you have 30 seconds, a quick review would mean the world to us. Small businesses like ours rely on word of mouth.\n\nThank you!\n{business_name}"},
+        ],
+    },
+    {
+        "type": "win_back_30",
+        "name": "Win-Back (30 days)",
+        "description": "Re-engage after 30 days of inactivity",
+        "trigger": "inactive_30",
+        "steps": [
+            {"delay_days": 0, "subject": "It's been a while, {client_name}!", "body": "Hi {client_name},\n\nWe noticed it's been about a month since your last visit to {business_name}. We miss you!\n\nPop in soon — we've got some great things happening.\n\nBook now: {booking_link}"},
+        ],
+    },
+    {
+        "type": "win_back_60",
+        "name": "Win-Back (60 days)",
+        "description": "Escalated re-engagement with incentive",
+        "trigger": "inactive_60",
+        "steps": [
+            {"delay_days": 0, "subject": "We really miss you, {client_name} 💛", "body": "Hi {client_name},\n\nIt's been a couple of months since we last saw you at {business_name}, and we'd love to welcome you back.\n\nAs a little incentive, here's an exclusive offer just for you: [ADD YOUR OFFER]\n\nWe hope to see you soon!\n{business_name}"},
+        ],
+    },
+    {
+        "type": "win_back_90",
+        "name": "Win-Back (90 days)",
+        "description": "Last-chance re-engagement",
+        "trigger": "inactive_90",
+        "steps": [
+            {"delay_days": 0, "subject": "One last thing, {client_name}...", "body": "Hi {client_name},\n\nIt's been a while since you visited {business_name}. We don't want to bother you, but we genuinely miss having you.\n\nIf there's anything we can do better, we'd love to hear it. And if you'd like to come back, your table is always waiting.\n\nBook anytime: {booking_link}\n\nWarm regards,\n{business_name}"},
+        ],
+    },
+    {
+        "type": "booking_reminder",
+        "name": "Booking Reminder",
+        "description": "Automatic 24h reminder before appointment",
+        "trigger": "post_booking",
+        "steps": [
+            {"delay_days": 0, "subject": "Booking confirmed at {business_name} ✅", "body": "Hi {client_name},\n\nYour booking at {business_name} is confirmed! We look forward to seeing you.\n\nIf you need to make any changes, you can manage your booking here: {booking_link}\n\nSee you soon!"},
+        ],
+    },
+    {
+        "type": "vip_reward",
+        "name": "VIP Reward",
+        "description": "Auto-reward after 5th visit",
+        "trigger": "post_visit",
+        "steps": [
+            {"delay_days": 0, "subject": "You're a VIP at {business_name}! ⭐", "body": "Hi {client_name},\n\nWow — you've now visited {business_name} five times! That makes you one of our VIPs.\n\nAs a thank you, we'd like to offer you [VIP REWARD]. You've earned it!\n\nBook your next visit: {booking_link}\n\nThank you for your loyalty!"},
+        ],
+    },
+    {
+        "type": "referral_program",
+        "name": "Referral Program",
+        "description": "Ask for referrals after 3rd visit",
+        "trigger": "post_visit",
+        "steps": [
+            {"delay_days": 1, "subject": "Share the love, {client_name} ❤️", "body": "Hi {client_name},\n\nYou've been a wonderful customer at {business_name} and we'd love your help spreading the word.\n\nRefer a friend and you'll both receive [INCENTIVE]. Just forward this email or share your booking link:\n\n{booking_link}\n\nThank you for being amazing!"},
+        ],
+    },
+    {
+        "type": "no_show_followup",
+        "name": "No-Show Follow-Up",
+        "description": "Gentle nudge after a missed booking",
+        "trigger": "post_visit",
+        "steps": [
+            {"delay_days": 0, "subject": "We missed you today, {client_name}", "body": "Hi {client_name},\n\nWe noticed you weren't able to make it to {business_name} today. No worries at all — things happen!\n\nWe'd love to see you when you're ready. You can rebook at any time:\n\n{booking_link}\n\nHope to see you soon!\n{business_name}"},
+        ],
+    },
+    {
+        "type": "birthday",
+        "name": "Birthday Treat",
+        "description": "Auto-send birthday offer",
+        "trigger": "new_client",
+        "steps": [
+            {"delay_days": 0, "subject": "Happy Birthday, {client_name}! 🎂", "body": "Hi {client_name},\n\nHappy Birthday from everyone at {business_name}! 🎂🎉\n\nTo celebrate your special day, we'd like to treat you to [BIRTHDAY OFFER].\n\nEnjoy your day and we hope to see you soon!\n\nWith love,\n{business_name}"},
+        ],
+    },
+]
+
+
+@router.get("/auto-campaigns")
+async def list_auto_campaigns(current_user: dict = Depends(get_current_owner)):
+    """List all auto-campaign types with their enabled/disabled status."""
+    db = get_database()
+    business_id = await _get_business_id(current_user)
+
+    result = []
+    for ac in AUTO_CAMPAIGN_TYPES:
+        # Check if a drip sequence exists for this auto-campaign type
+        existing = await db.drip_sequences.find_one({
+            "business_id": business_id,
+            "auto_campaign_type": ac["type"],
+        })
+        result.append({
+            **ac,
+            "enabled": existing.get("is_active", False) if existing else False,
+            "drip_id": str(existing["_id"]) if existing else None,
+            "enrolled": existing.get("stats", {}).get("enrolled", 0) if existing else 0,
+            "sent": existing.get("stats", {}).get("total_sent", 0) if existing else 0,
+        })
+
+    return result
+
+
+@router.post("/auto-campaigns/{campaign_type}/toggle")
+async def toggle_auto_campaign(
+    campaign_type: str,
+    current_user: dict = Depends(get_current_owner),
+):
+    """Enable or disable an auto-campaign. Creates the drip sequence if it doesn't exist."""
+    db = get_database()
+    business_id = await _get_business_id(current_user)
+
+    # Find the auto-campaign definition
+    ac_def = None
+    for ac in AUTO_CAMPAIGN_TYPES:
+        if ac["type"] == campaign_type:
+            ac_def = ac
+            break
+    if not ac_def:
+        raise HTTPException(status_code=404, detail="Auto-campaign type not found")
+
+    # Check if drip sequence exists
+    existing = await db.drip_sequences.find_one({
+        "business_id": business_id,
+        "auto_campaign_type": campaign_type,
+    })
+
+    if existing:
+        # Toggle it
+        new_state = not existing.get("is_active", False)
+        await db.drip_sequences.update_one(
+            {"_id": existing["_id"]},
+            {"$set": {"is_active": new_state, "updated_at": datetime.utcnow()}}
+        )
+        return {"enabled": new_state, "drip_id": str(existing["_id"]), "action": "toggled"}
+    else:
+        # Create the drip sequence
+        drip_doc = {
+            "business_id": business_id,
+            "name": ac_def["name"],
+            "trigger": ac_def["trigger"],
+            "auto_campaign_type": campaign_type,
+            "steps": ac_def["steps"],
+            "is_active": True,
+            "stats": {"enrolled": 0, "total_sent": 0, "completed": 0},
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow(),
+        }
+        result = await db.drip_sequences.insert_one(drip_doc)
+        return {"enabled": True, "drip_id": str(result.inserted_id), "action": "created"}
+
+
+# ═══════════════════════════════════════════════════════════
+# V10 — A/B TESTING
+# ═══════════════════════════════════════════════════════════
+
+@router.post("/campaigns/{campaign_id}/ab-test")
+async def create_ab_test(
+    campaign_id: str,
+    data: dict = Body(...),
+    current_user: dict = Depends(get_current_owner),
+):
+    """Set up A/B test with variant subject line or body."""
+    db = get_database()
+    business_id = await _get_business_id(current_user)
+    campaign = await db.campaigns.find_one({"_id": ObjectId(campaign_id), "business_id": business_id})
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    if campaign.get("status") != "draft":
+        raise HTTPException(status_code=400, detail="Can only A/B test draft campaigns")
+
+    await db.campaigns.update_one(
+        {"_id": ObjectId(campaign_id)},
+        {"$set": {
+            "ab_test": {
+                "enabled": True,
+                "variant_b": {
+                    "subject": data.get("subject_b", campaign.get("subject", "")),
+                    "body": data.get("body_b"),
+                },
+                "split_pct": data.get("split_pct", 50),
+                "winner_metric": data.get("winner_metric", "open_rate"),
+                "auto_send_winner": data.get("auto_send_winner", True),
+                "test_duration_hours": data.get("test_duration_hours", 4),
+            },
+            "updated_at": datetime.utcnow(),
+        }}
+    )
+    return {"detail": "A/B test configured", "campaign_id": campaign_id}
+
+
+# ═══════════════════════════════════════════════════════════
+# V10 — ENHANCED ANALYTICS
+# ═══════════════════════════════════════════════════════════
+
+@router.get("/analytics/timeline")
+async def get_analytics_timeline(
+    days: int = Query(30, ge=7, le=365),
+    current_user: dict = Depends(get_current_owner),
+):
+    """Daily email send/open/click counts for charting."""
+    db = get_database()
+    business_id = await _get_business_id(current_user)
+    since = datetime.utcnow() - timedelta(days=days)
+
+    pipeline = [
+        {"$match": {"business_id": business_id, "timestamp": {"$gte": since}}},
+        {"$group": {
+            "_id": {
+                "date": {"$dateToString": {"format": "%Y-%m-%d", "date": "$timestamp"}},
+                "event": "$event_type",
+            },
+            "count": {"$sum": 1},
+        }},
+        {"$sort": {"_id.date": 1}},
+    ]
+
+    results = await db.email_events.aggregate(pipeline).to_list(length=None)
+
+    # Build daily buckets
+    daily = {}
+    for r in results:
+        date = r["_id"]["date"]
+        event = r["_id"]["event"]
+        if date not in daily:
+            daily[date] = {"date": date, "sent": 0, "delivered": 0, "opened": 0, "clicked": 0, "bounced": 0}
+        if event in daily[date]:
+            daily[date][event] = r["count"]
+
+    # Fill gaps
+    timeline = []
+    current = since.date()
+    end = datetime.utcnow().date()
+    while current <= end:
+        ds = current.isoformat()
+        timeline.append(daily.get(ds, {"date": ds, "sent": 0, "delivered": 0, "opened": 0, "clicked": 0, "bounced": 0}))
+        current += timedelta(days=1)
+
+    return {"timeline": timeline, "period_days": days}
+
+
+@router.get("/analytics/top-campaigns")
+async def get_top_campaigns(
+    current_user: dict = Depends(get_current_owner),
+):
+    """Top performing campaigns by open rate."""
+    db = get_database()
+    business_id = await _get_business_id(current_user)
+
+    campaigns = await db.campaigns.find(
+        {"business_id": business_id, "status": "sent"},
+    ).sort("sent_at", -1).limit(20).to_list(length=20)
+
+    result = []
+    for c in campaigns:
+        s = c.get("stats", {})
+        total = s.get("total_recipients", 0)
+        opened = s.get("opened", 0)
+        clicked = s.get("clicked", 0)
+        result.append({
+            "id": str(c["_id"]),
+            "name": c.get("name", "Untitled"),
+            "subject": c.get("subject", ""),
+            "sent_at": c.get("sent_at"),
+            "total_recipients": total,
+            "opened": opened,
+            "clicked": clicked,
+            "open_rate": round(opened / max(total, 1) * 100, 1),
+            "click_rate": round(clicked / max(total, 1) * 100, 1),
+            "revenue": s.get("revenue", 0),
+        })
+
+    return {"campaigns": sorted(result, key=lambda x: x["open_rate"], reverse=True)}
+
+
+@router.get("/analytics/audience-growth")
+async def get_audience_growth(
+    days: int = Query(90, ge=7, le=365),
+    current_user: dict = Depends(get_current_owner),
+):
+    """Track audience growth over time based on new client bookings."""
+    db = get_database()
+    business_id = await _get_business_id(current_user)
+    since = datetime.utcnow() - timedelta(days=days)
+
+    pipeline = [
+        {"$match": {"business_id": business_id, "created_at": {"$gte": since}}},
+        {"$group": {
+            "_id": {"$dateToString": {"format": "%Y-%m-%d", "date": "$created_at"}},
+            "new_contacts": {"$sum": 1},
+        }},
+        {"$sort": {"_id": 1}},
+    ]
+
+    results = await db.clients.aggregate(pipeline).to_list(length=None)
+
+    # Build cumulative
+    total_before = await db.clients.count_documents({
+        "business_id": business_id,
+        "created_at": {"$lt": since},
+    })
+
+    timeline = []
+    running_total = total_before
+    for r in results:
+        running_total += r["new_contacts"]
+        timeline.append({
+            "date": r["_id"],
+            "new": r["new_contacts"],
+            "total": running_total,
+        })
+
+    return {"timeline": timeline, "current_total": running_total}
+
+
+@router.get("/analytics/send-time-heatmap")
+async def get_send_time_heatmap(
+    current_user: dict = Depends(get_current_owner),
+):
+    """Heatmap of best open times by day-of-week and hour."""
+    db = get_database()
+    business_id = await _get_business_id(current_user)
+
+    pipeline = [
+        {"$match": {"business_id": business_id, "event_type": "opened"}},
+        {"$group": {
+            "_id": {
+                "day": {"$dayOfWeek": "$timestamp"},
+                "hour": {"$hour": "$timestamp"},
+            },
+            "count": {"$sum": 1},
+        }},
+    ]
+
+    results = await db.email_events.aggregate(pipeline).to_list(length=None)
+
+    heatmap = {}
+    for r in results:
+        day = r["_id"]["day"]  # 1=Sun, 7=Sat
+        hour = r["_id"]["hour"]
+        heatmap[f"{day}-{hour}"] = r["count"]
+
+    # Find best time
+    best = max(heatmap.items(), key=lambda x: x[1]) if heatmap else ("3-12", 0)
+    day_names = {1: "Sunday", 2: "Monday", 3: "Tuesday", 4: "Wednesday", 5: "Thursday", 6: "Friday", 7: "Saturday"}
+    best_day, best_hour = best[0].split("-")
+    best_time_label = f"{day_names.get(int(best_day), 'Tuesday')} at {int(best_hour):02d}:00"
+
+    return {
+        "heatmap": heatmap,
+        "best_time": best_time_label,
+        "best_day": int(best_day),
+        "best_hour": int(best_hour),
     }

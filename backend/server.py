@@ -31,6 +31,7 @@ from routes import (
     run6_booking_page_router,
     run7_clients_router,
     run13_settings_router,
+    chatbot_router,
 )
 
 
@@ -75,6 +76,7 @@ app.include_router(run5_staff_router)
 app.include_router(run6_booking_page_router)
 app.include_router(run7_clients_router)
 app.include_router(run13_settings_router)
+app.include_router(chatbot_router)
 
 # Static uploads for booking page logo/cover
 static_dir = Path(__file__).parent / "static" / "uploads"

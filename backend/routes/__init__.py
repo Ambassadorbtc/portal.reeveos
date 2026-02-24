@@ -25,6 +25,8 @@ from .run7_clients import router as run7_clients_router
 from .run13_settings import router as run13_settings_router
 from .chatbot import router as chatbot_router
 from .insights import router as insights_router
+from .marketing import router as marketing_router
+from .email_webhooks import router as email_webhooks_router
 
 __all__ = [
     "auth_router",
@@ -54,4 +56,6 @@ __all__ = [
     "run13_settings_router",
     "chatbot_router",
     "insights_router",
+    "marketing_router",
+    "email_webhooks_router",
 ]

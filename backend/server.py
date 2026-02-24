@@ -33,13 +33,19 @@ from routes import (
     run13_settings_router,
     chatbot_router,
     insights_router,
+    marketing_router,
+    email_webhooks_router,
 )
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await database.connect_to_mongo()
+    # Start background email scheduler (drip sequences, reminders)
+    from helpers.scheduler import start_scheduler, stop_scheduler
+    start_scheduler()
     yield
+    stop_scheduler()
     await database.close_mongo_connection()
 
 
@@ -79,6 +85,8 @@ app.include_router(run7_clients_router)
 app.include_router(run13_settings_router)
 app.include_router(chatbot_router)
 app.include_router(insights_router)
+app.include_router(marketing_router)
+app.include_router(email_webhooks_router)
 
 # Static uploads for booking page logo/cover
 static_dir = Path(__file__).parent / "static" / "uploads"

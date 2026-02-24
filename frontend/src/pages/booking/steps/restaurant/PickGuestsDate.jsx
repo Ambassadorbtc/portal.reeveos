@@ -67,18 +67,18 @@ const PickGuestsDate = ({ data, onContinue }) => {
   const canContinue = guests > 0 && selectedDate
 
   return (
-    <div className="max-w-xl mx-auto px-5 pt-6 overflow-hidden">
+    <div className="max-w-xl mx-auto px-4 sm:px-5 pt-4 sm:pt-6 overflow-hidden">
       <BookingHeader business={business} />
       <StepIndicator step={1} total={3} />
 
       {/* Guest count */}
-      <h2 className="text-base font-semibold text-[#1B4332] mb-3">How many guests?</h2>
+      <h2 className="text-sm sm:text-base font-semibold text-[#1B4332] mb-2.5 sm:mb-3">How many guests?</h2>
       <div className="flex gap-2 flex-wrap mb-6">
         {GUEST_OPTIONS.map((n) => (
           <button
             key={n}
             onClick={() => setGuests(n)}
-            className={`w-12 h-12 rounded-xl text-sm font-semibold shrink-0 transition-all ${
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold shrink-0 transition-all ${
               guests === n
                 ? 'bg-[#1B4332] text-white shadow-sm'
                 : 'bg-white text-gray-600 border border-gray-200 hover:border-[#1B4332]/30'
@@ -89,7 +89,7 @@ const PickGuestsDate = ({ data, onContinue }) => {
         ))}
         <button
           onClick={() => setGuests(9)}
-          className={`px-4 h-12 rounded-xl text-sm font-medium shrink-0 transition-all ${
+          className={`px-3 sm:px-4 h-10 sm:h-12 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium shrink-0 transition-all ${
             guests >= 9
               ? 'bg-[#1B4332] text-white shadow-sm'
               : 'bg-white text-gray-600 border border-gray-200 hover:border-[#1B4332]/30'
@@ -100,8 +100,8 @@ const PickGuestsDate = ({ data, onContinue }) => {
       </div>
 
       {/* Calendar */}
-      <h2 className="text-base font-semibold text-[#1B4332] mb-3">Pick a date</h2>
-      <div className="bg-white rounded-2xl border border-gray-200 p-4 mb-6">
+      <h2 className="text-sm sm:text-base font-semibold text-[#1B4332] mb-2.5 sm:mb-3">Pick a date</h2>
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-3 sm:p-4 mb-4 sm:mb-6">
         {/* Month navigation */}
         <div className="flex items-center justify-between mb-4">
           <button

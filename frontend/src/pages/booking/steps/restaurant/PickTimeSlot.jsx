@@ -110,20 +110,20 @@ const PickTimeSlot = ({ data, onContinue, onBack }) => {
   }
 
   return (
-    <div className="max-w-xl mx-auto px-5 pt-6 overflow-hidden">
+    <div className="max-w-xl mx-auto px-4 sm:px-5 pt-4 sm:pt-6 overflow-hidden">
       <BookingHeader business={business} />
       <StepIndicator step={2} total={3} />
 
       {/* Back + date summary */}
       <button
         onClick={onBack}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1B4332] mb-4 transition-colors"
+        className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-500 hover:text-[#1B4332] mb-3 sm:mb-4 transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         Back
       </button>
 
-      <div className="flex items-center gap-2 sm:gap-3 px-3 py-2 sm:p-3 bg-[#1B4332]/[0.03] rounded-lg sm:rounded-xl border border-[#1B4332]/10 mb-4 sm:mb-6">
+      <div className="flex items-center gap-2 sm:gap-3 px-2.5 py-1.5 sm:p-3 bg-[#1B4332]/[0.03] rounded-lg sm:rounded-xl border border-[#1B4332]/10 mb-3 sm:mb-6">
         <div className="flex items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-[#1B4332]">
             <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -136,7 +136,7 @@ const PickTimeSlot = ({ data, onContinue, onBack }) => {
         </div>
       </div>
 
-      <h2 className="text-base font-semibold text-[#1B4332] mb-4">Choose a time</h2>
+      <h2 className="text-sm sm:text-base font-semibold text-[#1B4332] mb-3 sm:mb-4">Choose a time</h2>
 
       {loading ? (
         <div className="flex items-center justify-center py-16">

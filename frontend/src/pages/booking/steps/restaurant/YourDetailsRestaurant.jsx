@@ -140,104 +140,104 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
   }
 
   return (
-    <div className="max-w-xl mx-auto px-5 pt-6 overflow-hidden">
+    <div className="max-w-xl mx-auto px-4 sm:px-5 pt-4 sm:pt-6 overflow-hidden">
       <BookingHeader business={business} />
       <StepIndicator step={3} total={3} />
 
       {/* Back */}
       <button
         onClick={onBack}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1B4332] mb-4 transition-colors"
+        className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-500 hover:text-[#1B4332] mb-3 sm:mb-4 transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         Back
       </button>
 
       {/* Booking summary card */}
-      <div className="flex items-center gap-3 p-3 bg-[#1B4332]/[0.03] rounded-xl border border-[#1B4332]/10 mb-6">
-        <div className="flex items-center gap-4 flex-wrap text-sm text-[#1B4332]">
-          <div className="flex items-center gap-1.5">
-            <Users className="w-4 h-4" />
+      <div className="flex items-center gap-2 sm:gap-3 px-2.5 py-1.5 sm:p-3 bg-[#1B4332]/[0.03] rounded-lg sm:rounded-xl border border-[#1B4332]/10 mb-4 sm:mb-6">
+        <div className="flex items-center gap-3 sm:gap-4 flex-wrap text-xs sm:text-sm text-[#1B4332]">
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="font-medium">{guests}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Calendar className="w-4 h-4" />
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="font-medium">{dateLabel}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Clock className="w-4 h-4" />
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="font-medium">{formatTime(time)}</span>
           </div>
         </div>
       </div>
 
       {/* Form */}
-      <h2 className="text-base font-semibold text-[#1B4332] mb-4">Your details</h2>
+      <h2 className="text-sm sm:text-base font-semibold text-[#1B4332] mb-2.5 sm:mb-4">Your details</h2>
 
-      <div className="space-y-4 mb-6">
-        <div className="grid grid-cols-2 gap-3">
+      <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">First name *</label>
+            <label className="block text-[11px] sm:text-xs font-medium text-gray-500 mb-0.5 sm:mb-1">First name *</label>
             <input
               type="text"
               value={form.firstName}
               onChange={(e) => update('firstName', e.target.value)}
-              className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] ${
+              className={`w-full px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-lg sm:rounded-xl border text-[13px] sm:text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] ${
                 errors.firstName ? 'border-red-300 bg-red-50/30' : 'border-gray-200 bg-white'
               }`}
               placeholder="John"
             />
-            {errors.firstName && <p className="text-xs text-red-500 mt-1">{errors.firstName}</p>}
+            {errors.firstName && <p className="text-[11px] text-red-500 mt-0.5">{errors.firstName}</p>}
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Last name</label>
+            <label className="block text-[11px] sm:text-xs font-medium text-gray-500 mb-0.5 sm:mb-1">Last name</label>
             <input
               type="text"
               value={form.lastName}
               onChange={(e) => update('lastName', e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332]"
+              className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 bg-white text-[13px] sm:text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332]"
               placeholder="Smith"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Email *</label>
+          <label className="block text-[11px] sm:text-xs font-medium text-gray-500 mb-0.5 sm:mb-1">Email *</label>
           <input
             type="email"
             value={form.email}
             onChange={(e) => update('email', e.target.value)}
-            className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] ${
+            className={`w-full px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-lg sm:rounded-xl border text-[13px] sm:text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] ${
               errors.email ? 'border-red-300 bg-red-50/30' : 'border-gray-200 bg-white'
             }`}
             placeholder="john@example.com"
           />
-          {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
+          {errors.email && <p className="text-[11px] text-red-500 mt-0.5">{errors.email}</p>}
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Phone *</label>
+          <label className="block text-[11px] sm:text-xs font-medium text-gray-500 mb-0.5 sm:mb-1">Phone *</label>
           <input
             type="tel"
             value={form.phone}
             onChange={(e) => update('phone', e.target.value)}
-            className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] ${
+            className={`w-full px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-lg sm:rounded-xl border text-[13px] sm:text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] ${
               errors.phone ? 'border-red-300 bg-red-50/30' : 'border-gray-200 bg-white'
             }`}
             placeholder="07700 900000"
           />
-          {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
+          {errors.phone && <p className="text-[11px] text-red-500 mt-0.5">{errors.phone}</p>}
         </div>
       </div>
 
       {/* Occasion */}
-      <h2 className="text-base font-semibold text-[#1B4332] mb-3">What's the occasion?</h2>
-      <div className="flex gap-2 flex-wrap mb-6">
+      <h2 className="text-sm sm:text-base font-semibold text-[#1B4332] mb-2 sm:mb-3">What's the occasion?</h2>
+      <div className="flex gap-1.5 sm:gap-2 flex-wrap mb-4 sm:mb-6">
         {OCCASIONS.map((occ) => (
           <button
             key={occ}
             onClick={() => setForm((f) => ({ ...f, occasion: f.occasion === occ ? '' : occ }))}
-            className={`px-3.5 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+            className={`px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
               form.occasion === occ
                 ? 'bg-[#D4A373] text-white'
                 : 'bg-white text-gray-600 border border-gray-200 hover:border-[#D4A373]/40'
@@ -249,27 +249,27 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
       </div>
 
       {/* Special requests */}
-      <div className="mb-6">
-        <label className="flex items-center gap-2 text-xs font-medium text-gray-500 mb-1">
-          <MessageSquare className="w-3.5 h-3.5" />
+      <div className="mb-4 sm:mb-6">
+        <label className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-medium text-gray-500 mb-0.5 sm:mb-1">
+          <MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           Special requests
         </label>
         <textarea
           value={form.notes}
           onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
-          rows={3}
-          className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] resize-none"
+          rows={2}
+          className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 bg-white text-[13px] sm:text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] resize-none"
           placeholder="Allergies, dietary requirements, high chair needed..."
         />
       </div>
 
-      <div className="pb-28" />
+      <div className="pb-24 sm:pb-28" />
 
       <StickyFooter>
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="w-full py-3.5 rounded-xl text-sm font-semibold bg-[#1B4332] text-white hover:bg-[#1B4332]/90 transition-all shadow-sm disabled:opacity-60"
+          className="w-full py-3 sm:py-3.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold bg-[#1B4332] text-white hover:bg-[#1B4332]/90 transition-all shadow-sm disabled:opacity-60"
         >
           {submitting ? (
             <span className="flex items-center justify-center gap-2">

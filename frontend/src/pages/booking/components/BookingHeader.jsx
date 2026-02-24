@@ -10,35 +10,35 @@ const BookingHeader = ({ business }) => {
   const accent = business.accentColour || '#1B4332'
 
   return (
-    <div className="mb-5">
+    <div className="mb-3 sm:mb-5">
       {/* Cover photo */}
       {business.coverPhoto && (
         <div
-          className="h-36 sm:h-44 rounded-2xl bg-border/40 bg-cover bg-center"
+          className="h-28 sm:h-44 rounded-xl sm:rounded-2xl bg-border/40 bg-cover bg-center"
           style={{ backgroundImage: `url(${business.coverPhoto})` }}
         />
       )}
 
       {/* Logo + name row */}
-      <div className={`flex items-start gap-3 ${business.coverPhoto ? '-mt-8 relative' : ''}`}>
+      <div className={`flex items-start gap-2.5 sm:gap-3 ${business.coverPhoto ? '-mt-7 sm:-mt-8 relative' : ''}`}>
         {business.logo ? (
           <img
             src={business.logo}
             alt={business.name}
-            className="w-14 h-14 rounded-xl border-2 border-white shadow-md object-cover bg-white shrink-0"
+            className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl border-2 border-white shadow-md object-cover bg-white shrink-0"
           />
         ) : (
           <div
-            className="w-14 h-14 rounded-xl border-2 border-white shadow-md flex items-center justify-center shrink-0"
+            className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl border-2 border-white shadow-md flex items-center justify-center shrink-0"
             style={{ backgroundColor: accent }}
           >
-            <Store className="w-6 h-6 text-white" />
+            <Store className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
         )}
 
-        <div className="flex-1 min-w-0 pt-1">
+        <div className="flex-1 min-w-0 pt-0.5 sm:pt-1">
           <div className="flex items-start justify-between gap-2">
-            <h1 className="text-lg font-semibold leading-tight text-[#1B4332]">
+            <h1 className="text-base sm:text-lg font-semibold leading-tight text-[#1B4332]">
               {business.name}
             </h1>
             {business.isOpen && (

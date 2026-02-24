@@ -3,7 +3,7 @@
  */
 
 const StepIndicator = ({ step, total }) => (
-  <div className="flex items-center gap-2 mb-5">
+  <div className="flex items-center gap-2 mb-3 sm:mb-5">
     {Array.from({ length: total }, (_, i) => (
       <div
         key={i}

@@ -359,10 +359,16 @@ Return as valid JSON."""
 async def generate_weekly_calendar(req: GenerateWeekRequest):
     """Generate a full week's content calendar (4 posts)"""
     
+    week_label = req.week_of if req.week_of else datetime.utcnow().strftime("%Y-%m-%d")
+    topics_line = ", ".join(req.custom_topics) if req.custom_topics else ""
+    topics_part = f"Include these specific topics/angles where relevant: {topics_line}" if topics_line else ""
+    newline = "\n"
+    voice_part = f"VOICE CONTEXT — Write in this specific voice and style:{newline}{req.custom_prompt}" if req.custom_prompt else ""
+
     prompt = f"""Generate a full week's LinkedIn content calendar (4 posts).
-{f'Week of: {req.week_of}' if req.week_of else f'Week of: {datetime.utcnow().strftime("%Y-%m-%d")}'}
-{f'Include these specific topics/angles where relevant: {", ".join(req.custom_topics)}' if req.custom_topics else ''}
-{f'VOICE CONTEXT — Write in this specific voice and style:\n{req.custom_prompt}' if req.custom_prompt else ''}
+Week of: {week_label}
+{topics_part}
+{voice_part}
 
 Follow the 4-3-2-1 system exactly. Return as a JSON array of 4 post objects."""
 

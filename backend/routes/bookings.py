@@ -466,8 +466,12 @@ async def move_booking(
     current_user: dict = Depends(get_current_staff),
 ):
     """Calendar drag-drop: update time, duration, staffId, tableId."""
+    from bson import ObjectId
     db = get_database()
-    business = await db.businesses.find_one({"_id": business_id})
+    try:
+        business = await db.businesses.find_one({"_id": ObjectId(business_id)})
+    except Exception:
+        business = await db.businesses.find_one({"_id": business_id})
     if not business:
         raise HTTPException(404, "Business not found")
     if str(business.get("owner_id")) != str(current_user.get("_id")) and current_user.get("role") not in ["staff", "admin"]:

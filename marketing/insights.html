@@ -1,691 +1,651 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Business Insights Report — Rezvo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-:root {
-  --forest: #1B4332;
-  --forest-light: #2D6A4F;
-  --mint: #52B788;
-  --mint-light: #74C69D;
-  --cream: #FEFBF4;
-  --coral: #FF6B6B;
-  --amber: #F59E0B;
-  --blue: #3B82F6;
-  --green-score: #10B981;
-  --red-score: #EF4444;
-  --orange-score: #F97316;
-  --yellow-score: #EAB308;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: 'Figtree', system-ui, sans-serif;
-  background: #f8f9fa;
-  color: #333;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ─── Loading State ─── */
-#loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  gap: 20px;
-}
-.loader {
-  width: 50px; height: 50px;
-  border: 4px solid #e5e7eb;
-  border-top-color: var(--forest);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-#loading p { color: #888; font-size: 14px; font-weight: 500; }
-
-/* ─── Error/Expired State ─── */
-#error-state {
-  display: none;
-  min-height: 100vh;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
-}
-.error-card {
-  max-width: 500px;
-  background: #fff;
-  border-radius: 24px;
-  padding: 48px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
-}
-.error-card .emoji { font-size: 48px; margin-bottom: 16px; }
-.error-card h1 { font-size: 24px; font-weight: 800; color: var(--forest); margin-bottom: 12px; }
-.error-card p { color: #666; margin-bottom: 24px; }
-.error-card a {
-  display: inline-block;
-  background: var(--forest);
-  color: #fff;
-  padding: 12px 32px;
-  border-radius: 12px;
-  text-decoration: none;
-  font-weight: 700;
-  transition: all 0.2s;
-}
-.error-card a:hover { background: var(--mint); color: var(--forest); }
-
-/* ─── Report Container ─── */
-#report { display: none; }
-
-/* ─── Hero Header ─── */
-.hero {
-  background: linear-gradient(135deg, var(--forest) 0%, var(--forest-light) 50%, var(--mint) 100%);
-  color: #fff;
-  padding: 48px 24px 64px;
-  position: relative;
-  overflow: hidden;
-}
-.hero::before {
-  content: '';
-  position: absolute;
-  top: -50%; right: -20%;
-  width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
-  border-radius: 50%;
-}
-.hero-inner {
-  max-width: 900px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
-}
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255,255,255,0.15);
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  backdrop-filter: blur(10px);
-}
-.hero h1 {
-  font-size: clamp(28px, 5vw, 42px);
-  font-weight: 900;
-  line-height: 1.15;
-  margin-bottom: 8px;
-}
-.hero .business-name { color: var(--mint-light); }
-.hero p { font-size: 16px; opacity: 0.85; max-width: 600px; }
-.hero .expiry-notice {
-  margin-top: 20px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255,255,255,0.1);
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-}
-.hero .expiry-notice.urgent { background: rgba(239,68,68,0.3); }
-
-/* ─── Score Ring ─── */
-.score-section {
-  max-width: 900px;
-  margin: -40px auto 0;
-  padding: 0 24px;
-  position: relative;
-  z-index: 2;
-}
-.score-card {
-  background: #fff;
-  border-radius: 24px;
-  padding: 40px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
-  display: flex;
-  align-items: center;
-  gap: 40px;
-  flex-wrap: wrap;
-}
-.score-ring-wrap {
-  position: relative;
-  width: 160px;
-  height: 160px;
-  flex-shrink: 0;
-}
-.score-ring-wrap svg {
-  width: 160px;
-  height: 160px;
-  transform: rotate(-90deg);
-}
-.score-ring-bg {
-  fill: none;
-  stroke: #f0f0f0;
-  stroke-width: 10;
-}
-.score-ring-fill {
-  fill: none;
-  stroke-width: 10;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 1.5s ease-out;
-}
-.score-number {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-.score-number .num {
-  font-size: 48px;
-  font-weight: 900;
-  line-height: 1;
-}
-.score-number .grade {
-  font-size: 14px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  opacity: 0.6;
-}
-.score-details { flex: 1; min-width: 250px; }
-.score-details h2 { font-size: 22px; font-weight: 800; color: var(--forest); margin-bottom: 8px; }
-.score-details p { color: #666; font-size: 14px; margin-bottom: 16px; }
-.score-bars { display: flex; flex-direction: column; gap: 10px; }
-.score-bar-item { display: flex; align-items: center; gap: 12px; }
-.score-bar-label { font-size: 12px; font-weight: 600; color: #555; width: 100px; flex-shrink: 0; }
-.score-bar-track { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
-.score-bar-fill { height: 100%; border-radius: 4px; transition: width 1.2s ease-out; }
-.score-bar-value { font-size: 12px; font-weight: 700; width: 35px; text-align: right; }
-
-/* ─── Sections ─── */
-.sections {
-  max-width: 900px;
-  margin: 32px auto;
-  padding: 0 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-.section-card {
-  background: #fff;
-  border-radius: 20px;
-  padding: 32px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-  border: 1px solid #f0f0f0;
-}
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.section-icon {
-  width: 44px; height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  flex-shrink: 0;
-}
-.section-header h3 { font-size: 18px; font-weight: 800; color: var(--forest); flex: 1; }
-.section-score-badge {
-  padding: 4px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 800;
-  color: #fff;
-}
-
-.issue-list { display: flex; flex-direction: column; gap: 10px; }
-.issue-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 12px 16px;
-  background: #FEF2F2;
-  border-radius: 12px;
-  border-left: 3px solid var(--coral);
-  font-size: 13px;
-  color: #991B1B;
-  line-height: 1.5;
-}
-.issue-item.good {
-  background: #F0FDF4;
-  border-left-color: var(--green-score);
-  color: #166534;
-}
-.issue-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-
-/* ─── Recommendations ─── */
-.recs-card {
-  background: linear-gradient(135deg, var(--forest) 0%, var(--forest-light) 100%);
-  border-radius: 20px;
-  padding: 36px;
-  color: #fff;
-}
-.recs-card h3 {
-  font-size: 20px;
-  font-weight: 800;
-  margin-bottom: 20px;
-}
-.rec-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  font-size: 14px;
-  line-height: 1.5;
-}
-.rec-item:last-child { border-bottom: none; }
-.rec-num {
-  width: 28px; height: 28px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 800;
-  flex-shrink: 0;
-}
-
-/* ─── Commission Savings ─── */
-.savings-card {
-  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-  border-radius: 20px;
-  padding: 36px;
-  text-align: center;
-  border: 2px solid #F59E0B;
-}
-.savings-card .emoji { font-size: 36px; margin-bottom: 12px; }
-.savings-card h3 { font-size: 18px; font-weight: 800; color: #92400E; margin-bottom: 8px; }
-.savings-amount { font-size: 48px; font-weight: 900; color: #92400E; line-height: 1.2; }
-.savings-card p { font-size: 14px; color: #A16207; margin-top: 8px; }
-
-/* ─── CTA ─── */
-.cta-section {
-  max-width: 900px;
-  margin: 0 auto 60px;
-  padding: 0 24px;
-}
-.cta-card {
-  background: #fff;
-  border-radius: 20px;
-  padding: 40px;
-  text-align: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-  border: 2px solid var(--mint);
-}
-.cta-card h3 { font-size: 24px; font-weight: 900; color: var(--forest); margin-bottom: 12px; }
-.cta-card p { color: #666; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto; }
-.cta-btn {
-  display: inline-block;
-  background: var(--forest);
-  color: #fff;
-  padding: 16px 40px;
-  border-radius: 14px;
-  text-decoration: none;
-  font-weight: 800;
-  font-size: 16px;
-  transition: all 0.3s;
-  box-shadow: 0 4px 16px rgba(27,67,50,0.3);
-}
-.cta-btn:hover {
-  background: var(--mint);
-  color: var(--forest);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(27,67,50,0.2);
-}
-.cta-sub { font-size: 12px; color: #999; margin-top: 12px; }
-
-/* ─── Footer ─── */
-.report-footer {
-  text-align: center;
-  padding: 24px;
-  color: #bbb;
-  font-size: 12px;
-}
-.report-footer a { color: var(--mint); text-decoration: none; }
-
-/* ─── Responsive ─── */
-@media (max-width: 640px) {
-  .score-card { padding: 24px; gap: 24px; justify-content: center; text-align: center; }
-  .score-details { text-align: left; }
-  .score-bar-label { width: 80px; }
-  .section-card { padding: 24px; }
-  .hero { padding: 32px 20px 48px; }
-  .savings-amount { font-size: 36px; }
-}
-
-/* ─── Animations ─── */
-.fade-in {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeUp 0.6s ease-out forwards;
-}
-.fade-in:nth-child(2) { animation-delay: 0.1s; }
-.fade-in:nth-child(3) { animation-delay: 0.2s; }
-.fade-in:nth-child(4) { animation-delay: 0.3s; }
-.fade-in:nth-child(5) { animation-delay: 0.4s; }
-@keyframes fadeUp {
-  to { opacity: 1; transform: translateY(0); }
-}
-</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezvo Live Audit Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: '#1B4332',
+                        fern: '#2D6A4F',
+                        sage: '#40916C',
+                        mint: '#D8F3DC',
+                        terracotta: '#D4A373',
+                        cream: '#FAF7F2',
+                        ink: '#141413',
+                        text: '#2C2C2A',
+                        muted: '#7A776F',
+                        border: '#E8E4DD',
+                        status: {
+                            success: '#065F46',
+                            successBg: '#ECFDF5',
+                            warning: '#92400E',
+                            warningBg: '#FFFBEB',
+                            critical: '#991B1B',
+                            criticalBg: '#FEF2F2',
+                            info: '#1E40AF',
+                            infoBg: '#EFF6FF'
+                        },
+                        score: {
+                            high: '#059669',
+                            med: '#D97706',
+                            low: '#EA580C',
+                            crit: '#DC2626'
+                        }
+                    },
+                    fontFamily: {
+                        display: ['"Figtree"', 'sans-serif'],
+                        body: ['"Figtree"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'warm': '0 4px 20px -2px rgba(212, 163, 115, 0.15)',
+                        'card': '0 2px 8px rgba(20, 20, 19, 0.05)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { background-color: #FAF7F2; color: #2C2C2A; font-family: 'Figtree', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Figtree', sans-serif; }
+        .tab-active { border-bottom: 2px solid #D4A373; color: #1B4332; font-weight: 600; }
+        .tab-inactive { color: #7A776F; }
+        .tab-inactive:hover { color: #1B4332; }
+        .score-circle { transition: all 1s ease-out; }
+        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px); border: 1px solid #E8E4DD; }
+    </style>
 </head>
-<body>
+<body class="antialiased">
 
-<!-- Loading -->
-<div id="loading">
-  <div class="loader"></div>
-  <p>Generating your business insights...</p>
-</div>
-
-<!-- Error/Expired State -->
-<div id="error-state">
-  <div class="error-card">
-    <div class="emoji" id="error-emoji">⏰</div>
-    <h1 id="error-title">Report Expired</h1>
-    <p id="error-message">This report is no longer available. Get in touch and we'll generate a fresh one for you.</p>
-    <a href="mailto:hello@rezvo.app?subject=Fresh%20Business%20Report">Request a Fresh Report</a>
-  </div>
-</div>
-
-<!-- Report Content -->
-<div id="report">
-
-  <!-- Hero -->
-  <div class="hero">
-    <div class="hero-inner">
-      <div class="hero-badge">📊 Business Insights Report</div>
-      <h1>Online Presence Audit for<br><span class="business-name" id="hero-name">Loading...</span></h1>
-      <p>A comprehensive review of your website, Google listing, social media, and online ordering — with actionable recommendations to grow your business.</p>
-      <div class="expiry-notice" id="expiry-notice">
-        🕐 <span id="expiry-text">This report expires in 15 days</span>
-      </div>
+    <!-- Top Promo Bar -->
+    <div id="top-promo" class="bg-forest text-white py-2 px-4 text-center text-sm font-medium">
+        <span class="opacity-90">Limited Offer:</span> <span class="font-bold text-terracotta ml-1">Claim your free website audit review call</span>
+        <a href="#" class="ml-2 underline hover:text-terracotta transition-colors">Book now &rarr;</a>
     </div>
-  </div>
 
-  <!-- Overall Score -->
-  <div class="score-section">
-    <div class="score-card fade-in">
-      <div class="score-ring-wrap">
-        <svg viewBox="0 0 160 160">
-          <circle class="score-ring-bg" cx="80" cy="80" r="65"/>
-          <circle class="score-ring-fill" id="score-ring" cx="80" cy="80" r="65"
-            stroke-dasharray="408.4" stroke-dashoffset="408.4"/>
-        </svg>
-        <div class="score-number">
-          <div class="num" id="score-num">0</div>
-          <div class="grade" id="score-grade">—</div>
+    <!-- Header -->
+    <header id="header" class="sticky top-0 z-50 bg-cream/95 backdrop-blur-md border-b border-border shadow-sm">
+        <div class="h-[3px] w-full bg-gradient-to-r from-forest via-sage to-terracotta"></div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <!-- Rezvo Logo Placeholder -->
+                <div class="text-2xl font-bold font-display text-forest tracking-tight">rezvo</div>
+            </div>
+            <div class="flex items-center gap-4 text-sm text-muted">
+                <span class="hidden sm:inline">Report ID: <span class="font-mono text-ink">RZ-8821</span></span>
+                <span class="hidden sm:inline px-2 text-border">|</span>
+                <span>Feb 24, 2026</span>
+                <button class="ml-4 bg-forest text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-ink transition-colors shadow-warm">
+                    Start Free Trial
+                </button>
+            </div>
         </div>
-      </div>
-      <div class="score-details">
-        <h2 id="score-headline">Calculating...</h2>
-        <p id="score-summary">We've analysed your online presence across 4 key areas.</p>
-        <div class="score-bars">
-          <div class="score-bar-item">
-            <span class="score-bar-label">🌐 Website</span>
-            <div class="score-bar-track"><div class="score-bar-fill" id="bar-website" style="width:0%;background:var(--forest)"></div></div>
-            <span class="score-bar-value" id="val-website">0</span>
-          </div>
-          <div class="score-bar-item">
-            <span class="score-bar-label">📍 Google</span>
-            <div class="score-bar-track"><div class="score-bar-fill" id="bar-google" style="width:0%;background:var(--blue)"></div></div>
-            <span class="score-bar-value" id="val-google">0</span>
-          </div>
-          <div class="score-bar-item">
-            <span class="score-bar-label">📘 Facebook</span>
-            <div class="score-bar-track"><div class="score-bar-fill" id="bar-facebook" style="width:0%;background:var(--blue)"></div></div>
-            <span class="score-bar-value" id="val-facebook">0</span>
-          </div>
-          <div class="score-bar-item">
-            <span class="score-bar-label">🛵 Ordering</span>
-            <div class="score-bar-track"><div class="score-bar-fill" id="bar-ordering" style="width:0%;background:var(--amber)"></div></div>
-            <span class="score-bar-value" id="val-ordering">0</span>
-          </div>
+    </header>
+
+    <!-- Free Website Banner -->
+    <div id="banner-offer" class="bg-gradient-to-r from-ink to-forest text-white py-12 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+        <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+            <span class="inline-block py-1 px-3 rounded-full bg-terracotta/20 text-terracotta text-xs font-bold mb-4 border border-terracotta/30">EXCLUSIVE AUDIT OFFER</span>
+            <h2 class="text-3xl md:text-4xl font-bold mb-2">We'll Build Your Website For Free.</h2>
+            <p class="text-gray-300 mb-6 max-w-xl mx-auto">Based on your audit score, you qualify for our premium site migration program. Zero upfront cost.</p>
+            <button class="bg-terracotta text-white px-8 py-3 rounded-full font-bold hover:bg-white hover:text-forest transition-all shadow-lg transform hover:-translate-y-1">
+                Claim Your Free Site &rarr;
+            </button>
         </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Sections -->
-  <div class="sections" id="sections-container">
-    <!-- Dynamically populated -->
-  </div>
+    <!-- Main Content Container -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
-  <!-- CTA -->
-  <div class="cta-section">
-    <div class="cta-card fade-in">
-      <h3>Ready to fix these issues?</h3>
-      <p>Rezvo gives you online booking, ordering, delivery, and customer management — all with zero commission. Start free today.</p>
-      <a href="https://rezvo.app/signup" class="cta-btn">Get Started Free →</a>
-      <div class="cta-sub">30-day free trial · No credit card needed · Cancel anytime</div>
-    </div>
-  </div>
+        <!-- Business Info & Snapshot -->
+        <section id="business-info" class="bg-white rounded-2xl p-6 shadow-card border border-border flex flex-col md:flex-row items-center md:items-start gap-6">
+            <div class="w-24 h-24 rounded-full bg-gray-100 overflow-hidden border-2 border-border flex-shrink-0">
+                <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Restaurant Logo" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-grow text-center md:text-left">
+                <h1 class="text-3xl font-display font-bold text-ink mb-1">The Golden Fork Bistro</h1>
+                <p class="text-muted flex items-center justify-center md:justify-start gap-2">
+                    <i class="fa-solid fa-location-dot text-terracotta"></i> 12 High Street, London, UK
+                    <span class="w-1 h-1 bg-muted rounded-full"></span>
+                    <span class="text-sm">Casual Dining</span>
+                </p>
+                <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
+                    <span class="px-3 py-1 rounded-full bg-status-criticalBg text-status-critical text-xs font-bold border border-status-critical/20">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Critical Issues Found
+                    </span>
+                    <span class="px-3 py-1 rounded-full bg-status-infoBg text-status-info text-xs font-bold border border-status-info/20">
+                        <i class="fa-solid fa-chart-line mr-1"></i> High Potential Savings
+                    </span>
+                </div>
+            </div>
+            <div class="text-right hidden md:block">
+                <div class="text-sm text-muted mb-1">Audit Status</div>
+                <div class="text-forest font-bold text-lg">Completed</div>
+            </div>
+        </section>
 
-  <div class="report-footer">
-    <p>Generated by <a href="https://rezvo.app">Rezvo</a> · Your High Street, Booked · <a href="mailto:hello@rezvo.app">hello@rezvo.app</a></p>
-  </div>
-</div>
+        <!-- Overall Score Hero -->
+        <section id="overall-score" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Score Donut -->
+            <div class="lg:col-span-5 bg-white rounded-2xl p-8 shadow-warm border border-border flex flex-col items-center justify-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-mint rounded-full filter blur-3xl opacity-50 -mr-10 -mt-10"></div>
+                
+                <h3 class="text-lg font-bold text-ink mb-6 z-10">Digital Health Score</h3>
+                
+                <div class="relative w-64 h-64 mb-6 z-10">
+                    <!-- Plotly Gauge Chart Container -->
+                    <div id="score-gauge" class="w-full h-full"></div>
+                    <!-- Center Text Overlay -->
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-4">
+                        <span class="text-6xl font-display font-bold text-score-crit">47</span>
+                        <span class="text-sm text-muted uppercase tracking-wider font-semibold mt-1"> out of 100</span>
+                        <span class="mt-2 px-3 py-1 bg-status-criticalBg text-status-critical text-xs font-bold rounded-full border border-status-critical/20">CRITICAL</span>
+                    </div>
+                </div>
 
-<script>
-(function() {
-  'use strict';
+                <p class="text-center text-muted text-sm max-w-xs z-10">
+                    Your digital presence is underperforming compared to local competitors. 
+                    <span class="text-ink font-semibold">Immediate action recommended.</span>
+                </p>
+            </div>
 
-  // Extract slug and token from URL: /insights/{slug}/{token}
-  var parts = window.location.pathname.split('/').filter(Boolean);
-  var slug = parts[1] || '';
-  var token = parts[2] || '';
+            <!-- Radar & Comparison -->
+            <div class="lg:col-span-7 bg-white rounded-2xl p-6 shadow-card border border-border flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold text-ink">You vs. Industry Average</h3>
+                    <div class="flex gap-4 text-xs font-medium">
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-forest"></span> You</div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-gray-300"></span> Industry Avg</div>
+                    </div>
+                </div>
+                <div class="flex-grow relative h-[300px]">
+                     <div id="radar-chart" class="w-full h-full"></div>
+                </div>
+            </div>
+        </section>
 
-  if (!slug || !token) {
-    showError('Invalid Link', 'This report link appears to be invalid. Please check the link in your email.', '🔗');
-    return;
-  }
+        <!-- Category Score Row -->
+        <section id="category-scores" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- Google Profile -->
+            <div class="bg-white p-5 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                        <i class="fa-brands fa-google text-xl"></i>
+                    </div>
+                    <span class="text-score-med font-bold text-xl">62<span class="text-xs text-muted font-normal">/100</span></span>
+                </div>
+                <h4 class="font-bold text-ink text-sm">Google Profile</h4>
+                <p class="text-xs text-score-med mt-1 font-medium">Fair - Needs Optimization</p>
+            </div>
 
-  // Fetch report
-  fetch('/api/insights/reports/' + slug + '/' + token)
-    .then(function(res) {
-      if (res.status === 410) {
-        return res.json().then(function(data) {
-          showError(
-            'Report Expired',
-            'This report for ' + (data.detail.business_name || 'your business') + ' has expired. Get in touch and we\'ll generate a fresh one!',
-            '⏰'
-          );
-          throw new Error('expired');
+            <!-- Website -->
+            <div class="bg-white p-5 rounded-xl border-l-4 border-score-crit shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                <div class="absolute right-0 top-0 w-16 h-16 bg-red-50 rounded-bl-full -mr-8 -mt-8"></div>
+                <div class="flex justify-between items-start mb-3">
+                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-700 relative z-10">
+                        <i class="fa-solid fa-globe text-xl"></i>
+                    </div>
+                    <span class="text-score-crit font-bold text-xl relative z-10">34<span class="text-xs text-muted font-normal">/100</span></span>
+                </div>
+                <h4 class="font-bold text-ink text-sm relative z-10">Website</h4>
+                <p class="text-xs text-score-crit mt-1 font-medium relative z-10">Critical - Losing Customers</p>
+            </div>
+
+            <!-- Social Media -->
+            <div class="bg-white p-5 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center text-pink-600">
+                        <i class="fa-brands fa-instagram text-xl"></i>
+                    </div>
+                    <span class="text-score-low font-bold text-xl">41<span class="text-xs text-muted font-normal">/100</span></span>
+                </div>
+                <h4 class="font-bold text-ink text-sm">Social Media</h4>
+                <p class="text-xs text-score-low mt-1 font-medium">Poor - Inconsistent</p>
+            </div>
+
+            <!-- Booking -->
+            <div class="bg-white p-5 rounded-xl border-l-4 border-score-crit shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-forest">
+                        <i class="fa-solid fa-utensils text-xl"></i>
+                    </div>
+                    <span class="text-score-crit font-bold text-xl">22<span class="text-xs text-muted font-normal">/100</span></span>
+                </div>
+                <h4 class="font-bold text-ink text-sm">Booking & Orders</h4>
+                <p class="text-xs text-score-crit mt-1 font-medium">Critical - High Fees</p>
+            </div>
+        </section>
+
+        <!-- Key Findings - Alert Style -->
+        <section id="key-findings" class="bg-status-criticalBg border border-status-critical/20 rounded-xl p-6 flex flex-col md:flex-row gap-6 items-start">
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-status-critical shadow-sm border border-red-100">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                </div>
+            </div>
+            <div class="flex-grow">
+                <h3 class="text-lg font-bold text-ink mb-2">Key Audit Findings</h3>
+                <ul class="space-y-2 text-sm text-text">
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-xmark text-red-500 mt-1"></i>
+                        <span><strong>Website speed is critically slow (3.4s load time).</strong> 40% of mobile visitors leave before it loads.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-xmark text-red-500 mt-1"></i>
+                        <span><strong>Paying approx. £33,600/year in commissions.</strong> You are giving away 30% of your revenue to 3rd party apps.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-circle-exclamation text-amber-500 mt-1"></i>
+                        <span><strong>Incomplete Google Profile.</strong> Missing menu link and updated opening hours is hurting local SEO.</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="flex-shrink-0 self-center md:self-start">
+                <button class="bg-white border border-border text-ink px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-50 shadow-sm">
+                    Download PDF Report
+                </button>
+            </div>
+        </section>
+
+        <!-- Tabbed Detail Sections -->
+        <section id="details" class="bg-white rounded-2xl shadow-card border border-border overflow-hidden">
+            <!-- Tabs Navigation -->
+            <div class="flex border-b border-border overflow-x-auto">
+                <button class="px-6 py-4 text-sm font-medium whitespace-nowrap tab-active" onclick="switchTab('google')">Google Profile</button>
+                <button class="px-6 py-4 text-sm font-medium whitespace-nowrap tab-inactive" onclick="switchTab('website')">Website Performance</button>
+                <button class="px-6 py-4 text-sm font-medium whitespace-nowrap tab-inactive" onclick="switchTab('social')">Social Media</button>
+                <button class="px-6 py-4 text-sm font-medium whitespace-nowrap tab-inactive" onclick="switchTab('costs')">Delivery Costs</button>
+            </div>
+
+            <!-- Tab Content: Google Profile (Active) -->
+            <div id="tab-google" class="p-6 md:p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-xl font-display font-bold mb-4">Profile Visibility</h4>
+                        <p class="text-muted text-sm mb-6">Your Google Business Profile is your digital storefront. Currently, it's missing key information that drives footfall.</p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-border">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-check-circle text-status-success"></i>
+                                    <span class="text-sm font-medium">Business Name & Address</span>
+                                </div>
+                                <span class="text-xs bg-status-successBg text-status-success px-2 py-1 rounded">Optimized</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-border">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-circle-exclamation text-status-warning"></i>
+                                    <span class="text-sm font-medium">Photos & Ambiance</span>
+                                </div>
+                                <span class="text-xs bg-status-warningBg text-status-warning px-2 py-1 rounded">Outdated</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-100">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-xmark-circle text-status-critical"></i>
+                                    <span class="text-sm font-medium">Menu Integration</span>
+                                </div>
+                                <span class="text-xs bg-white text-status-critical px-2 py-1 rounded font-bold">Missing</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h-64">
+                         <div id="google-chart" class="w-full h-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Website (Hidden) -->
+            <div id="tab-website" class="p-6 md:p-8 hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h4 class="text-xl font-display font-bold mb-4">PageSpeed Insights</h4>
+                         <div class="flex gap-8 mb-6">
+                             <div class="text-center">
+                                 <div class="w-20 h-20 rounded-full border-4 border-status-critical flex items-center justify-center text-xl font-bold text-ink mb-2">34</div>
+                                 <div class="text-sm font-medium text-muted"><i class="fa-solid fa-mobile-screen mr-1"></i> Mobile</div>
+                             </div>
+                             <div class="text-center">
+                                 <div class="w-20 h-20 rounded-full border-4 border-status-warning flex items-center justify-center text-xl font-bold text-ink mb-2">58</div>
+                                 <div class="text-sm font-medium text-muted"><i class="fa-solid fa-desktop mr-1"></i> Desktop</div>
+                             </div>
+                         </div>
+                         <p class="text-sm text-text">Your mobile site is loading in <strong class="text-status-critical">6.2 seconds</strong>. Recommended load time is under 2.5s.</p>
+                    </div>
+                    <div>
+                         <div class="bg-ink text-white p-6 rounded-xl">
+                             <h5 class="font-bold mb-2 text-terracotta">Rezvo Solution</h5>
+                             <p class="text-sm text-gray-300 mb-4">Our high-performance websites score 95+ on Google PageSpeed, ensuring you capture every visitor.</p>
+                             <button class="w-full bg-white text-ink py-2 rounded-lg text-sm font-bold hover:bg-gray-100">Preview Your New Site</button>
+                         </div>
+                    </div>
+                </div>
+            </div>
+
+             <!-- Tab Content: Social (Hidden) -->
+             <div id="tab-social" class="p-6 md:p-8 hidden">
+                 <div class="text-center py-12">
+                     <i class="fa-solid fa-share-nodes text-4xl text-muted mb-4"></i>
+                     <h4 class="text-xl font-bold text-ink">Social Media Analysis</h4>
+                     <p class="text-muted">Detailed engagement metrics would appear here.</p>
+                 </div>
+            </div>
+
+             <!-- Tab Content: Costs (Hidden) -->
+             <div id="tab-costs" class="p-6 md:p-8 hidden">
+                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                     <div>
+                         <h4 class="text-xl font-display font-bold mb-2">Commission Bleed</h4>
+                         <p class="text-sm text-muted mb-6">Annual breakdown of fees paid to third-party delivery platforms.</p>
+                         
+                         <div class="space-y-4">
+                             <div>
+                                 <div class="flex justify-between text-sm mb-1">
+                                     <span class="font-medium text-ink">Deliveroo (30%)</span>
+                                     <span class="font-bold text-ink">£1,100/mo</span>
+                                 </div>
+                                 <div class="w-full bg-gray-100 rounded-full h-2">
+                                     <div class="bg-teal-500 h-2 rounded-full" style="width: 80%"></div>
+                                 </div>
+                             </div>
+                             <div>
+                                 <div class="flex justify-between text-sm mb-1">
+                                     <span class="font-medium text-ink">UberEats (25%)</span>
+                                     <span class="font-bold text-ink">£900/mo</span>
+                                 </div>
+                                 <div class="w-full bg-gray-100 rounded-full h-2">
+                                     <div class="bg-green-600 h-2 rounded-full" style="width: 65%"></div>
+                                 </div>
+                             </div>
+                             <div>
+                                 <div class="flex justify-between text-sm mb-1">
+                                     <span class="font-medium text-ink">JustEat (22%)</span>
+                                     <span class="font-bold text-ink">£800/mo</span>
+                                 </div>
+                                 <div class="w-full bg-gray-100 rounded-full h-2">
+                                     <div class="bg-orange-500 h-2 rounded-full" style="width: 55%"></div>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                     <div class="bg-cream rounded-xl p-6 border border-terracotta/20 flex flex-col justify-center items-center text-center">
+                         <div class="text-sm text-muted uppercase tracking-wider font-semibold mb-2">Total Annual Loss</div>
+                         <div class="text-4xl font-display font-bold text-status-critical mb-2">£33,600</div>
+                         <p class="text-sm text-ink max-w-xs mx-auto mb-6">Money that could be reinvested into your business, staff, or marketing.</p>
+                         <button class="bg-forest text-white px-6 py-2 rounded-lg text-sm font-bold shadow-warm hover:bg-ink transition-colors">
+                             Calculate Your Savings
+                         </button>
+                     </div>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Action Plan -->
+        <section id="recommendations" class="space-y-4">
+            <h2 class="text-2xl font-display font-bold text-ink px-2">Your Action Plan</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Priority 1 -->
+                <div class="bg-white rounded-xl p-6 border-t-4 border-terracotta shadow-card h-full flex flex-col">
+                    <div class="bg-terracotta/10 w-fit px-3 py-1 rounded-full text-terracotta text-xs font-bold mb-4">PRIORITY #1</div>
+                    <h3 class="font-bold text-lg mb-2">Launch Direct Ordering</h3>
+                    <p class="text-sm text-muted mb-6 flex-grow">Stop paying 30% commission. Implement a commission-free ordering system on your own domain.</p>
+                    <div class="mt-auto">
+                        <div class="flex items-center gap-2 text-sm font-medium text-forest mb-4">
+                            <i class="fa-solid fa-arrow-trend-up"></i> Save £2,800 / month
+                        </div>
+                        <button class="w-full border border-forest text-forest hover:bg-forest hover:text-white py-2 rounded-lg text-sm font-bold transition-colors">View Solution</button>
+                    </div>
+                </div>
+
+                <!-- Priority 2 -->
+                <div class="bg-white rounded-xl p-6 border-t-4 border-forest shadow-card h-full flex flex-col">
+                    <div class="bg-forest/10 w-fit px-3 py-1 rounded-full text-forest text-xs font-bold mb-4">PRIORITY #2</div>
+                    <h3 class="font-bold text-lg mb-2">Fix Website Performance</h3>
+                    <p class="text-sm text-muted mb-6 flex-grow">Migrate to a high-speed platform to improve SEO rankings and convert mobile visitors.</p>
+                    <div class="mt-auto">
+                        <div class="flex items-center gap-2 text-sm font-medium text-forest mb-4">
+                            <i class="fa-solid fa-bolt"></i> Boost conversion by 40%
+                        </div>
+                        <button class="w-full border border-forest text-forest hover:bg-forest hover:text-white py-2 rounded-lg text-sm font-bold transition-colors">Get Free Website</button>
+                    </div>
+                </div>
+
+                <!-- Priority 3 -->
+                <div class="bg-white rounded-xl p-6 border-t-4 border-sage shadow-card h-full flex flex-col">
+                    <div class="bg-sage/10 w-fit px-3 py-1 rounded-full text-sage text-xs font-bold mb-4">PRIORITY #3</div>
+                    <h3 class="font-bold text-lg mb-2">Optimize Google Profile</h3>
+                    <p class="text-sm text-muted mb-6 flex-grow">Update menu links, photos, and attributes to appear in "near me" searches.</p>
+                    <div class="mt-auto">
+                        <div class="flex items-center gap-2 text-sm font-medium text-forest mb-4">
+                            <i class="fa-solid fa-eye"></i> Increase local visibility
+                        </div>
+                        <button class="w-full border border-forest text-forest hover:bg-forest hover:text-white py-2 rounded-lg text-sm font-bold transition-colors">Fix Profile</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Savings Summary -->
+        <section id="savings-summary" class="bg-mint rounded-2xl p-8 md:p-12 relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-64 h-64 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 -mr-16 -mt-16"></div>
+            <div class="absolute left-0 bottom-0 w-64 h-64 bg-terracotta rounded-full mix-blend-multiply filter blur-3xl opacity-20 -ml-16 -mb-16"></div>
+            
+            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="text-center md:text-left">
+                    <h2 class="text-2xl md:text-3xl font-display font-bold text-forest mb-2">Potential Annual Savings</h2>
+                    <p class="text-forest/80 max-w-md">By switching to Rezvo's commission-free platform and optimizing your digital presence.</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl md:text-6xl font-display font-bold text-forest mb-2">£33,600</div>
+                    <div class="text-sm font-bold text-forest uppercase tracking-widest">Per Year</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main CTA -->
+        <section id="main-cta" class="bg-ink text-white rounded-2xl p-8 md:p-16 text-center relative overflow-hidden shadow-2xl">
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10"></div>
+            <div class="relative z-10 max-w-2xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-display font-bold mb-6">Ready to champion your high street?</h2>
+                <p class="text-gray-400 mb-10 text-lg">Don't let commission fees and poor tech hold your business back. Let's fix your digital health today.</p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="bg-terracotta text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-ink transition-all shadow-warm transform hover:-translate-y-1">
+                        Book Your Free Demo
+                    </button>
+                    <button class="bg-transparent border border-white/20 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white/10 transition-all">
+                        View Pricing
+                    </button>
+                </div>
+                
+                <div class="mt-10 flex flex-wrap justify-center gap-6 text-sm text-gray-500">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-check text-forest"></i> No credit card required</span>
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-check text-forest"></i> 14-day free trial</span>
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-check text-forest"></i> Cancel anytime</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer" class="bg-white border-t border-border mt-12 py-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="text-2xl font-bold font-display text-forest tracking-tight">rezvo</div>
+            <div class="text-sm text-muted text-center md:text-right">
+                <p>&copy; 2026 Rezvo. Champion your high street.</p>
+                <div class="mt-2 space-x-4">
+                    <a href="#" class="hover:text-forest">Privacy</a>
+                    <a href="#" class="hover:text-forest">Terms</a>
+                    <a href="#" class="hover:text-forest">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts for Charts -->
+    <script>
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            // Hide all contents
+            document.getElementById('tab-google').classList.add('hidden');
+            document.getElementById('tab-website').classList.add('hidden');
+            document.getElementById('tab-social').classList.add('hidden');
+            document.getElementById('tab-costs').classList.add('hidden');
+
+            // Show selected content
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            // Reset tab styles
+            const tabs = document.querySelectorAll('#details button');
+            tabs.forEach(tab => {
+                tab.classList.remove('tab-active');
+                tab.classList.add('tab-inactive');
+            });
+
+            // Set active tab style (simple logic for demo)
+            event.target.classList.remove('tab-inactive');
+            event.target.classList.add('tab-active');
+        }
+
+        window.addEventListener('load', function() {
+            try {
+                // 1. Overall Score Gauge (Donut)
+                var gaugeData = [
+                    {
+                        type: "pie",
+                        showlegend: false,
+                        hole: 0.75,
+                        rotation: 90,
+                        values: [100 / 3, 100 / 3, 100 / 3, 100], // Equal parts for colors + half empty
+                        text: ["High", "Medium", "Low", ""],
+                        direction: "clockwise",
+                        textinfo: "none",
+                        textposition: "inside",
+                        marker: {
+                            colors: ["#059669", "#D97706", "#DC2626", "rgba(255, 255, 255, 0)"] // Green, Amber, Red, Transparent
+                        },
+                        hoverinfo: "none"
+                    }
+                ];
+
+                // Pointer needle logic would be complex here, simplifying to a colored ring for stability
+                var simpleDonutData = [{
+                    values: [47, 53],
+                    labels: ['Score', 'Remaining'],
+                    domain: {column: 0},
+                    name: 'Score',
+                    hoverinfo: 'label+percent+name',
+                    hole: .8,
+                    type: 'pie',
+                    marker: {
+                        colors: ['#DC2626', '#E8E4DD'] // Critical Red & Border Color
+                    },
+                    textinfo: 'none',
+                    sort: false
+                }];
+
+                var gaugeLayout = {
+                    showlegend: false,
+                    margin: { t: 0, b: 0, l: 0, r: 0 },
+                    paper_bgcolor: "rgba(0,0,0,0)",
+                    plot_bgcolor: "rgba(0,0,0,0)",
+                    height: 256,
+                    width: 256
+                };
+
+                Plotly.newPlot('score-gauge', simpleDonutData, gaugeLayout, {displayModeBar: false});
+
+
+                // 2. Radar Chart
+                var radarData = [
+                    {
+                        type: 'scatterpolar',
+                        r: [62, 34, 41, 22, 50, 62],
+                        theta: ['Google', 'Website', 'Social', 'Booking', 'Reviews', 'Google'],
+                        fill: 'toself',
+                        name: 'You',
+                        line: { color: '#1B4332' },
+                        fillcolor: 'rgba(27, 67, 50, 0.2)'
+                    },
+                    {
+                        type: 'scatterpolar',
+                        r: [75, 60, 55, 65, 70, 75],
+                        theta: ['Google', 'Website', 'Social', 'Booking', 'Reviews', 'Google'],
+                        fill: 'toself',
+                        name: 'Industry Avg',
+                        line: { color: '#E8E4DD', dash: 'dash' },
+                        fillcolor: 'rgba(0,0,0,0)'
+                    }
+                ];
+
+                var radarLayout = {
+                    polar: {
+                        radialaxis: {
+                            visible: true,
+                            range: [0, 100],
+                            tickfont: { size: 9, color: '#7A776F' },
+                            gridcolor: '#E8E4DD'
+                        },
+                        angularaxis: {
+                            tickfont: { size: 11, family: 'Figtree', color: '#141413', weight: 600 },
+                            gridcolor: '#E8E4DD'
+                        },
+                        bgcolor: '#FFFFFF'
+                    },
+                    showlegend: false,
+                    margin: { t: 20, r: 40, b: 20, l: 40 },
+                    paper_bgcolor: "rgba(0,0,0,0)",
+                    plot_bgcolor: "rgba(0,0,0,0)",
+                    height: 300,
+                    font: { family: 'Figtree' }
+                };
+
+                Plotly.newPlot('radar-chart', radarData, radarLayout, {displayModeBar: false, responsive: true});
+
+
+                // 3. Google Profile Bar Chart (in Tab)
+                var googleData = [{
+                    x: ['Views', 'Clicks', 'Calls'],
+                    y: [1200, 450, 32],
+                    type: 'bar',
+                    marker: {
+                        color: ['#E8E4DD', '#E8E4DD', '#DC2626'] // Highlighting low calls
+                    },
+                    width: 0.4
+                }];
+
+                var googleLayout = {
+                    title: { text: 'Monthly Interaction Volume', font: { family: 'Figtree', size: 14 } },
+                    xaxis: { title: '', tickfont: { family: 'Figtree' } },
+                    yaxis: { title: '', gridcolor: '#F3F4F6' },
+                    margin: { t: 30, r: 10, b: 30, l: 30 },
+                    paper_bgcolor: "rgba(0,0,0,0)",
+                    plot_bgcolor: "rgba(0,0,0,0)",
+                    showlegend: false,
+                    height: 250
+                };
+
+                Plotly.newPlot('google-chart', googleData, googleLayout, {displayModeBar: false, responsive: true});
+
+            } catch (e) {
+                console.error("Chart generation error:", e);
+            }
         });
-      }
-      if (!res.ok) throw new Error('not_found');
-      return res.json();
-    })
-    .then(function(data) {
-      renderReport(data);
-    })
-    .catch(function(err) {
-      if (err.message === 'expired') return;
-      if (err.message === 'not_found') {
-        showError('Report Not Found', 'We couldn\'t find this report. It may have been removed or the link is incorrect.', '🔍');
-      }
-    });
-
-  function showError(title, message, emoji) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('error-state').style.display = 'flex';
-    document.getElementById('error-title').textContent = title;
-    document.getElementById('error-message').textContent = message;
-    document.getElementById('error-emoji').textContent = emoji;
-  }
-
-  function scoreColor(score) {
-    if (score >= 70) return 'var(--green-score)';
-    if (score >= 50) return 'var(--yellow-score)';
-    if (score >= 30) return 'var(--orange-score)';
-    return 'var(--red-score)';
-  }
-
-  function gradeText(grade, score) {
-    if (score >= 80) return 'Excellent — you\'re ahead of most competitors';
-    if (score >= 65) return 'Good — a few improvements could make a big difference';
-    if (score >= 50) return 'Average — there\'s significant room for growth';
-    if (score >= 35) return 'Below average — you\'re losing customers to competitors';
-    return 'Needs urgent attention — your online presence is hurting your business';
-  }
-
-  function renderReport(data) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('report').style.display = 'block';
-
-    // Hero
-    document.getElementById('hero-name').textContent = data.business_name;
-    document.title = data.business_name + ' — Business Insights Report | Rezvo';
-
-    // Expiry
-    var daysLeft = data.days_remaining || 0;
-    var expiryEl = document.getElementById('expiry-notice');
-    var expiryText = document.getElementById('expiry-text');
-    if (daysLeft <= 3) {
-      expiryEl.classList.add('urgent');
-      expiryText.textContent = '⚠️ This report expires in ' + daysLeft + ' day' + (daysLeft !== 1 ? 's' : '') + '!';
-    } else {
-      expiryText.textContent = 'This report expires in ' + daysLeft + ' days';
-    }
-
-    // Score ring
-    var score = data.overall_score || 0;
-    var ring = document.getElementById('score-ring');
-    var circumference = 408.4;
-    var offset = circumference - (score / 100) * circumference;
-    ring.style.stroke = scoreColor(score);
-
-    setTimeout(function() {
-      ring.style.strokeDashoffset = offset;
-      animateNumber('score-num', 0, score, 1500);
-    }, 300);
-
-    document.getElementById('score-grade').textContent = 'Grade: ' + (data.overall_grade || '?');
-    document.getElementById('score-headline').textContent = gradeText(data.overall_grade, score);
-
-    // Score bars
-    var w = data.website || {};
-    var g = data.google || {};
-    var f = data.facebook || {};
-    var o = data.ordering || {};
-
-    setTimeout(function() {
-      setBar('website', w.score || 0);
-      setBar('google', g.score || 0);
-      setBar('facebook', f.score || 0);
-      setBar('ordering', o.score || 0);
-    }, 600);
-
-    // Build sections
-    var container = document.getElementById('sections-container');
-    container.innerHTML = '';
-
-    // Website section
-    container.appendChild(buildSection('🌐', 'Website & SEO', w.score || 0, w.issues || [],
-      w.has_website ? '#E8F5E9' : '#FEF2F2'));
-
-    // Google section
-    container.appendChild(buildSection('📍', 'Google Business Profile', g.score || 0, g.issues || [],
-      g.has_google_profile ? '#E3F2FD' : '#FEF2F2'));
-
-    // Facebook section
-    container.appendChild(buildSection('📘', 'Facebook Presence', f.score || 0, f.issues || [],
-      '#E3F2FD'));
-
-    // Ordering section
-    container.appendChild(buildSection('🛵', 'Online Ordering & Delivery', o.score || 0, o.issues || [],
-      '#FFF8E1'));
-
-    // Commission savings
-    if (data.estimated_annual_commission_savings && data.estimated_annual_commission_savings > 0) {
-      var savingsEl = document.createElement('div');
-      savingsEl.className = 'savings-card fade-in';
-      savingsEl.innerHTML = '<div class="emoji">💸</div>' +
-        '<h3>Estimated Commission You\'re Losing Per Year</h3>' +
-        '<div class="savings-amount">£' + Math.round(data.estimated_annual_commission_savings).toLocaleString() + '</div>' +
-        '<p>By switching to Rezvo with Uber Direct, you could keep most of this revenue. Zero marketplace commission — just a flat monthly fee.</p>';
-      container.appendChild(savingsEl);
-    }
-
-    // Recommendations
-    var recs = data.top_recommendations || [];
-    if (recs.length > 0) {
-      var recsEl = document.createElement('div');
-      recsEl.className = 'recs-card fade-in';
-      var recsHTML = '<h3>🎯 Top Recommendations</h3>';
-      recs.forEach(function(rec, i) {
-        recsHTML += '<div class="rec-item"><div class="rec-num">' + (i + 1) + '</div><div>' + rec + '</div></div>';
-      });
-      recsEl.innerHTML = recsHTML;
-      container.appendChild(recsEl);
-    }
-  }
-
-  function buildSection(icon, title, score, issues, bgColor) {
-    var card = document.createElement('div');
-    card.className = 'section-card fade-in';
-
-    var html = '<div class="section-header">' +
-      '<div class="section-icon" style="background:' + bgColor + '">' + icon + '</div>' +
-      '<h3>' + title + '</h3>' +
-      '<div class="section-score-badge" style="background:' + scoreColor(score) + '">' + score + '/100</div>' +
-      '</div>';
-
-    if (issues.length > 0) {
-      html += '<div class="issue-list">';
-      issues.forEach(function(issue) {
-        var isGood = issue.toLowerCase().indexOf('great') !== -1 ||
-                     issue.toLowerCase().indexOf('you have') !== -1;
-        html += '<div class="issue-item ' + (isGood ? 'good' : '') + '">' +
-          '<span class="issue-icon">' + (isGood ? '✅' : '⚠️') + '</span>' +
-          '<span>' + issue + '</span></div>';
-      });
-      html += '</div>';
-    } else {
-      html += '<div class="issue-item good"><span class="issue-icon">✅</span><span>Looking good! No major issues found.</span></div>';
-    }
-
-    card.innerHTML = html;
-    return card;
-  }
-
-  function setBar(id, score) {
-    document.getElementById('bar-' + id).style.width = score + '%';
-    document.getElementById('bar-' + id).style.background = scoreColor(score);
-    document.getElementById('val-' + id).textContent = score;
-  }
-
-  function animateNumber(id, start, end, duration) {
-    var el = document.getElementById(id);
-    var range = end - start;
-    var startTime = null;
-    function step(timestamp) {
-      if (!startTime) startTime = timestamp;
-      var progress = Math.min((timestamp - startTime) / duration, 1);
-      var eased = 1 - Math.pow(1 - progress, 3);
-      el.textContent = Math.round(start + range * eased);
-      el.style.color = scoreColor(Math.round(start + range * eased));
-      if (progress < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-
-})();
-</script>
+    </script>
 </body>
 </html>

@@ -243,6 +243,7 @@ class TrendJackRequest(BaseModel):
     trend_topic: str
     news_url: Optional[str] = None
     angle: Optional[str] = None
+    custom_prompt: Optional[str] = None  # Voice context from GhostPost
 
 class EditPostRequest(BaseModel):
     post_id: str
@@ -254,6 +255,7 @@ class EditPostRequest(BaseModel):
 class GenerateWeekRequest(BaseModel):
     week_of: Optional[str] = None  # ISO date string for the Monday of the week
     custom_topics: Optional[List[str]] = None
+    custom_prompt: Optional[str] = None  # Voice context from GhostPost
 
 
 # ─── Claude API Call ─── #
@@ -360,6 +362,7 @@ async def generate_weekly_calendar(req: GenerateWeekRequest):
     prompt = f"""Generate a full week's LinkedIn content calendar (4 posts).
 {f'Week of: {req.week_of}' if req.week_of else f'Week of: {datetime.utcnow().strftime("%Y-%m-%d")}'}
 {f'Include these specific topics/angles where relevant: {", ".join(req.custom_topics)}' if req.custom_topics else ''}
+{f'VOICE CONTEXT — Write in this specific voice and style:\n{req.custom_prompt}' if req.custom_prompt else ''}
 
 Follow the 4-3-2-1 system exactly. Return as a JSON array of 4 post objects."""
 
@@ -406,6 +409,7 @@ async def trend_jack_post(req: TrendJackRequest):
 Trending topic: {req.trend_topic}
 {f'Source URL: {req.news_url}' if req.news_url else ''}
 {f'Angle to take: {req.angle}' if req.angle else 'Choose the most compelling angle that ties this back to restaurant technology, commission exploitation, or the Save the High Street mission'}
+{f'VOICE CONTEXT — Write in this specific voice and style:\n{req.custom_prompt}' if req.custom_prompt else ''}
 
 Write a trend-jacking LinkedIn post that:
 1. References the trending topic in the hook (8 words max)

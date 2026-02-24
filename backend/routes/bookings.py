@@ -477,7 +477,20 @@ async def move_booking(
     if str(business.get("owner_id")) != str(current_user.get("_id")) and current_user.get("role") not in ["staff", "admin"]:
         raise HTTPException(403, "Not authorized")
 
+    bid_str = str(business.get("_id"))
     b = await db.bookings.find_one({"_id": booking_id, "businessId": business_id})
+    if not b:
+        try:
+            b = await db.bookings.find_one({"_id": ObjectId(booking_id), "businessId": business_id})
+        except Exception:
+            pass
+    if not b:
+        b = await db.bookings.find_one({"_id": booking_id, "businessId": bid_str})
+    if not b:
+        try:
+            b = await db.bookings.find_one({"_id": ObjectId(booking_id), "businessId": bid_str})
+        except Exception:
+            pass
     if not b:
         raise HTTPException(404, "Booking not found")
 
@@ -493,11 +506,11 @@ async def move_booking(
     if "tableId" in payload:
         update["tableId"] = payload["tableId"]
 
-    await db.bookings.update_one({"_id": booking_id}, {"$set": update})
+    await db.bookings.update_one({"_id": b["_id"]}, {"$set": update})
 
-    updated = await db.bookings.find_one({"_id": booking_id})
+    updated = await db.bookings.find_one({"_id": b["_id"]})
     return {
-        "id": updated.get("_id"),
+        "id": str(updated.get("_id")),
         "time": updated.get("time"),
         "duration": (updated.get("service") or {}).get("duration", updated.get("duration", 60)),
         "staffId": updated.get("staffId"),

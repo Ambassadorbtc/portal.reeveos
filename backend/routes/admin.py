@@ -3,7 +3,7 @@ Admin API routes — platform-wide data for the /admin panel.
 No auth middleware yet (PIN-gated on frontend). Add proper admin auth later.
 """
 from fastapi import APIRouter, Query
-from database import get_db
+from database import get_database as get_db
 from datetime import datetime, timedelta
 from bson import ObjectId
 

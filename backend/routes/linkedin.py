@@ -415,7 +415,7 @@ async def trend_jack_post(req: TrendJackRequest):
 Trending topic: {req.trend_topic}
 {f'Source URL: {req.news_url}' if req.news_url else ''}
 {f'Angle to take: {req.angle}' if req.angle else 'Choose the most compelling angle that ties this back to restaurant technology, commission exploitation, or the Save the High Street mission'}
-{f'VOICE CONTEXT — Write in this specific voice and style:\n{req.custom_prompt}' if req.custom_prompt else ''}
+{f'VOICE CONTEXT — Write in this specific voice and style:' + chr(10) + req.custom_prompt if req.custom_prompt else ''}
 
 Write a trend-jacking LinkedIn post that:
 1. References the trending topic in the hook (8 words max)

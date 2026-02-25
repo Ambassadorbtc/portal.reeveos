@@ -446,27 +446,31 @@ const Dashboard = () => {
             <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] p-6">
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h2 className="text-lg font-bold text-gray-900">Occupancy Trends</h2>
-                  <p className="text-sm text-gray-500">Live seating vs capacity over time</p>
+                  <h2 className="text-lg font-extrabold text-gray-900">Occupancy Trends</h2>
+                  <p className="text-xs text-gray-400 font-medium mt-0.5">Live seating vs capacity over time</p>
                 </div>
-                <div className="flex bg-gray-100 rounded-lg p-1 text-xs font-medium">
-                  <button className="px-3 py-1.5 bg-white text-gray-900 rounded shadow-sm">Today</button>
-                  <button className="px-3 py-1.5 text-gray-500 hover:text-gray-900">Week</button>
-                  <button className="px-3 py-1.5 text-gray-500 hover:text-gray-900">Month</button>
+                <div className="flex gap-1.5">
+                  {['Today', 'Week', 'Month'].map((label, i) => (
+                    <button key={label} className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                      i === 0
+                        ? 'bg-primary text-white shadow-md shadow-primary/20'
+                        : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                    }`}>{label}</button>
+                  ))}
                 </div>
               </div>
               <div className="h-[200px] relative">
                 <svg viewBox="0 0 600 200" className="w-full h-full" preserveAspectRatio="none">
                   <defs>
                     <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#52B788" stopOpacity="0.3" />
-                      <stop offset="100%" stopColor="#52B788" stopOpacity="0.02" />
+                      <stop offset="0%" stopColor="#2D6A4F" stopOpacity="0.25" />
+                      <stop offset="100%" stopColor="#2D6A4F" stopOpacity="0.02" />
                     </linearGradient>
                   </defs>
                   <path d="M0,160 C50,135 100,100 150,110 C200,120 250,140 300,60 C350,20 400,30 450,50 C500,70 550,100 600,130 L600,200 L0,200 Z" fill="url(#chartFill)" />
-                  <path d="M0,160 C50,135 100,100 150,110 C200,120 250,140 300,60 C350,20 400,30 450,50 C500,70 550,100 600,130" fill="none" stroke="#1B4332" strokeWidth="2.5" />
+                  <path d="M0,160 C50,135 100,100 150,110 C200,120 250,140 300,60 C350,20 400,30 450,50 C500,70 550,100 600,130" fill="none" stroke="#1B4332" strokeWidth="2.5" strokeLinecap="round" />
                 </svg>
-                <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[10px] text-gray-400 px-2">
+                <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[9px] text-gray-400 font-medium px-2">
                   {['12PM','1PM','2PM','3PM','4PM','5PM','6PM','7PM','8PM','9PM','10PM'].map(t => <span key={t}>{t}</span>)}
                 </div>
               </div>

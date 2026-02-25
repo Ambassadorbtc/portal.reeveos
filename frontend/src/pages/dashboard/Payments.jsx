@@ -1,33 +1,67 @@
-import RezvoLoader from "../../components/shared/RezvoLoader"
 /**
- * Payments & Analytics — styled to match 9-Brand Design - Payments & Anal.html
- * Tabs: Analytics (KPI cards, charts, top services) | Payments (Stripe, deposits, transactions)
+ * Analytics & Payments — Rezvo branded
+ * Polished pill tabs, gradient charts, Lucide icons, Figtree everywhere
  */
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import {
+  PoundSterling, Users, CalendarCheck, UserX, TrendingUp, TrendingDown,
+  CreditCard, BarChart3, ArrowRight, ChevronRight, Wallet, Receipt,
+  RefreshCw, Download, Filter
+} from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
+import RezvoLoader from '../../components/shared/RezvoLoader'
 
-const KpiCard = ({ label, value, icon, iconBg, trend, trendLabel, trendUp }) => (
-  <div className="bg-white rounded-xl border border-border p-5 shadow-sm">
-    <div className="flex justify-between items-start mb-4">
+/* ═══ KPI Card ═══ */
+const KpiCard = ({ label, value, Icon, iconColor, iconBg, trend, trendLabel, trendUp }) => (
+  <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_-5px_rgba(27,67,50,0.08)] transition-all duration-300 group"
+    style={{ fontFamily: "'Figtree', sans-serif" }}>
+    <div className="flex justify-between items-start mb-3">
       <div>
-        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{label}</p>
-        <h3 className="text-2xl font-heading font-bold text-primary mt-1">{value}</h3>
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{label}</p>
+        <h3 className="text-2xl font-extrabold text-gray-900 mt-1 group-hover:text-primary transition-colors">{value}</h3>
       </div>
-      <div className={`p-2 rounded-lg ${iconBg}`}><i className={`fa-solid ${icon}`} /></div>
+      <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+        <Icon className="w-5 h-5" style={{ color: iconColor }} />
+      </div>
     </div>
     {trend && (
       <div className="flex items-center gap-2">
-        <span className={`text-xs font-bold flex items-center gap-1 ${trendUp ? 'text-green-600' : 'text-red-500'}`}>
-          <i className={`fa-solid ${trendUp ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}`} /> {trend}
+        <span className={`text-xs font-bold flex items-center gap-1 ${trendUp ? 'text-emerald-600' : 'text-red-500'}`}>
+          {trendUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />} {trend}
         </span>
-        <span className="text-xs text-gray-500">{trendLabel}</span>
+        <span className="text-[11px] text-gray-400 font-medium">{trendLabel}</span>
       </div>
     )}
   </div>
 )
 
+/* ═══ Pill Tab ═══ */
+const PillTab = ({ active, onClick, icon: Icon, label }) => (
+  <button onClick={onClick}
+    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all ${
+      active
+        ? 'bg-primary text-white shadow-lg shadow-primary/20'
+        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+    }`}>
+    {Icon && <Icon className="w-4 h-4" />}
+    {label}
+  </button>
+)
+
+/* ═══ Range Pill ═══ */
+const RangePill = ({ active, onClick, label }) => (
+  <button onClick={onClick}
+    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+      active
+        ? 'bg-primary text-white shadow-md shadow-primary/20'
+        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+    }`}>
+    {label}
+  </button>
+)
+
+/* ═══ Main ═══ */
 const Payments = () => {
   const { business, isDemo } = useBusiness()
   const [tab, setTab] = useState('analytics')
@@ -40,164 +74,186 @@ const Payments = () => {
 
   useEffect(() => {
     if (!bid || isDemo) { setLoading(false); return }
-    const fetch = async () => {
+    const load = async () => {
       try {
         const [s, t] = await Promise.all([
           api.get(`/analytics/business/${bid}`).catch(() => ({})),
           api.get(`/payments/business/${bid}/transactions`).catch(() => ({ transactions: [] }))
         ])
         setStats(s); setTransactions(t.transactions || [])
-      } catch (e) { console.error(e) }
-      finally { setLoading(false) }
+      } catch {}
+      setLoading(false)
     }
-    fetch()
+    load()
   }, [bid, isDemo])
 
-  const demoKpis = [
-    { label: 'Total Revenue', value: '£12,450.00', icon: 'fa-sterling-sign', iconBg: 'bg-primary/5 text-primary', trend: '12.5%', trendLabel: 'vs last 30 days', trendUp: true },
-    { label: 'Occupancy', value: '84%', icon: 'fa-users', iconBg: 'bg-blue-100 text-blue-600', trend: '4.2%', trendLabel: 'vs last 30 days', trendUp: true },
-    { label: 'Bookings', value: '142', icon: 'fa-calendar-check', iconBg: 'bg-amber-100 text-amber-600', trend: '1.8%', trendLabel: 'vs last 30 days', trendUp: false },
-    { label: 'No-Show Rate', value: '2.1%', icon: 'fa-user-slash', iconBg: 'bg-red-100 text-red-500', trend: '0.5%', trendLabel: 'Improvement', trendUp: true },
+  const kpis = [
+    { label: 'Total Revenue', value: '£12,450.00', Icon: PoundSterling, iconColor: '#1B4332', iconBg: 'bg-emerald-50', trend: '12.5%', trendLabel: 'vs last 30 days', trendUp: true },
+    { label: 'Occupancy', value: '84%', Icon: Users, iconColor: '#2563EB', iconBg: 'bg-blue-50', trend: '4.2%', trendLabel: 'vs last 30 days', trendUp: true },
+    { label: 'Bookings', value: '142', Icon: CalendarCheck, iconColor: '#D97706', iconBg: 'bg-amber-50', trend: '1.8%', trendLabel: 'vs last 30 days', trendUp: false },
+    { label: 'No-Show Rate', value: '2.1%', Icon: UserX, iconColor: '#EF4444', iconBg: 'bg-red-50', trend: '0.5%', trendLabel: 'Improvement', trendUp: true },
   ]
 
-  const demoTopServices = [
-    { name: 'Ladies Cut & Blow Dry', bookings: 45, revenue: 2250 },
-    { name: 'Full Head Colour', bookings: 28, revenue: 2380 },
-    { name: 'Balayage', bookings: 15, revenue: 1800 },
-    { name: "Men's Cut", bookings: 62, revenue: 1550 },
-    { name: 'Olaplex Treatment', bookings: 30, revenue: 900 },
+  const topItems = [
+    { name: 'Sunday Roast', bookings: 62, revenue: 3100 },
+    { name: 'Steak Night', bookings: 45, revenue: 2700 },
+    { name: 'Tasting Menu', bookings: 28, revenue: 2520 },
+    { name: 'Lunch Special', bookings: 85, revenue: 1700 },
+    { name: 'Kids Eat Free', bookings: 30, revenue: 900 },
   ]
+
+  const revData = useMemo(() => {
+    const days = chartRange === '30' ? 30 : 90
+    return Array.from({ length: days }, (_, i) => ({
+      day: i + 1,
+      revenue: Math.floor(Math.sin(i * 0.3) * 150 + 350 + Math.random() * 80),
+      bookings: Math.floor(Math.random() * 6 + 3),
+    }))
+  }, [chartRange])
+
+  const maxRev = Math.max(...revData.map(d => d.revenue))
 
   const demoTransactions = [
-    { id: 't1', date: 'Oct 25, 2:30 PM', client: 'Emma Stone', type: 'Payment', desc: 'Ladies Cut & Blow Dry', amount: 45, status: 'completed', method: 'Card' },
-    { id: 't2', date: 'Oct 25, 11:15 AM', client: 'Craig Mango', type: 'Deposit', desc: 'Deposit: Balayage', amount: 24, status: 'completed', method: 'Card' },
-    { id: 't3', date: 'Oct 24, 4:00 PM', client: 'Anna Lee', type: 'Payment', desc: 'Deep Conditioning', amount: 35, status: 'completed', method: 'Apple Pay' },
-    { id: 't4', date: 'Oct 24, 10:00 AM', client: 'James H.', type: 'Refund', desc: 'Cancelled: Mens Cut', amount: -25, status: 'refunded', method: 'Card' },
-    { id: 't5', date: 'Oct 23, 3:45 PM', client: 'Sarah Rose', type: 'Payment', desc: 'Full Head Colour', amount: 85, status: 'completed', method: 'Google Pay' },
+    { id: 't1', date: 'Feb 25, 2:30 PM', client: 'David James', type: 'Payment', desc: 'Sunday Roast x2', amount: 58, status: 'completed', method: 'Card' },
+    { id: 't2', date: 'Feb 25, 12:15 PM', client: 'Sarah Park', type: 'Deposit', desc: 'Deposit: Tasting Menu', amount: 25, status: 'completed', method: 'Card' },
+    { id: 't3', date: 'Feb 24, 7:00 PM', client: 'Charlie Jame', type: 'Payment', desc: 'Steak Night x4', amount: 196, status: 'completed', method: 'Apple Pay' },
+    { id: 't4', date: 'Feb 24, 1:00 PM', client: 'Emily Chen', type: 'Refund', desc: 'Cancelled: Lunch Special', amount: -20, status: 'refunded', method: 'Card' },
+    { id: 't5', date: 'Feb 23, 8:45 PM', client: 'Priya King', type: 'Payment', desc: 'Tasting Menu x6', amount: 540, status: 'completed', method: 'Google Pay' },
   ]
 
-  const demoRevData = Array.from({ length: 30 }, (_, i) => ({
-    day: i + 1,
-    revenue: Math.floor(Math.random() * 300 + 200),
-    bookings: Math.floor(Math.random() * 8 + 2),
-  }))
+  const displayTx = transactions.length > 0 ? transactions : demoTransactions
 
-  const maxRev = Math.max(...demoRevData.map(d => d.revenue))
-
-  const displayTransactions = transactions.length > 0 ? transactions : (isDemo ? demoTransactions : [])
-
-  if (loading) {
-    return <RezvoLoader message="Loading payments..." />
-  }
+  if (loading) return <RezvoLoader message="Loading analytics..." />
 
   return (
-    <div className="space-y-6">
-      {/* Tabs */}
-      <div className="border-b border-border -mt-2">
-        <nav className="-mb-px flex space-x-8">
-          <button onClick={() => setTab('analytics')}
-            className={`whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center gap-2 transition-colors ${tab === 'analytics' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-primary hover:border-gray-300'}`}>
-            <i className="fa-solid fa-chart-line" /> Analytics
-          </button>
-          <button onClick={() => setTab('payments')}
-            className={`whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm flex items-center gap-2 transition-colors ${tab === 'payments' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-primary hover:border-gray-300'}`}>
-            <i className="fa-solid fa-credit-card" /> Payments
-          </button>
-        </nav>
+    <div className="space-y-6" style={{ fontFamily: "'Figtree', sans-serif" }}>
+      {/* ═══ PILL TABS ═══ */}
+      <div className="flex items-center gap-2 -mt-2">
+        <PillTab active={tab === 'analytics'} onClick={() => setTab('analytics')} icon={BarChart3} label="Analytics" />
+        <PillTab active={tab === 'payments'} onClick={() => setTab('payments')} icon={CreditCard} label="Payments" />
       </div>
 
-      {/* ANALYTICS TAB */}
+      {/* ═══ ANALYTICS TAB ═══ */}
       {tab === 'analytics' && (
         <div className="space-y-6">
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {demoKpis.map((k, i) => <KpiCard key={i} {...k} />)}
+            {kpis.map((k, i) => <KpiCard key={i} {...k} />)}
           </div>
 
           {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Revenue Chart */}
-            <div className="lg:col-span-2 bg-white rounded-xl border border-border p-6 shadow-sm">
+            <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="font-heading font-bold text-lg text-primary">Revenue & Occupancy</h3>
+                <h3 className="font-extrabold text-lg text-gray-900">Revenue & Occupancy</h3>
                 <div className="flex gap-2">
-                  {['30', '90'].map(r => (
-                    <button key={r} onClick={() => setChartRange(r)}
-                      className={`px-3 py-1 text-xs font-bold rounded-md ${chartRange === r ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
-                      {r} Days
-                    </button>
-                  ))}
+                  <RangePill active={chartRange === '30'} onClick={() => setChartRange('30')} label="30 Days" />
+                  <RangePill active={chartRange === '90'} onClick={() => setChartRange('90')} label="90 Days" />
                 </div>
               </div>
-              {/* Simple bar chart visualization */}
-              <div className="h-[300px] flex items-end gap-1 px-2">
-                {demoRevData.map((d, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                      £{d.revenue} • {d.bookings} bookings
+              {/* Branded bar chart */}
+              <div className="h-[280px] flex items-end gap-px px-1">
+                {revData.map((d, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-0.5 group relative">
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all z-10 pointer-events-none shadow-lg"
+                      style={{ fontFamily: "'Figtree', sans-serif" }}>
+                      £{d.revenue} · {d.bookings} covers
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45" />
                     </div>
                     <div
-                      className="w-full bg-primary/20 hover:bg-primary/40 rounded-t transition-colors cursor-pointer"
-                      style={{ height: `${(d.revenue / maxRev) * 250}px` }}
+                      className="w-full rounded-t-sm cursor-pointer transition-all duration-200 group-hover:opacity-100"
+                      style={{
+                        height: `${(d.revenue / maxRev) * 240}px`,
+                        background: `linear-gradient(to top, #1B4332, #2D6A4F)`,
+                        opacity: 0.7 + (d.revenue / maxRev) * 0.3,
+                      }}
                     />
-                    {i % 5 === 0 && <span className="text-[9px] text-gray-400 mt-1">{d.day}</span>}
+                    {(chartRange === '30' ? i % 5 === 0 : i % 15 === 0) && (
+                      <span className="text-[8px] text-gray-400 font-medium mt-1">{d.day}</span>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Top Services */}
-            <div className="bg-white rounded-xl border border-border p-6 shadow-sm flex flex-col">
-              <h3 className="font-heading font-bold text-lg text-primary mb-4">Top Services</h3>
-              <div className="flex-1 overflow-y-auto pr-2 space-y-2">
-                {demoTopServices.map((s, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors border border-transparent hover:border-border">
+            {/* Top Menu Items */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col">
+              <h3 className="font-extrabold text-lg text-gray-900 mb-4">Top Menu Items</h3>
+              <div className="flex-1 space-y-1">
+                {topItems.map((s, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-all group cursor-pointer">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">{String(i + 1).padStart(2, '0')}</div>
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-xs"
+                        style={{
+                          background: i === 0 ? '#ECFDF5' : i === 1 ? '#EFF6FF' : i === 2 ? '#FFF7ED' : '#F3F4F6',
+                          color: i === 0 ? '#059669' : i === 1 ? '#2563EB' : i === 2 ? '#D97706' : '#6B7280',
+                        }}>
+                        {String(i + 1).padStart(2, '0')}
+                      </div>
                       <div>
-                        <p className="text-sm font-bold text-primary">{s.name}</p>
-                        <p className="text-xs text-gray-500">{s.bookings} bookings</p>
+                        <p className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">{s.name}</p>
+                        <p className="text-[11px] text-gray-400 font-medium">{s.bookings} bookings</p>
                       </div>
                     </div>
-                    <span className="text-sm font-bold text-primary">£{s.revenue.toLocaleString()}</span>
+                    <span className="text-sm font-extrabold text-gray-900">£{s.revenue.toLocaleString()}</span>
                   </div>
                 ))}
               </div>
-              <div className="mt-4 pt-4 border-t border-border text-center">
-                <button className="text-sm font-bold text-primary hover:underline">View All Services</button>
+              <div className="mt-3 pt-3 border-t border-gray-100 text-center">
+                <button className="text-xs font-bold text-primary hover:text-emerald-700 flex items-center justify-center gap-1 mx-auto transition-colors">
+                  View All <ChevronRight className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           </div>
 
           {/* Secondary Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl border border-border p-6 shadow-sm">
-              <h3 className="font-heading font-bold text-lg text-primary mb-6">Staff Performance</h3>
+            {/* Staff Performance */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+              <h3 className="font-extrabold text-lg text-gray-900 mb-5">Staff Performance</h3>
               <div className="space-y-4">
-                {[{ name: 'Sarah Jenkins', rev: 4200, pct: 85 }, { name: 'Mike Ross', rev: 3100, pct: 62 }, { name: 'Tom Walker', rev: 2800, pct: 56 }, { name: 'Emma Smith', rev: 1350, pct: 27 }].map(s => (
+                {[
+                  { name: 'Sarah Jenkins', rev: 4200, pct: 85 },
+                  { name: 'Mike Ross', rev: 3100, pct: 62 },
+                  { name: 'Tom Walker', rev: 2800, pct: 56 },
+                  { name: 'Emma Smith', rev: 1350, pct: 27 },
+                ].map((s, i) => (
                   <div key={s.name}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-bold text-primary">{s.name}</span>
-                      <span className="text-gray-500">£{s.rev.toLocaleString()}</span>
+                    <div className="flex justify-between text-sm mb-1.5">
+                      <span className="font-bold text-gray-900">{s.name}</span>
+                      <span className="font-bold text-gray-500">£{s.rev.toLocaleString()}</span>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${s.pct}%` }} />
+                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${s.pct}%`,
+                          background: i === 0 ? 'linear-gradient(to right, #1B4332, #2D6A4F)' : i === 1 ? 'linear-gradient(to right, #2D6A4F, #52B788)' : i === 2 ? '#52B788' : '#D1D5DB',
+                        }} />
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="bg-white rounded-xl border border-border p-6 shadow-sm">
-              <h3 className="font-heading font-bold text-lg text-primary mb-6">Booking Channels</h3>
+
+            {/* Booking Channels */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+              <h3 className="font-extrabold text-lg text-gray-900 mb-5">Booking Channels</h3>
               <div className="space-y-4">
-                {[{ name: 'Direct / Walk-in', pct: 35, color: 'bg-primary' }, { name: 'Online Booking', pct: 42, color: 'bg-blue-500' }, { name: 'Google Reserve', pct: 15, color: 'bg-amber-500' }, { name: 'Instagram', pct: 8, color: 'bg-pink-500' }].map(c => (
+                {[
+                  { name: 'Direct / Walk-in', pct: 35, color: 'linear-gradient(to right, #1B4332, #2D6A4F)' },
+                  { name: 'Online Booking', pct: 42, color: 'linear-gradient(to right, #2563EB, #3B82F6)' },
+                  { name: 'Google Reserve', pct: 15, color: 'linear-gradient(to right, #D97706, #F59E0B)' },
+                  { name: 'Instagram', pct: 8, color: 'linear-gradient(to right, #EC4899, #F472B6)' },
+                ].map(c => (
                   <div key={c.name}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-bold text-primary">{c.name}</span>
-                      <span className="text-gray-500">{c.pct}%</span>
+                    <div className="flex justify-between text-sm mb-1.5">
+                      <span className="font-bold text-gray-900">{c.name}</span>
+                      <span className="font-bold text-gray-500">{c.pct}%</span>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className={`h-full ${c.color} rounded-full transition-all`} style={{ width: `${c.pct}%` }} />
+                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${c.pct}%`, background: c.color }} />
                     </div>
                   </div>
                 ))}
@@ -207,132 +263,82 @@ const Payments = () => {
         </div>
       )}
 
-      {/* PAYMENTS TAB */}
+      {/* ═══ PAYMENTS TAB ═══ */}
       {tab === 'payments' && (
         <div className="space-y-6">
-          {/* Stripe Banner */}
-          <div className="bg-white rounded-xl border border-border p-6 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-8 -mt-8" />
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#635BFF] text-white rounded-lg flex items-center justify-center text-2xl">
-                  <i className="fa-brands fa-stripe" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-heading font-bold text-lg text-primary">Stripe Connect Active</h3>
-                    <span className="w-2 h-2 rounded-full bg-green-500" />
+          {/* Summary cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: 'Total Collected', value: '£8,240', Icon: Wallet, iconBg: 'bg-emerald-50', iconColor: '#059669' },
+              { label: 'Pending Deposits', value: '£1,450', Icon: Receipt, iconBg: 'bg-amber-50', iconColor: '#D97706' },
+              { label: 'Refunds', value: '£320', Icon: RefreshCw, iconBg: 'bg-red-50', iconColor: '#EF4444' },
+            ].map((c, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)] group hover:shadow-[0_10px_30px_-5px_rgba(27,67,50,0.08)] transition-all">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl ${c.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                    <c.Icon className="w-5 h-5" style={{ color: c.iconColor }} />
                   </div>
-                  <p className="text-sm text-gray-500">Payments go directly to your Stripe account. Next payout: <span className="font-bold text-primary">£850.00</span> on Oct 27.</p>
+                  <div>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{c.label}</p>
+                    <h3 className="text-xl font-extrabold text-gray-900">{c.value}</h3>
+                  </div>
                 </div>
               </div>
-              <button className="text-sm font-bold text-primary border border-border bg-white px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center gap-2 shadow-sm">
-                <i className="fa-solid fa-arrow-up-right-from-square" /> Open Stripe Dashboard
-              </button>
-            </div>
+            ))}
           </div>
 
-          {/* Deposit Settings + Quick Stats */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-white rounded-xl border border-border p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-heading font-bold text-primary">Deposit Rules</h3>
-                <button className="relative inline-flex h-5 w-10 items-center rounded-full bg-green-500">
-                  <span className="inline-block h-4 w-4 transform rounded-full bg-white translate-x-5 shadow" />
+          {/* Transactions */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] overflow-hidden">
+            <div className="p-5 border-b border-gray-100 flex justify-between items-center">
+              <h3 className="font-extrabold text-lg text-gray-900">Recent Transactions</h3>
+              <div className="flex items-center gap-2">
+                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-all">
+                  <Filter className="w-3.5 h-3.5" /> Filter
+                </button>
+                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-all">
+                  <Download className="w-3.5 h-3.5" /> Export
                 </button>
               </div>
-              <p className="text-sm text-gray-500 mb-4">Require deposits to reduce no-shows. Deposits are automatically deducted from the final bill.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-bold text-primary block mb-1">Deposit Amount</label>
-                  <div className="flex items-center gap-2">
-                    <input type="number" defaultValue={20} className="w-20 px-3 py-2 border border-border rounded-lg text-sm font-bold text-primary text-center" />
-                    <span className="text-sm font-bold text-gray-500">% of service price</span>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-bold text-primary block mb-1">Minimum Deposit</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><span className="text-gray-400 font-bold text-sm">£</span></div>
-                    <input type="number" defaultValue={10} className="w-full pl-8 pr-3 py-2 border border-border rounded-lg text-sm font-bold text-primary" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white rounded-xl border border-border p-6 shadow-sm space-y-4">
-              <h3 className="text-lg font-heading font-bold text-primary">Quick Stats</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">This month</span>
-                  <span className="text-sm font-bold text-primary">£3,240.00</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">Outstanding</span>
-                  <span className="text-sm font-bold text-amber-600">£180.00</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">Refunds</span>
-                  <span className="text-sm font-bold text-red-500">-£75.00</span>
-                </div>
-                <hr className="border-border" />
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-primary">Net Revenue</span>
-                  <span className="text-lg font-heading font-bold text-primary">£3,165.00</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Transactions Table */}
-          <div className="bg-white rounded-xl border border-border shadow-sm overflow-hidden">
-            <div className="px-6 py-5 border-b border-border flex items-center justify-between">
-              <h3 className="text-lg font-heading font-bold text-primary">Recent Transactions</h3>
-              <button className="text-sm font-bold text-primary border border-border px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center gap-2 shadow-sm">
-                <i className="fa-solid fa-download" /> Export
-              </button>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[700px]">
+              <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-border text-xs uppercase tracking-wider text-gray-500 font-bold">
-                    <th className="px-6 py-3">Date</th>
-                    <th className="px-6 py-3">Client</th>
-                    <th className="px-6 py-3">Description</th>
-                    <th className="px-6 py-3">Method</th>
-                    <th className="px-6 py-3">Status</th>
-                    <th className="px-6 py-3 text-right">Amount</th>
+                  <tr className="border-b border-gray-100 text-left">
+                    <th className="px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Date</th>
+                    <th className="px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Guest</th>
+                    <th className="px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Type</th>
+                    <th className="px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Description</th>
+                    <th className="px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Amount</th>
+                    <th className="px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border text-sm">
-                  {displayTransactions.map(t => (
-                    <tr key={t.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 text-gray-500 whitespace-nowrap">{t.date}</td>
-                      <td className="px-6 py-4 font-bold text-primary whitespace-nowrap">{t.client}</td>
-                      <td className="px-6 py-4 text-primary whitespace-nowrap">{t.desc}</td>
-                      <td className="px-6 py-4 text-gray-500 whitespace-nowrap">{t.method}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-bold border ${
-                          t.status === 'completed' ? 'bg-green-50 text-green-700 border-green-200' :
-                          t.status === 'refunded' ? 'bg-red-50 text-red-700 border-red-200' :
-                          'bg-amber-50 text-amber-700 border-amber-200'
-                        }`}>
-                          {t.status === 'completed' ? 'Completed' : t.status === 'refunded' ? 'Refunded' : 'Pending'}
-                        </span>
+                <tbody>
+                  {displayTx.map(tx => (
+                    <tr key={tx.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                      <td className="px-5 py-3.5 text-gray-500 font-medium whitespace-nowrap">{tx.date}</td>
+                      <td className="px-5 py-3.5 font-bold text-gray-900">{tx.client}</td>
+                      <td className="px-5 py-3.5">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                          tx.type === 'Payment' ? 'bg-emerald-50 text-emerald-700' :
+                          tx.type === 'Deposit' ? 'bg-blue-50 text-blue-700' :
+                          'bg-red-50 text-red-600'
+                        }`}>{tx.type}</span>
                       </td>
-                      <td className={`px-6 py-4 text-right font-bold whitespace-nowrap ${t.amount < 0 ? 'text-red-500' : 'text-primary'}`}>
-                        {t.amount < 0 ? '-' : ''}£{Math.abs(t.amount).toFixed(2)}
+                      <td className="px-5 py-3.5 text-gray-500">{tx.desc}</td>
+                      <td className={`px-5 py-3.5 text-right font-extrabold ${tx.amount < 0 ? 'text-red-500' : 'text-gray-900'}`}>
+                        {tx.amount < 0 ? '-' : ''}£{Math.abs(tx.amount).toLocaleString()}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                          tx.status === 'completed' ? 'bg-emerald-50 text-emerald-700' :
+                          tx.status === 'pending' ? 'bg-amber-50 text-amber-700' :
+                          'bg-red-50 text-red-600'
+                        }`}>{tx.status === 'completed' ? 'Completed' : tx.status === 'pending' ? 'Pending' : 'Refunded'}</span>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
-            <div className="px-6 py-3 border-t border-border flex justify-between items-center bg-gray-50">
-              <span className="text-xs text-gray-500">Showing 1-{displayTransactions.length} of {displayTransactions.length}</span>
-              <div className="flex gap-2">
-                <button className="px-3 py-1 border border-border bg-white rounded text-xs font-bold text-gray-400 disabled:opacity-50" disabled>Previous</button>
-                <button className="px-3 py-1 border border-border bg-white rounded text-xs font-bold text-primary hover:bg-gray-50">Next</button>
-              </div>
             </div>
           </div>
         </div>

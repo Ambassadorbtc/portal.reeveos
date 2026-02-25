@@ -132,6 +132,16 @@ async def update_floor_plan(
     return floor_plan
 
 
+@router.post("/business/{business_id}/floor-plan")
+async def save_floor_plan(
+    business_id: str,
+    floor_plan_data: FloorPlanUpdate,
+    current_user: dict = Depends(get_current_owner)
+):
+    """POST alias for floor plan save (same as PUT)"""
+    return await update_floor_plan(business_id, floor_plan_data, current_user)
+
+
 @router.delete("/business/{business_id}/tables/{table_id}")
 async def delete_table(
     business_id: str,

@@ -325,7 +325,39 @@ const FloorPlan = ({ embedded = false }) => {
     setHasChanges(JSON.stringify(tables) !== initialTablesRef.current)
   }, [tables])
 
-  /* ── Load bookings from API (keep demo tables for layout) ── */
+  /* ── localStorage key for this business ── */
+  const storageKey = `rezvo_floorplan_${bid || 'demo'}`
+
+  /* ── Load tables from localStorage first, then API ── */
+  useEffect(() => {
+    // 1. Try localStorage
+    try {
+      const saved = localStorage.getItem(storageKey)
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTables(parsed)
+          initialTablesRef.current = JSON.stringify(parsed)
+          return // Found saved layout, use it
+        }
+      }
+    } catch {}
+
+    // 2. Try API if we have a business ID
+    if (bid) {
+      api.get(`/tables/business/${bid}/floor-plan`)
+        .then(d => {
+          if (d?.tables?.length) {
+            setTables(d.tables)
+            initialTablesRef.current = JSON.stringify(d.tables)
+          }
+        })
+        .catch(() => {}) // Fall through to defaults
+    }
+    // 3. DEFAULT_TABLES already set as initial state
+  }, [bid, storageKey])
+
+  /* ── Load bookings from API ── */
   useEffect(() => {
     if (!bid) return
     const today = new Date().toISOString().slice(0, 10)
@@ -346,21 +378,27 @@ const FloorPlan = ({ embedded = false }) => {
 
   const saveLayout = async () => {
     setSaving(true)
+    const payload = tables.map(t => ({
+      id: t.id, name: t.name, seats: t.seats, zone: t.zone, shape: t.shape,
+      x: Math.round(t.x), y: Math.round(t.y), rotation: t.rotation || 0,
+      status: t.status, vip: t.vip || false,
+      guest: t.guest || '', timer: t.timer || '', nextTime: t.nextTime || '',
+    }))
+
+    // Always save to localStorage (instant, reliable)
+    try { localStorage.setItem(storageKey, JSON.stringify(payload)) } catch {}
+
+    // Also try API
     try {
       if (bid) {
-        await api.post(`/tables/business/${bid}/floor-plan`, { tables: tables.map(t => ({ id: t.id, name: t.name, seats: t.seats, zone: t.zone, shape: t.shape, x: Math.round(t.x), y: Math.round(t.y), rotation: t.rotation || 0, status: t.status, vip: t.vip || false })) })
+        await api.post(`/tables/business/${bid}/floor-plan`, { tables: payload })
       }
-      initialTablesRef.current = JSON.stringify(tables)
-      setHasChanges(false)
-      setLocked(true)
-      showToast('Layout saved successfully')
-    } catch (e) {
-      // Save locally even if API fails
-      initialTablesRef.current = JSON.stringify(tables)
-      setHasChanges(false)
-      setLocked(true)
-      showToast('Layout saved locally')
-    }
+    } catch {}
+
+    initialTablesRef.current = JSON.stringify(tables)
+    setHasChanges(false)
+    setLocked(true)
+    showToast('Layout saved ✓')
     setSaving(false)
   }
 

@@ -9,6 +9,8 @@ import AdminLayout from './layouts/AdminLayout'
 
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
+import BusinessTypeSelector from './pages/auth/BusinessTypeSelector'
+import RestaurantWelcome from './pages/auth/RestaurantWelcome'
 
 /* Customer dashboard pages */
 import Dashboard from './pages/dashboard/Dashboard'
@@ -57,6 +59,8 @@ const App = () => {
         <TierProvider>
           <Routes>
             {/* Auth */}
+            <Route path="/get-started" element={<BusinessTypeSelector />} />
+            <Route path="/login/restaurant" element={<RestaurantWelcome />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/auth/login" element={<Login />} />

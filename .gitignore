@@ -8,3 +8,4 @@ backend/venv/
 *.pyc
 .DS_Store
 Marketing.old.bak
+.bak

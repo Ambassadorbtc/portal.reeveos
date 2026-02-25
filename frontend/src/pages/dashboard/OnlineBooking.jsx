@@ -526,7 +526,7 @@ const OnlineBooking = () => {
         <p className="text-xs text-muted mb-2">Preview updates as you edit</p>
         <div
           className={`rounded-2xl border-2 border-border overflow-hidden bg-white shadow-lg ${
-            previewMode === 'mobile' ? 'w-[375px]' : 'w-[768px] max-w-[90vw]'
+            previewMode === 'mobile' ? 'w-[375px]' : 'w-full max-w-full'
           }`}
         >
           <BookingPreview business={previewBusiness} services={services} accentColour={previewBusiness.accentColour} />

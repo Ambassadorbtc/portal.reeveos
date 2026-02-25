@@ -21,7 +21,7 @@ export const getNavItems = (businessType) => {
     ],
     business: [
       ...(isRestaurant ? [{ id: 'orders', label: 'Orders', icon: 'fa-bag-shopping', path: '/dashboard/orders', minTier: 'growth' }] : []),
-      { id: 'clients', label: 'Clients', icon: 'fa-address-book', path: '/dashboard/clients', minTier: 'growth' },
+      { id: 'clients', label: isRestaurant ? 'Guest CRM' : 'Clients', icon: 'fa-address-book', path: '/dashboard/clients', minTier: 'growth' },
       { id: 'reviews', label: 'Reviews', icon: 'fa-star', path: '/dashboard/reviews', minTier: 'growth' },
       { id: 'analytics', label: 'Analytics', icon: 'fa-chart-line', path: '/dashboard/analytics', minTier: 'growth' },
       { id: 'payments', label: 'Payments', icon: 'fa-credit-card', path: '/dashboard/payments', minTier: 'growth' },

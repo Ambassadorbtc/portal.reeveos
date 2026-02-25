@@ -87,7 +87,7 @@ const ImageCropModal = ({
         </div>
 
         {/* Crop Area */}
-        <div className="relative w-full" style={{ height: 340, background: '#1a1a1a' }}>
+        <div className="relative w-full" style={{ height: 420, background: '#1a1a1a' }}>
           <Cropper
             image={imageSrc}
             crop={crop}
@@ -96,6 +96,9 @@ const ImageCropModal = ({
             aspect={aspect}
             cropShape={cropShape}
             showGrid={cropShape === 'rect'}
+            minZoom={0.3}
+            maxZoom={5}
+            objectFit="contain"
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}
@@ -109,8 +112,8 @@ const ImageCropModal = ({
             <ZoomOut className="w-4 h-4 text-gray-400 shrink-0" />
             <input
               type="range"
-              min={1}
-              max={3}
+              min={0.3}
+              max={5}
               step={0.05}
               value={zoom}
               onChange={e => setZoom(Number(e.target.value))}

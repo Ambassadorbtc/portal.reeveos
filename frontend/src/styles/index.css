@@ -72,3 +72,54 @@ h1, h2, h3, h4, h5, h6,
     scrollbar-width: none;
   }
 }
+
+/* ═══ Global: Kill all default browser select/dropdown styling ═══ */
+select {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%23999' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 5 7 9 11 5'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 14px !important;
+  padding-right: 36px !important;
+  font-family: 'Figtree', sans-serif !important;
+  cursor: pointer;
+}
+
+select:focus {
+  border-color: #52B788 !important;
+  box-shadow: 0 0 0 2px rgba(82, 183, 136, 0.15) !important;
+}
+
+/* Remove default arrow in IE */
+select::-ms-expand {
+  display: none;
+}
+
+/* ═══ Global: Style date/time inputs to match brand ═══ */
+input[type="date"],
+input[type="time"] {
+  -webkit-appearance: none !important;
+  font-family: 'Figtree', sans-serif !important;
+  color: #1B4332 !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+input[type="date"]:focus,
+input[type="time"]:focus {
+  border-color: #52B788 !important;
+  box-shadow: 0 0 0 2px rgba(82, 183, 136, 0.15) !important;
+}
+
+/* ═══ Global input focus styling ═══ */
+input:focus,
+textarea:focus {
+  border-color: #52B788 !important;
+  box-shadow: 0 0 0 2px rgba(82, 183, 136, 0.15) !important;
+}

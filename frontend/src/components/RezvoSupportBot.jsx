@@ -482,10 +482,15 @@ export default function RezvoSupportBot() {
 
               <div>
                 <label style={{ fontSize:13, fontWeight:600, color:'#999', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8, display:'block' }}>Table (optional)</label>
-                <select value={bookingForm.table} onChange={e => setBookingForm({...bookingForm, table:e.target.value})} style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', outline:'none', WebkitAppearance:'none', appearance:'none' }}>
-                  <option value="">Auto-assign</option>
-                  {Array.from({length:15}, (_,i) => <option key={i+1} value={i+1}>Table {i+1}</option>)}
-                </select>
+                <div style={{ position:'relative' }}>
+                  <select value={bookingForm.table} onChange={e => setBookingForm({...bookingForm, table:e.target.value})} style={{ width:'100%', padding:'12px 16px 12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', outline:'none', WebkitAppearance:'none', MozAppearance:'none', appearance:'none', color:'#1B4332', cursor:'pointer', paddingRight:40 }}>
+                    <option value="">Auto-assign</option>
+                    {Array.from({length:15}, (_,i) => <option key={i+1} value={i+1}>Table {i+1}</option>)}
+                  </select>
+                  <div style={{ position:'absolute', right:14, top:'50%', transform:'translateY(-50%)', pointerEvents:'none', color:'#999' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
+                </div>
               </div>
 
               <div>
@@ -550,10 +555,15 @@ export default function RezvoSupportBot() {
 
               <div>
                 <label style={{ fontSize:13, fontWeight:600, color:'#999', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8, display:'block' }}>Table (optional)</label>
-                <select value={walkinForm.table} onChange={e => setWalkinForm({...walkinForm, table:e.target.value})} style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', outline:'none', WebkitAppearance:'none', appearance:'none' }}>
-                  <option value="">Auto-assign</option>
-                  {Array.from({length:15}, (_,i) => <option key={i+1} value={i+1}>Table {i+1}</option>)}
-                </select>
+                <div style={{ position:'relative' }}>
+                  <select value={walkinForm.table} onChange={e => setWalkinForm({...walkinForm, table:e.target.value})} style={{ width:'100%', padding:'12px 16px 12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', outline:'none', WebkitAppearance:'none', MozAppearance:'none', appearance:'none', color:'#1B4332', cursor:'pointer', paddingRight:40 }}>
+                    <option value="">Auto-assign</option>
+                    {Array.from({length:15}, (_,i) => <option key={i+1} value={i+1}>Table {i+1}</option>)}
+                  </select>
+                  <div style={{ position:'absolute', right:14, top:'50%', transform:'translateY(-50%)', pointerEvents:'none', color:'#999' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
+                </div>
               </div>
 
               <div>

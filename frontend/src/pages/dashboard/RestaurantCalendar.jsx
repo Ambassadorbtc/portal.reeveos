@@ -917,26 +917,51 @@ function ReservationListView({ bookings, onSelectBooking }) {
 
   return (
     <div style={{ flex: 1, overflow: 'auto', background: '#fff' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '60px 1.5fr 80px 100px 80px 100px 1fr', padding: '10px 20px', background: '#FAFAFA', borderBottom: '1px solid #E5E7EB', fontSize: 12, fontWeight: 700, color: '#374151', textTransform: 'uppercase', position: 'sticky', top: 0, zIndex: 5 }}>
-        <span>Time</span><span>Guest</span><span>Party</span><span>Table</span><span>Status</span><span>Occasion</span><span>Notes</span>
+      {/* Header */}
+      <div style={{ display: 'grid', gridTemplateColumns: '100px 1.8fr 80px 100px 90px 110px 1fr', padding: '12px 20px', background: '#FAFAF8', borderBottom: '2px solid #E5E7EB', position: 'sticky', top: 0, zIndex: 5 }}>
+        {['TIME', 'GUEST', 'PARTY', 'TABLE', 'STATUS', 'OCCASION', 'NOTES'].map((h, i) => (
+          <span key={h} style={{ fontSize: 11, fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{h}</span>
+        ))}
       </div>
-      {sorted.map((b, idx) => (
-        <div key={b.id} onClick={() => onSelectBooking(b)}
-          style={{ display: 'grid', gridTemplateColumns: '60px 1.5fr 80px 100px 80px 100px 1fr', padding: '12px 20px', background: idx % 2 === 0 ? '#fff' : '#FAFAFA', borderBottom: '1px solid #F3F4F6', cursor: 'pointer', alignItems: 'center', transition: 'background 0.1s' }}
-          onMouseOver={e => e.currentTarget.style.background = '#F0F7F4'}
-          onMouseOut={e => e.currentTarget.style.background = idx % 2 === 0 ? '#fff' : '#FAFAFA'}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#111' }}>{fmt12(b.time)}</span>
-          <div>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#111' }}>{b.customerName}</span>
-            {b.isVip && <Crown size={10} style={{ marginLeft: 4, color: '#3B82F6', display: 'inline', verticalAlign: 'middle' }} />}
+      {/* Rows */}
+      {sorted.map((b, idx) => {
+        const color = statusColor(b.status, b.isVip)
+        return (
+          <div key={b.id} onClick={() => onSelectBooking(b)}
+            style={{ display: 'grid', gridTemplateColumns: '100px 1.8fr 80px 100px 90px 110px 1fr', padding: '0 20px', background: idx % 2 === 0 ? '#fff' : '#FAFAF8', borderBottom: '1px solid #F0F0F0', cursor: 'pointer', alignItems: 'center', transition: 'all 0.15s', minHeight: 52 }}
+            onMouseOver={e => { e.currentTarget.style.background = '#F0F7F4'; e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(82,183,136,0.15)' }}
+            onMouseOut={e => { e.currentTarget.style.background = idx % 2 === 0 ? '#fff' : '#FAFAF8'; e.currentTarget.style.boxShadow = 'none' }}>
+
+            {/* TIME — green bar with white text */}
+            <div style={{ display: 'flex', alignItems: 'center', height: '100%', marginLeft: -20, paddingLeft: 20 }}>
+              <div style={{ background: '#1B4332', color: '#fff', padding: '6px 14px', borderRadius: 6, fontSize: 13, fontWeight: 700, letterSpacing: '0.02em', whiteSpace: 'nowrap', boxShadow: '0 1px 3px rgba(27,67,50,0.2)' }}>
+                {fmt12(b.time)}
+              </div>
+            </div>
+
+            {/* GUEST */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: '#1B4332' }}>{b.customerName}</span>
+              {b.isVip && <Crown size={12} style={{ color: '#3B82F6' }} />}
+            </div>
+
+            {/* PARTY */}
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#111' }}>{b.partySize}</span>
+
+            {/* TABLE */}
+            <span style={{ fontSize: 14, color: '#111', fontWeight: 500 }}>{b.tableName}</span>
+
+            {/* STATUS */}
+            <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: color, background: color + '15', padding: '4px 10px', borderRadius: 999, display: 'inline-block', textAlign: 'center', letterSpacing: '0.04em' }}>{b.status}</span>
+
+            {/* OCCASION */}
+            <span style={{ fontSize: 13, color: '#374151', fontWeight: 500 }}>{b.occasion ? b.occasion.replace('_', ' ') : '—'}</span>
+
+            {/* NOTES */}
+            <span style={{ fontSize: 13, color: '#555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontStyle: b.notes ? 'italic' : 'normal' }}>{b.notes || '—'}</span>
           </div>
-          <span style={{ fontSize: 13, color: '#111' }}>{b.partySize}</span>
-          <span style={{ fontSize: 13, color: '#111' }}>{b.tableName}</span>
-          <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: statusColor(b.status, b.isVip), background: statusColor(b.status, b.isVip) + '15', padding: '2px 8px', borderRadius: 999, display: 'inline-block' }}>{b.status}</span>
-          <span style={{ fontSize: 12, color: '#111' }}>{b.occasion ? b.occasion.replace('_', ' ') : '—'}</span>
-          <span style={{ fontSize: 12, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.notes || '—'}</span>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

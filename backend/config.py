@@ -37,6 +37,8 @@ class Settings(BaseSettings):
     cloudflare_r2_endpoint: Optional[str] = None
     
     anthropic_api_key: Optional[str] = None
+    xai_api_key: Optional[str] = None
+    gemini_api_key: Optional[str] = None
     
     frontend_url: str = "https://rezvo.app"
     backend_url: str = "https://rezvo.app/api"

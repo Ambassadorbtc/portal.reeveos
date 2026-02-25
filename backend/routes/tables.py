@@ -163,13 +163,39 @@ async def auto_arrange_floor_plan(
     current_user: dict = Depends(get_current_owner)
 ):
     """
-    AI auto-arrange: repositions tables for optimal spacing.
-    Fixtures stay fixed, tables move to non-overlapping positions
-    with proper ADA spacing and aesthetic alignment.
+    AI auto-arrange: uses LLM spatial reasoning (Claude/Grok/GPT-4o) to
+    read the room and place tables like a real designer, then enforces
+    physics constraints. Falls back to rule-based solver if no API key.
     """
     db = get_database()
     business = await find_business(db, business_id, str(current_user["_id"]))
 
+    try:
+        # Try AI-powered arrange first
+        from services.ai_floor_plan import ai_auto_arrange, has_ai_key
+        if has_ai_key():
+            result = await ai_auto_arrange(
+                request.elements,
+                canvas_w=request.width,
+                canvas_h=request.height,
+                zone=request.zone,
+                style=request.style,
+            )
+            return {
+                "elements": result["elements"],
+                "validation": result["validation"],
+                "width": request.width,
+                "height": request.height,
+                "ai": True,
+                "provider": result.get("provider"),
+                "model": result.get("model"),
+            }
+    except Exception as ai_err:
+        import traceback
+        traceback.print_exc()
+        print(f"[FloorPlan] AI arrange failed ({ai_err}), falling back to rule-based solver")
+
+    # Fallback: rule-based solver
     try:
         arranged = auto_arrange(
             request.elements,
@@ -185,7 +211,8 @@ async def auto_arrange_floor_plan(
             "elements": arranged,
             "validation": validation,
             "width": request.width,
-            "height": request.height
+            "height": request.height,
+            "ai": False,
         }
     except Exception as e:
         import traceback

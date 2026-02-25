@@ -414,7 +414,8 @@ const FloorPlan = ({ embedded = false }) => {
         setValidationStats(data.validation.stats || null)
       }
       const tables = data.elements.filter(e => e.type !== 'fixture').length
-      showToast(`✨ ${tables} tables arranged — ${data.validation?.stats?.errors || 0} issues`)
+      const aiLabel = data.ai ? `🧠 AI (${data.model || 'Claude'})` : '⚙️ Rule-based'
+      showToast(`✨ ${tables} tables arranged by ${aiLabel} — ${data.validation?.stats?.errors || 0} issues`)
     } catch (err) {
       console.error('Auto-arrange failed:', err)
       const msg = err?.response?.data?.detail || err?.message || 'Unknown error'
@@ -700,7 +701,7 @@ const FloorPlan = ({ embedded = false }) => {
                     boxShadow: arranging ? 'none' : '0 4px 14px rgba(27,67,50,0.3)',
                   }}>
                   {arranging ? <Clock className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  {arranging ? 'Arranging...' : 'Auto-arrange'}
+                  {arranging ? 'AI thinking...' : 'AI Arrange'}
                 </button>
               )}
               {/* Lock = Done / Unlock = Edit */}

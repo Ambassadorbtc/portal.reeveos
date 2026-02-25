@@ -130,7 +130,7 @@ const TableNode = ({ table, status, isSelected, locked, isDragging, onMouseDown,
 
   return (
     <div
-      style={{ position: 'absolute', left: table.x, top: table.y, zIndex: isDragging ? 100 : isSelected ? 20 : hovered ? 15 : 1 }}
+      style={{ position: 'absolute', left: table.x, top: table.y, zIndex: isDragging ? 200 : hovered ? 150 : isSelected ? 20 : 1 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setConfirmDelete(false) }}
     >

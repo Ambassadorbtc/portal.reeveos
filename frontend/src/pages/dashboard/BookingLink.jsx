@@ -61,6 +61,9 @@ const BookingLink = () => {
               <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-[#1B4332] truncate flex-1 hover:underline">{bookingUrl}</a>
             </div>
             <div className="flex gap-2">
+              <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="bg-white text-[#1B4332] border border-gray-200 font-bold text-xs px-5 py-2.5 rounded-full hover:bg-gray-50 transition-all flex items-center gap-2 no-underline shadow-sm">
+                <Eye className="w-4 h-4" /> View
+              </a>
               <button onClick={handleCopy} className="bg-[#1B4332] text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-lg shadow-[#1B4332]/20 hover:bg-[#2D6A4F] transition-all flex items-center gap-2" style={{ fontFamily: "'Figtree', sans-serif" }}>
                 {copied ? <><Check className="w-4 h-4" /> Copied!</> : <><Copy className="w-4 h-4" /> Copy Link</>}
               </button>

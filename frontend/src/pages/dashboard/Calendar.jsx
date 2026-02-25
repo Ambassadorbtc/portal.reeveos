@@ -7,6 +7,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
+import RestaurantCalendar from './RestaurantCalendar'
 
 /* ───────────────────── Constants ───────────────────── */
 const SH = 8, EH = 20, HH = 80, TCW = 52
@@ -106,6 +107,11 @@ const DEMO_BLOCKS = [
 const Calendar = () => {
   const { business, businessType, isDemo } = useBusiness()
   const bid = business?.id ?? business?._id
+
+  /* ── Restaurant mode: use dedicated restaurant calendar ── */
+  if (businessType === 'restaurant' && !isDemo) {
+    return <RestaurantCalendar />
+  }
 
   /* ── State ── */
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10))

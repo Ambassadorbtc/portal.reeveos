@@ -277,40 +277,192 @@ def resolve_overlaps(
     return result
 
 
-# ── Auto-Arrange (the main algorithm) ──
+# ── Auto-Arrange (Restaurant Designer AI) ──
+
+def _analyse_room(fixtures, canvas_w, canvas_h):
+    """
+    Read the room like a restaurant designer would.
+    Returns spatial intelligence: where walls are, where fixtures create
+    zones, service corridors, and premium positions.
+    """
+    room = {
+        "windows": [],    # Premium seating spots — diners love window tables
+        "walls": [],      # Wall-adjacent seating (banquette territory)
+        "kitchen": None,  # Service origin — keep corridor clear
+        "bar": None,      # Social zone — casual seating nearby
+        "toilets": None,  # Keep accessible but don't seat people right next to it
+        "stairs": None,   # Access point — keep clear
+        "edges": {        # Which canvas edges have fixtures (implies walls)
+            "top": False, "bottom": False, "left": False, "right": False
+        }
+    }
+
+    for f in fixtures:
+        fk = (f.get("fixtureKind") or f.get("fixtureType", "")).lower()
+        fx, fy = float(f.get("x") or 0), float(f.get("y") or 0)
+        fw, fh = get_element_size(f)
+        cx, cy = fx + fw / 2, fy + fh / 2
+
+        # Detect which edge this fixture is near
+        if fy < canvas_h * 0.15:
+            room["edges"]["top"] = True
+        if fy + fh > canvas_h * 0.85:
+            room["edges"]["bottom"] = True
+        if fx < canvas_w * 0.15:
+            room["edges"]["left"] = True
+        if fx + fw > canvas_w * 0.85:
+            room["edges"]["right"] = True
+
+        if "window" in fk:
+            room["windows"].append({"x": fx, "y": fy, "w": fw, "h": fh, "cx": cx, "cy": cy})
+        elif "wall" in fk:
+            room["walls"].append({"x": fx, "y": fy, "w": fw, "h": fh})
+        elif "kitchen" in fk:
+            room["kitchen"] = {"x": fx, "y": fy, "w": fw, "h": fh, "cx": cx, "cy": cy}
+        elif "bar" in fk:
+            room["bar"] = {"x": fx, "y": fy, "w": fw, "h": fh, "cx": cx, "cy": cy}
+        elif "toilet" in fk:
+            room["toilets"] = {"x": fx, "y": fy, "w": fw, "h": fh, "cx": cx, "cy": cy}
+        elif "stair" in fk:
+            room["stairs"] = {"x": fx, "y": fy, "w": fw, "h": fh, "cx": cx, "cy": cy}
+
+    return room
+
+
+def _find_placement_spots(room, fixtures, canvas_w, canvas_h, gap):
+    """
+    Generate smart placement positions a designer would choose.
+
+    Priority order (how a real designer thinks):
+      1. Window seats — premium, guests love natural light and a view
+      2. Wall-adjacent — cosy perimeter seating, back against the wall
+      3. Centre — fill the middle, good for larger tables and groups
+      4. Avoid — too close to kitchen door, toilets, or in service corridors
+    """
+    spots = []  # Each: {x, y, priority, reason}
+    fixture_boxes = [get_element_bbox_padded(f, FIXTURE_CLEARANCE + 5) for f in fixtures]
+
+    def is_clear(x, y, w, h):
+        """Check if a position doesn't collide with any fixture."""
+        test = box(x, y, x + w, y + h)
+        return all(not test.intersects(fb) for fb in fixture_boxes)
+
+    margin = WALL_CLEARANCE + 10  # Comfortable distance from canvas edge
+
+    # ── 1. Window seats (highest priority) ──
+    # Place tables adjacent to windows, slightly offset into the room
+    for win in room["windows"]:
+        wx, wy, ww, wh = win["x"], win["y"], win["w"], win["h"]
+
+        # Determine which edge the window is on by its dimensions and position
+        if wh < ww:  # Horizontal window (top or bottom edge)
+            if wy < canvas_h / 2:  # Top edge window → place table below it
+                spots.append({"x": wx, "y": wy + wh + 10, "priority": 1, "reason": "window"})
+                spots.append({"x": wx + ww + gap, "y": wy + wh + 10, "priority": 1, "reason": "window"})
+            else:  # Bottom edge → place table above
+                spots.append({"x": wx, "y": wy - 120, "priority": 1, "reason": "window"})
+        else:  # Vertical window (left or right edge)
+            if wx < canvas_w / 2:  # Left edge → place table to the right
+                spots.append({"x": wx + ww + 10, "y": wy, "priority": 1, "reason": "window"})
+                spots.append({"x": wx + ww + 10, "y": wy + wh + gap, "priority": 1, "reason": "window"})
+            else:  # Right edge → place to the left
+                spots.append({"x": wx - 120, "y": wy, "priority": 1, "reason": "window"})
+
+    # ── 2. Perimeter seating along walls/edges ──
+    # A good designer fills the perimeter first — guests prefer backs to walls
+    # Place along edges that have fixtures (suggesting walls exist there)
+    step = 140  # Spacing between perimeter tables
+
+    # Left wall
+    if room["edges"]["left"]:
+        y = margin
+        while y < canvas_h - margin - 100:
+            spots.append({"x": margin, "y": y, "priority": 2, "reason": "left-wall"})
+            y += step
+
+    # Right wall
+    if room["edges"]["right"]:
+        y = margin
+        while y < canvas_h - margin - 100:
+            spots.append({"x": canvas_w - margin - 110, "y": y, "priority": 2, "reason": "right-wall"})
+            y += step
+
+    # Top wall
+    if room["edges"]["top"]:
+        x = margin
+        while x < canvas_w - margin - 100:
+            spots.append({"x": x, "y": margin, "priority": 2, "reason": "top-wall"})
+            x += step
+
+    # Bottom wall
+    if room["edges"]["bottom"]:
+        x = margin
+        while x < canvas_w - margin - 100:
+            spots.append({"x": x, "y": canvas_h - margin - 110, "priority": 2, "reason": "bottom-wall"})
+            x += step
+
+    # ── 3. Near the bar (social, casual vibe) ──
+    if room["bar"]:
+        bx, by = room["bar"]["cx"], room["bar"]["cy"]
+        bw, bh = room["bar"]["w"], room["bar"]["h"]
+        # Place a few tables near the bar
+        spots.append({"x": bx + bw / 2 + gap, "y": by - 50, "priority": 3, "reason": "bar"})
+        spots.append({"x": bx + bw / 2 + gap, "y": by + 60, "priority": 3, "reason": "bar"})
+
+    # ── 4. Centre fill — the heart of the room ──
+    # Grid the middle area, avoiding a corridor from kitchen to dining area
+    centre_x0 = canvas_w * 0.2
+    centre_y0 = canvas_h * 0.25
+    centre_x1 = canvas_w * 0.8
+    centre_y1 = canvas_h * 0.75
+
+    # If kitchen exists, shift centre away from it to leave a service lane
+    if room["kitchen"]:
+        kx, ky = room["kitchen"]["cx"], room["kitchen"]["cy"]
+        if kx > canvas_w * 0.6:  # Kitchen on right → shift centre left
+            centre_x1 = canvas_w * 0.65
+        elif kx < canvas_w * 0.4:  # Kitchen on left → shift centre right
+            centre_x0 = canvas_w * 0.35
+        if ky > canvas_h * 0.6:  # Kitchen at bottom
+            centre_y1 = canvas_h * 0.65
+        elif ky < canvas_h * 0.4:  # Kitchen at top
+            centre_y0 = canvas_h * 0.35
+
+    cx = centre_x0
+    while cx < centre_x1 - 80:
+        cy = centre_y0
+        while cy < centre_y1 - 80:
+            spots.append({"x": cx, "y": cy, "priority": 4, "reason": "centre"})
+            cy += step
+        cx += step
+
+    return spots
+
 
 def auto_arrange(
     elements: List[Dict],
     canvas_w: float = 1000,
     canvas_h: float = 800,
     zone: Optional[str] = None,
-    style: str = "balanced",  # 'balanced', 'dense', 'spacious', 'grid'
+    style: str = "balanced",
     min_gap: Optional[float] = None
 ) -> List[Dict]:
     """
-    Automatically arrange tables on the floor plan.
+    Arrange tables like a restaurant designer would.
 
-    Algorithm:
-      1. Separate fixtures (immovable) and tables (moveable)
-      2. Compute available space (canvas minus fixture zones)
-      3. Initial placement using intelligent grid
-      4. Optimise with simulated annealing
-      5. Final overlap resolution pass
-      6. Snap to grid for clean aesthetics
-
-    Args:
-        elements: Current element list
-        canvas_w/h: Canvas dimensions
-        zone: Only arrange elements in this zone (None = all)
-        style: Layout style preference
-        min_gap: Override minimum table gap
-
-    Returns:
-        Updated elements list with new x/y positions (only tables moved)
+    Intelligence:
+      1. Read the room — understand what fixtures mean (windows = premium,
+         kitchen = service corridor, bar = social zone, toilets = avoid)
+      2. Prioritise placement — window seats first (premium), then perimeter
+         (backs to walls), then fill the centre
+      3. Size-aware — small tables (2-tops) get window/intimate spots,
+         large tables go in the centre where there's room
+      4. Service flow — keep a clear path from kitchen to dining area
+      5. Refinement — resolve any overlaps, snap to grid for clean look
     """
     result = copy.deepcopy(elements)
 
-    # Filter by zone if specified
+    # Filter by zone
     if zone:
         target_tables = [e for e in result if e.get("type") != "fixture" and e.get("zone") == zone]
         fixtures = [e for e in result if e.get("type") == "fixture" and e.get("zone") == zone]
@@ -323,112 +475,129 @@ def auto_arrange(
 
     # Style-based gap
     if min_gap is None:
-        gaps = {"dense": 25, "balanced": 35, "spacious": 55, "grid": 30}
-        min_gap = gaps.get(style, 35)
+        gaps = {"dense": 20, "balanced": 30, "spacious": 45, "grid": 25}
+        min_gap = gaps.get(style, 30)
 
-    # ── Step 1: Compute available space ──
-    # Build obstacle map from fixtures
+    # ── Step 1: Read the room ──
+    room = _analyse_room(fixtures, canvas_w, canvas_h)
+
+    # ── Step 2: Generate smart placement spots ──
+    spots = _find_placement_spots(room, fixtures, canvas_w, canvas_h, min_gap)
+
+    # Sort spots by priority (1 = window = best, 4 = centre = fill)
+    spots.sort(key=lambda s: s["priority"])
+
+    # ── Step 3: Sort tables by size (smallest first for premium spots) ──
+    # Small tables → window/premium spots. Large tables → centre.
+    def table_seats(t):
+        s = t.get("seats") or 4
+        try:
+            return int(s)
+        except (ValueError, TypeError):
+            return 4
+    target_tables.sort(key=table_seats)
+
+    # ── Step 4: Place tables into spots ──
     fixture_boxes = [get_element_bbox_padded(f, FIXTURE_CLEARANCE) for f in fixtures]
+    placed = set()
 
-    # Available area = canvas minus wall clearance
-    avail_x0 = WALL_CLEARANCE
-    avail_y0 = WALL_CLEARANCE
-    avail_x1 = canvas_w - WALL_CLEARANCE
-    avail_y1 = canvas_h - WALL_CLEARANCE
-
-    # ── Step 2: Sort tables by size (largest first for better packing) ──
-    def table_area(t):
-        w, h = get_table_size(t)
-        return w * h
-    target_tables.sort(key=table_area, reverse=True)
-
-    # ── Step 3: Tight grid placement (pack, don't spread) ──
-    n = len(target_tables)
-    usable_w = avail_x1 - avail_x0
-    usable_h = avail_y1 - avail_y0
-
-    # Estimate average table size for grid calculation
-    avg_tw = sum(get_table_size(t)[0] for t in target_tables) / n
-    avg_th = sum(get_table_size(t)[1] for t in target_tables) / n
-
-    # Calculate tight grid — pack based on actual table sizes, not canvas size
-    cell_w = avg_tw + min_gap
-    cell_h = avg_th + min_gap
-    cols = max(1, int(usable_w / cell_w))
-    if cols > n:
-        cols = n  # Don't use more columns than tables
-    rows = max(1, math.ceil(n / cols))
-
-    # Keep cell size tight — DON'T expand to fill canvas
-    # Only expand slightly if there's room and it looks better
-    actual_grid_w = cols * cell_w
-    actual_grid_h = rows * cell_h
-
-    # If grid fits comfortably, add a little breathing room but NOT full spread
-    if actual_grid_w < usable_w * 0.9:
-        cell_w = min(cell_w * 1.2, usable_w / cols)
-        actual_grid_w = cols * cell_w
-    if actual_grid_h < usable_h * 0.9:
-        cell_h = min(cell_h * 1.2, usable_h / rows)
-        actual_grid_h = rows * cell_h
-
-    # Centre the grid group on the canvas
-    offset_x = avail_x0 + (usable_w - actual_grid_w) / 2
-    offset_y = avail_y0 + (usable_h - actual_grid_h) / 2
-
-    # Place tables in grid cells, centred within each cell
-    for idx, table in enumerate(target_tables):
-        col = idx % cols
-        row = idx // cols
-        tw, th = get_table_size(table)
-
-        # Centre table within its tight cell
-        cx = offset_x + col * cell_w + (cell_w - tw) / 2
-        cy = offset_y + row * cell_h + (cell_h - th) / 2
-
-        table["x"] = round(cx)
-        table["y"] = round(cy)
-
-    # ── Step 4: Push away from fixtures ──
     for table in target_tables:
-        t_bbox = get_element_bbox(table)
         tw, th = get_table_size(table)
+        seats = table_seats(table)
+        best_spot = None
 
-        for f_box in fixture_boxes:
-            if t_bbox.intersects(f_box):
-                # Find nearest clear position
-                # Try shifting right, then down, then left, then up
-                shifts = [
-                    (min_gap + tw, 0), (0, min_gap + th),
-                    (-(min_gap + tw), 0), (0, -(min_gap + th))
-                ]
-                best_shift = None
-                best_dist = float("inf")
+        for spot in spots:
+            if id(spot) in placed:
+                continue
 
-                for sx, sy in shifts:
-                    nx = table["x"] + sx
-                    ny = table["y"] + sy
-                    if avail_x0 <= nx <= avail_x1 - tw and avail_y0 <= ny <= avail_y1 - th:
-                        test_box = box(nx, ny, nx + tw, ny + th)
-                        if not test_box.intersects(f_box):
-                            d = abs(sx) + abs(sy)
-                            if d < best_dist:
-                                best_dist = d
-                                best_shift = (nx, ny)
+            sx, sy = spot["x"], spot["y"]
 
-                if best_shift:
-                    table["x"], table["y"] = best_shift
+            # Size matching: small tables get premium spots, big tables get centre
+            # Allow 2-4 tops at windows/walls, save centre for larger
+            if seats >= 6 and spot["priority"] <= 2 and spot["reason"] != "bar":
+                continue  # Big tables skip window/wall spots
+            if seats <= 2 and spot["priority"] >= 4 and any(s["priority"] <= 2 for s in spots if id(s) not in placed):
+                continue  # Small tables prefer premium spots if available
 
-    # ── Step 5: Simulated annealing optimisation ──
+            # Boundary check
+            if sx < WALL_CLEARANCE or sy < WALL_CLEARANCE:
+                continue
+            if sx + tw > canvas_w - WALL_CLEARANCE or sy + th > canvas_h - WALL_CLEARANCE:
+                continue
+
+            # Fixture collision check
+            test_box = box(sx, sy, sx + tw, sy + th)
+            if any(test_box.intersects(fb) for fb in fixture_boxes):
+                continue
+
+            # Check against already-placed tables
+            collision = False
+            for other in target_tables:
+                if other["id"] == table["id"]:
+                    continue
+                if "x" not in other or other.get("_placed") is not True:
+                    continue
+                ob = get_element_bbox(other)
+                if test_box.distance(ob) < min_gap:
+                    collision = True
+                    break
+
+            if collision:
+                continue
+
+            best_spot = spot
+            break
+
+        if best_spot:
+            table["x"] = round(best_spot["x"])
+            table["y"] = round(best_spot["y"])
+            table["_placed"] = True
+            placed.add(id(best_spot))
+        else:
+            # Fallback: find any open position on the canvas
+            found = False
+            for fy in range(int(WALL_CLEARANCE), int(canvas_h - th - WALL_CLEARANCE), 40):
+                if found:
+                    break
+                for fx in range(int(WALL_CLEARANCE), int(canvas_w - tw - WALL_CLEARANCE), 40):
+                    test_box = box(fx, fy, fx + tw, fy + th)
+
+                    if any(test_box.intersects(fb) for fb in fixture_boxes):
+                        continue
+
+                    collision = False
+                    for other in target_tables:
+                        if other["id"] == table["id"]:
+                            continue
+                        if other.get("_placed") is not True:
+                            continue
+                        ob = get_element_bbox(other)
+                        if test_box.distance(ob) < min_gap:
+                            collision = True
+                            break
+
+                    if not collision:
+                        table["x"] = fx
+                        table["y"] = fy
+                        table["_placed"] = True
+                        found = True
+                        break
+
+    # ── Step 5: Clean up temp markers ──
+    for t in target_tables:
+        t.pop("_placed", None)
+
+    # ── Step 6: Gentle refinement — nudge for even spacing ──
+    # Light simulated annealing to polish (fewer iterations, subtle moves)
     result = _simulated_annealing(
         result, target_tables, fixtures, fixture_boxes,
-        canvas_w, canvas_h, min_gap, iterations=3000
+        canvas_w, canvas_h, min_gap, iterations=1500
     )
 
-    # ── Step 6: Final overlap resolution ──
+    # ── Step 7: Final overlap resolution ──
     result = resolve_overlaps(result, canvas_w, canvas_h, min_gap)
 
-    # ── Step 7: Grid snap for clean look ──
+    # ── Step 8: Grid snap for clean aesthetics ──
     for el in result:
         if el.get("type") != "fixture" and (not zone or el.get("zone") == zone):
             el["x"] = round(el["x"] / GRID_SNAP) * GRID_SNAP

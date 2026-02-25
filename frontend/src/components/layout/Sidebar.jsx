@@ -93,6 +93,8 @@ function buildSections(navItems, tier, businessType) {
         mainChildren.find(c => c.id === 'calendar'),
         mainChildren.find(c => c.id === 'notifications'),
         mainChildren.find(c => c.id === 'bookings'),
+      ].filter(Boolean) },
+      { id: 'booking-link', Icon: Link2, label: 'Booking Link', children: [
         mainChildren.find(c => c.id === 'booking-link'),
       ].filter(Boolean) },
       { id: 'services', Icon: mainChildren.find(c => c.id === 'services')?.Icon || UtensilsCrossed, label: mainChildren.find(c => c.id === 'services')?.label || 'Services', children: [

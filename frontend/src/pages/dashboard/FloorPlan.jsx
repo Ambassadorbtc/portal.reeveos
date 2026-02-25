@@ -7,7 +7,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import {
   Lock, Unlock, Plus, Trash2, X, Settings, GripVertical,
-  LayoutGrid, Copy, Move, Save, Check,
+  LayoutGrid, Copy, Move, Save, Check, RotateCw,
   Circle, Square, RectangleHorizontal, Sofa,
   Home, UtensilsCrossed, Wine, ChefHat, Sun, PanelTop, ArrowUp, TreePine, ArrowDown,
   Users, Clock
@@ -109,7 +109,7 @@ const SeatDots = ({ seats, w, h, color, active }) => {
 
 /* ═══════════════ TABLE NODE ═══════════════ */
 
-const TableNode = ({ table, status, isSelected, locked, isDragging, onMouseDown, onTouchStart, onClick, onEdit, onDelete }) => {
+const TableNode = ({ table, status, isSelected, locked, isDragging, onMouseDown, onTouchStart, onClick, onEdit, onDelete, onRotate }) => {
   const [hovered, setHovered] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const st = STATUS[status] || STATUS.available
@@ -169,17 +169,30 @@ const TableNode = ({ table, status, isSelected, locked, isDragging, onMouseDown,
         </div>
       )}
 
-      {/* ── Edit pencil (unlocked, on hover) ── */}
+      {/* ── Edit + Rotate (unlocked, on hover) ── */}
       {!locked && hovered && !isDragging && !confirmDelete && (
-        <button onClick={(e) => { e.stopPropagation(); onEdit?.() }} style={{
-          position: 'absolute', bottom: -10, left: '50%', transform: 'translateX(-50%)', zIndex: 40,
-          width: 28, height: 28, borderRadius: 8, border: '1px solid #E5E7EB', cursor: 'pointer',
-          background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 2px 10px rgba(0,0,0,.1)',
+        <div style={{
+          position: 'absolute', bottom: -12, left: '50%', transform: 'translateX(-50%)', zIndex: 40,
+          display: 'flex', gap: 4,
           animation: 'fpPopIn 150ms cubic-bezier(0.34,1.56,0.64,1) 50ms forwards', opacity: 0,
-        }} title="Edit table">
-          <Settings size={13} color="#6B7280" />
-        </button>
+        }}>
+          <button onClick={(e) => { e.stopPropagation(); onEdit?.() }} style={{
+            width: 28, height: 28, borderRadius: 8, border: '1px solid #E5E7EB', cursor: 'pointer',
+            background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 2px 10px rgba(0,0,0,.1)',
+          }} title="Edit table">
+            <Settings size={13} color="#6B7280" />
+          </button>
+          {(table.shape === 'long' || table.shape === 'booth') && (
+            <button onClick={(e) => { e.stopPropagation(); onRotate?.() }} style={{
+              width: 28, height: 28, borderRadius: 8, border: '1px solid #E5E7EB', cursor: 'pointer',
+              background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 2px 10px rgba(0,0,0,.1)',
+            }} title="Rotate 90°">
+              <RotateCw size={13} color="#6B7280" />
+            </button>
+          )}
+        </div>
       )}
 
       {/* ── Hover popup tooltip ── */}
@@ -225,7 +238,7 @@ const TableNode = ({ table, status, isSelected, locked, isDragging, onMouseDown,
             : isDragging ? '0 12px 40px rgba(0,0,0,.2)' : '0 2px 12px rgba(0,0,0,.04)',
           cursor: locked ? 'pointer' : isDragging ? 'grabbing' : 'grab',
           transition: isDragging ? 'box-shadow 0.15s' : 'all 0.25s cubic-bezier(0.16,1,0.3,1)',
-          transform: isSelected ? 'scale(1.05)' : hovered ? 'scale(1.03)' : isDragging ? 'scale(1.08)' : 'scale(1)',
+          transform: `${isSelected ? 'scale(1.05)' : hovered ? 'scale(1.03)' : isDragging ? 'scale(1.08)' : 'scale(1)'} rotate(${table.rotation || 0}deg)`,
           userSelect: 'none',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           fontFamily: "'Figtree', sans-serif",
@@ -335,7 +348,7 @@ const FloorPlan = ({ embedded = false }) => {
     setSaving(true)
     try {
       if (bid) {
-        await api.post(`/tables/business/${bid}/floor-plan`, { tables: tables.map(t => ({ id: t.id, name: t.name, seats: t.seats, zone: t.zone, shape: t.shape, x: Math.round(t.x), y: Math.round(t.y), status: t.status, vip: t.vip || false })) })
+        await api.post(`/tables/business/${bid}/floor-plan`, { tables: tables.map(t => ({ id: t.id, name: t.name, seats: t.seats, zone: t.zone, shape: t.shape, x: Math.round(t.x), y: Math.round(t.y), rotation: t.rotation || 0, status: t.status, vip: t.vip || false })) })
       }
       initialTablesRef.current = JSON.stringify(tables)
       setHasChanges(false)
@@ -476,7 +489,11 @@ const FloorPlan = ({ embedded = false }) => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button onClick={() => { setLocked(!locked); if (!locked && !hasChanges) showToast('Layout locked') }}
+              <button onClick={() => {
+                  if (!locked && hasChanges) { saveLayout() }
+                  else if (!locked) { setLocked(true); showToast('Layout locked') }
+                  else { setLocked(false) }
+                }}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all"
                 style={{ background: locked ? '#F3F4F6' : '#1B4332', color: locked ? '#374151' : '#fff', boxShadow: locked ? 'none' : '0 4px 14px rgba(27,67,50,0.3)' }}>
                 {locked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
@@ -611,7 +628,8 @@ const FloorPlan = ({ embedded = false }) => {
               <TableNode key={table.id} table={table} status={table.status || 'available'} isSelected={selectedTable === table.id} locked={locked} isDragging={dragging === table.id}
                 onMouseDown={(e) => handleMouseDown(e, table.id)} onTouchStart={(e) => handleTouchStart(e, table.id)}
                 onClick={() => locked && setSelectedTable(table.id === selectedTable ? null : table.id)}
-                onEdit={() => setEditTable(table)} onDelete={() => deleteTable(table.id)} />
+                onEdit={() => setEditTable(table)} onDelete={() => deleteTable(table.id)}
+                onRotate={() => updateTable(table.id, { rotation: ((table.rotation || 0) + 90) % 360 })} />
             ))}
           </div>
         </div>
@@ -696,6 +714,21 @@ const FloorPlan = ({ embedded = false }) => {
                   ))}
                 </div>
               </div>
+              {/* Rotation — only for long/booth */}
+              {(editTable.shape === 'long' || editTable.shape === 'booth') && (
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">Rotation</label>
+                  <div className="flex gap-2">
+                    {[0, 90, 180, 270].map(deg => (
+                      <button key={deg} onClick={() => { setEditTable(p => ({ ...p, rotation: deg })); updateTable(editTable.id, { rotation: deg }) }}
+                        className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-1.5
+                          ${(editTable.rotation || 0) === deg ? 'bg-primary text-white shadow-lg' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+                        <RotateCw size={14} style={{ transform: `rotate(${deg}deg)` }} /> {deg}°
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div>
                 <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">Status</label>
                 <div className="flex gap-2 flex-wrap">

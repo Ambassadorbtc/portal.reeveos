@@ -24,17 +24,17 @@ logger = logging.getLogger(__name__)
 resend.api_key = settings.resend_api_key
 
 # Sending domains & from addresses
-DEFAULT_FROM = "Rezvo <hello@rezvo.app>"
-CAMPAIGNS_FROM = "Rezvo <campaigns@rezvo.app>"
-INSIGHTS_FROM = "Rezvo Website Review <reviews@rezvo.app>"
-NOREPLY_FROM = "Rezvo <noreply@rezvo.app>"
+DEFAULT_FROM = "Rezvo <bookings@mail.rezvo.app>"
+CAMPAIGNS_FROM = "Rezvo <campaigns@mail.rezvo.app>"
+INSIGHTS_FROM = "Rezvo Website Review <reviews@mail.rezvo.app>"
+NOREPLY_FROM = "Rezvo <noreply@mail.rezvo.app>"
 
 # For multi-domain strategy (future)
 DOMAIN_MAP = {
-    "transactional": "rezvo.app",        # booking confirmations, password resets
-    "campaigns": "rezvo.app",            # owner marketing campaigns
-    "insights": "rezvo.app",             # audit reports, drip campaigns
-    "growth": "rezvo.app",               # warm lead outreach, diner notifications
+    "transactional": "mail.rezvo.app",        # booking confirmations, password resets
+    "campaigns": "mail.rezvo.app",            # owner marketing campaigns
+    "insights": "mail.rezvo.app",             # audit reports, drip campaigns
+    "growth": "mail.rezvo.app",               # warm lead outreach, diner notifications
 }
 
 

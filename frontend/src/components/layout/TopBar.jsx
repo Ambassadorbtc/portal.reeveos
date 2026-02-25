@@ -32,7 +32,12 @@ const TopBar = ({ onMenuClick, sidebarOpen }) => {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const pageTitle = PAGE_TITLES[location.pathname] || 'Dashboard'
+  const baseTitles = { ...PAGE_TITLES }
+  if (businessType === 'restaurant') {
+    baseTitles['/dashboard/calendar'] = 'Reservations Planner'
+    baseTitles['/dashboard/services'] = 'Menu'
+  }
+  const pageTitle = baseTitles[location.pathname] || 'Dashboard'
   const today = new Date().toLocaleDateString('en-GB', {
     weekday: 'long',
     day: 'numeric',

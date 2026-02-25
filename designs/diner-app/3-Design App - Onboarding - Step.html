@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        window.FontAwesomeConfig = {
+          autoReplaceSvg: 'nest'
+        };
+      </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboarding Step 1 - Rezvo Restaurant Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#1B4332', // Forest Green
+                            DEFAULT: '#2D6A4F',
+                            light: '#40916C',
+                            accent: '#52B788', // Teal
+                            amber: '#D4A373', // Amber
+                            surface: '#F8F9FA',
+                            gray: '#F3F4F6',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Figtree', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px rgba(0, 0, 0, 0.05)',
+                        'card': '0 10px 30px -5px rgba(27, 67, 50, 0.1)',
+                        'floating': '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
+                        'input': '0 0 0 4px rgba(82, 183, 136, 0.15)',
+                        'selected': '0 0 0 2px #1B4332, 0 10px 25px -5px rgba(27, 67, 50, 0.2)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body { font-family: 'Figtree', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Smooth fade animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        
+        /* Custom radio card styling */
+        .role-radio:checked + div {
+            border-color: #1B4332;
+            background-color: #F0FDF4;
+            box-shadow: 0 0 0 2px #1B4332;
+        }
+        .role-radio:checked + div .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .role-radio:checked + div .icon-container {
+            background-color: #1B4332;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-brand-surface min-h-screen text-gray-800 antialiased overflow-x-hidden">
+
+    <!-- Main Container -->
+    <div id="main-container" class="relative min-h-screen flex flex-col lg:flex-row">
+        
+        <!-- Left Section: Visual / Context (Consistent branding) -->
+        <section id="onboarding-visual" class="relative w-full lg:w-4/12 xl:w-4/12 bg-brand-dark overflow-hidden min-h-[200px] lg:min-h-screen flex flex-col justify-between p-8 lg:p-12 text-white">
+            
+            <!-- Background Elements -->
+            <div class="absolute inset-0 opacity-10">
+                <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <path d="M0 0 L100 0 L100 100 L0 100 Z" fill="url(#grid-pattern)" />
+                    <defs>
+                        <pattern id="grid-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
+                            <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                </svg>
+            </div>
+            
+            <!-- Radial Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-br from-brand-light/20 to-brand-dark/90 pointer-events-none"></div>
+
+            <!-- Header / Logo Area -->
+            <div class="relative z-10 flex justify-between items-start animate-fade-in">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-brand-amber rounded-lg flex items-center justify-center text-brand-dark font-bold text-xl shadow-lg">
+                        R.
+                    </div>
+                    <span class="text-2xl font-bold tracking-tight">Rezvo</span>
+                </div>
+            </div>
+
+            <!-- Progress Visual (Desktop) -->
+            <div class="relative z-10 flex-1 hidden lg:flex flex-col justify-center max-w-lg animate-fade-in delay-100">
+                <div class="space-y-8">
+                    <!-- Step 1 (Active) -->
+                    <div class="flex items-start gap-4">
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full bg-brand-amber text-brand-dark font-bold flex items-center justify-center shadow-lg z-10">1</div>
+                            <div class="w-0.5 h-16 bg-white/20 -mb-4 mt-2"></div>
+                        </div>
+                        <div class="pt-1">
+                            <h3 class="text-lg font-bold text-white">Restaurant Setup</h3>
+                            <p class="text-sm text-brand-accent">Define your establishment type and goals</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 (Pending) -->
+                    <div class="flex items-start gap-4 opacity-50">
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full border-2 border-white/30 text-white font-medium flex items-center justify-center z-10 bg-brand-dark">2</div>
+                            <div class="w-0.5 h-16 bg-white/20 -mb-4 mt-2"></div>
+                        </div>
+                        <div class="pt-1">
+                            <h3 class="text-lg font-bold text-white">Space Configuration</h3>
+                            <p class="text-sm text-gray-300">Set up floor plans and tables</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 (Pending) -->
+                    <div class="flex items-start gap-4 opacity-50">
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full border-2 border-white/30 text-white font-medium flex items-center justify-center z-10 bg-brand-dark">3</div>
+                        </div>
+                        <div class="pt-1">
+                            <h3 class="text-lg font-bold text-white">Team & Operations</h3>
+                            <p class="text-sm text-gray-300">Add staff and service hours</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quote/Insight -->
+            <div class="relative z-10 mt-auto hidden lg:block">
+                <div class="p-6 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
+                    <p class="text-sm italic text-gray-200 mb-4">"Properly categorizing your restaurant type helps Rezvo optimize your table turnover rates by up to 15%."</p>
+                    <div class="flex items-center gap-2 text-xs font-bold text-brand-amber uppercase tracking-wider">
+                        <i class="fa-solid fa-lightbulb"></i> Pro Tip
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Section: Form Content -->
+        <section id="onboarding-form" class="w-full lg:w-8/12 xl:w-8/12 bg-white flex flex-col h-full min-h-screen relative">
+            
+            <!-- Mobile Progress Bar (Visible only on small screens) -->
+            <div class="lg:hidden w-full bg-gray-100 h-1.5">
+                <div class="bg-brand-dark h-full w-1/3 transition-all duration-500 ease-out"></div>
+            </div>
+
+            <!-- Top Navigation / Controls -->
+            <div class="flex justify-between items-center p-6 lg:px-12 lg:pt-10">
+                <div class="lg:hidden text-sm font-bold text-gray-500">Step 1 of 3</div>
+                <div class="hidden lg:block text-sm font-medium text-gray-400">
+                    Setup Progress: <span class="text-brand-dark font-bold ml-1">33%</span>
+                </div>
+                <button class="text-sm font-medium text-gray-500 hover:text-brand-dark transition-colors px-4 py-2 rounded-lg hover:bg-gray-50">
+                    Skip setup
+                </button>
+            </div>
+
+            <!-- Main Content Scroll Area -->
+            <div class="flex-1 overflow-y-auto px-6 lg:px-16 xl:px-24 pb-24">
+                <div class="max-w-3xl mx-auto w-full animate-fade-in pt-4 lg:pt-8">
+                    
+                    <!-- Header -->
+                    <div class="mb-10">
+                        <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">Let's get your restaurant set up</h1>
+                        <p class="text-lg text-gray-500">Tell us a bit about your establishment so we can tailor the Rezvo experience for your needs.</p>
+                    </div>
+
+                    <form id="step1-form" class="space-y-10">
+                        
+                        <!-- Question 1: Restaurant Type -->
+                        <div class="space-y-4" role="radiogroup" aria-labelledby="restaurant-type-label">
+                            <label id="restaurant-type-label" class="block text-sm font-bold text-gray-700 uppercase tracking-wide">What best describes your establishment?</label>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Option 1 -->
+                                <label class="cursor-pointer group relative block focus-within:ring-2 focus-within:ring-brand-dark rounded-xl">
+                                    <input type="radio" name="restaurant_type" value="fine_dining" class="peer sr-only role-radio">
+                                    <div class="p-5 rounded-xl border border-gray-200 hover:border-brand-accent/50 bg-white transition-all duration-200 h-full flex items-start gap-4">
+                                        <div class="w-12 h-12 rounded-lg bg-gray-50 text-gray-400 flex items-center justify-center text-xl icon-container transition-colors duration-200 flex-shrink-0">
+                                            <i class="fa-solid fa-wine-glass"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <h3 class="font-bold text-gray-900">Fine Dining</h3>
+                                                <i class="fa-solid fa-circle-check text-brand-dark opacity-0 transform scale-75 transition-all duration-200 check-icon"></i>
+                                            </div>
+                                            <p class="text-sm text-gray-500 leading-snug">Focus on reservations, course management, and guest preferences.</p>
+                                        </div>
+                                    </div>
+                                </label>
+
+                                <!-- Option 2 -->
+                                <label class="cursor-pointer group relative">
+                                    <input type="radio" name="restaurant_type" value="casual_dining" class="peer sr-only role-radio" checked>
+                                    <div class="p-5 rounded-xl border border-gray-200 hover:border-brand-accent/50 bg-white transition-all duration-200 h-full flex items-start gap-4">
+                                        <div class="w-12 h-12 rounded-lg bg-gray-50 text-gray-400 flex items-center justify-center text-xl icon-container transition-colors duration-200 flex-shrink-0">
+                                            <i class="fa-solid fa-utensils"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <h3 class="font-bold text-gray-900">Casual Dining</h3>
+                                                <i class="fa-solid fa-circle-check text-brand-dark opacity-0 transform scale-75 transition-all duration-200 check-icon"></i>
+                                            </div>
+                                            <p class="text-sm text-gray-500 leading-snug">Balanced mix of reservations and walk-ins with faster table turns.</p>
+                                        </div>
+                                    </div>
+                                </label>
+
+                                <!-- Option 3 -->
+                                <label class="cursor-pointer group relative">
+                                    <input type="radio" name="restaurant_type" value="cafe" class="peer sr-only role-radio">
+                                    <div class="p-5 rounded-xl border border-gray-200 hover:border-brand-accent/50 bg-white transition-all duration-200 h-full flex items-start gap-4">
+                                        <div class="w-12 h-12 rounded-lg bg-gray-50 text-gray-400 flex items-center justify-center text-xl icon-container transition-colors duration-200 flex-shrink-0">
+                                            <i class="fa-solid fa-mug-hot"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <h3 class="font-bold text-gray-900">Cafe / Bistro</h3>
+                                                <i class="fa-solid fa-circle-check text-brand-dark opacity-0 transform scale-75 transition-all duration-200 check-icon"></i>
+                                            </div>
+                                            <p class="text-sm text-gray-500 leading-snug">High volume walk-ins, quick seating, and simple queue management.</p>
+                                        </div>
+                                    </div>
+                                </label>
+
+                                <!-- Option 4 -->
+                                <label class="cursor-pointer group relative">
+                                    <input type="radio" name="restaurant_type" value="bar" class="peer sr-only role-radio">
+                                    <div class="p-5 rounded-xl border border-gray-200 hover:border-brand-accent/50 bg-white transition-all duration-200 h-full flex items-start gap-4">
+                                        <div class="w-12 h-12 rounded-lg bg-gray-50 text-gray-400 flex items-center justify-center text-xl icon-container transition-colors duration-200 flex-shrink-0">
+                                            <i class="fa-solid fa-martini-glass-citrus"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <h3 class="font-bold text-gray-900">Bar / Lounge</h3>
+                                                <i class="fa-solid fa-circle-check text-brand-dark opacity-0 transform scale-75 transition-all duration-200 check-icon"></i>
+                                            </div>
+                                            <p class="text-sm text-gray-500 leading-snug">Events, open seating areas, and bottle service reservations.</p>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="h-px bg-gray-100 w-full"></div>
+
+                        <!-- Question 2: Primary Goals -->
+                        <div class="space-y-4">
+                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wide">What are your primary goals with Rezvo? <span class="text-gray-400 font-normal normal-case ml-1">(Select all that apply)</span></label>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <!-- Goal 1 -->
+                                <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-brand-dark has-[:checked]:bg-brand-surface has-[:checked]:shadow-sm">
+                                    <div class="relative flex items-center">
+                                        <input type="checkbox" class="peer appearance-none h-5 w-5 border-2 border-gray-300 rounded bg-white checked:bg-brand-dark checked:border-brand-dark transition-all cursor-pointer">
+                                        <i class="fa-solid fa-check text-white text-xs absolute left-1 top-1 opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+                                    </div>
+                                    <span class="ml-3 font-medium text-gray-700 group-has-[:checked]:text-brand-dark group-has-[:checked]:font-bold">Reduce no-shows</span>
+                                </label>
+
+                                <!-- Goal 2 -->
+                                <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-brand-dark has-[:checked]:bg-brand-surface has-[:checked]:shadow-sm">
+                                    <div class="relative flex items-center">
+                                        <input type="checkbox" class="peer appearance-none h-5 w-5 border-2 border-gray-300 rounded bg-white checked:bg-brand-dark checked:border-brand-dark transition-all cursor-pointer">
+                                        <i class="fa-solid fa-check text-white text-xs absolute left-1 top-1 opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+                                    </div>
+                                    <span class="ml-3 font-medium text-gray-700 group-has-[:checked]:text-brand-dark group-has-[:checked]:font-bold">Manage waitlist efficiently</span>
+                                </label>
+
+                                <!-- Goal 3 -->
+                                <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-brand-dark has-[:checked]:bg-brand-surface has-[:checked]:shadow-sm">
+                                    <div class="relative flex items-center">
+                                        <input type="checkbox" class="peer appearance-none h-5 w-5 border-2 border-gray-300 rounded bg-white checked:bg-brand-dark checked:border-brand-dark transition-all cursor-pointer" checked>
+                                        <i class="fa-solid fa-check text-white text-xs absolute left-1 top-1 opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+                                    </div>
+                                    <span class="ml-3 font-medium text-gray-700 group-has-[:checked]:text-brand-dark group-has-[:checked]:font-bold">Optimize table layout</span>
+                                </label>
+
+                                <!-- Goal 4 -->
+                                <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-brand-dark has-[:checked]:bg-brand-surface has-[:checked]:shadow-sm">
+                                    <div class="relative flex items-center">
+                                        <input type="checkbox" class="peer appearance-none h-5 w-5 border-2 border-gray-300 rounded bg-white checked:bg-brand-dark checked:border-brand-dark transition-all cursor-pointer">
+                                        <i class="fa-solid fa-check text-white text-xs absolute left-1 top-1 opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+                                    </div>
+                                    <span class="ml-3 font-medium text-gray-700 group-has-[:checked]:text-brand-dark group-has-[:checked]:font-bold">Track guest preferences</span>
+                                </label>
+                                
+                                <!-- Goal 5 -->
+                                <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-brand-dark has-[:checked]:bg-brand-surface has-[:checked]:shadow-sm">
+                                    <div class="relative flex items-center">
+                                        <input type="checkbox" class="peer appearance-none h-5 w-5 border-2 border-gray-300 rounded bg-white checked:bg-brand-dark checked:border-brand-dark transition-all cursor-pointer">
+                                        <i class="fa-solid fa-check text-white text-xs absolute left-1 top-1 opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+                                    </div>
+                                    <span class="ml-3 font-medium text-gray-700 group-has-[:checked]:text-brand-dark group-has-[:checked]:font-bold">Online booking integration</span>
+                                </label>
+
+                                <!-- Goal 6 -->
+                                <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-brand-dark has-[:checked]:bg-brand-surface has-[:checked]:shadow-sm">
+                                    <div class="relative flex items-center">
+                                        <input type="checkbox" class="peer appearance-none h-5 w-5 border-2 border-gray-300 rounded bg-white checked:bg-brand-dark checked:border-brand-dark transition-all cursor-pointer">
+                                        <i class="fa-solid fa-check text-white text-xs absolute left-1 top-1 opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+                                    </div>
+                                    <span class="ml-3 font-medium text-gray-700 group-has-[:checked]:text-brand-dark group-has-[:checked]:font-bold">Staff performance tracking</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="h-px bg-gray-100 w-full"></div>
+
+                        <!-- Question 3: Basic Info -->
+                        <div class="space-y-4">
+                            <label class="block text-sm font-bold text-gray-700 uppercase tracking-wide">Restaurant Capacity</label>
+                            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                                <div class="flex flex-col md:flex-row gap-6">
+                                    <div class="flex-1 space-y-2">
+                                        <label for="table-count" class="text-sm font-semibold text-gray-600">Approximate Number of Tables</label>
+                                        <div class="relative">
+                                            <i class="fa-solid fa-table absolute left-4 top-3.5 text-gray-400"></i>
+                                            <input type="number" id="table-count" min="1" max="500" required class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10 focus:outline-none transition-all" placeholder="e.g. 25">
+                                        </div>
+                                        <p class="text-[10px] text-gray-400">Enter a value between 1 and 500</p>
+                                    </div>
+                                    <div class="flex-1 space-y-2">
+                                        <label for="seat-count" class="text-sm font-semibold text-gray-600">Total Seating Capacity</label>
+                                        <div class="relative">
+                                            <i class="fa-solid fa-users absolute left-4 top-3.5 text-gray-400"></i>
+                                            <input type="number" id="seat-count" min="1" max="2000" required class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10 focus:outline-none transition-all" placeholder="e.g. 80">
+                                        </div>
+                                        <p class="text-[10px] text-gray-400">Enter a value between 1 and 2000</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sticky Bottom Action Bar -->
+            <div class="border-t border-gray-200 bg-white p-6 lg:px-12 lg:py-6 sticky bottom-0 z-20 w-full">
+                <div class="max-w-3xl mx-auto w-full flex justify-between items-center">
+                    <button type="button" class="text-gray-500 hover:text-gray-800 font-medium flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Back
+                    </button>
+                    
+                    <div class="flex items-center gap-4">
+                        <button type="button" onclick="confirm('Are you sure? Skipping might result in a less personalized experience.')" class="hidden sm:block text-sm font-medium text-gray-400 hover:text-gray-600">Skip for now</button>
+                        <button type="submit" form="step1-form" class="bg-brand-dark hover:bg-brand-light text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-brand-dark/20 hover:shadow-brand-dark/30 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-3">
+                            Continue to Step 2
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </div>
+
+    <!-- Help Widget (Floating) -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button class="w-12 h-12 bg-white rounded-full shadow-floating flex items-center justify-center text-brand-dark hover:scale-110 transition-transform border border-gray-100 group relative">
+            <i class="fa-regular fa-circle-question text-xl"></i>
+            <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Need help?</span>
+        </button>
+    </div>
+
+</body>
+</html>

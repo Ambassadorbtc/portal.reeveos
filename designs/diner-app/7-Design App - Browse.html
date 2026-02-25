@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        window.FontAwesomeConfig = {
+          autoReplaceSvg: 'nest'
+        };
+      </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse - Rezvo Restaurant Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#1B4332', // Forest Green
+                            DEFAULT: '#2D6A4F',
+                            light: '#40916C',
+                            accent: '#52B788', // Teal
+                            amber: '#D4A373', // Amber
+                            surface: '#F8F9FA',
+                            gray: '#F3F4F6',
+                            text: '#1F2937',
+                            muted: '#6B7280'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Figtree', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px rgba(0, 0, 0, 0.05)',
+                        'card': '0 2px 10px rgba(0, 0, 0, 0.03)',
+                        'card-hover': '0 10px 30px -5px rgba(27, 67, 50, 0.1)',
+                        'floating': '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
+                        'input': '0 0 0 4px rgba(82, 183, 136, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body { font-family: 'Figtree', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .sidebar-item-active {
+            background-color: #1B4332;
+            color: #ffffff;
+            border-right: 4px solid #D4A373;
+        }
+        .sidebar-item-inactive {
+            color: #4B5563;
+        }
+        .sidebar-item-inactive:hover {
+            background-color: #F3F4F6;
+            color: #1B4332;
+        }
+        
+        /* Custom scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #d1d5db; 
+            border-radius: 3px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af; 
+        }
+
+        /* Animation utilities */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        
+        /* Custom checkbox */
+        .custom-checkbox:checked {
+            background-color: #1B4332;
+            border-color: #1B4332;
+        }
+        .custom-checkbox:checked:after {
+            content: '✔';
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body class="bg-brand-surface h-screen flex overflow-hidden text-gray-800 antialiased">
+
+    <!-- Sidebar Navigation (Persistent) -->
+    <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col h-full z-20 hidden lg:flex shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        <!-- Logo Area -->
+        <div class="h-20 flex items-center px-6 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-brand-amber rounded-lg flex items-center justify-center text-brand-dark font-bold text-xl shadow-md">
+                    R.
+                </div>
+                <span class="text-xl font-bold tracking-tight text-brand-dark">Rezvo</span>
+            </div>
+        </div>
+
+        <!-- Main Navigation -->
+        <div class="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scroll">
+            
+            <div class="px-3 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Main</div>
+            
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-house w-5 text-center"></i>
+                <span>Home Dashboard</span>
+            </a>
+            
+            <a href="#" class="sidebar-item-active flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-magnifying-glass w-5 text-center"></i>
+                <span>Browse</span>
+            </a>
+            
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-plus-circle w-5 text-center"></i>
+                <span>Create/New</span>
+            </a>
+
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-bell w-5 text-center"></i>
+                <span>Notifications</span>
+                <span class="ml-auto bg-brand-amber text-white text-xs font-bold px-2 py-0.5 rounded-full">3</span>
+            </a>
+
+            <div class="px-3 mt-8 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Account</div>
+
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-user-gear w-5 text-center"></i>
+                <span>Profile & Settings</span>
+            </a>
+        </div>
+
+        <!-- User Profile (Bottom) -->
+        <div class="p-4 border-t border-gray-100">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                <div class="w-10 h-10 rounded-full bg-brand-dark text-white flex items-center justify-center font-bold border-2 border-white shadow-sm overflow-hidden">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="User" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-900 truncate">Alex Johnson</p>
+                    <p class="text-xs text-gray-500 truncate">General Manager</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative bg-brand-surface">
+        
+        <!-- Top Navigation Bar -->
+        <header id="top-nav" class="bg-white h-20 border-b border-gray-200 flex items-center justify-between px-6 lg:px-8 z-10 shadow-sm flex-shrink-0">
+            <!-- Mobile Menu Trigger -->
+            <button class="lg:hidden p-2 text-gray-600 hover:text-brand-dark">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+
+            <!-- Page Title / Context -->
+            <div class="flex items-center gap-4">
+                <a href="#" class="md:hidden text-gray-400 hover:text-brand-dark transition-colors">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </a>
+                <h1 class="text-2xl font-bold text-gray-900">Browse</h1>
+                <div class="hidden md:flex items-center text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-brand-amber mr-2"></span>
+                    Reservations & Guests
+                </div>
+            </div>
+
+            <!-- Top Actions -->
+            <div class="flex items-center gap-4 md:gap-6">
+                <!-- Notifications -->
+                <button class="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-brand-dark transition-colors">
+                    <i class="fa-regular fa-bell text-xl"></i>
+                    <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+
+                <!-- Create/New Action -->
+                <button class="hidden sm:flex bg-brand-dark hover:bg-brand-light text-white font-semibold py-2.5 px-5 rounded-xl shadow-lg shadow-brand-dark/20 hover:shadow-brand-dark/30 transform hover:-translate-y-0.5 transition-all duration-200 items-center gap-2 text-sm">
+                    <i class="fa-solid fa-plus"></i>
+                    New Booking
+                </button>
+            </div>
+        </header>
+
+        <!-- Browse Content Area -->
+        <div class="flex-1 overflow-hidden flex flex-col md:flex-row relative">
+            
+            <!-- Filters Sidebar (Collapsible on mobile) -->
+            <div id="filters-sidebar" class="fixed inset-y-0 left-0 w-72 bg-white border-r border-gray-200 flex-col h-full overflow-y-auto custom-scroll z-30 transform -translate-x-full transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                    <h2 class="font-bold text-gray-900">Filters</h2>
+                    <div class="flex items-center gap-4">
+                        <button class="text-xs font-semibold text-brand-accent hover:text-brand-dark">Reset All</button>
+                        <button onclick="document.getElementById('filters-sidebar').classList.add('-translate-x-full')" class="md:hidden text-gray-400">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-6 space-y-8">
+                    <!-- Date Range -->
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Date</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="radio" name="date" class="w-4 h-4 text-brand-dark border-gray-300 focus:ring-brand-accent" checked>
+                                <span class="text-sm text-gray-700 group-hover:text-brand-dark">Today</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="radio" name="date" class="w-4 h-4 text-brand-dark border-gray-300 focus:ring-brand-accent">
+                                <span class="text-sm text-gray-700 group-hover:text-brand-dark">Tomorrow</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="radio" name="date" class="w-4 h-4 text-brand-dark border-gray-300 focus:ring-brand-accent">
+                                <span class="text-sm text-gray-700 group-hover:text-brand-dark">Next 7 Days</span>
+                            </label>
+                            <div class="pt-2">
+                                <input type="date" class="w-full text-sm border-gray-200 rounded-lg focus:border-brand-accent focus:ring-brand-accent text-gray-600">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Status</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brand-dark focus:ring-brand-accent custom-checkbox" checked>
+                                <span class="flex-1 text-sm text-gray-700">Confirmed</span>
+                                <span class="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">24</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brand-dark focus:ring-brand-accent custom-checkbox" checked>
+                                <span class="flex-1 text-sm text-gray-700">Seated</span>
+                                <span class="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">8</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brand-dark focus:ring-brand-accent custom-checkbox">
+                                <span class="flex-1 text-sm text-gray-700">Finished</span>
+                                <span class="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">45</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brand-dark focus:ring-brand-accent custom-checkbox">
+                                <span class="flex-1 text-sm text-gray-700">Cancelled</span>
+                                <span class="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">3</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Party Size -->
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Party Size</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="w-8 h-8 rounded border border-gray-200 text-sm font-medium text-gray-600 hover:bg-brand-surface hover:border-brand-accent hover:text-brand-dark transition-colors">1-2</button>
+                            <button class="w-8 h-8 rounded bg-brand-dark text-white text-sm font-medium border border-brand-dark shadow-sm">3-4</button>
+                            <button class="w-8 h-8 rounded border border-gray-200 text-sm font-medium text-gray-600 hover:bg-brand-surface hover:border-brand-accent hover:text-brand-dark transition-colors">5-6</button>
+                            <button class="w-8 h-8 rounded border border-gray-200 text-sm font-medium text-gray-600 hover:bg-brand-surface hover:border-brand-accent hover:text-brand-dark transition-colors">7+</button>
+                        </div>
+                    </div>
+
+                    <!-- Area -->
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Dining Area</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brand-dark focus:ring-brand-accent custom-checkbox">
+                                <span class="text-sm text-gray-700">Main Dining</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brand-dark focus:ring-brand-accent custom-checkbox">
+                                <span class="text-sm text-gray-700">Patio</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brand-dark focus:ring-brand-accent custom-checkbox">
+                                <span class="text-sm text-gray-700">Bar Area</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Browse List -->
+            <div class="flex-1 flex flex-col h-full overflow-hidden bg-brand-surface">
+                
+                <!-- Search & View Controls -->
+                <div class="p-6 md:p-8 pb-4 space-y-4">
+                    <!-- Search Bar Large -->
+                    <div class="relative max-w-2xl flex gap-2">
+                        <div class="relative flex-1">
+                            <input type="text" placeholder="Search by guest name, phone..." class="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent text-base transition-all">
+                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                        </div>
+                        <button onclick="document.getElementById('filters-sidebar').classList.remove('-translate-x-full')" class="md:hidden bg-white border border-gray-200 text-gray-600 px-4 rounded-xl shadow-sm">
+                            <i class="fa-solid fa-sliders"></i>
+                        </button>
+                    </div>
+
+                    <!-- Tabs & View Toggles -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div class="flex bg-gray-200/50 p-1 rounded-xl">
+                            <button class="px-4 py-2 rounded-lg bg-white text-brand-dark font-semibold shadow-sm text-sm transition-all">All Bookings</button>
+                            <button class="px-4 py-2 rounded-lg text-gray-500 hover:text-gray-900 font-medium text-sm transition-all">Waitlist</button>
+                            <button class="px-4 py-2 rounded-lg text-gray-500 hover:text-gray-900 font-medium text-sm transition-all">History</button>
+                        </div>
+
+                        <div class="flex items-center gap-3 self-end sm:self-auto">
+                            <span class="text-sm text-gray-500 font-medium">Sort by:</span>
+                            <select class="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-brand-accent focus:border-brand-accent block p-2">
+                                <option>Time (Earliest)</option>
+                                <option>Time (Latest)</option>
+                                <option>Created Date</option>
+                                <option>Guest Name</option>
+                            </select>
+                            
+                            <div class="flex border border-gray-200 rounded-lg bg-white overflow-hidden ml-2">
+                                <button class="p-2 w-9 h-9 flex items-center justify-center bg-gray-50 text-brand-dark"><i class="fa-solid fa-list"></i></button>
+                                <button class="p-2 w-9 h-9 flex items-center justify-center text-gray-400 hover:text-gray-600"><i class="fa-solid fa-border-all"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results List -->
+                <div class="flex-1 overflow-y-auto px-6 md:px-8 pb-8 custom-scroll">
+                    
+                    <h3 class="text-sm font-bold text-gray-500 mb-4">Showing 32 results</h3>
+                    
+                    <div class="space-y-4">
+                        
+                        <!-- Item Card 1 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-card hover:shadow-card-hover transition-all duration-200 p-5 flex flex-col md:flex-row gap-5 items-start md:items-center cursor-pointer group relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-accent"></div>
+                            
+                            <!-- Time & Status -->
+                            <div class="flex flex-row md:flex-col items-center md:items-start gap-3 md:gap-1 min-w-[100px]">
+                                <span class="text-xl font-bold text-gray-900">6:30 PM</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">Confirmed</span>
+                            </div>
+
+                            <!-- Guest Info -->
+                            <div class="flex-1 flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-brand-amber text-white font-bold text-lg flex items-center justify-center shadow-sm shrink-0">
+                                    JD
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-lg font-bold text-gray-900 group-hover:text-brand-dark transition-colors">John Doe</h4>
+                                        <span class="w-2 h-2 rounded-full bg-brand-amber" title="VIP"></span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 flex items-center gap-3 mt-0.5">
+                                        <span><i class="fa-solid fa-phone text-xs mr-1"></i> (555) 123-4567</span>
+                                        <span class="text-gray-300">|</span>
+                                        <span><i class="fa-solid fa-envelope text-xs mr-1"></i> john@example.com</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Reservation Details -->
+                            <div class="flex flex-wrap gap-4 md:gap-8 items-center text-sm text-gray-600">
+                                <div class="flex items-center gap-2" title="Party Size">
+                                    <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-700 border border-gray-100">
+                                        <i class="fa-solid fa-user-group"></i>
+                                    </div>
+                                    <span class="font-semibold">4 Guests</span>
+                                </div>
+                                <div class="flex items-center gap-2" title="Table">
+                                    <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-700 border border-gray-100">
+                                        <i class="fa-solid fa-chair"></i>
+                                    </div>
+                                    <span class="font-semibold">Table 02</span>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex items-center gap-2 ml-auto mt-2 md:mt-0">
+                                <button class="px-4 py-2 bg-brand-dark hover:bg-brand-light text-white text-sm font-semibold rounded-lg shadow-sm transition-colors">Seat</button>
+                                <button class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-brand-dark hover:bg-gray-50 transition-all">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-100 hover:bg-red-50 transition-all">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Item Card 2 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-card hover:shadow-card-hover transition-all duration-200 p-5 flex flex-col md:flex-row gap-5 items-start md:items-center cursor-pointer group relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-yellow-400"></div>
+                            
+                            <div class="flex flex-row md:flex-col items-center md:items-start gap-3 md:gap-1 min-w-[100px]">
+                                <span class="text-xl font-bold text-gray-900">6:45 PM</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-50 text-yellow-700 border border-yellow-100">Late (10m)</span>
+                            </div>
+
+                            <div class="flex-1 flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-700 font-bold text-lg flex items-center justify-center shadow-sm shrink-0">
+                                    AS
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-lg font-bold text-gray-900 group-hover:text-brand-dark transition-colors">Alice Smith</h4>
+                                        <span class="px-1.5 py-0.5 rounded bg-brand-amber text-[10px] font-bold text-white uppercase tracking-wide">VIP</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 flex items-center gap-3 mt-0.5">
+                                        <span><i class="fa-solid fa-phone text-xs mr-1"></i> (555) 987-6543</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap gap-4 md:gap-8 items-center text-sm text-gray-600">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-700 border border-gray-100">
+                                        <i class="fa-solid fa-user-group"></i>
+                                    </div>
+                                    <span class="font-semibold">2 Guests</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100 italic">
+                                        <i class="fa-solid fa-chair"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-400 italic">Unassigned</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 ml-auto mt-2 md:mt-0">
+                                <button class="px-4 py-2 bg-white border border-brand-dark text-brand-dark hover:bg-brand-surface text-sm font-semibold rounded-lg shadow-sm transition-colors">Assign</button>
+                                <button class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-brand-dark hover:bg-gray-50 transition-all">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-100 hover:bg-red-50 transition-all">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Item Card 3 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-card hover:shadow-card-hover transition-all duration-200 p-5 flex flex-col md:flex-row gap-5 items-start md:items-center cursor-pointer group relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-accent"></div>
+                            
+                            <div class="flex flex-row md:flex-col items-center md:items-start gap-3 md:gap-1 min-w-[100px]">
+                                <span class="text-xl font-bold text-gray-900">7:00 PM</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">Confirmed</span>
+                            </div>
+
+                            <div class="flex-1 flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-700 font-bold text-lg flex items-center justify-center shadow-sm shrink-0">
+                                    MR
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-lg font-bold text-gray-900 group-hover:text-brand-dark transition-colors">Michael Ross</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-500 flex items-center gap-3 mt-0.5">
+                                        <span><i class="fa-solid fa-phone text-xs mr-1"></i> (555) 222-3333</span>
+                                        <span class="text-gray-300">|</span>
+                                        <span class="text-brand-amber font-medium"><i class="fa-solid fa-cake-candles text-xs mr-1"></i> Birthday</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap gap-4 md:gap-8 items-center text-sm text-gray-600">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-700 border border-gray-100">
+                                        <i class="fa-solid fa-user-group"></i>
+                                    </div>
+                                    <span class="font-semibold">6 Guests</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-700 border border-gray-100">
+                                        <i class="fa-solid fa-chair"></i>
+                                    </div>
+                                    <span class="font-semibold">Table 08</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 ml-auto mt-2 md:mt-0">
+                                <button class="px-4 py-2 bg-brand-dark hover:bg-brand-light text-white text-sm font-semibold rounded-lg shadow-sm transition-colors">Seat</button>
+                                <button class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-brand-dark hover:bg-gray-50 transition-all">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-100 hover:bg-red-50 transition-all">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Item Card 4 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-card hover:shadow-card-hover transition-all duration-200 p-5 flex flex-col md:flex-row gap-5 items-start md:items-center cursor-pointer group relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-gray-300"></div>
+                            
+                            <div class="flex flex-row md:flex-col items-center md:items-start gap-3 md:gap-1 min-w-[100px]">
+                                <span class="text-xl font-bold text-gray-900">7:15 PM</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600 border border-gray-200">Waitlist</span>
+                            </div>
+
+                            <div class="flex-1 flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-gray-800 text-white font-bold text-lg flex items-center justify-center shadow-sm shrink-0">
+                                    SJ
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-lg font-bold text-gray-900 group-hover:text-brand-dark transition-colors">Sarah Jenkins</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-500 flex items-center gap-3 mt-0.5">
+                                        <span><i class="fa-solid fa-phone text-xs mr-1"></i> (555) 444-5555</span>
+                                        <span class="text-gray-300">|</span>
+                                        <span>Added 10m ago</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap gap-4 md:gap-8 items-center text-sm text-gray-600">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-700 border border-gray-100">
+                                        <i class="fa-solid fa-user-group"></i>
+                                    </div>
+                                    <span class="font-semibold">3 Guests</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100">
+                                        <i class="fa-solid fa-clock"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-500">~25m wait</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 ml-auto mt-2 md:mt-0">
+                                <button class="px-4 py-2 bg-brand-surface border border-gray-300 text-gray-700 hover:border-brand-dark hover:text-brand-dark text-sm font-semibold rounded-lg shadow-sm transition-colors">Notify</button>
+                                <button class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-brand-dark hover:bg-gray-50 transition-all">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-100 hover:bg-red-50 transition-all">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                         <!-- Item Card 5 -->
+                         <div class="bg-white rounded-xl border border-gray-200 shadow-card hover:shadow-card-hover transition-all duration-200 p-5 flex flex-col md:flex-row gap-5 items-start md:items-center cursor-pointer group relative overflow-hidden opacity-75 hover:opacity-100">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-accent"></div>
+                            
+                            <div class="flex flex-row md:flex-col items-center md:items-start gap-3 md:gap-1 min-w-[100px]">
+                                <span class="text-xl font-bold text-gray-900">7:30 PM</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">Confirmed</span>
+                            </div>
+
+                            <div class="flex-1 flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-pink-100 text-pink-600 font-bold text-lg flex items-center justify-center shadow-sm shrink-0">
+                                    DL
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-lg font-bold text-gray-900 group-hover:text-brand-dark transition-colors">David Lee</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-500 flex items-center gap-3 mt-0.5">
+                                        <span><i class="fa-solid fa-phone text-xs mr-1"></i> (555) 777-8888</span>
+                                        <span class="text-gray-300">|</span>
+                                        <span><i class="fa-solid fa-envelope text-xs mr-1"></i> david.lee@mail.com</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap gap-4 md:gap-8 items-center text-sm text-gray-600">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-700 border border-gray-100">
+                                        <i class="fa-solid fa-user-group"></i>
+                                    </div>
+                                    <span class="font-semibold">2 Guests</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-700 border border-gray-100">
+                                        <i class="fa-solid fa-chair"></i>
+                                    </div>
+                                    <span class="font-semibold">Table 14</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 ml-auto mt-2 md:mt-0">
+                                <button class="px-4 py-2 bg-brand-dark hover:bg-brand-light text-white text-sm font-semibold rounded-lg shadow-sm transition-colors">Seat</button>
+                                <button class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-brand-dark hover:bg-gray-50 transition-all">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-100 hover:bg-red-50 transition-all">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="mt-8 flex items-center justify-between border-t border-gray-200 pt-6">
+                        <div class="text-sm text-gray-500">
+                            Showing <span class="font-bold text-gray-900">1-5</span> of <span class="font-bold text-gray-900">32</span> results
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button class="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-400 cursor-not-allowed bg-gray-50">Previous</button>
+                            <button class="px-3 py-2 bg-brand-dark text-white rounded-lg text-sm font-medium shadow-sm">1</button>
+                            <button class="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">2</button>
+                            <button class="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">3</button>
+                            <span class="text-gray-400 px-1">...</span>
+                            <button class="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating Action Button (Mobile) -->
+    <div class="lg:hidden fixed bottom-6 right-6 z-50">
+        <button class="w-14 h-14 bg-brand-dark text-white rounded-full shadow-floating flex items-center justify-center text-2xl hover:bg-brand-light transition-colors">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+    </div>
+
+</body>
+</html>

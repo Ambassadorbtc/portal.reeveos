@@ -34,7 +34,8 @@ const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 const FULL_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 export default function RestaurantCalendar() {
-  const { business, bid } = useBusiness()
+  const { business } = useBusiness()
+  const bid = business?.id ?? business?._id
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10))
   const [view, setView] = useState('timeline') // 'timeline' | 'tables' | 'list'
   const [data, setData] = useState({ bookings: [], tables: [], covers: {}, servicePeriods: [] })

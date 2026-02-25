@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1B4332',
+                        secondary: '#52B788',
+                        accent: '#D4A373',
+                        warm: '#FAFAF8',
+                        'warm-dark': '#F5F5F5',
+                        danger: '#EF4444',
+                        'danger-bg': '#FFF0F0',
+                        'success-bg': '#F0F7F4',
+                        'warning-bg': '#FFF8F0',
+                        text: '#1B4332',
+                        subtext: '#666666',
+                        muted: '#999999',
+                        border: '#EBEBEB'
+                    },
+                    fontFamily: {
+                        sans: ['Figtree', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'subtle': '0 2px 4px rgba(0,0,0,0.05)',
+                        'card': '0 4px 12px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+    
+    <style>
+        body { font-family: 'Figtree', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #EBEBEB;
+            border-radius: 20px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #D1D1D1;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen overflow-hidden flex">
+
+    <div id="main-app-container" class="flex-1 flex h-full overflow-hidden relative z-0">
+        <aside class="w-16 lg:w-64 bg-primary h-full flex flex-col text-white">
+            <div class="p-4 lg:p-6 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
+                    <i class="fa-solid fa-utensils text-white"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight hidden lg:block">Rezvo</span>
+            </div>
+            
+            <nav class="flex-1 px-2 lg:px-4 py-4 space-y-2">
+                <a href="#" class="flex items-center gap-3 px-2 lg:px-4 py-3 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+                    <i class="fa-solid fa-chart-pie w-5"></i>
+                    <span class="font-medium hidden lg:block">Dashboard</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-2 lg:px-4 py-3 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+                    <i class="fa-regular fa-calendar-check w-5"></i>
+                    <span class="hidden lg:block">Reservations</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-2 lg:px-4 py-3 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+                    <i class="fa-solid fa-table-cells w-5"></i>
+                    <span class="hidden lg:block">Floor Plan</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-2 lg:px-4 py-3 rounded-full bg-secondary/20 text-secondary font-bold shadow-sm">
+                    <i class="fa-solid fa-users w-5"></i>
+                    <span class="hidden lg:block">Guests</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-2 lg:px-4 py-3 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+                    <i class="fa-solid fa-gift w-5"></i>
+                    <span class="hidden lg:block">Marketing</span>
+                </a>
+            </nav>
+            
+            <div class="p-2 lg:p-4 border-t border-white/10">
+                <div class="flex items-center gap-3 px-2 lg:px-4 py-2">
+                    <div class="w-8 h-8 rounded-full bg-secondary/30 flex items-center justify-center text-xs font-bold">JD</div>
+                    <div class="text-sm hidden lg:block">
+                        <p class="font-semibold">Jane Doe</p>
+                        <p class="text-white/50 text-xs">Manager</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 bg-warm relative overflow-hidden flex flex-col">
+            <header id="header" class="h-16 border-b border-border bg-white flex items-center justify-between px-4 lg:px-8">
+                <div class="flex items-center gap-2 lg:gap-4">
+                    <h1 class="text-lg lg:text-xl font-bold text-primary">Guest Profile</h1>
+                    <div class="hidden md:flex items-center gap-2 text-xs text-muted">
+                        <a href="#" class="hover:text-primary transition-colors">Dashboard</a>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <a href="#" class="hover:text-primary transition-colors">Guests</a>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span class="text-primary font-semibold">Tim Henman</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 lg:gap-4">
+                    <button class="w-10 h-10 rounded-full border border-border flex items-center justify-center text-subtext hover:bg-gray-50">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <button class="w-10 h-10 rounded-full border border-border flex items-center justify-center text-subtext hover:bg-gray-50 relative">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-danger rounded-full"></span>
+                    </button>
+                    <button class="hidden sm:block px-4 py-2 bg-primary text-white rounded-full font-medium text-sm hover:bg-primary/90 transition-colors">
+                        + New Booking
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto custom-scrollbar">
+                <div class="p-4 lg:p-8">
+                    
+                    <div id="profile-header" class="bg-white rounded-3xl shadow-subtle border border-border p-6 lg:p-8 mb-6">
+                        <div class="flex flex-col lg:flex-row lg:items-center gap-6">
+                            <div class="flex items-start gap-4 flex-1">
+                                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-[#2D6A4F] flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
+                                    TH
+                                </div>
+                                
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex flex-wrap items-center gap-3 mb-2">
+                                        <h1 class="text-2xl lg:text-3xl font-extrabold text-primary">Tim Henman</h1>
+                                        <span class="px-3 py-1 bg-primary text-white rounded-full text-xs font-bold">Regular</span>
+                                        <span class="px-3 py-1 bg-success-bg text-secondary rounded-full text-xs font-bold flex items-center gap-1">
+                                            <i class="fa-solid fa-check text-[10px]"></i>
+                                            Low Risk
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="space-y-1 mb-2">
+                                        <div class="flex items-center gap-2 text-sm text-subtext">
+                                            <i class="fa-solid fa-phone w-4"></i>
+                                            <span>+44 7886 483772</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-sm text-subtext">
+                                            <i class="fa-solid fa-envelope w-4"></i>
+                                            <span>tim.henman@gmail.co.uk</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-sm text-subtext">
+                                            <i class="fa-solid fa-location-dot w-4"></i>
+                                            <span>London, SW19 5AE</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="text-xs text-muted">Guest since December 2023</p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+                                <div class="bg-white border border-border rounded-2xl px-4 py-3 shadow-subtle text-center">
+                                    <p class="text-2xl lg:text-3xl font-bold text-primary mb-1">12</p>
+                                    <p class="text-xs text-subtext font-semibold">Total Visits</p>
+                                </div>
+                                <div class="bg-white border border-border rounded-2xl px-4 py-3 shadow-subtle text-center">
+                                    <p class="text-2xl lg:text-3xl font-bold text-primary mb-1">£847</p>
+                                    <p class="text-xs text-subtext font-semibold">Lifetime Spend</p>
+                                </div>
+                                <div class="bg-white border border-border rounded-2xl px-4 py-3 shadow-subtle text-center">
+                                    <p class="text-2xl lg:text-3xl font-bold text-primary mb-1">£70.58</p>
+                                    <p class="text-xs text-subtext font-semibold">Avg per Visit</p>
+                                </div>
+                                <div class="bg-white border border-border rounded-2xl px-4 py-3 shadow-subtle text-center">
+                                    <p class="text-2xl lg:text-3xl font-bold text-accent mb-1">1</p>
+                                    <p class="text-xs text-subtext font-semibold">No Shows</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col gap-2 lg:ml-4">
+                                <button class="px-5 py-2.5 border-2 border-primary text-primary rounded-full font-semibold text-sm hover:bg-gray-50 transition-colors whitespace-nowrap">
+                                    Edit Profile
+                                </button>
+                                <button class="px-5 py-2.5 bg-secondary text-white rounded-full font-semibold text-sm hover:bg-secondary/90 transition-colors whitespace-nowrap">
+                                    Send Message
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tags-section" class="mb-6">
+                        <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2">
+                            <span class="px-3 py-1.5 bg-success-bg text-secondary rounded-full text-xs font-bold whitespace-nowrap">Regular</span>
+                            <span class="px-3 py-1.5 bg-success-bg text-secondary rounded-full text-xs font-bold whitespace-nowrap">Friday Regular</span>
+                            <span class="px-3 py-1.5 bg-success-bg text-secondary rounded-full text-xs font-bold whitespace-nowrap">Wine Lover</span>
+                            <span class="px-3 py-1.5 bg-success-bg text-secondary rounded-full text-xs font-bold whitespace-nowrap">High Value</span>
+                            <span class="px-3 py-1.5 bg-warning-bg text-accent rounded-full text-xs font-bold whitespace-nowrap">Birthday Dec</span>
+                            <span class="px-3 py-1.5 bg-warning-bg text-accent rounded-full text-xs font-bold whitespace-nowrap">Booth Preferred</span>
+                            <span class="px-3 py-1.5 bg-warning-bg text-accent rounded-full text-xs font-bold whitespace-nowrap">Shellfish Allergy</span>
+                            <span class="px-3 py-1.5 bg-danger-bg text-danger rounded-full text-xs font-bold whitespace-nowrap">1x No Show</span>
+                            <button class="px-3 py-1.5 border border-border text-subtext rounded-full text-xs font-semibold hover:border-primary hover:text-primary transition-colors whitespace-nowrap">
+                                + Add Tag
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                        
+                        <div id="timeline-section" class="lg:col-span-3">
+                            <div class="bg-white rounded-3xl shadow-subtle border border-border p-6">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h2 class="text-xl font-bold text-primary">Activity Timeline</h2>
+                                    <div class="flex gap-2 overflow-x-auto custom-scrollbar">
+                                        <button class="px-3 py-1.5 bg-primary text-white rounded-full text-xs font-bold">All</button>
+                                        <button class="px-3 py-1.5 bg-warm-dark text-subtext rounded-full text-xs font-medium hover:bg-gray-200 transition-colors">Visits</button>
+                                        <button class="px-3 py-1.5 bg-warm-dark text-subtext rounded-full text-xs font-medium hover:bg-gray-200 transition-colors">Comms</button>
+                                        <button class="px-3 py-1.5 bg-warm-dark text-subtext rounded-full text-xs font-medium hover:bg-gray-200 transition-colors">Notes</button>
+                                        <button class="px-3 py-1.5 bg-warm-dark text-subtext rounded-full text-xs font-medium hover:bg-gray-200 transition-colors">Reviews</button>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-6 relative before:absolute before:left-3 before:top-6 before:bottom-6 before:w-0.5 before:bg-border">
+                                    
+                                    <div id="timeline-item-1" class="relative pl-10">
+                                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
+                                            <i class="fa-solid fa-check text-white text-xs"></i>
+                                        </div>
+                                        <div class="bg-warm rounded-2xl p-4 border border-border">
+                                            <div class="flex items-start justify-between mb-2">
+                                                <h3 class="font-bold text-primary text-sm">Booking — Fri 15 Mar 2025</h3>
+                                                <span class="px-2 py-1 bg-success-bg text-secondary rounded-full text-[10px] font-bold">Completed</span>
+                                            </div>
+                                            <p class="text-sm text-subtext mb-1">Table 1 · Party of 2 · 16:00-17:30</p>
+                                            <p class="text-sm text-primary font-semibold mb-2">Spend: £89.50 — Mains: Steak, Sea Bass</p>
+                                            <p class="text-xs text-muted">Server: James</p>
+                                        </div>
+                                    </div>
+
+                                    <div id="timeline-item-2" class="relative pl-10">
+                                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
+                                            <i class="fa-solid fa-envelope text-white text-xs"></i>
+                                        </div>
+                                        <div class="bg-warm rounded-2xl p-4 border border-border">
+                                            <h3 class="font-bold text-primary text-sm mb-2">Email Sent — Thu 14 Mar 2025</h3>
+                                            <p class="text-sm text-subtext mb-1">Booking confirmation for Fri 15 Mar</p>
+                                            <span class="px-2 py-1 bg-success-bg text-secondary rounded-full text-[10px] font-bold">Opened ✓</span>
+                                        </div>
+                                    </div>
+
+                                    <div id="timeline-item-3" class="relative pl-10">
+                                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-accent flex items-center justify-center">
+                                            <i class="fa-solid fa-note-sticky text-white text-xs"></i>
+                                        </div>
+                                        <div class="bg-warm rounded-2xl p-4 border border-border">
+                                            <h3 class="font-bold text-primary text-sm mb-2">Note Added — Wed 13 Mar 2025</h3>
+                                            <p class="text-sm text-subtext mb-2">"Called to request booth by window as usual. Mentioned it's Sarah's birthday next month."</p>
+                                            <p class="text-xs text-muted">Added by: Staff: Mike</p>
+                                        </div>
+                                    </div>
+
+                                    <div id="timeline-item-4" class="relative pl-10">
+                                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-danger flex items-center justify-center">
+                                            <i class="fa-solid fa-xmark text-white text-xs"></i>
+                                        </div>
+                                        <div class="bg-danger-bg rounded-2xl p-4 border border-danger/20">
+                                            <h3 class="font-bold text-danger text-sm mb-2">No Show — Sat 14 Feb 2025</h3>
+                                            <p class="text-sm text-subtext mb-1">Table 6 · Party of 2 · 19:00</p>
+                                            <p class="text-sm text-danger font-semibold">Deposit charged: £40.00</p>
+                                        </div>
+                                    </div>
+
+                                    <div id="timeline-item-5" class="relative pl-10">
+                                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
+                                            <i class="fa-solid fa-check text-white text-xs"></i>
+                                        </div>
+                                        <div class="bg-warm rounded-2xl p-4 border border-border">
+                                            <div class="flex items-start justify-between mb-2">
+                                                <h3 class="font-bold text-primary text-sm">Booking — Wed 25 Dec 2024</h3>
+                                                <span class="px-2 py-1 bg-warning-bg text-accent rounded-full text-[10px] font-bold">Christmas</span>
+                                            </div>
+                                            <p class="text-sm text-subtext mb-1">Table 8 · Party of 6 · Christmas Day dinner</p>
+                                            <p class="text-sm text-primary font-semibold">Spend: £380.00</p>
+                                        </div>
+                                    </div>
+
+                                    <div id="timeline-item-6" class="relative pl-10">
+                                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
+                                            <i class="fa-solid fa-check text-white text-xs"></i>
+                                        </div>
+                                        <div class="bg-warm rounded-2xl p-4 border border-border">
+                                            <h3 class="font-bold text-primary text-sm mb-2">Booking — Fri 15 Dec 2024</h3>
+                                            <p class="text-sm text-subtext mb-1">Table 1 · Party of 2 · 19:00-20:30</p>
+                                            <p class="text-sm text-primary font-semibold">Spend: £78.00</p>
+                                        </div>
+                                    </div>
+
+                                    <div id="timeline-item-7" class="relative pl-10">
+                                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-accent flex items-center justify-center">
+                                            <i class="fa-solid fa-note-sticky text-white text-xs"></i>
+                                        </div>
+                                        <div class="bg-warm rounded-2xl p-4 border border-border">
+                                            <h3 class="font-bold text-primary text-sm mb-2">Note Added — Fri 8 Dec 2024</h3>
+                                            <p class="text-sm text-subtext mb-2">"Prefers 2018 Malbec. Always requests booth by window."</p>
+                                            <p class="text-xs text-muted">Added by: Staff: James</p>
+                                        </div>
+                                    </div>
+
+                                    <div id="timeline-item-8" class="relative pl-10">
+                                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
+                                            <i class="fa-solid fa-check text-white text-xs"></i>
+                                        </div>
+                                        <div class="bg-warm rounded-2xl p-4 border border-border">
+                                            <h3 class="font-bold text-primary text-sm mb-2">First Visit — Fri 1 Dec 2023</h3>
+                                            <p class="text-sm text-subtext mb-1">Table 3 · Party of 2 · 18:30-20:00</p>
+                                            <p class="text-sm text-primary font-semibold">Spend: £65.00</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="right-column" class="lg:col-span-2 space-y-6">
+                            
+                            <div id="preferences-card" class="bg-white rounded-3xl shadow-subtle border border-border p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h2 class="text-lg font-bold text-primary">Preferences & Notes</h2>
+                                    <button class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-subtext">
+                                        <i class="fa-solid fa-pen text-sm"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                            <i class="fa-solid fa-chair text-primary text-sm"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-xs font-bold text-muted mb-1">SEATING</p>
+                                            <p class="text-sm text-primary font-semibold">Booth by window</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                            <i class="fa-solid fa-wine-glass text-primary text-sm"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-xs font-bold text-muted mb-1">DRINKS</p>
+                                            <p class="text-sm text-primary font-semibold">2018 Malbec, Red wine generally</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-danger-bg flex items-center justify-center flex-shrink-0">
+                                            <i class="fa-solid fa-triangle-exclamation text-danger text-sm"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-xs font-bold text-muted mb-1">DIETARY</p>
+                                            <p class="text-sm text-danger font-semibold">⚠️ Shellfish allergy (Sarah — wife)</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                            <i class="fa-solid fa-user text-primary text-sm"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-xs font-bold text-muted mb-1">STAFF</p>
+                                            <p class="text-sm text-primary font-semibold">Prefers server James</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="pt-2 border-t border-border">
+                                        <p class="text-xs font-bold text-muted mb-2">GENERAL NOTES</p>
+                                        <textarea 
+                                            class="w-full px-3 py-2 border border-border rounded-xl text-sm text-primary resize-none focus:outline-none focus:border-primary transition-colors" 
+                                            rows="3"
+                                            placeholder="Add notes..."
+                                        >Very polite and punctual. Always tips well. Regular Friday evening guest.</textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="relationships-card" class="bg-white rounded-3xl shadow-subtle border border-border p-6">
+                                <h2 class="text-lg font-bold text-primary mb-4">Connections</h2>
+                                
+                                <div class="flex items-center gap-3 p-3 bg-warm rounded-2xl hover:bg-warm-dark transition-colors cursor-pointer">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                                        SH
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-bold text-primary text-sm">Sarah Henman</p>
+                                        <p class="text-xs text-subtext">Wife</p>
+                                    </div>
+                                    <span class="px-2 py-1 bg-success-bg text-secondary rounded-full text-[10px] font-bold">8 visits</span>
+                                </div>
+                                
+                                <button class="w-full mt-3 text-secondary font-semibold text-sm hover:text-primary transition-colors flex items-center justify-center gap-2">
+                                    View linked profile
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </button>
+                            </div>
+
+                            <div id="upcoming-card" class="bg-white rounded-3xl shadow-subtle border border-border p-6">
+                                <h2 class="text-lg font-bold text-primary mb-4">Upcoming</h2>
+                                
+                                <div class="bg-warm rounded-2xl p-4 border border-border mb-3">
+                                    <p class="font-bold text-primary text-sm mb-1">Fri 28 Mar — 19:30</p>
+                                    <p class="text-sm text-subtext">Party of 4 · Table 3</p>
+                                </div>
+                                
+                                <button class="w-full px-4 py-2.5 bg-secondary text-white rounded-full font-semibold text-sm hover:bg-secondary/90 transition-colors">
+                                    Suggest Rebook
+                                </button>
+                            </div>
+
+                            <div id="marketing-card" class="bg-white rounded-3xl shadow-subtle border border-border p-6">
+                                <h2 class="text-lg font-bold text-primary mb-4">Marketing & Engagement</h2>
+                                
+                                <div class="space-y-3 mb-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-subtext font-semibold">Email</span>
+                                        <div class="w-10 h-6 bg-secondary rounded-full flex items-center px-1">
+                                            <div class="w-4 h-4 bg-white rounded-full ml-auto"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-subtext font-semibold">SMS</span>
+                                        <div class="w-10 h-6 bg-secondary rounded-full flex items-center px-1">
+                                            <div class="w-4 h-4 bg-white rounded-full ml-auto"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-subtext font-semibold">WhatsApp</span>
+                                        <div class="w-10 h-6 bg-gray-300 rounded-full flex items-center px-1">
+                                            <div class="w-4 h-4 bg-white rounded-full"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="pt-4 border-t border-border">
+                                    <p class="text-xs font-bold text-muted mb-1">LAST CAMPAIGN</p>
+                                    <p class="text-sm text-primary font-semibold mb-1">Valentine's Offer</p>
+                                    <p class="text-xs text-subtext mb-3">Opened, Not Clicked — 10 Feb</p>
+                                    
+                                    <div class="bg-warning-bg rounded-2xl p-3 mb-3">
+                                        <p class="text-xs font-bold text-accent mb-1">RECOMMENDED ACTION</p>
+                                        <p class="text-sm text-primary font-semibold">Birthday campaign eligible (Dec)</p>
+                                    </div>
+                                    
+                                    <button class="w-full px-4 py-2 bg-secondary text-white rounded-full font-semibold text-sm hover:bg-secondary/90 transition-colors">
+                                        Set Up
+                                    </button>
+                                </div>
+                                
+                                <div class="pt-4 border-t border-border mt-4">
+                                    <p class="text-xs font-bold text-muted mb-2">ENGAGEMENT SCORE</p>
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary rounded-full" style="width: 78%"></div>
+                                        </div>
+                                        <span class="text-lg font-bold text-primary">78</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="spend-analytics-card" class="bg-white rounded-3xl shadow-subtle border border-border p-6">
+                                <h2 class="text-lg font-bold text-primary mb-4">Spend Insights</h2>
+                                
+                                <div id="spend-chart" style="height: 240px;"></div>
+                                
+                                <div class="grid grid-cols-2 gap-3 mt-4">
+                                    <div class="bg-warm rounded-2xl p-3">
+                                        <p class="text-xs text-muted mb-1">Peak Month</p>
+                                        <p class="text-sm font-bold text-primary">December</p>
+                                        <p class="text-xs text-subtext">£380</p>
+                                    </div>
+                                    <div class="bg-success-bg rounded-2xl p-3">
+                                        <p class="text-xs text-muted mb-1">Trend</p>
+                                        <p class="text-sm font-bold text-secondary flex items-center gap-1">
+                                            <i class="fa-solid fa-arrow-up text-xs"></i>
+                                            12%
+                                        </p>
+                                        <p class="text-xs text-subtext">Avg value up</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.addEventListener('load', function() {
+            try {
+                const spendData = {
+                    x: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+                    y: [145, 210, 380, 178, 156, 268],
+                    type: 'bar',
+                    marker: {
+                        color: '#1B4332',
+                        cornerradius: 8
+                    },
+                    hovertemplate: '<b>%{x}</b><br>£%{y}<extra></extra>'
+                };
+
+                const layout = {
+                    margin: { t: 10, r: 10, b: 40, l: 50 },
+                    plot_bgcolor: '#FAFAF8',
+                    paper_bgcolor: '#FAFAF8',
+                    xaxis: {
+                        showgrid: false,
+                        zeroline: false
+                    },
+                    yaxis: {
+                        showgrid: true,
+                        gridcolor: '#EBEBEB',
+                        zeroline: false,
+                        tickprefix: '£'
+                    },
+                    showlegend: false,
+                    font: {
+                        family: 'Figtree, sans-serif',
+                        size: 11,
+                        color: '#666666'
+                    }
+                };
+
+                const config = {
+                    responsive: true,
+                    displayModeBar: false,
+                    displaylogo: false
+                };
+
+                Plotly.newPlot('spend-chart', [spendData], layout, config);
+            } catch(e) {
+                document.getElementById('spend-chart').innerHTML = '<div class="flex items-center justify-center h-full text-muted text-sm">Chart unavailable</div>';
+            }
+        });
+    </script>
+</body>
+</html>

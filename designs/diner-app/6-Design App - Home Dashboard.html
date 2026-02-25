@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        window.FontAwesomeConfig = {
+          autoReplaceSvg: 'nest'
+        };
+      </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Dashboard - Rezvo Restaurant Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#1B4332', // Forest Green
+                            DEFAULT: '#2D6A4F',
+                            light: '#40916C',
+                            accent: '#52B788', // Teal
+                            amber: '#D4A373', // Amber
+                            surface: '#F8F9FA',
+                            gray: '#F3F4F6',
+                            text: '#1F2937',
+                            muted: '#6B7280'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Figtree', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px rgba(0, 0, 0, 0.05)',
+                        'card': '0 2px 10px rgba(0, 0, 0, 0.03)',
+                        'card-hover': '0 10px 30px -5px rgba(27, 67, 50, 0.1)',
+                        'floating': '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
+                        'input': '0 0 0 4px rgba(82, 183, 136, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body { font-family: 'Figtree', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .sidebar-item-active {
+            background-color: #1B4332;
+            color: #ffffff;
+            border-right: 4px solid #D4A373;
+        }
+        .sidebar-item-inactive {
+            color: #4B5563;
+        }
+        .sidebar-item-inactive:hover {
+            background-color: #F3F4F6;
+            color: #1B4332;
+        }
+        
+        .status-badge-seated { background-color: #52B788; color: white; }
+        .status-badge-reserved { background-color: #D4A373; color: white; }
+        .status-badge-available { background-color: #E5E7EB; color: #374151; }
+        
+        /* Smooth fade animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+
+        /* Custom scrollbar for table/list containers */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #d1d5db; 
+            border-radius: 3px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af; 
+        }
+    </style>
+</head>
+<body class="bg-brand-surface h-screen flex overflow-hidden text-gray-800 antialiased">
+
+    <!-- Sidebar Navigation (Persistent) -->
+    <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col h-full z-20 hidden lg:flex shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        <!-- Logo Area -->
+        <div class="h-20 flex items-center px-6 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-brand-amber rounded-lg flex items-center justify-center text-brand-dark font-bold text-xl shadow-md">
+                    R.
+                </div>
+                <span class="text-xl font-bold tracking-tight text-brand-dark">Rezvo</span>
+            </div>
+        </div>
+
+        <!-- Main Navigation -->
+        <div class="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scroll">
+            
+            <div class="px-3 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Main</div>
+            
+            <a href="#" class="sidebar-item-active flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-house w-5 text-center"></i>
+                <span>Home Dashboard</span>
+            </a>
+            
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-magnifying-glass w-5 text-center"></i>
+                <span>Browse</span>
+            </a>
+            
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-plus-circle w-5 text-center"></i>
+                <span>Create/New</span>
+            </a>
+
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-bell w-5 text-center"></i>
+                <span>Notifications</span>
+                <span class="ml-auto bg-brand-amber text-white text-xs font-bold px-2 py-0.5 rounded-full">3</span>
+            </a>
+
+            <div class="px-3 mt-8 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Account</div>
+
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-user-gear w-5 text-center"></i>
+                <span>Profile & Settings</span>
+            </a>
+        </div>
+
+        <!-- User Profile (Bottom) -->
+        <div class="p-4 border-t border-gray-100">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                <div class="w-10 h-10 rounded-full bg-brand-dark text-white flex items-center justify-center font-bold border-2 border-white shadow-sm overflow-hidden">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="User" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-900 truncate">Alex Johnson</p>
+                    <p class="text-xs text-gray-500 truncate">General Manager</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative bg-brand-surface">
+        
+        <!-- Top Navigation Bar -->
+        <header id="top-nav" class="bg-white h-20 border-b border-gray-200 flex items-center justify-between px-6 lg:px-8 z-10 shadow-sm flex-shrink-0">
+            <!-- Mobile Menu Trigger -->
+            <button class="lg:hidden p-2 text-gray-600 hover:text-brand-dark">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+
+            <!-- Page Title / Context -->
+            <div class="flex items-center gap-4">
+                <h1 class="text-2xl font-bold text-gray-900">Home Dashboard</h1>
+                <div class="hidden md:flex items-center text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+                    Live Service: Dinner
+                </div>
+            </div>
+
+            <!-- Top Actions -->
+            <div class="flex items-center gap-4 md:gap-6">
+                <!-- Search -->
+                <div class="hidden md:flex relative group">
+                    <input type="text" placeholder="Search guests, reservations..." class="w-64 pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent text-sm transition-all group-hover:bg-white group-hover:shadow-soft">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-accent"></i>
+                    <div class="hidden group-focus-within:block absolute right-3 top-1/2 -translate-y-1/2">
+                        <span class="text-xs text-gray-400 border border-gray-200 rounded px-1.5 py-0.5">⌘K</span>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <button class="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-brand-dark transition-colors">
+                    <i class="fa-regular fa-bell text-xl"></i>
+                    <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+
+                <!-- Create/New Action -->
+                <button class="hidden sm:flex bg-brand-dark hover:bg-brand-light text-white font-semibold py-2.5 px-5 rounded-xl shadow-lg shadow-brand-dark/20 hover:shadow-brand-dark/30 transform hover:-translate-y-0.5 transition-all duration-200 items-center gap-2 text-sm">
+                    <i class="fa-solid fa-plus"></i>
+                    New Booking
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Content Scroll Area -->
+        <div class="flex-1 overflow-y-auto p-6 lg:p-8 custom-scroll">
+            <div class="max-w-7xl mx-auto space-y-8 pb-12">
+
+                <!-- 1. Quick Stats / Summary Cards -->
+                <section id="summary-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
+                    <!-- Card 1 -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-card hover:shadow-card-hover transition-all duration-300 group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Total Covers Today</p>
+                                <h3 class="text-3xl font-extrabold text-gray-900 group-hover:text-brand-dark transition-colors">248</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-brand-surface text-brand-dark flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-users text-lg"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="text-green-600 font-bold flex items-center gap-1 bg-green-50 px-1.5 py-0.5 rounded">
+                                <i class="fa-solid fa-arrow-trend-up text-xs"></i> 12%
+                            </span>
+                            <span class="text-gray-400">vs last week</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-card hover:shadow-card-hover transition-all duration-300 group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Upcoming Reservations</p>
+                                <h3 class="text-3xl font-extrabold text-gray-900 group-hover:text-brand-dark transition-colors">42</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-brand-surface text-brand-dark flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-calendar-check text-lg"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="text-gray-600 font-medium">Next: 6:30 PM (Party of 6)</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-card hover:shadow-card-hover transition-all duration-300 group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Waitlist</p>
+                                <h3 class="text-3xl font-extrabold text-gray-900 group-hover:text-brand-amber transition-colors">4</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-brand-surface text-brand-amber flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-hourglass-half text-lg"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="text-brand-amber font-bold">~25 min</span>
+                            <span class="text-gray-400">avg. wait time</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-card hover:shadow-card-hover transition-all duration-300 group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Revenue Estimate</p>
+                                <h3 class="text-3xl font-extrabold text-gray-900 group-hover:text-brand-accent transition-colors">$3,850</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-brand-surface text-brand-accent flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-dollar-sign text-lg"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="text-green-600 font-bold flex items-center gap-1 bg-green-50 px-1.5 py-0.5 rounded">
+                                <i class="fa-solid fa-arrow-trend-up text-xs"></i> 4.2%
+                            </span>
+                            <span class="text-gray-400">vs yesterday</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Main Dashboard Grid -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    
+                    <!-- Left Column (Charts & Floor Plan Snapshot) -->
+                    <div class="xl:col-span-2 space-y-8 animate-fade-in delay-100">
+                        
+                        <!-- Occupancy Chart -->
+                        <div class="bg-white rounded-2xl border border-gray-100 shadow-card p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">Occupancy Trends</h2>
+                                    <p class="text-sm text-gray-500">Live seating vs capacity over time</p>
+                                </div>
+                                <div class="flex bg-gray-100 rounded-lg p-1 text-xs font-medium">
+                                    <button class="px-3 py-1.5 bg-white text-gray-900 rounded shadow-sm">Today</button>
+                                    <button class="px-3 py-1.5 text-gray-500 hover:text-gray-900">Week</button>
+                                    <button class="px-3 py-1.5 text-gray-500 hover:text-gray-900">Month</button>
+                                </div>
+                            </div>
+                            <div id="occupancyChart" class="w-full h-[300px]"></div>
+                        </div>
+
+                        <!-- Floor Plan Quick View -->
+                        <div class="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">
+                            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">Floor Status</h2>
+                                    <p class="text-sm text-gray-500">Main Dining Room • 78% Capacity</p>
+                                </div>
+                                <a href="#" class="text-sm font-semibold text-brand-dark hover:text-brand-light flex items-center gap-1">
+                                    Full View <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </a>
+                            </div>
+                            <div class="relative bg-gray-50 h-[320px] p-4 overflow-hidden">
+                                <!-- Simulated Floor Plan Elements -->
+                                <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;"></div>
+                                
+                                <!-- Table 1 (Seated) -->
+                                <div class="absolute top-10 left-10 w-24 h-24 rounded-full bg-white border-2 border-brand-accent shadow-sm flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition-shadow">
+                                    <span class="font-bold text-brand-dark">T-01</span>
+                                    <div class="flex gap-0.5 mt-1">
+                                        <i class="fa-solid fa-user text-[10px] text-brand-accent"></i>
+                                        <i class="fa-solid fa-user text-[10px] text-brand-accent"></i>
+                                        <i class="fa-solid fa-user text-[10px] text-brand-accent"></i>
+                                        <i class="fa-solid fa-user text-[10px] text-gray-300"></i>
+                                    </div>
+                                    <span class="text-[10px] text-brand-accent font-medium mt-1">45m</span>
+                                </div>
+
+                                <!-- Table 2 (Reserved) -->
+                                <div class="absolute top-10 left-40 w-24 h-24 rounded-lg bg-white border-2 border-brand-amber shadow-sm flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition-shadow">
+                                    <span class="font-bold text-brand-dark">T-02</span>
+                                    <span class="text-[10px] text-brand-amber font-bold uppercase mt-1">6:30 PM</span>
+                                    <span class="text-[10px] text-gray-400">Smith (4)</span>
+                                </div>
+
+                                <!-- Table 3 (Available) -->
+                                <div class="absolute top-40 left-10 w-32 h-24 rounded-lg bg-white border-2 border-gray-200 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition-shadow opacity-70 hover:opacity-100">
+                                    <span class="font-bold text-gray-400">T-03</span>
+                                    <span class="text-[10px] text-green-600 font-medium mt-1">Available</span>
+                                </div>
+
+                                <!-- Table 4 (Seated VIP) -->
+                                <div class="absolute top-40 left-52 w-24 h-24 rounded-full bg-white border-2 border-brand-dark shadow-md flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition-shadow ring-2 ring-brand-amber/30">
+                                    <div class="absolute -top-2 -right-2 bg-brand-amber text-white text-[10px] font-bold px-1.5 rounded-full shadow-sm">VIP</div>
+                                    <span class="font-bold text-brand-dark">T-04</span>
+                                    <div class="flex gap-0.5 mt-1">
+                                        <i class="fa-solid fa-user text-[10px] text-brand-dark"></i>
+                                        <i class="fa-solid fa-user text-[10px] text-brand-dark"></i>
+                                    </div>
+                                    <span class="text-[10px] text-brand-dark font-medium mt-1">12m</span>
+                                </div>
+
+                                <!-- Table 5 (Dirty) -->
+                                <div class="absolute top-10 right-20 w-24 h-24 rounded-full bg-gray-100 border-2 border-dashed border-red-300 flex flex-col items-center justify-center cursor-pointer">
+                                    <span class="font-bold text-gray-500">T-05</span>
+                                    <span class="text-[10px] text-red-500 font-bold uppercase mt-1"><i class="fa-solid fa-broom"></i> Dirty</span>
+                                </div>
+
+                            </div>
+                            <div class="bg-gray-50 px-6 py-3 border-t border-gray-100 flex gap-4 text-xs text-gray-500 font-medium">
+                                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-brand-accent"></span> Seated</div>
+                                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-brand-amber"></span> Reserved</div>
+                                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span> Available</div>
+                                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-red-400"></span> Dirty</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column (Activity & Quick Actions) -->
+                    <div class="space-y-8 animate-fade-in delay-200">
+                        
+                        <!-- Quick Actions Grid -->
+                        <div class="bg-brand-dark rounded-2xl p-6 text-white shadow-card relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                            <div class="absolute bottom-0 left-0 w-24 h-24 bg-brand-accent opacity-10 rounded-full -ml-10 -mb-10 blur-xl"></div>
+                            
+                            <h2 class="text-lg font-bold mb-4 relative z-10">Quick Actions</h2>
+                            <div class="grid grid-cols-2 gap-3 relative z-10">
+                                <button class="bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl p-3 flex flex-col items-center justify-center gap-2 transition-all group">
+                                    <i class="fa-solid fa-chair text-brand-accent text-xl group-hover:scale-110 transition-transform"></i>
+                                    <span class="text-xs font-semibold">Walk-In</span>
+                                </button>
+                                <button class="bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl p-3 flex flex-col items-center justify-center gap-2 transition-all group">
+                                    <i class="fa-solid fa-calendar-plus text-brand-amber text-xl group-hover:scale-110 transition-transform"></i>
+                                    <span class="text-xs font-semibold">Reserve</span>
+                                </button>
+                                <button class="bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl p-3 flex flex-col items-center justify-center gap-2 transition-all group">
+                                    <i class="fa-solid fa-ban text-red-300 text-xl group-hover:scale-110 transition-transform"></i>
+                                    <span class="text-xs font-semibold">Block Tbl</span>
+                                </button>
+                                <button class="bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl p-3 flex flex-col items-center justify-center gap-2 transition-all group">
+                                    <i class="fa-solid fa-print text-blue-300 text-xl group-hover:scale-110 transition-transform"></i>
+                                    <span class="text-xs font-semibold">Run Sheet</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Live Feed / Activity -->
+                        <div class="bg-white rounded-2xl border border-gray-100 shadow-card flex flex-col h-[420px]">
+                            <div class="p-5 border-b border-gray-100 flex justify-between items-center">
+                                <h2 class="text-lg font-bold text-gray-900">Live Activity</h2>
+                                <button class="text-gray-400 hover:text-brand-dark"><i class="fa-solid fa-filter"></i></button>
+                            </div>
+                            <div class="flex-1 overflow-y-auto p-0 custom-scroll">
+                                <!-- Activity Item 1 -->
+                                <div class="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors flex gap-3">
+                                    <div class="mt-1 w-2 h-2 rounded-full bg-brand-accent shrink-0"></div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-800"><span class="font-bold">Table 12</span> was seated.</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">Assigned to: Sarah M.</p>
+                                    </div>
+                                    <span class="text-xs text-gray-400 font-medium">2m</span>
+                                </div>
+                                <!-- Activity Item 2 -->
+                                <div class="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors flex gap-3">
+                                    <div class="mt-1 w-2 h-2 rounded-full bg-brand-amber shrink-0"></div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-800">New Online Booking: <span class="font-bold">Miller (4)</span></p>
+                                        <p class="text-xs text-gray-500 mt-0.5">For Tomorrow, 7:00 PM</p>
+                                    </div>
+                                    <span class="text-xs text-gray-400 font-medium">15m</span>
+                                </div>
+                                <!-- Activity Item 3 -->
+                                <div class="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors flex gap-3">
+                                    <div class="mt-1 w-2 h-2 rounded-full bg-red-400 shrink-0"></div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-800"><span class="font-bold">Table 05</span> marked as Dirty.</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">Check paid ($142.50)</p>
+                                    </div>
+                                    <span class="text-xs text-gray-400 font-medium">22m</span>
+                                </div>
+                                <!-- Activity Item 4 -->
+                                <div class="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors flex gap-3">
+                                    <div class="mt-1 w-2 h-2 rounded-full bg-brand-dark shrink-0"></div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-800">Shift Started: <span class="font-bold">Dinner Service</span></p>
+                                        <p class="text-xs text-gray-500 mt-0.5">Manager: Alex Johnson</p>
+                                    </div>
+                                    <span class="text-xs text-gray-400 font-medium">1h</span>
+                                </div>
+                                <!-- Activity Item 5 -->
+                                <div class="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors flex gap-3">
+                                    <div class="mt-1 w-2 h-2 rounded-full bg-blue-400 shrink-0"></div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-800">Review Received: <span class="font-bold">5 Stars</span></p>
+                                        <p class="text-xs text-gray-500 mt-0.5">"Excellent service by Mark!"</p>
+                                    </div>
+                                    <span class="text-xs text-gray-400 font-medium">2h</span>
+                                </div>
+                            </div>
+                            <div class="p-3 border-t border-gray-100 text-center">
+                                <button class="text-xs font-bold text-brand-dark hover:text-brand-light uppercase tracking-wide">View All Activity</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 3. Upcoming Bookings Table -->
+                <section class="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden animate-fade-in delay-300">
+                    <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-900">Upcoming Arrivals</h2>
+                            <p class="text-sm text-gray-500">Next 2 hours</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                <input type="text" placeholder="Filter list..." class="pl-8 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-brand-accent w-48">
+                            </div>
+                            <button class="bg-gray-50 hover:bg-gray-100 text-gray-600 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium transition-colors">
+                                <i class="fa-solid fa-download mr-1"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-4">Time</th>
+                                    <th class="px-6 py-4">Guest</th>
+                                    <th class="px-6 py-4">Size</th>
+                                    <th class="px-6 py-4">Table</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4">Notes</th>
+                                    <th class="px-6 py-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <!-- Row 1 -->
+                                <tr class="hover:bg-brand-surface/50 group transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">6:30 PM</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-full bg-brand-amber/20 text-brand-dark font-bold text-xs flex items-center justify-center">JD</div>
+                                            <div>
+                                                <p class="text-sm font-bold text-gray-900">John Doe</p>
+                                                <p class="text-xs text-gray-500">+1 (555) 123-4567</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><i class="fa-solid fa-user-group text-gray-400 mr-2"></i> 4</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">T-02</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100">Confirmed</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-[150px]">Anniversary, Window seat requested</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button class="text-brand-dark hover:text-brand-light font-bold text-xs bg-brand-surface hover:bg-white border border-transparent hover:border-brand-accent/30 px-3 py-1.5 rounded transition-all shadow-sm">Seat</button>
+                                        <button class="text-gray-400 hover:text-gray-600 ml-2"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                    </td>
+                                </tr>
+                                <!-- Row 2 -->
+                                <tr class="hover:bg-brand-surface/50 group transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">6:45 PM</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center">AS</div>
+                                            <div>
+                                                <p class="text-sm font-bold text-gray-900">Alice Smith</p>
+                                                <div class="flex items-center gap-1">
+                                                    <span class="text-[10px] bg-brand-amber text-white px-1.5 rounded font-bold">VIP</span>
+                                                    <p class="text-xs text-gray-500">Regular</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><i class="fa-solid fa-user-group text-gray-400 mr-2"></i> 2</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-medium italic">Unassigned</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-50 text-yellow-600 border border-yellow-100">Late (5m)</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-[150px]">-</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button class="text-brand-dark hover:text-brand-light font-bold text-xs bg-brand-surface hover:bg-white border border-transparent hover:border-brand-accent/30 px-3 py-1.5 rounded transition-all shadow-sm">Assign</button>
+                                        <button class="text-gray-400 hover:text-gray-600 ml-2"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                    </td>
+                                </tr>
+                                <!-- Row 3 -->
+                                <tr class="hover:bg-brand-surface/50 group transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">7:00 PM</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center">MB</div>
+                                            <div>
+                                                <p class="text-sm font-bold text-gray-900">Mike Brown</p>
+                                                <p class="text-xs text-gray-500">+1 (555) 987-6543</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><i class="fa-solid fa-user-group text-gray-400 mr-2"></i> 6</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">T-08</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-600 border border-green-100">Partially Arrived</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-[150px]">Birthday celebration, Cake provided</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button class="text-brand-dark hover:text-brand-light font-bold text-xs bg-brand-surface hover:bg-white border border-transparent hover:border-brand-accent/30 px-3 py-1.5 rounded transition-all shadow-sm">Seat</button>
+                                        <button class="text-gray-400 hover:text-gray-600 ml-2"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-center">
+                        <button class="text-sm font-medium text-gray-600 hover:text-brand-dark flex items-center gap-2">
+                            View All Upcoming <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating Action Button (Mobile) -->
+    <div class="lg:hidden fixed bottom-6 right-6 z-50">
+        <button class="w-14 h-14 bg-brand-dark text-white rounded-full shadow-floating flex items-center justify-center text-2xl hover:bg-brand-light transition-colors">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- Chart Script -->
+    <script>
+        window.addEventListener('load', function() {
+            try {
+                var trace1 = {
+                    x: ['12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM'],
+                    y: [40, 65, 55, 30, 25, 45, 78, 92, 85, 60, 35],
+                    type: 'scatter',
+                    mode: 'lines',
+                    fill: 'tozeroy',
+                    line: {
+                        color: '#1B4332',
+                        width: 3,
+                        shape: 'spline'
+                    },
+                    fillcolor: 'rgba(82, 183, 136, 0.2)',
+                    name: 'Occupancy %'
+                };
+
+                var layout = {
+                    margin: { t: 20, r: 20, b: 40, l: 40 },
+                    xaxis: { 
+                        showgrid: false,
+                        color: '#6B7280'
+                    },
+                    yaxis: { 
+                        showgrid: true,
+                        gridcolor: '#F3F4F6',
+                        color: '#6B7280',
+                        range: [0, 100]
+                    },
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    hovermode: 'closest',
+                    showlegend: false,
+                    height: 300
+                };
+
+                var config = {responsive: true, displayModeBar: false};
+
+                Plotly.newPlot('occupancyChart', [trace1], layout, config);
+            } catch(e) {
+                console.error("Chart error:", e);
+                document.getElementById('occupancyChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Chart loading failed</div>';
+            }
+        });
+    </script>
+</body>
+</html>

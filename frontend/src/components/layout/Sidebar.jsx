@@ -88,7 +88,7 @@ function buildSections(navItems, tier) {
       { id: 'dashboard', Icon: LayoutDashboard, label: 'Dashboard', children: [
         mainChildren.find(c => c.id === 'home'),
       ].filter(Boolean) },
-      { id: 'calendar', Icon: Calendar, label: 'Calendar', children: [
+      { id: 'calendar', Icon: Calendar, label: businessType === 'restaurant' ? 'Reservations' : 'Calendar', children: [
         mainChildren.find(c => c.id === 'calendar'),
         mainChildren.find(c => c.id === 'bookings'),
         mainChildren.find(c => c.id === 'booking-link'),

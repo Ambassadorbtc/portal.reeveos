@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        window.FontAwesomeConfig = {
+          autoReplaceSvg: 'nest'
+        };
+      </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezvo - Floor Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1B4332', // Forest Green
+                        secondary: '#52B788', // Teal (Seated/Active)
+                        accent: '#D4A373', // Amber (Walk-in)
+                        background: '#FAFAF8', // Warm Gray
+                        surface: '#FFFFFF',
+                        text: {
+                            main: '#111111',
+                            muted: '#6B7280'
+                        },
+                        alert: {
+                            red: '#EF4444',
+                            amber: '#F59E0B'
+                        },
+                        status: {
+                            green: '#1B4332', // Confirmed/Available
+                            teal: '#52B788', // Seated
+                            amber: '#D4A373', // Mains/Walk-in
+                            blue: '#3B82F6', // VIP
+                            red: '#EF4444', // Late
+                            purple: '#8B5CF6', // Dessert
+                            gray: '#9CA3AF', // Paying
+                            dark: '#374151', // Dirty
+                            slate: '#64748B' // Blue-gray
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Figtree', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 8px rgba(0, 0, 0, 0.04)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'floating': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        'hover': '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                        'glow-green': '0 0 15px rgba(82, 183, 136, 0.5)',
+                    },
+                    backgroundImage: {
+                        'dot-grid': 'radial-gradient(#D1D5DB 1px, transparent 1px)',
+                        'kitchen-hatch': 'repeating-linear-gradient(45deg, #E5E7EB, #E5E7EB 5px, #F3F4F6 5px, #F3F4F6 10px)',
+                        'blocked-hatch': 'repeating-linear-gradient(45deg, #374151, #374151 5px, #4B5563 5px, #4B5563 10px)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+    <style>
+        body { font-family: 'Figtree', sans-serif; background-color: #FAFAF8; overflow: hidden; }
+        
+        /* Hide scrollbar for clean look where needed */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Custom tooltip styling */
+        .tooltip-trigger:hover .tooltip-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .tooltip-content {
+            z-index: 100;
+        }
+
+        /* Floor Plan Specific Styles */
+        .wall {
+            background-color: #9CA3AF;
+            position: absolute;
+        }
+        
+        .table-shape {
+            transition: all 0.2s ease;
+        }
+        
+        .table-shape:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .chair {
+            background-color: #D1D5DB;
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .pulse-animation {
+            animation: pulse-ring 2s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .pulse-green {
+            animation: pulse-green-ring 2s infinite;
+        }
+
+        @keyframes pulse-green-ring {
+            0% { box-shadow: 0 0 0 0 rgba(82, 183, 136, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(82, 183, 136, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(82, 183, 136, 0); }
+        }
+        
+        /* Service Flow Pipeline Arrow */
+        .flow-arrow::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 5px 0 5px 6px;
+            border-style: solid;
+            border-color: transparent transparent transparent #E5E7EB;
+        }
+
+        /* Custom Scrollbar for Right Panel */
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #E5E7EB;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="text-text-main h-screen flex flex-col md:flex-row overflow-hidden bg-background">
+
+    <!-- GREEN RAIL + WHITE PANEL SIDEBAR -->
+    <div class="flex h-full flex-shrink-0" style="font-family: 'Figtree', sans-serif;">
+      <!-- GREEN RAIL -->
+      <div style="width:64px; background:#1B4332; display:flex; flex-direction:column; z-index:20; flex-shrink:0;">
+        <!-- Logo -->
+        <div style="height:64px; display:flex; align-items:center; justify-content:center; border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0;">
+          <div style="width:34px; height:34px; border-radius:10px; background:#FAF7F2; display:flex; align-items:center; justify-content:center;">
+            <span style="color:#D4A017; font-weight:800; font-size:16px;">R</span>
+          </div>
+        </div>
+        <!-- Rail Icons -->
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; padding-top:16px; gap:4px;">
+          <!-- Dashboard -->
+          <button class="rail-btn" data-rail="dashboard" style="width:44px; height:44px; border-radius:12px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; background:transparent; position:relative;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(250,247,242,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </button>
+          <!-- Calendar (ACTIVE for reservation views) -->
+          <button class="rail-btn rail-active" data-rail="calendar" style="width:44px; height:44px; border-radius:12px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.14); position:relative;">
+            <div style="position:absolute; left:0; top:8px; bottom:8px; width:3px; border-radius:0 4px 4px 0; background:#FAF7F2;"></div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FAF7F2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </button>
+          <!-- Services -->
+          <button class="rail-btn" data-rail="services" style="width:44px; height:44px; border-radius:12px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; background:transparent; position:relative;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(250,247,242,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+          </button>
+          <!-- People -->
+          <button class="rail-btn" data-rail="people" style="width:44px; height:44px; border-radius:12px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; background:transparent; position:relative;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(250,247,242,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </button>
+          <!-- Business -->
+          <button class="rail-btn" data-rail="business" style="width:44px; height:44px; border-radius:12px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; background:transparent; position:relative;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(250,247,242,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+          </button>
+          <!-- Settings -->
+          <button class="rail-btn" data-rail="settings" style="width:44px; height:44px; border-radius:12px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; background:transparent; position:relative;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(250,247,242,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+        </div>
+        <!-- User Avatar -->
+        <div style="border-top:1px solid rgba(255,255,255,0.08); padding:12px 0; display:flex; justify-content:center; flex-shrink:0;">
+          <div style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; cursor:pointer;">
+            <span style="color:#FAF7F2; font-weight:600; font-size:12px;">MK</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- WHITE PANEL -->
+      <div style="width:220px; background:#FFFFFF; display:flex; flex-direction:column; border-right:1px solid #F0EDE7; overflow:hidden; flex-shrink:0;">
+        <!-- Panel Header -->
+        <div style="height:64px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; border-bottom:1px solid #F0EDE7; flex-shrink:0;">
+          <span style="font-weight:700; font-size:15px; color:#1B4332; letter-spacing:-0.01em;">Calendar</span>
+          <button style="width:28px; height:28px; border-radius:8px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#7A776F; background:transparent;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+        </div>
+
+        <!-- Nav Items -->
+        <div style="flex:1; overflow-y:auto; padding:8px 10px 16px;">
+          <!-- MAIN Section -->
+          <div style="padding:0 8px; margin-bottom:8px; font-size:10px; font-weight:600; letter-spacing:0.1em; color:#7A776F; text-transform:uppercase;">MAIN</div>
+
+          <!-- Calendar parent -->
+          <button style="width:100%; display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; border:none; cursor:pointer; font-size:13.5px; font-weight:600; color:#1B4332; background:rgba(27,67,50,0.06);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1B4332" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span style="flex:1; text-align:left;">Calendar</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A776F" stroke-width="2" stroke-linecap="round" style="transform:rotate(180deg);"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+
+          <!-- Tree children -->
+          <div style="margin-left:14px; padding-top:2px; padding-bottom:4px;">
+            <!-- Timeline -->
+            <div style="display:flex; align-items:center;">
+              <svg width="20" height="36" viewBox="0 0 20 36" style="flex-shrink:0; margin-left:2px;"><path d="M 10 0 L 10 18 Q 10 24 16 24 L 20 24" fill="none" stroke="rgba(27,67,50,0.15)" stroke-width="1.5"/><line x1="10" y1="18" x2="10" y2="36" stroke="rgba(27,67,50,0.15)" stroke-width="1.5"/></svg>
+              <a href="#" class="tree-child " style="flex:1; text-align:left; padding:7px 10px; border-radius:8px; border:none; cursor:pointer; font-size:13px; text-decoration:none; font-weight:500; color:#7A776F; background:transparent;">Timeline</a>
+            </div>
+            <!-- Tables -->
+            <div style="display:flex; align-items:center;">
+              <svg width="20" height="36" viewBox="0 0 20 36" style="flex-shrink:0; margin-left:2px;"><path d="M 10 0 L 10 18 Q 10 24 16 24 L 20 24" fill="none" stroke="rgba(27,67,50,0.15)" stroke-width="1.5"/><line x1="10" y1="18" x2="10" y2="36" stroke="rgba(27,67,50,0.15)" stroke-width="1.5"/></svg>
+              <a href="#" class="tree-child " style="flex:1; text-align:left; padding:7px 10px; border-radius:8px; border:none; cursor:pointer; font-size:13px; text-decoration:none; font-weight:500; color:#7A776F; background:transparent;">Tables</a>
+            </div>
+            <!-- List -->
+            <div style="display:flex; align-items:center;">
+              <svg width="20" height="36" viewBox="0 0 20 36" style="flex-shrink:0; margin-left:2px;"><path d="M 10 0 L 10 18 Q 10 24 16 24 L 20 24" fill="none" stroke="rgba(27,67,50,0.15)" stroke-width="1.5"/><line x1="10" y1="18" x2="10" y2="36" stroke="rgba(27,67,50,0.15)" stroke-width="1.5"/></svg>
+              <a href="#" class="tree-child " style="flex:1; text-align:left; padding:7px 10px; border-radius:8px; border:none; cursor:pointer; font-size:13px; text-decoration:none; font-weight:500; color:#7A776F; background:transparent;">Reservations</a>
+            </div>
+            <!-- Floor Plan -->
+            <div style="display:flex; align-items:center;">
+              <svg width="20" height="36" viewBox="0 0 20 36" style="flex-shrink:0; margin-left:2px;"><path d="M 10 0 L 10 18 Q 10 24 16 24 L 20 24" fill="none" stroke="rgba(27,67,50,0.15)" stroke-width="1.5"/></svg>
+              <a href="#" class="tree-child active" style="flex:1; text-align:left; padding:7px 10px; border-radius:8px; border:none; cursor:pointer; font-size:13px; text-decoration:none; font-weight:600; color:#1B4332; background:rgba(27,67,50,0.06);">Floor Plan</a>
+            </div>
+          </div>
+
+          <div style="height:1px; background:#F0EDE7; margin:12px 8px;"></div>
+
+          <!-- Bookings parent -->
+          <button style="width:100%; display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; border:none; cursor:pointer; font-size:13.5px; font-weight:500; color:#7A776F; background:transparent;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7A776F" stroke-width="1.5" stroke-linecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+            <span style="flex:1; text-align:left;">Bookings</span>
+          </button>
+
+          <!-- Customers -->
+          <button style="width:100%; display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; border:none; cursor:pointer; font-size:13.5px; font-weight:500; color:#7A776F; background:transparent;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7A776F" stroke-width="1.5" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <span style="flex:1; text-align:left;">Customers</span>
+          </button>
+
+          <!-- Waitlist -->
+          <button style="width:100%; display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; border:none; cursor:pointer; font-size:13.5px; font-weight:500; color:#7A776F; background:transparent; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7A776F" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Waitlist</span>
+            </div>
+            <span style="background:#D4A373; color:white; font-size:10px; font-weight:700; padding:1px 7px; border-radius:999px;">3</span>
+          </button>
+        </div>
+
+        <!-- User Footer -->
+        <div style="flex-shrink:0; border-top:1px solid #F0EDE7; padding:12px;">
+          <div style="display:flex; align-items:center; gap:10px; padding:6px; border-radius:10px; cursor:pointer;">
+            <div style="width:34px; height:34px; border-radius:50%; background:rgba(212,163,115,0.15); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <span style="color:#1B4332; font-weight:600; font-size:11px;">MK</span>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:13px; font-weight:600; color:#2C2C2A; line-height:1.3;">Micho K.</div>
+              <div style="font-size:11px; color:#7A776F;">Micho's Turkish Kitchen</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+        
+                <!-- TOP BAR — Salon-polished -->
+        <header style="display:flex; align-items:center; padding:10px 16px; gap:8px; background:#fff; border-bottom:1px solid #EBEBEB; flex-shrink:0; z-index:40; flex-wrap:wrap; font-family:'Figtree',sans-serif;">
+            
+            <!-- Date Nav (pill) -->
+            <div style="display:flex; align-items:center; gap:2px; background:#F5F5F5; border-radius:24px; padding:3px 4px;">
+                <button style="width:34px; height:34px; border-radius:50%; border:none; background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#1B4332; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                    <i class="fa-solid fa-chevron-left" style="font-size:11px;"></i>
+                </button>
+                <span style="font-size:14px; font-weight:700; color:#1B4332; padding:0 8px; white-space:nowrap;">Tuesday 25 Feb 2025</span>
+                <button style="width:34px; height:34px; border-radius:50%; border:none; background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#1B4332; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                    <i class="fa-solid fa-chevron-right" style="font-size:11px;"></i>
+                </button>
+            </div>
+
+            <!-- Today (pill) -->
+            <button style="padding:8px 18px; border-radius:20px; border:none; background:#1B4332; color:#fff; font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 2px 8px rgba(27,67,50,0.2); font-family:'Figtree',sans-serif;">Today</button>
+
+            <!-- Divider -->
+            <div style="width:1px; height:24px; background:#EBEBEB;"></div>
+
+            <!-- Lunch / Dinner (pill toggle) -->
+            <div style="display:flex; background:#F5F5F5; border-radius:20px; padding:3px;">
+                <button style="padding:7px 16px; border-radius:18px; border:none; cursor:pointer; font-size:12px; font-weight:500; background:transparent; color:#999; transition:all 0.15s; font-family:'Figtree',sans-serif;">Lunch</button>
+                <button style="padding:7px 16px; border-radius:18px; border:none; cursor:pointer; font-size:12px; font-weight:700; background:#fff; color:#1B4332; box-shadow:0 2px 6px rgba(0,0,0,0.06); transition:all 0.15s; font-family:'Figtree',sans-serif;">Dinner</button>
+            </div>
+
+            <!-- Divider -->
+            <div style="width:1px; height:24px; background:#EBEBEB;"></div>
+
+            <!-- View Toggle (pill toggle — salon style) -->
+            <div style="display:flex; background:#F5F5F5; border-radius:20px; padding:3px;">
+                            <button style="padding:7px 16px; border-radius:18px; border:none; cursor:pointer; font-size:12px; font-weight:500; background:transparent; color:#999; transition:all 0.15s; display:flex; align-items:center; gap:5px; font-family:'Figtree',sans-serif;" onmouseover="this.style.background='#fff';this.style.color='#1B4332';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent';this.style.color='#999';this.style.boxShadow='none'">
+                                <i class="fa-regular fa-clock" style="font-size:11px;"></i> Timeline
+                            </button>
+                            <button style="padding:7px 16px; border-radius:18px; border:none; cursor:pointer; font-size:12px; font-weight:500; background:transparent; color:#999; transition:all 0.15s; display:flex; align-items:center; gap:5px; font-family:'Figtree',sans-serif;" onmouseover="this.style.background='#fff';this.style.color='#1B4332';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent';this.style.color='#999';this.style.boxShadow='none'">
+                                <i class="fa-solid fa-border-all" style="font-size:11px;"></i> Tables
+                            </button>
+                            <button style="padding:7px 16px; border-radius:18px; border:none; cursor:pointer; font-size:12px; font-weight:500; background:transparent; color:#999; transition:all 0.15s; display:flex; align-items:center; gap:5px; font-family:'Figtree',sans-serif;" onmouseover="this.style.background='#fff';this.style.color='#1B4332';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent';this.style.color='#999';this.style.boxShadow='none'">
+                                <i class="fa-solid fa-list" style="font-size:11px;"></i> List
+                            </button>
+                            <button style="padding:7px 16px; border-radius:18px; border:none; cursor:pointer; font-size:12px; font-weight:700; background:#1B4332; color:#fff; box-shadow:0 2px 8px rgba(27,67,50,0.2); transition:all 0.15s; display:flex; align-items:center; gap:5px; font-family:'Figtree',sans-serif;">
+                                <i class="fa-solid fa-map" style="font-size:11px;"></i> Floor Plan
+                            </button>
+            </div>
+
+            <!-- Spacer pushes right side -->
+            <div style="flex:1;"></div>
+
+            <!-- Live Status Chips -->
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#1B4332;"></span>
+                    <span style="font-size:12px; color:#888; font-weight:500;"><strong style="color:#1B4332; font-weight:800;">42</strong> Covers</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#059669;"></span>
+                    <span style="font-size:12px; color:#888; font-weight:500;"><strong style="color:#1B4332; font-weight:800;">6</strong> Available</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#52B788;"></span>
+                    <span style="font-size:12px; color:#888; font-weight:500;"><strong style="color:#1B4332; font-weight:800;">9</strong> Seated</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#D4A373;"></span>
+                    <span style="font-size:12px; color:#888; font-weight:500;"><strong style="color:#1B4332; font-weight:800;">3</strong> Waitlist</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#EF4444;"></span>
+                    <span style="font-size:12px; color:#888; font-weight:500;"><strong style="color:#1B4332; font-weight:800;">2</strong> Late</span>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div style="width:1px; height:24px; background:#EBEBEB;"></div>
+
+            <!-- Search (pill) -->
+            <button style="width:38px; height:38px; border-radius:50%; border:none; background:#F5F5F5; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#888; transition:all 0.15s;" onmouseover="this.style.background='#EBEBEB'" onmouseout="this.style.background='#F5F5F5'">
+                <i class="fa-solid fa-magnifying-glass" style="font-size:13px;"></i>
+            </button>
+
+            <!-- Bell -->
+            <button style="width:38px; height:38px; border-radius:50%; border:none; background:#F5F5F5; cursor:pointer; display:flex; align-items:center; justify-content:center; position:relative; color:#888; transition:all 0.15s;" onmouseover="this.style.background='#EBEBEB'" onmouseout="this.style.background='#F5F5F5'">
+                <i class="fa-regular fa-bell" style="font-size:14px;"></i>
+                <span style="position:absolute; top:7px; right:8px; width:7px; height:7px; border-radius:50%; background:#EF4444; border:2px solid #F5F5F5;"></span>
+            </button>
+        </header>
+
+
+        <!-- SUB-TOOLBAR (Floor Plan Specific) -->
+        <div class="h-[50px] bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0 z-30">
+            <!-- Left: Floor/Zone Tabs -->
+            <div class="flex items-center gap-6">
+                <button class="relative text-sm font-bold text-primary py-3 border-b-2 border-primary transition-colors">
+                    Ground Floor
+                </button>
+                <button class="relative text-sm font-medium text-gray-500 py-3 border-b-2 border-transparent hover:text-gray-900 transition-colors">
+                    Patio
+                </button>
+                <button class="relative text-sm font-medium text-gray-500 py-3 border-b-2 border-transparent hover:text-gray-900 transition-colors">
+                    Private Room
+                </button>
+            </div>
+
+            <!-- Center: Live Capacity -->
+            <div class="flex items-center gap-3 hidden lg:flex">
+                <span class="text-xs font-bold text-gray-700">Ground Floor: 34/52 seats (65%)</span>
+                <div class="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-secondary rounded-full" style="width: 65%"></div>
+                </div>
+            </div>
+
+            <!-- Right: Tools -->
+            <div class="flex items-center gap-3">
+                <div class="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
+                    <button class="w-7 h-7 flex items-center justify-center rounded text-gray-500 hover:bg-white hover:shadow-sm hover:text-gray-900 transition-all">
+                        <i class="fa-solid fa-minus text-xs"></i>
+                    </button>
+                    <span class="text-xs font-medium px-2 text-gray-600">100%</span>
+                    <button class="w-7 h-7 flex items-center justify-center rounded text-gray-500 hover:bg-white hover:shadow-sm hover:text-gray-900 transition-all">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <button class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors border border-transparent hover:border-gray-200">
+                    <i class="fa-solid fa-expand text-sm"></i>
+                </button>
+                <div class="h-5 w-px bg-gray-200"></div>
+                <button class="flex items-center gap-2 px-3 py-1.5 border border-primary text-primary rounded-lg text-xs font-bold hover:bg-primary/5 transition-all">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    Edit Layout
+                </button>
+            </div>
+        </div>
+
+        <!-- WORKSPACE AREA (Split View) -->
+        <div class="flex-1 flex overflow-hidden">
+            
+            <!-- LEFT: CANVAS (Floor Plan) -->
+            <div class="flex-1 bg-[#FAFAF8] bg-dot-grid bg-[length:20px_20px] relative overflow-auto cursor-grab active:cursor-grabbing p-10" id="floor-canvas">
+                
+                <!-- Floor Container (Centered relatively) -->
+                <div class="relative w-[1000px] h-[700px] mx-auto bg-white shadow-xl rounded-sm border border-gray-200">
+                    
+                    <!-- Structural Elements -->
+                    <!-- Perimeter Walls -->
+                    <div class="absolute top-0 left-0 w-full h-[3px] bg-gray-400"></div> <!-- Top -->
+                    <div class="absolute bottom-0 left-0 w-full h-[3px] bg-gray-400"></div> <!-- Bottom -->
+                    <div class="absolute top-0 left-0 w-[3px] h-full bg-gray-400"></div> <!-- Left -->
+                    <div class="absolute top-0 right-0 w-[3px] h-full bg-gray-400"></div> <!-- Right -->
+                    
+                    <!-- Entrance -->
+                    <div class="absolute bottom-[-15px] left-[50%] translate-x-[-50%] flex flex-col items-center">
+                        <div class="w-16 h-[3px] bg-white absolute top-[15px] z-10"></div> <!-- Door gap -->
+                        <div class="w-16 h-8 border-x-2 border-t-2 border-gray-400 rounded-t-full opacity-30 mb-1"></div>
+                        <div class="flex items-center gap-1 text-gray-500">
+                            <i class="fa-solid fa-door-open text-sm"></i>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Entrance</span>
+                        </div>
+                    </div>
+
+                    <!-- Kitchen Area -->
+                    <div class="absolute top-0 right-0 w-[250px] h-[200px] bg-kitchen-hatch border-l-[3px] border-b-[3px] border-gray-400 flex items-center justify-center">
+                        <span class="bg-white/90 px-3 py-1 text-sm font-bold text-gray-500 uppercase tracking-widest border border-gray-300 rounded shadow-sm">Kitchen</span>
+                    </div>
+
+                    <!-- Bar Counter -->
+                    <div class="absolute top-0 left-[200px] w-[400px] h-[60px] bg-gray-800 rounded-b-lg flex items-center justify-center shadow-lg z-10">
+                        <span class="text-gray-400 text-xs font-bold uppercase tracking-widest">Bar Counter</span>
+                    </div>
+                    <!-- Bar Stools -->
+                    <div class="absolute top-[65px] left-[220px] flex gap-8">
+                        <!-- Stool 1 (Seated) -->
+                        <div class="w-8 h-8 rounded bg-status-teal shadow-md flex items-center justify-center text-white text-[10px] font-bold relative group cursor-pointer">
+                            B1
+                            <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">Seated</div>
+                        </div>
+                        <!-- Stool 2 -->
+                        <div class="w-8 h-8 rounded bg-white border border-status-green shadow-sm flex items-center justify-center text-gray-900 text-[10px] font-bold cursor-pointer hover:bg-green-50">B2</div>
+                        <!-- Stool 3 -->
+                        <div class="w-8 h-8 rounded bg-white border border-status-green shadow-sm flex items-center justify-center text-gray-900 text-[10px] font-bold cursor-pointer hover:bg-green-50">B3</div>
+                        <!-- Stool 4 -->
+                        <div class="w-8 h-8 rounded bg-white border border-status-green shadow-sm flex items-center justify-center text-gray-900 text-[10px] font-bold cursor-pointer hover:bg-green-50">B4</div>
+                    </div>
+
+                    <!-- Windows (Left Wall) -->
+                    <div class="absolute top-[100px] left-[-5px] h-[300px] w-2 flex flex-col justify-between py-2">
+                        <div class="h-full border-l-2 border-r-2 border-blue-200 bg-blue-50/50 w-full"></div>
+                    </div>
+                    <div class="absolute top-[220px] left-[10px] -rotate-90 origin-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Window Section</div>
+
+                    <!-- WC -->
+                    <div class="absolute bottom-0 left-0 w-[80px] h-[80px] bg-gray-100 border-r-[3px] border-t-[3px] border-gray-400 flex items-center justify-center">
+                        <i class="fa-solid fa-restroom text-gray-400 text-lg"></i>
+                    </div>
+
+                    <!-- TABLES -->
+
+                    <!-- Table 1 (Round 2-top, Confirmed Next) -->
+                    <div class="absolute top-[150px] left-[50px] tooltip-trigger">
+                        <!-- Chairs -->
+                        <div class="chair w-3 h-3 top-[-5px] left-[14px]"></div>
+                        <div class="chair w-3 h-3 bottom-[-5px] left-[14px]"></div>
+                        <!-- Table -->
+                        <div role="button" tabindex="0" class="w-[40px] h-[40px] rounded-full bg-white border-2 border-dashed border-status-amber shadow-sm flex items-center justify-center text-xs font-bold text-gray-700 relative cursor-pointer table-shape focus:ring-2 focus:ring-primary outline-none">
+                            T1
+                            <!-- Floating Status -->
+                            <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-white border border-status-amber text-status-amber text-[10px] font-bold px-2 py-0.5 rounded shadow-sm whitespace-nowrap z-20">
+                                19:30 · Johnson
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table 2 (Round 2-top, Available) -->
+                    <div class="absolute top-[250px] left-[50px] tooltip-trigger group">
+                        <!-- Chairs -->
+                        <div class="chair w-3 h-3 top-[-5px] left-[14px]"></div>
+                        <div class="chair w-3 h-3 bottom-[-5px] left-[14px]"></div>
+                        <!-- Table -->
+                        <div role="button" tabindex="0" class="w-[40px] h-[40px] rounded-full bg-white border-2 border-status-green shadow-sm flex items-center justify-center text-xs font-bold text-gray-700 relative cursor-pointer table-shape group-hover:border-primary focus:ring-2 focus:ring-primary outline-none">
+                            T2
+                            <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 text-status-green text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity">Available</div>
+                        </div>
+                    </div>
+
+                    <!-- Table 3 (Round 4-top, Seated - Highlight) -->
+                    <div class="absolute top-[150px] left-[150px] tooltip-trigger z-20">
+                        <!-- Chairs -->
+                        <div class="chair w-3 h-3 top-[-5px] left-[22px]"></div>
+                        <div class="chair w-3 h-3 bottom-[-5px] left-[22px]"></div>
+                        <div class="chair w-3 h-3 left-[-5px] top-[22px]"></div>
+                        <div class="chair w-3 h-3 right-[-5px] top-[22px]"></div>
+                        <!-- Table -->
+                        <div role="button" tabindex="0" class="w-[56px] h-[56px] rounded-full bg-secondary shadow-md flex items-center justify-center text-sm font-bold text-white relative cursor-pointer table-shape focus:ring-2 focus:ring-primary outline-none">
+                            T3
+                            <!-- Floating Status -->
+                            <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-white shadow-floating text-gray-900 text-[10px] font-bold px-2 py-1 rounded border border-gray-100 whitespace-nowrap z-30 flex items-center gap-1">
+                                Smith · 4 <i class="fa-solid fa-user text-[8px] text-gray-400"></i>
+                            </div>
+                            <!-- Timer -->
+                            <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 text-primary text-[10px] font-bold bg-white/90 px-1 rounded">1h 12m</div>
+                        </div>
+                        
+                        <!-- TOOLTIP CARD (On Hover) -->
+                        <div class="tooltip-content absolute left-full top-0 ml-4 w-[280px] bg-white rounded-xl shadow-hover border border-gray-100 p-4 opacity-0 invisible transition-all duration-200 pointer-events-none">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h4 class="font-bold text-gray-900 text-base">James Smith</h4>
+                                    <p class="text-xs text-gray-500">Seated 13:00 (1h 12m)</p>
+                                </div>
+                                <span class="px-2 py-0.5 bg-teal-50 text-status-teal text-[10px] font-bold rounded border border-teal-100">Seated</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-xs text-gray-600 mb-3 pb-3 border-b border-gray-100">
+                                <div class="flex items-center gap-1"><i class="fa-solid fa-users text-gray-400"></i> 4 guests</div>
+                                <div class="flex items-center gap-1"><i class="fa-solid fa-user-tie text-gray-400"></i> Server: Sarah</div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex items-start gap-2 bg-red-50 p-2 rounded border border-red-100">
+                                    <i class="fa-solid fa-triangle-exclamation text-alert-red text-xs mt-0.5"></i>
+                                    <div class="text-xs text-gray-800"><strong class="text-alert-red">Allergy:</strong> Shellfish (Severe)</div>
+                                </div>
+                                <div class="flex items-start gap-2">
+                                    <i class="fa-regular fa-note-sticky text-gray-400 text-xs mt-0.5"></i>
+                                    <div class="text-xs text-gray-600">Anniversary dinner. Complimentary dessert at end.</div>
+                                </div>
+                            </div>
+                            <div class="mt-3 pt-2 border-t border-gray-100 flex justify-between items-center">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase">Next Booking</span>
+                                <span class="text-xs font-bold text-gray-700">19:30 (Johnson)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table 4 (Round 4-top, Mains) -->
+                    <div class="absolute top-[280px] left-[150px] tooltip-trigger">
+                        <!-- Chairs -->
+                        <div class="chair w-3 h-3 top-[-5px] left-[22px]"></div>
+                        <div class="chair w-3 h-3 bottom-[-5px] left-[22px]"></div>
+                        <div class="chair w-3 h-3 left-[-5px] top-[22px]"></div>
+                        <div class="chair w-3 h-3 right-[-5px] top-[22px]"></div>
+                        <!-- Table -->
+                        <div class="w-[56px] h-[56px] rounded-full bg-status-amber shadow-md flex items-center justify-center text-sm font-bold text-white relative cursor-pointer table-shape">
+                            T4
+                            <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 text-status-amber text-[10px] font-bold uppercase tracking-wide">Mains</div>
+                        </div>
+                    </div>
+
+                    <!-- Table 5 (Rect 6-top, Dessert) -->
+                    <div class="absolute top-[400px] left-[50px] tooltip-trigger">
+                         <!-- Chairs -->
+                         <div class="chair w-3 h-3 top-[-5px] left-[15px]"></div>
+                         <div class="chair w-3 h-3 top-[-5px] left-[50px]"></div>
+                         <div class="chair w-3 h-3 bottom-[-5px] left-[15px]"></div>
+                         <div class="chair w-3 h-3 bottom-[-5px] left-[50px]"></div>
+                         <div class="chair w-3 h-3 left-[-5px] top-[18px]"></div>
+                         <div class="chair w-3 h-3 right-[-5px] top-[18px]"></div>
+                         <!-- Table -->
+                        <div class="w-[80px] h-[48px] rounded-lg bg-status-purple shadow-md flex items-center justify-center text-sm font-bold text-white relative cursor-pointer table-shape">
+                            T5
+                            <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 text-status-purple text-[10px] font-bold uppercase tracking-wide">Dessert</div>
+                        </div>
+                    </div>
+
+                    <!-- Table 6 (Rect 6-top, Paying) -->
+                    <div class="absolute top-[400px] left-[180px] tooltip-trigger">
+                         <!-- Chairs -->
+                         <div class="chair w-3 h-3 top-[-5px] left-[15px]"></div>
+                         <div class="chair w-3 h-3 top-[-5px] left-[50px]"></div>
+                         <div class="chair w-3 h-3 bottom-[-5px] left-[15px]"></div>
+                         <div class="chair w-3 h-3 bottom-[-5px] left-[50px]"></div>
+                         <div class="chair w-3 h-3 left-[-5px] top-[18px]"></div>
+                         <div class="chair w-3 h-3 right-[-5px] top-[18px]"></div>
+                         <!-- Table -->
+                        <div class="w-[80px] h-[48px] rounded-lg bg-status-slate shadow-md flex items-center justify-center text-sm font-bold text-white relative cursor-pointer table-shape">
+                            T6
+                            <div class="absolute -top-3 right-[-5px] bg-white rounded-full p-1 shadow-sm border border-gray-100 text-status-slate">
+                                <i class="fa-solid fa-credit-card text-[10px]"></i>
+                            </div>
+                            <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 text-status-slate text-[10px] font-bold uppercase tracking-wide">Paying</div>
+                        </div>
+                    </div>
+
+                    <!-- Table 7 (Booth, Dirty) -->
+                    <div class="absolute top-[500px] right-[50px] tooltip-trigger">
+                        <!-- Booth Back -->
+                        <div class="absolute -top-2 -right-2 -bottom-2 w-[20px] bg-gray-300 rounded-r-lg"></div>
+                        <!-- Table -->
+                        <div class="w-[80px] h-[60px] rounded-l-lg bg-status-dark shadow-md flex items-center justify-center text-sm font-bold text-white relative cursor-pointer table-shape">
+                            T7
+                            <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center">
+                                <span class="w-1.5 h-1.5 rounded-full bg-alert-red pulse-animation mb-0.5"></span>
+                                <span class="text-status-dark text-[10px] font-bold uppercase tracking-wide">Clear</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table 8 (Booth, Blocked) -->
+                    <div class="absolute top-[400px] right-[50px] tooltip-trigger opacity-60">
+                         <!-- Booth Back -->
+                         <div class="absolute -top-2 -right-2 -bottom-2 w-[20px] bg-gray-300 rounded-r-lg"></div>
+                         <!-- Table -->
+                        <div class="w-[80px] h-[60px] rounded-l-lg bg-blocked-hatch shadow-none flex items-center justify-center text-sm font-bold text-white relative cursor-not-allowed">
+                            <i class="fa-solid fa-ban text-white/50"></i>
+                        </div>
+                    </div>
+
+                    <!-- Center Floor Tables -->
+                    <!-- Table 9 (Round 4, Available) -->
+                    <div class="absolute top-[250px] left-[400px] tooltip-trigger group">
+                        <div class="chair w-3 h-3 top-[-5px] left-[22px]"></div>
+                        <div class="chair w-3 h-3 bottom-[-5px] left-[22px]"></div>
+                        <div class="chair w-3 h-3 left-[-5px] top-[22px]"></div>
+                        <div class="chair w-3 h-3 right-[-5px] top-[22px]"></div>
+                        <div class="w-[56px] h-[56px] rounded-full bg-white border-2 border-status-green shadow-sm flex items-center justify-center text-xs font-bold text-gray-700 relative cursor-pointer table-shape group-hover:border-primary pulse-green">
+                            T9
+                             <!-- Smart Space Finder Glow Effect simulated via class -->
+                            <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 text-status-green text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity">Available</div>
+                        </div>
+                    </div>
+
+                    <!-- Table 10 (Round 4, Available) -->
+                    <div class="absolute top-[350px] left-[400px] tooltip-trigger group">
+                        <div class="chair w-3 h-3 top-[-5px] left-[22px]"></div>
+                        <div class="chair w-3 h-3 bottom-[-5px] left-[22px]"></div>
+                        <div class="chair w-3 h-3 left-[-5px] top-[22px]"></div>
+                        <div class="chair w-3 h-3 right-[-5px] top-[22px]"></div>
+                        <div class="w-[56px] h-[56px] rounded-full bg-white border-2 border-status-green shadow-sm flex items-center justify-center text-xs font-bold text-gray-700 relative cursor-pointer table-shape group-hover:border-primary">
+                            T10
+                        </div>
+                    </div>
+
+                     <!-- Table 11 (Rect 6, Seated) -->
+                     <div class="absolute top-[250px] left-[600px] tooltip-trigger">
+                        <div class="chair w-3 h-3 top-[-5px] left-[15px]"></div>
+                        <div class="chair w-3 h-3 top-[-5px] left-[50px]"></div>
+                        <div class="chair w-3 h-3 bottom-[-5px] left-[15px]"></div>
+                        <div class="chair w-3 h-3 bottom-[-5px] left-[50px]"></div>
+                        <div class="chair w-3 h-3 left-[-5px] top-[18px]"></div>
+                        <div class="chair w-3 h-3 right-[-5px] top-[18px]"></div>
+                       <div class="w-[80px] h-[48px] rounded-lg bg-secondary shadow-md flex items-center justify-center text-sm font-bold text-white relative cursor-pointer table-shape">
+                           T11
+                            <div class="absolute -top-7 left-1/2 -translate-x-1/2 bg-white shadow-floating text-gray-900 text-[10px] font-bold px-2 py-0.5 rounded border border-gray-100 whitespace-nowrap z-30">
+                                Patel · 6
+                            </div>
+                       </div>
+                   </div>
+
+                </div>
+            </div>
+
+            <!-- RIGHT: DETAIL PANEL (30% Width) -->
+            <aside class="w-[380px] bg-white border-l border-gray-200 flex flex-col z-20 shadow-xl overflow-hidden">
+                
+                <!-- Smart Space Finder -->
+                <div class="p-4 border-b border-gray-100 bg-gray-50/50">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-primary text-sm"></i>
+                        <input type="text" value="6 guests window" class="w-full pl-9 pr-4 py-2.5 bg-white border border-primary/30 rounded-lg text-sm font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm placeholder-gray-400" placeholder="Find a table for...">
+                        <div class="absolute right-2 top-1/2 -translate-x-0 -translate-y-1/2 text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                            ENTER
+                        </div>
+                    </div>
+                    <!-- Suggestion -->
+                    <div class="mt-2 flex items-center gap-2 text-xs text-gray-600 bg-green-50 p-2 rounded border border-green-100">
+                        <i class="fa-regular fa-lightbulb text-status-amber"></i>
+                        <span><strong class="text-primary">T5 + T6</strong> can seat 6 in window section</span>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto custom-scroll p-4 space-y-6">
+                    
+                    <!-- Service Flow (Key Feature) -->
+                    <section>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-bold text-gray-900">Service Flow</h3>
+                            <button class="text-xs text-primary font-bold hover:underline">View All</button>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl border border-gray-100 shadow-card p-4">
+                            <!-- Visual Pipeline -->
+                            <div class="flex items-center justify-between mb-4 relative">
+                                <!-- Connecting Line -->
+                                <div class="absolute top-1/2 left-4 right-4 h-0.5 bg-gray-100 -z-10"></div>
+                                
+                                <div class="flex flex-col items-center gap-1 bg-white px-1 z-10">
+                                    <div class="w-8 h-8 rounded-full border-2 border-primary bg-green-50 text-primary font-bold text-xs flex items-center justify-center">6</div>
+                                    <span class="text-[9px] font-bold text-gray-500 uppercase">Free</span>
+                                </div>
+                                <div class="flex flex-col items-center gap-1 bg-white px-1 z-10">
+                                    <div class="w-8 h-8 rounded-full bg-secondary text-white font-bold text-xs flex items-center justify-center shadow-sm">4</div>
+                                    <span class="text-[9px] font-bold text-gray-900 uppercase">Seated</span>
+                                </div>
+                                <div class="flex flex-col items-center gap-1 bg-white px-1 z-10">
+                                    <div class="w-8 h-8 rounded-full bg-status-amber text-white font-bold text-xs flex items-center justify-center shadow-sm">3</div>
+                                    <span class="text-[9px] font-bold text-gray-900 uppercase">Mains</span>
+                                </div>
+                                <div class="flex flex-col items-center gap-1 bg-white px-1 z-10">
+                                    <div class="w-8 h-8 rounded-full bg-status-purple text-white font-bold text-xs flex items-center justify-center shadow-sm">2</div>
+                                    <span class="text-[9px] font-bold text-gray-700 uppercase">Dst</span>
+                                </div>
+                                <div class="flex flex-col items-center gap-1 bg-white px-1 z-10">
+                                    <div class="w-8 h-8 rounded-full bg-status-slate text-white font-bold text-xs flex items-center justify-center shadow-sm">1</div>
+                                    <span class="text-[9px] font-bold text-gray-900 uppercase">Pay</span>
+                                </div>
+                            </div>
+                            
+                            <div class="text-xs text-center text-gray-500 bg-gray-50 rounded-lg py-2 border border-gray-100">
+                                <span class="font-bold text-gray-900">1</span> table needs clearing <span class="mx-1">·</span> Avg turn time <span class="font-bold text-gray-900">1h 18m</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Upcoming Reservations -->
+                    <section>
+                        <h3 class="text-sm font-bold text-gray-900 mb-3">Upcoming (Next 60m)</h3>
+                        <div class="space-y-2">
+                            <!-- Row 1 -->
+                            <div class="flex items-center justify-between p-2.5 bg-white border border-gray-100 rounded-lg hover:border-primary/30 hover:shadow-sm cursor-pointer transition-all group">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-xs font-bold text-gray-900 w-10">19:00</div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-gray-900 group-hover:text-primary transition-colors">Smith</span>
+                                        <div class="flex items-center gap-1 text-[10px] text-gray-500">
+                                            <i class="fa-solid fa-user text-[8px]"></i> 4 guests
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">T7</span>
+                                    <i class="fa-solid fa-circle-check text-status-green text-sm"></i>
+                                </div>
+                            </div>
+
+                            <!-- Row 2 -->
+                            <div class="flex items-center justify-between p-2.5 bg-white border border-gray-100 rounded-lg hover:border-primary/30 hover:shadow-sm cursor-pointer transition-all group">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-xs font-bold text-gray-900 w-10">19:30</div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-gray-900 group-hover:text-primary transition-colors">Johnson</span>
+                                        <div class="flex items-center gap-1 text-[10px] text-gray-500">
+                                            <i class="fa-solid fa-user text-[8px]"></i> 2 guests
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">T3</span>
+                                    <i class="fa-solid fa-circle-check text-status-green text-sm"></i>
+                                </div>
+                            </div>
+
+                            <!-- Row 3 -->
+                            <div class="flex items-center justify-between p-2.5 bg-white border border-gray-100 rounded-lg hover:border-primary/30 hover:shadow-sm cursor-pointer transition-all group border-l-4 border-l-status-amber">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-xs font-bold text-gray-900 w-10">19:30</div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-gray-900 group-hover:text-primary transition-colors">Patel</span>
+                                        <div class="flex items-center gap-1 text-[10px] text-gray-500">
+                                            <i class="fa-solid fa-user text-[8px]"></i> 6 guests
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-bold text-white bg-status-amber px-1.5 py-0.5 rounded">Waitlist</span>
+                                    <i class="fa-solid fa-hourglass-half text-status-amber text-sm"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Quick Stats -->
+                    <section>
+                        <h3 class="text-sm font-bold text-gray-900 mb-3">Quick Stats</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <div class="text-[10px] font-bold text-gray-500 uppercase mb-1">Total Covers</div>
+                                <div class="text-xl font-black text-gray-900">42</div>
+                                <div class="text-[10px] font-bold text-status-green flex items-center gap-1 mt-1">
+                                    <i class="fa-solid fa-arrow-up"></i> 8 vs last Tue
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <div class="text-[10px] font-bold text-gray-500 uppercase mb-1">Waitlist</div>
+                                <div class="text-xl font-black text-gray-900">3</div>
+                                <div class="text-[10px] font-bold text-gray-500 mt-1">
+                                    Longest: 18 min
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-start gap-3">
+                             <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i class="fa-solid fa-info text-xs"></i>
+                             </div>
+                             <div>
+                                 <div class="text-xs font-bold text-blue-900">Next available 4-top</div>
+                                 <div class="text-xs text-blue-700 mt-0.5">Table T3 at 19:30</div>
+                             </div>
+                        </div>
+                    </section>
+                </div>
+            </aside>
+        </div>
+
+    </main>
+
+    <script>
+        // Simple script to handle tooltips positioning if needed dynamically, 
+        // though CSS hover is primarily used here for interaction speed.
+        
+        // This script adds a subtle "drag" effect to the canvas for realism
+        const canvas = document.getElementById('floor-canvas');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+        let startY;
+        let scrollTop;
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDown = true;
+            canvas.classList.add('active:cursor-grabbing');
+            startX = e.pageX - canvas.offsetLeft;
+            scrollLeft = canvas.scrollLeft;
+            startY = e.pageY - canvas.offsetTop;
+            scrollTop = canvas.scrollTop;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isDown = false;
+            canvas.classList.remove('active:cursor-grabbing');
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDown = false;
+            canvas.classList.remove('active:cursor-grabbing');
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - canvas.offsetLeft;
+            const walkX = (x - startX) * 1; // scroll-fast
+            canvas.scrollLeft = scrollLeft - walkX;
+            
+            const y = e.pageY - canvas.offsetTop;
+            const walkY = (y - startY) * 1;
+            canvas.scrollTop = scrollTop - walkY;
+        });
+    </script>
+
+    <!-- FLOATING ACTION BUTTON -->
+    <div style="position:fixed; bottom:24px; right:24px; z-index:60;">
+        <button style="width:56px; height:56px; border-radius:50%; border:none; background:#1B4332; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 24px rgba(27,67,50,0.35); transition:all 0.2s;" onmouseover="this.style.transform='scale(1.08)'; this.style.boxShadow='0 8px 32px rgba(27,67,50,0.45)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 24px rgba(27,67,50,0.35)'">
+            <i class="fa-solid fa-plus" style="font-size:18px;"></i>
+        </button>
+    </div>
+
+</body>
+</html>

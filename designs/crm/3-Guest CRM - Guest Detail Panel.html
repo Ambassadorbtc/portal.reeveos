@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Detail Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1B4332',
+                        secondary: '#52B788',
+                        accent: '#D4A373',
+                        warm: '#FAFAF8',
+                        'warm-dark': '#F5F5F5',
+                        danger: '#EF4444',
+                        'danger-bg': '#FFF0F0',
+                        'success-bg': '#F0F7F4',
+                        'warning-bg': '#FFF8F0',
+                        text: '#1B4332',
+                        subtext: '#666666',
+                        muted: '#999999',
+                        border: '#EBEBEB'
+                    },
+                    fontFamily: {
+                        sans: ['Figtree', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'drawer': '0 8px 40px rgba(0,0,0,0.12)',
+                        'subtle': '0 2px 4px rgba(0,0,0,0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <style>
+        body { font-family: 'Figtree', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #EBEBEB;
+            border-radius: 20px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #D1D1D1;
+        }
+        
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 7px;
+            width: 2px;
+            background-color: #EBEBEB;
+            z-index: 0;
+        }
+        
+        .glass-overlay {
+            backdrop-filter: blur(8px);
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen overflow-hidden flex">
+
+    <div id="main-app-container" class="flex-1 flex h-full overflow-hidden relative z-0">
+        <aside class="w-16 lg:w-64 bg-primary h-full flex flex-col text-white">
+            <div class="p-4 lg:p-6 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
+                    <i class="fa-solid fa-utensils text-white"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight hidden lg:block">Rezvo</span>
+            </div>
+            
+            <nav class="flex-1 px-2 lg:px-4 py-4 space-y-2">
+                <a href="#" class="flex items-center gap-3 px-2 lg:px-4 py-3 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+                    <i class="fa-solid fa-chart-pie w-5"></i>
+                    <span class="font-medium hidden lg:block">Dashboard</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-2 lg:px-4 py-3 rounded-full bg-secondary/20 text-secondary font-bold shadow-sm">
+                    <i class="fa-regular fa-calendar-check w-5"></i>
+                    <span class="hidden lg:block">Reservations</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-2 lg:px-4 py-3 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+                    <i class="fa-solid fa-table-cells w-5"></i>
+                    <span class="hidden lg:block">Floor Plan</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-2 lg:px-4 py-3 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+                    <i class="fa-solid fa-users w-5"></i>
+                    <span class="hidden lg:block">Guests</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-2 lg:px-4 py-3 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+                    <i class="fa-solid fa-gift w-5"></i>
+                    <span class="hidden lg:block">Marketing</span>
+                </a>
+            </nav>
+            
+            <div class="p-2 lg:p-4 border-t border-white/10">
+                <div class="flex items-center gap-3 px-2 lg:px-4 py-2">
+                    <div class="w-8 h-8 rounded-full bg-secondary/30 flex items-center justify-center text-xs font-bold">JD</div>
+                    <div class="text-sm hidden lg:block">
+                        <p class="font-semibold">Jane Doe</p>
+                        <p class="text-white/50 text-xs">Manager</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 bg-warm relative overflow-hidden flex flex-col">
+            <header id="header" class="h-16 border-b border-border bg-white flex items-center justify-between px-4 lg:px-8">
+                <h1 class="text-lg lg:text-xl font-bold text-primary">Friday, 15 March 2025</h1>
+                <div class="flex items-center gap-2 lg:gap-4">
+                    <button class="w-10 h-10 rounded-full border border-border flex items-center justify-center text-subtext hover:bg-gray-50">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <button class="w-10 h-10 rounded-full border border-border flex items-center justify-center text-subtext hover:bg-gray-50 relative">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-danger rounded-full"></span>
+                    </button>
+                    <button class="hidden sm:block px-4 py-2 bg-primary text-white rounded-full font-medium text-sm hover:bg-primary/90 transition-colors">
+                        + New Booking
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 p-4 lg:p-8 overflow-y-auto">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
+                    <div class="bg-white p-4 lg:p-6 rounded-2xl shadow-sm border border-border">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-primary text-sm lg:text-base">Covers Today</h3>
+                            <span class="text-secondary bg-success-bg px-2 py-1 rounded-full text-xs font-bold">+12%</span>
+                        </div>
+                        <p class="text-2xl lg:text-3xl font-bold text-primary">142</p>
+                        <p class="text-xs lg:text-sm text-subtext mt-1">Vs 126 last Friday</p>
+                    </div>
+                    <div class="bg-white p-4 lg:p-6 rounded-2xl shadow-sm border border-border">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-primary text-sm lg:text-base">Upcoming</h3>
+                            <span class="text-accent bg-warning-bg px-2 py-1 rounded-full text-xs font-bold">Busy</span>
+                        </div>
+                        <p class="text-2xl lg:text-3xl font-bold text-primary">84</p>
+                        <p class="text-xs lg:text-sm text-subtext mt-1">Reservations for dinner</p>
+                    </div>
+                    <div class="bg-white p-4 lg:p-6 rounded-2xl shadow-sm border border-border">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-primary text-sm lg:text-base">Waitlist</h3>
+                        </div>
+                        <p class="text-2xl lg:text-3xl font-bold text-primary">8</p>
+                        <p class="text-xs lg:text-sm text-subtext mt-1">Parties waiting</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-border shadow-sm overflow-x-auto">
+                    <div class="flex border-b border-border bg-gray-50/50 min-w-[800px]">
+                        <div class="w-20 p-4 border-r border-border text-center text-xs font-bold text-muted uppercase">Time</div>
+                        <div class="flex-1 p-4 text-xs font-bold text-muted uppercase">Table 1 (4)</div>
+                        <div class="flex-1 p-4 text-xs font-bold text-muted uppercase">Table 2 (2)</div>
+                        <div class="flex-1 p-4 text-xs font-bold text-muted uppercase">Table 3 (6)</div>
+                        <div class="flex-1 p-4 text-xs font-bold text-muted uppercase">Table 4 (4)</div>
+                    </div>
+                    <div class="min-w-[800px]">
+                        <div class="flex border-b border-border h-24">
+                            <div class="w-20 p-4 border-r border-border text-center text-sm font-medium text-subtext flex items-center justify-center">18:00</div>
+                            <div class="flex-1 p-2 border-r border-dashed border-border relative">
+                                <div class="absolute top-2 left-2 right-2 bottom-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
+                                    <p class="font-bold text-blue-800 text-xs">Smith Party</p>
+                                    <p class="text-blue-600 text-[10px]">4 guests</p>
+                                </div>
+                            </div>
+                            <div class="flex-1 p-2 border-r border-dashed border-border"></div>
+                            <div class="flex-1 p-2 border-r border-dashed border-border relative">
+                                <div class="absolute top-12 left-2 right-2 bottom-[-40px] z-10 bg-primary/10 border border-primary/20 rounded-lg p-2 shadow-sm">
+                                    <p class="font-bold text-primary text-xs">Henman Party</p>
+                                    <p class="text-primary/70 text-[10px]">6 guests • VIP</p>
+                                </div>
+                            </div>
+                            <div class="flex-1 p-2 border-r border-dashed border-border"></div>
+                        </div>
+                        <div class="flex border-b border-border h-24">
+                            <div class="w-20 p-4 border-r border-border text-center text-sm font-medium text-subtext flex items-center justify-center">18:30</div>
+                            <div class="flex-1 p-2 border-r border-dashed border-border"></div>
+                            <div class="flex-1 p-2 border-r border-dashed border-border relative">
+                                <div class="absolute top-2 left-2 right-2 bottom-2 bg-accent/10 border border-accent/30 rounded-lg p-2">
+                                    <p class="font-bold text-accent text-xs">Jones</p>
+                                    <p class="text-accent/80 text-[10px]">2 guests</p>
+                                </div>
+                            </div>
+                            <div class="flex-1 p-2 border-r border-dashed border-border"></div>
+                            <div class="flex-1 p-2 border-r border-dashed border-border"></div>
+                        </div>
+                        <div class="flex border-b border-border h-24">
+                            <div class="w-20 p-4 border-r border-border text-center text-sm font-medium text-subtext flex items-center justify-center">19:00</div>
+                            <div class="flex-1 p-2 border-r border-dashed border-border"></div>
+                            <div class="flex-1 p-2 border-r border-dashed border-border"></div>
+                            <div class="flex-1 p-2 border-r border-dashed border-border"></div>
+                            <div class="flex-1 p-2 border-r border-dashed border-border relative">
+                                <div class="absolute top-2 left-2 right-2 bottom-[-80px] z-10 bg-secondary/10 border border-secondary/30 rounded-lg p-2 shadow-sm">
+                                    <p class="font-bold text-secondary text-xs">Walker Party</p>
+                                    <p class="text-secondary/80 text-[10px]">4 guests</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="absolute inset-0 glass-overlay z-10 pointer-events-none"></div>
+    </div>
+
+    <div id="guest-detail-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white shadow-drawer z-50 flex flex-col transform transition-transform duration-300 ease-in-out">
+        
+        <div class="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 flex-shrink-0 bg-white z-10">
+            <div class="flex justify-end items-center gap-3 mb-4">
+                <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-subtext transition-colors group" title="Edit Guest">
+                    <i class="fa-solid fa-pencil text-sm group-hover:text-primary"></i>
+                </button>
+                <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-danger-bg text-subtext transition-colors group" title="Delete Guest">
+                    <i class="fa-regular fa-trash-can text-sm group-hover:text-danger"></i>
+                </button>
+                <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-muted transition-colors" title="Close">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-[#2D6A4F] flex items-center justify-center text-white text-xl font-bold shadow-md flex-shrink-0 border-2 border-white">
+                    TH
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                    <h2 class="text-xl sm:text-[22px] font-bold text-primary leading-tight mb-2">Tim Henman</h2>
+                    
+                    <div class="flex flex-wrap gap-2">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-primary text-white text-xs font-medium shadow-sm">
+                            Regular
+                        </span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full border border-secondary/50 text-secondary/50 text-xs font-medium">
+                            New
+                        </span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-accent/20 text-accent/60 text-xs font-medium">
+                            VIP
+                        </span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full border border-danger/30 text-danger/40 text-xs font-medium">
+                            At Risk
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2 mb-2">
+                <div class="bg-warm-dark rounded-2xl p-3 flex flex-col items-center justify-center text-center">
+                    <div class="mb-1 text-primary/80">
+                        <i class="fa-regular fa-calendar-check text-xs"></i>
+                    </div>
+                    <span class="block text-sm font-bold text-primary leading-none mb-1">12</span>
+                    <span class="block text-[10px] text-subtext font-normal">visits</span>
+                </div>
+                
+                <div class="bg-warm-dark rounded-2xl p-3 flex flex-col items-center justify-center text-center group hover:bg-warning-bg transition-colors cursor-help" title="1 No Show on record">
+                    <div class="mb-1 text-accent">
+                        <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+                    </div>
+                    <span class="block text-sm font-bold text-primary leading-none mb-1">1</span>
+                    <span class="block text-[10px] text-subtext font-normal">no-show</span>
+                </div>
+                
+                <div class="bg-warm-dark rounded-2xl p-3 flex flex-col items-center justify-center text-center">
+                    <div class="mb-1 text-primary/80">
+                        <i class="fa-solid fa-sterling-sign text-xs"></i>
+                    </div>
+                    <span class="block text-sm font-bold text-primary leading-none mb-1">847</span>
+                    <span class="block text-[10px] text-subtext font-normal">spent</span>
+                </div>
+                
+                <div class="bg-warm-dark rounded-2xl p-3 flex flex-col items-center justify-center text-center">
+                    <div class="mb-1 text-secondary">
+                        <i class="fa-solid fa-arrow-trend-up text-xs"></i>
+                    </div>
+                    <span class="block text-sm font-bold text-primary leading-none mb-1">70.58</span>
+                    <span class="block text-[10px] text-subtext font-normal">avg</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-2 custom-scrollbar space-y-8">
+            
+            <section id="contact-section">
+                <h3 class="text-[13px] font-semibold text-muted uppercase tracking-widest mb-4">Contact</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between group">
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                            <div class="w-8 h-8 rounded-full bg-warm flex items-center justify-center text-subtext flex-shrink-0">
+                                <span class="text-sm">🇬🇧</span>
+                            </div>
+                            <span class="text-primary font-medium text-sm font-sans truncate">+44 7886 483772</span>
+                        </div>
+                        <button class="w-8 h-8 rounded-full border border-border flex items-center justify-center text-secondary hover:bg-secondary hover:text-white transition-all flex-shrink-0 ml-2">
+                            <i class="fa-solid fa-phone text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between group">
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                            <div class="w-8 h-8 rounded-full bg-warm flex items-center justify-center text-subtext flex-shrink-0">
+                                <i class="fa-regular fa-envelope text-xs"></i>
+                            </div>
+                            <span class="text-primary font-medium text-sm font-sans truncate">tim.henman@gmail.co.uk</span>
+                        </div>
+                        <button class="w-8 h-8 rounded-full border border-border flex items-center justify-center text-secondary hover:bg-secondary hover:text-white transition-all flex-shrink-0 ml-2">
+                            <i class="fa-regular fa-paper-plane text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2 pl-11">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full border border-secondary text-secondary text-[10px] font-semibold">
+                            SMS preferred
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tags-section">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-[13px] font-semibold text-muted uppercase tracking-widest">Tags</h3>
+                    <button class="text-secondary text-xs font-bold hover:text-primary transition-colors flex items-center gap-1">
+                        <i class="fa-solid fa-plus"></i> Add
+                    </button>
+                </div>
+                
+                <div class="flex flex-wrap gap-2">
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-success-bg text-primary text-[11px] font-medium border border-transparent hover:border-secondary/20 transition-colors cursor-pointer">
+                        <span class="w-1.5 h-1.5 rounded-full bg-secondary mr-2"></span>
+                        Friday Regular
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-warning-bg text-primary text-[11px] font-medium border border-transparent hover:border-accent/20 transition-colors cursor-pointer">
+                        <span class="w-1.5 h-1.5 rounded-full bg-accent mr-2"></span>
+                        Birthday Dec
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-danger-bg text-primary text-[11px] font-medium border border-transparent hover:border-danger/20 transition-colors cursor-pointer">
+                        <span class="w-1.5 h-1.5 rounded-full bg-danger mr-2"></span>
+                        1x No Show
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-white border border-border text-subtext text-[11px] font-medium hover:border-secondary transition-colors cursor-pointer">
+                        <span class="w-1.5 h-1.5 rounded-full bg-secondary mr-2"></span>
+                        Wine Lover
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-white border border-border text-subtext text-[11px] font-medium hover:border-secondary transition-colors cursor-pointer">
+                        <span class="w-1.5 h-1.5 rounded-full bg-secondary mr-2"></span>
+                        Booth Preferred
+                    </span>
+                </div>
+            </section>
+
+            <section id="notes-section">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-[13px] font-semibold text-muted uppercase tracking-widest">Notes</h3>
+                    <button class="text-subtext hover:text-primary transition-colors">
+                        <i class="fa-solid fa-pencil text-xs"></i>
+                    </button>
+                </div>
+                <div class="bg-warm border border-border rounded-xl p-4 relative group">
+                    <p class="text-[13px] text-primary/80 italic leading-relaxed font-sans">
+                        "Always requests booth by window. Wife's name is Sarah — allergic to shellfish. Prefers the 2018 Malbec."
+                    </p>
+                    <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span class="text-[10px] text-muted">Last edited: 2 weeks ago</span>
+                    </div>
+                </div>
+                
+                <div class="flex flex-wrap gap-3 mt-4">
+                    <div class="flex items-center gap-1.5 text-xs text-subtext bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
+                        <span>🪑</span>
+                        <span>Booth preferred</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-subtext bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
+                        <span>🍷</span>
+                        <span>Red wine</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-danger bg-danger-bg/50 px-2 py-1 rounded-md border border-danger/10">
+                        <span>⚠️</span>
+                        <span class="font-medium">Shellfish allergy</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-subtext bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
+                        <span>👤</span>
+                        <span>Server: James</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="history-section" class="pb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-[13px] font-semibold text-muted uppercase tracking-widest">History</h3>
+                    <div class="relative">
+                        <button class="flex items-center gap-1 text-[11px] font-medium bg-gray-100 px-2 py-1 rounded-full text-subtext hover:bg-gray-200 transition-colors">
+                            All <i class="fa-solid fa-chevron-down text-[8px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="relative pl-2 timeline-line space-y-6">
+                    <div class="relative pl-6">
+                        <div class="absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full bg-secondary border-2 border-white shadow-sm z-10"></div>
+                        <div class="bg-white rounded-xl border border-border p-3 shadow-subtle hover:shadow-md transition-shadow cursor-pointer group">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-[13px] font-semibold text-primary">Fri 15 Mar 2025</span>
+                                <span class="text-[11px] font-bold text-primary">£89.50</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-[12px] text-subtext mb-2">
+                                <span>Table 1</span>
+                                <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                <span>Party of 2</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="w-6 h-6 rounded-full bg-warm flex items-center justify-center text-subtext text-[10px]" title="Dinner Service">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </span>
+                                <span class="w-6 h-6 rounded-full bg-warm flex items-center justify-center text-subtext text-[10px]" title="Notes available">
+                                    <i class="fa-regular fa-clipboard"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative pl-6">
+                        <div class="absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full bg-secondary border-2 border-white shadow-sm z-10"></div>
+                        <div class="group">
+                            <div class="flex justify-between items-start mb-0.5">
+                                <span class="text-[13px] font-medium text-subtext group-hover:text-primary transition-colors">Thu 28 Feb 2025</span>
+                                <span class="text-[11px] font-medium text-subtext">£210.00</span>
+                            </div>
+                            <div class="text-[12px] text-muted group-hover:text-subtext transition-colors">
+                                Table 4 • Party of 4
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative pl-6">
+                        <div class="absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full bg-danger border-2 border-white shadow-sm z-10"></div>
+                        <div class="group">
+                            <div class="flex justify-between items-start mb-0.5">
+                                <span class="text-[13px] font-medium text-danger">Sat 14 Feb 2025</span>
+                                <span class="text-[10px] font-bold text-danger border border-danger/30 px-1.5 py-0.5 rounded uppercase tracking-wider">No Show</span>
+                            </div>
+                            <div class="text-[12px] text-muted">
+                                Party of 2
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative pl-6">
+                        <div class="absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full bg-secondary border-2 border-white shadow-sm z-10"></div>
+                        <div class="group">
+                            <div class="flex justify-between items-start mb-0.5">
+                                <span class="text-[13px] font-medium text-subtext group-hover:text-primary transition-colors">Wed 25 Dec 2024</span>
+                                <span class="text-[11px] font-medium text-subtext">£380.00</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[12px] text-muted group-hover:text-subtext transition-colors">Table 8 • Party of 6</span>
+                                <span class="px-1.5 py-0.5 bg-accent/10 text-accent text-[9px] font-bold rounded uppercase">Christmas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="action-bar" class="p-4 bg-white border-t border-border flex-shrink-0 z-20">
+            <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2">
+                <button class="flex-1 min-w-[110px] bg-primary hover:bg-[#143326] text-white font-semibold py-3 px-4 rounded-full shadow-lg hover:shadow-xl transition-all text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check"></i> Check In
+                </button>
+                
+                <button class="flex-shrink-0 bg-white border border-primary text-primary hover:bg-gray-50 font-medium py-3 px-5 rounded-full transition-colors text-sm">
+                    Edit
+                </button>
+                
+                <button class="flex-shrink-0 bg-secondary hover:bg-[#419E73] text-white font-medium py-3 px-5 rounded-full shadow-md transition-colors text-sm">
+                    Rebook
+                </button>
+                
+                <button class="flex-shrink-0 bg-white border border-danger/50 text-danger hover:bg-danger-bg font-medium py-3 px-5 rounded-full transition-colors text-sm whitespace-nowrap">
+                    No Show
+                </button>
+                
+                <button class="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-full border border-border text-subtext hover:bg-gray-50 transition-colors">
+                    <i class="fa-solid fa-ellipsis"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Guest Detail Panel Loaded');
+        });
+    </script>
+</body>
+</html>

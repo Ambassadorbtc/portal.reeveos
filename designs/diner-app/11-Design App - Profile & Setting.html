@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        window.FontAwesomeConfig = {
+          autoReplaceSvg: 'nest'
+        };
+      </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile & Settings - Rezvo Restaurant Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#1B4332', // Forest Green
+                            DEFAULT: '#2D6A4F',
+                            light: '#40916C',
+                            accent: '#52B788', // Teal
+                            amber: '#D4A373', // Amber
+                            surface: '#F8F9FA',
+                            gray: '#F3F4F6',
+                            text: '#1F2937',
+                            muted: '#6B7280',
+                            danger: '#EF4444',
+                            'light-blue': '#E0F2FE', // Inspiration background tone adaptation
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Figtree', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px rgba(0, 0, 0, 0.05)',
+                        'card': '0 2px 10px rgba(0, 0, 0, 0.03)',
+                        'card-hover': '0 10px 30px -5px rgba(27, 67, 50, 0.1)',
+                        'floating': '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
+                        'input': '0 0 0 4px rgba(82, 183, 136, 0.15)',
+                        'action-bar': '0 -4px 20px rgba(0,0,0,0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body { font-family: 'Figtree', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .sidebar-item-active {
+            background-color: #1B4332;
+            color: #ffffff;
+            border-right: 4px solid #D4A373;
+        }
+        .sidebar-item-inactive {
+            color: #4B5563;
+        }
+        .sidebar-item-inactive:hover {
+            background-color: #F3F4F6;
+            color: #1B4332;
+        }
+        
+        /* Custom scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #d1d5db; 
+            border-radius: 3px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af; 
+        }
+
+        /* Settings Menu Item Active State */
+        .settings-nav-item.active {
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-weight: 600;
+            color: #1B4332;
+        }
+        .settings-nav-item:not(.active):hover {
+            background-color: rgba(255,255,255,0.6);
+            color: #1B4332;
+        }
+
+        /* Toggle Switch Styles */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #52B788;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #52B788;
+        }
+        .toggle-checkbox {
+            right: 20px;
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+<body class="bg-brand-surface h-screen flex overflow-hidden text-gray-800 antialiased">
+
+    <!-- Sidebar Navigation (Persistent) -->
+    <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col h-full z-20 hidden lg:flex shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        <!-- Logo Area -->
+        <div class="h-20 flex items-center px-6 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-brand-amber rounded-lg flex items-center justify-center text-brand-dark font-bold text-xl shadow-md">
+                    R.
+                </div>
+                <span class="text-xl font-bold tracking-tight text-brand-dark">Rezvo</span>
+            </div>
+        </div>
+
+        <!-- Main Navigation -->
+        <div class="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scroll">
+            
+            <div class="px-3 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Main</div>
+            
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-house w-5 text-center"></i>
+                <span>Home Dashboard</span>
+            </a>
+            
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-magnifying-glass w-5 text-center"></i>
+                <span>Browse</span>
+            </a>
+            
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-plus-circle w-5 text-center"></i>
+                <span>Create/New</span>
+            </a>
+
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-bell w-5 text-center"></i>
+                <span>Notifications</span>
+                <span class="ml-auto bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+            </a>
+
+            <div class="px-3 mt-8 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Account</div>
+
+            <a href="#" class="sidebar-item-active flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group shadow-sm">
+                <i class="fa-solid fa-user-gear w-5 text-center"></i>
+                <span>Profile & Settings</span>
+            </a>
+        </div>
+
+        <!-- User Profile (Bottom) -->
+        <div class="p-4 border-t border-gray-100">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                <div class="w-10 h-10 rounded-full bg-brand-dark text-white flex items-center justify-center font-bold border-2 border-white shadow-sm overflow-hidden">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="User" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-900 truncate">Alex Johnson</p>
+                    <p class="text-xs text-gray-500 truncate">General Manager</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative bg-brand-surface">
+        
+        <!-- Top Navigation Bar -->
+        <header id="top-nav" class="bg-white h-20 border-b border-gray-200 flex items-center justify-between px-6 lg:px-8 z-10 shadow-sm flex-shrink-0">
+            <!-- Mobile Menu Trigger -->
+            <button class="lg:hidden p-2 text-gray-600 hover:text-brand-dark">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+
+            <!-- Page Title / Context -->
+            <div class="flex items-center gap-4">
+                <div>
+                    <h1 class="text-xl lg:text-2xl font-bold text-gray-900">Profile & Settings</h1>
+                    <p class="text-xs text-gray-500 hidden sm:block">Manage your account details, preferences, and security</p>
+                </div>
+            </div>
+
+            <!-- Top Actions -->
+            <div class="flex items-center gap-3 md:gap-4">
+                <div class="relative hidden sm:block">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" placeholder="Search settings..." class="pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent w-48 transition-all">
+                </div>
+                <button class="p-2 text-gray-500 hover:text-brand-dark hover:bg-gray-100 rounded-lg transition-colors">
+                    <i class="fa-regular fa-circle-question"></i>
+                </button>
+                <button class="p-2 text-gray-500 hover:text-brand-dark hover:bg-gray-100 rounded-lg transition-colors">
+                    <i class="fa-solid fa-arrow-right-from-bracket text-red-500"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Profile & Settings Content Area -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 custom-scroll relative">
+            
+            <!-- Main Content Container (Split Layout inspired by Image 1) -->
+            <div class="max-w-7xl mx-auto h-full flex flex-col lg:flex-row gap-6">
+                
+                <!-- Left Panel: Settings Navigation -->
+                <div class="w-full lg:w-1/3 xl:w-1/4 flex flex-col gap-6">
+                    
+                    <!-- Navigation Card -->
+                    <div class="bg-brand-light/10 backdrop-blur-sm rounded-3xl p-6 border border-brand-light/10 h-full max-h-[calc(100vh-140px)] flex flex-col overflow-hidden">
+                        
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-bold text-gray-900">Settings</h2>
+                            <button class="text-gray-400 hover:text-gray-600 transition-colors">
+                                <i class="fa-solid fa-gear"></i>
+                            </button>
+                        </div>
+
+                        <nav class="flex-1 overflow-y-auto custom-scroll space-y-2 pr-2">
+                            <a href="#profile" class="settings-nav-item active flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all w-full text-left group">
+                                <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-[.active]:bg-brand-dark group-[.active]:text-white transition-colors">
+                                    <i class="fa-solid fa-user text-sm"></i>
+                                </span>
+                                <span class="font-medium">Profile Settings</span>
+                                <i class="fa-solid fa-chevron-right ml-auto text-xs opacity-0 group-[.active]:opacity-100 text-gray-400"></i>
+                            </a>
+
+                            <a href="#preferences" class="settings-nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all w-full text-left group">
+                                <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white transition-colors">
+                                    <i class="fa-solid fa-sliders text-sm"></i>
+                                </span>
+                                <span class="font-medium text-gray-600 group-hover:text-brand-dark">Preferences</span>
+                            </a>
+
+                            <a href="#property" class="settings-nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all w-full text-left group">
+                                <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white transition-colors">
+                                    <i class="fa-solid fa-building text-sm"></i>
+                                </span>
+                                <span class="font-medium text-gray-600 group-hover:text-brand-dark">Property Management</span>
+                            </a>
+
+                            <a href="#billing" class="settings-nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all w-full text-left group">
+                                <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white transition-colors">
+                                    <i class="fa-regular fa-credit-card text-sm"></i>
+                                </span>
+                                <span class="font-medium text-gray-600 group-hover:text-brand-dark">Billing & Subscription</span>
+                            </a>
+
+                            <a href="#security" class="settings-nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all w-full text-left group">
+                                <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white transition-colors">
+                                    <i class="fa-solid fa-shield-halved text-sm"></i>
+                                </span>
+                                <span class="font-medium text-gray-600 group-hover:text-brand-dark">Security & Privacy</span>
+                            </a>
+
+                            <a href="#notifications" class="settings-nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all w-full text-left group">
+                                <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white transition-colors">
+                                    <i class="fa-regular fa-bell text-sm"></i>
+                                </span>
+                                <span class="font-medium text-gray-600 group-hover:text-brand-dark">Notifications</span>
+                            </a>
+
+                            <div class="border-t border-gray-200 my-2 pt-2"></div>
+
+                            <a href="#help" class="settings-nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all w-full text-left group">
+                                <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white transition-colors">
+                                    <i class="fa-regular fa-circle-question text-sm"></i>
+                                </span>
+                                <span class="font-medium text-gray-600 group-hover:text-brand-dark">Support & Help</span>
+                            </a>
+                            
+                            <a href="#logout" class="settings-nav-item flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all w-full text-left group hover:bg-red-50">
+                                <span class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-500 group-hover:bg-red-100 transition-colors">
+                                    <i class="fa-solid fa-arrow-right-from-bracket text-sm"></i>
+                                </span>
+                                <span class="font-medium text-red-600">Logout</span>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Active Settings View -->
+                <div class="flex-1 bg-brand-light/10 backdrop-blur-sm rounded-3xl p-6 md:p-8 lg:p-10 border border-brand-light/10 flex flex-col relative overflow-hidden">
+                    
+                    <!-- Profile Header Section -->
+                    <div class="flex flex-col items-center justify-center mb-10 relative z-10">
+                        <div class="relative group">
+                            <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-card overflow-hidden relative">
+                                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="Profile Picture" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                    <i class="fa-solid fa-camera text-white text-2xl"></i>
+                                </div>
+                            </div>
+                            <button class="absolute bottom-2 right-2 w-10 h-10 bg-brand-dark text-white rounded-full flex items-center justify-center shadow-md hover:bg-brand-light transition-colors border-2 border-white">
+                                <i class="fa-solid fa-pencil text-sm"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="mt-4 text-center">
+                            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 flex items-center justify-center gap-2">
+                                Alex Johnson 
+                                <button class="text-gray-400 hover:text-brand-dark transition-colors text-lg">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </h2>
+                            <p class="text-gray-500 font-medium">General Manager • Rezvo London</p>
+                            <div class="mt-2 flex items-center justify-center gap-2">
+                                <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full border border-green-200">Active</span>
+                                <span class="px-3 py-1 bg-brand-amber/20 text-brand-amber text-xs font-bold rounded-full border border-brand-amber/30">Admin</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Forms & Details Section -->
+                    <div class="w-full max-w-3xl mx-auto space-y-4 relative z-10">
+                        
+                        <!-- Contact Info Card -->
+                        <div class="bg-white rounded-2xl p-1 shadow-sm border border-gray-100 overflow-hidden">
+                            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors rounded-xl cursor-pointer group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white group-hover:shadow-sm transition-all">
+                                        <i class="fa-regular fa-envelope"></i>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Email Address</span>
+                                        <span class="text-sm font-semibold text-gray-800">alex.johnson@rezvo.co.uk</span>
+                                    </div>
+                                </div>
+                                <div class="px-3 py-1 rounded-lg text-xs font-bold bg-green-50 text-green-600 border border-green-100">Verified</div>
+                            </div>
+                            
+                            <div class="border-t border-gray-100 mx-4"></div>
+
+                            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors rounded-xl cursor-pointer group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white group-hover:shadow-sm transition-all">
+                                        <i class="fa-solid fa-phone"></i>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Phone Number</span>
+                                        <span class="text-sm font-semibold text-gray-800">+44 7700 900077</span>
+                                    </div>
+                                </div>
+                                <button class="text-brand-dark hover:text-brand-light text-sm font-bold">Edit</button>
+                            </div>
+                        </div>
+
+                        <!-- Security Settings Card -->
+                        <div class="bg-white rounded-2xl p-1 shadow-sm border border-gray-100 overflow-hidden mt-6">
+                            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors rounded-xl cursor-pointer group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white group-hover:shadow-sm transition-all">
+                                        <i class="fa-solid fa-lock"></i>
+                                    </div>
+                                    <span class="font-semibold text-gray-800">Change Password</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-gray-400"></i>
+                            </div>
+
+                            <div class="border-t border-gray-100 mx-4"></div>
+
+                            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors rounded-xl cursor-pointer group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white group-hover:shadow-sm transition-all">
+                                        <i class="fa-solid fa-mobile-screen-button"></i>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold text-gray-800">Two-Factor Authentication</span>
+                                        <span class="text-xs text-green-600 font-medium flex items-center gap-1">
+                                            <i class="fa-solid fa-check-circle text-[10px]"></i> Enabled
+                                        </span>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-gray-400"></i>
+                            </div>
+
+                            <div class="border-t border-gray-100 mx-4"></div>
+
+                            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors rounded-xl cursor-pointer group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white group-hover:shadow-sm transition-all">
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                    </div>
+                                    <span class="font-semibold text-gray-800">Login Alerts</span>
+                                </div>
+                                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                    <input type="checkbox" name="toggle" id="toggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                    <label for="toggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preferences Card -->
+                        <div class="bg-white rounded-2xl p-1 shadow-sm border border-gray-100 overflow-hidden mt-6">
+                            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors rounded-xl cursor-pointer group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white group-hover:shadow-sm transition-all">
+                                        <i class="fa-regular fa-clock"></i>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold text-gray-800">Time Zone</span>
+                                        <span class="text-xs text-gray-500">Currently: Europe/London (GMT+1)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm text-gray-400 font-medium">GMT+01:00</span>
+                                    <i class="fa-solid fa-chevron-down text-gray-400 text-xs ml-1"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-gray-100 mx-4"></div>
+
+                            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors rounded-xl cursor-pointer group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white group-hover:shadow-sm transition-all">
+                                        <i class="fa-solid fa-earth-europe"></i>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold text-gray-800">Language</span>
+                                        <span class="text-xs text-gray-500">English (UK)</span>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-gray-400"></i>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center justify-end gap-3 mt-8 pb-10">
+                            <button class="px-6 py-2.5 rounded-xl font-bold text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                                Cancel
+                            </button>
+                            <button class="px-6 py-2.5 rounded-xl font-bold text-white bg-black hover:bg-gray-800 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Decorative Background Element (Subtle Circle from inspiration) -->
+                    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-accent/5 rounded-full blur-3xl pointer-events-none z-0"></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Simple navigation interaction simulation
+        const navItems = document.querySelectorAll('.settings-nav-item');
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                // Remove active class from all
+                navItems.forEach(nav => nav.classList.remove('active'));
+                
+                // Add active class to clicked
+                item.classList.add('active');
+                
+                // In a real app, this would swap content on the right
+            });
+        });
+    </script>
+</body>
+</html>

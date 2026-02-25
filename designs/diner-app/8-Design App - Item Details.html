@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        window.FontAwesomeConfig = {
+          autoReplaceSvg: 'nest'
+        };
+      </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Details - Rezvo Restaurant Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#1B4332', // Forest Green
+                            DEFAULT: '#2D6A4F',
+                            light: '#40916C',
+                            accent: '#52B788', // Teal
+                            amber: '#D4A373', // Amber
+                            surface: '#F8F9FA',
+                            gray: '#F3F4F6',
+                            text: '#1F2937',
+                            muted: '#6B7280',
+                            danger: '#EF4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Figtree', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px rgba(0, 0, 0, 0.05)',
+                        'card': '0 2px 10px rgba(0, 0, 0, 0.03)',
+                        'card-hover': '0 10px 30px -5px rgba(27, 67, 50, 0.1)',
+                        'floating': '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
+                        'input': '0 0 0 4px rgba(82, 183, 136, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body { font-family: 'Figtree', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .sidebar-item-active {
+            background-color: #1B4332;
+            color: #ffffff;
+            border-right: 4px solid #D4A373;
+        }
+        .sidebar-item-inactive {
+            color: #4B5563;
+        }
+        .sidebar-item-inactive:hover {
+            background-color: #F3F4F6;
+            color: #1B4332;
+        }
+        
+        /* Custom scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #d1d5db; 
+            border-radius: 3px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af; 
+        }
+
+        /* Timeline connector */
+        .timeline-connector::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            bottom: -24px;
+            left: 15px;
+            width: 2px;
+            background-color: #E5E7EB;
+            z-index: 0;
+        }
+        .timeline-item:last-child .timeline-connector::before {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-brand-surface h-screen flex overflow-hidden text-gray-800 antialiased">
+
+    <!-- Sidebar Navigation (Persistent) -->
+    <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col h-full z-20 hidden lg:flex shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        <!-- Logo Area -->
+        <div class="h-20 flex items-center px-6 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-brand-amber rounded-lg flex items-center justify-center text-brand-dark font-bold text-xl shadow-md">
+                    R.
+                </div>
+                <span class="text-xl font-bold tracking-tight text-brand-dark">Rezvo</span>
+            </div>
+        </div>
+
+        <!-- Main Navigation -->
+        <div class="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scroll">
+            
+            <div class="px-3 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Main</div>
+            
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-house w-5 text-center"></i>
+                <span>Home Dashboard</span>
+            </a>
+            
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-magnifying-glass w-5 text-center"></i>
+                <span>Browse</span>
+            </a>
+            
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-plus-circle w-5 text-center"></i>
+                <span>Create/New</span>
+            </a>
+
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-bell w-5 text-center"></i>
+                <span>Notifications</span>
+                <span class="ml-auto bg-brand-amber text-white text-xs font-bold px-2 py-0.5 rounded-full">3</span>
+            </a>
+
+            <div class="px-3 mt-8 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Account</div>
+
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-user-gear w-5 text-center"></i>
+                <span>Profile & Settings</span>
+            </a>
+        </div>
+
+        <!-- User Profile (Bottom) -->
+        <div class="p-4 border-t border-gray-100">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                <div class="w-10 h-10 rounded-full bg-brand-dark text-white flex items-center justify-center font-bold border-2 border-white shadow-sm overflow-hidden">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="User" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-900 truncate">Alex Johnson</p>
+                    <p class="text-xs text-gray-500 truncate">General Manager</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative bg-brand-surface">
+        
+        <!-- Top Navigation Bar -->
+        <header id="top-nav" class="bg-white h-20 border-b border-gray-200 flex items-center justify-between px-6 lg:px-8 z-10 shadow-sm flex-shrink-0">
+            <!-- Mobile Menu Trigger -->
+            <button class="lg:hidden p-2 text-gray-600 hover:text-brand-dark">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+
+            <!-- Page Title / Context -->
+            <div class="flex items-center gap-4">
+                <a href="#" class="text-gray-400 hover:text-brand-dark transition-colors flex items-center gap-2 group">
+                    <div class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+                        <i class="fa-solid fa-arrow-left group-hover:-translate-x-0.5 transition-transform"></i>
+                    </div>
+                </a>
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-xl lg:text-2xl font-bold text-gray-900">Booking #8392</h1>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">Confirmed</span>
+                    </div>
+                    <p class="text-xs text-gray-500 hidden sm:block">Created on Oct 24, 2023 at 10:45 AM via Online Widget</p>
+                </div>
+            </div>
+
+            <!-- Top Actions -->
+            <div class="flex items-center gap-3 md:gap-4">
+                <button class="hidden sm:flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 text-gray-500 hover:text-brand-dark hover:bg-gray-50 transition-all" title="Print Ticket">
+                    <i class="fa-solid fa-print"></i>
+                </button>
+                <button class="hidden sm:flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 text-gray-500 hover:text-brand-dark hover:bg-gray-50 transition-all" title="Share">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </button>
+                
+                <div class="h-8 w-px bg-gray-200 mx-1 hidden sm:block"></div>
+
+                <button class="flex bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-2 px-4 rounded-xl shadow-sm transition-all text-sm">
+                    Edit
+                </button>
+                <button class="flex bg-brand-dark hover:bg-brand-light text-white font-semibold py-2 px-5 rounded-xl shadow-lg shadow-brand-dark/20 hover:shadow-brand-dark/30 transform hover:-translate-y-0.5 transition-all duration-200 items-center gap-2 text-sm">
+                    <i class="fa-solid fa-check"></i>
+                    Check In
+                </button>
+            </div>
+        </header>
+
+        <!-- Detail Content Area -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 custom-scroll">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+                
+                <!-- Left Column: Main Booking Info (8 cols) -->
+                <div class="lg:col-span-8 space-y-6">
+                    
+                    <!-- Primary Info Card -->
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-card p-6 md:p-8 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1.5 bg-brand-accent"></div>
+                        
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-8 border-b border-gray-100 gap-6">
+                            <div class="flex items-center gap-5">
+                                <div class="w-20 h-20 rounded-2xl bg-brand-amber text-white font-bold text-3xl flex items-center justify-center shadow-md relative">
+                                    JD
+                                    <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm">
+                                        <i class="fa-solid fa-crown text-brand-amber text-sm"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-gray-900 mb-1">John Doe</h2>
+                                    <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-phone text-xs"></i> (555) 123-4567</span>
+                                        <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-envelope text-xs"></i> john@example.com</span>
+                                        <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                                        <span class="text-brand-dark font-medium bg-brand-surface px-2 py-0.5 rounded border border-brand-accent/20">VIP Guest</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col items-end gap-1">
+                                <div class="text-3xl font-bold text-brand-dark">6:30 PM</div>
+                                <div class="text-sm font-medium text-gray-500">Today, Oct 25</div>
+                                <div class="text-xs text-brand-accent font-medium bg-brand-accent/10 px-2 py-0.5 rounded mt-1">
+                                    <i class="fa-regular fa-clock mr-1"></i> 1h 30m Duration
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Grid Info -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div class="space-y-1">
+                                <div class="text-xs uppercase tracking-wider text-gray-400 font-bold">Party Size</div>
+                                <div class="flex items-center gap-2 text-lg font-bold text-gray-900">
+                                    <i class="fa-solid fa-user-group text-brand-amber"></i> 4 Guests
+                                </div>
+                                <div class="text-xs text-gray-400">2 Adults, 2 Kids</div>
+                            </div>
+                            
+                            <div class="space-y-1">
+                                <div class="text-xs uppercase tracking-wider text-gray-400 font-bold">Table</div>
+                                <div class="flex items-center gap-2 text-lg font-bold text-gray-900">
+                                    <i class="fa-solid fa-chair text-brand-amber"></i> Table 02
+                                </div>
+                                <div class="text-xs text-gray-400">Main Dining Room</div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="text-xs uppercase tracking-wider text-gray-400 font-bold">Occasion</div>
+                                <div class="flex items-center gap-2 text-lg font-bold text-gray-900">
+                                    <i class="fa-solid fa-cake-candles text-brand-amber"></i> Birthday
+                                </div>
+                                <div class="text-xs text-gray-400">Bring dessert w/ candle</div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="text-xs uppercase tracking-wider text-gray-400 font-bold">Deposit</div>
+                                <div class="flex items-center gap-2 text-lg font-bold text-gray-900">
+                                    <i class="fa-solid fa-credit-card text-brand-amber"></i> $50.00
+                                </div>
+                                <div class="text-xs text-green-600 font-medium">Paid via Stripe</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs Section -->
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-card overflow-hidden">
+                        <div class="border-b border-gray-100 px-6 pt-4">
+                            <nav class="flex space-x-8" aria-label="Tabs">
+                                <button class="border-b-2 border-brand-dark py-4 px-1 text-sm font-bold text-brand-dark" aria-current="page">
+                                    Guest Notes & History
+                                </button>
+                                <button class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                                    Communication Log
+                                </button>
+                                <button class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                                    Pre-Orders
+                                </button>
+                            </nav>
+                        </div>
+                        
+                        <div class="p-6 md:p-8">
+                            <!-- Notes Section -->
+                            <div class="mb-8">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-bold text-gray-900">Visit Notes</h3>
+                                    <button class="text-sm text-brand-dark hover:text-brand-light font-semibold flex items-center gap-1">
+                                        <i class="fa-solid fa-plus"></i> Add Note
+                                    </button>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="bg-red-50 border border-red-100 rounded-xl p-4 flex gap-3 ring-1 ring-red-200 shadow-sm">
+                                        <i class="fa-solid fa-circle-exclamation text-red-600 mt-1"></i>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <p class="text-sm text-red-900 font-bold">STAFF ALERT: Severe Nut Allergy</p>
+                                                <span class="text-[10px] bg-red-600 text-white px-1.5 py-0.5 rounded font-black uppercase">Critical</span>
+                                            </div>
+                                            <p class="text-xs text-red-800 mt-1">Guest at seat 2 has a severe peanut allergy. Kitchen must be notified immediately upon seating.</p>
+                                        </div>
+                                    </div>
+                                    <div class="bg-blue-50/50 border border-blue-100 rounded-xl p-4 flex gap-3">
+                                        <i class="fa-solid fa-robot text-blue-500 mt-1"></i>
+                                        <div>
+                                            <p class="text-sm text-blue-900 font-medium">System Note: Seating Preference</p>
+                                            <p class="text-xs text-blue-800/70 mt-1">Automated capture: Prefers a quiet corner away from the kitchen door. Loves Table 02 or 05.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- History Timeline -->
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900 mb-4">Visit History</h3>
+                                <div class="space-y-0">
+                                    <!-- Timeline Item 1 -->
+                                    <div class="timeline-item relative pl-10 pb-6 timeline-connector">
+                                        <div class="absolute left-0 top-1 w-8 h-8 bg-brand-surface rounded-full border-2 border-brand-accent flex items-center justify-center z-10">
+                                            <i class="fa-solid fa-utensils text-brand-dark text-xs"></i>
+                                        </div>
+                                        <div class="bg-white border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
+                                            <div class="flex justify-between items-start mb-1">
+                                                <span class="font-bold text-gray-900 text-sm">Dinner - 4 Guests</span>
+                                                <span class="text-xs text-gray-500">Sep 12, 2023</span>
+                                            </div>
+                                            <p class="text-xs text-gray-500">Total Spend: <span class="font-bold text-gray-700">$245.00</span> • Table 05</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Timeline Item 2 -->
+                                    <div class="timeline-item relative pl-10 pb-6 timeline-connector">
+                                        <div class="absolute left-0 top-1 w-8 h-8 bg-brand-surface rounded-full border-2 border-gray-300 flex items-center justify-center z-10">
+                                            <i class="fa-solid fa-wine-glass text-gray-500 text-xs"></i>
+                                        </div>
+                                        <div class="bg-white border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
+                                            <div class="flex justify-between items-start mb-1">
+                                                <span class="font-bold text-gray-900 text-sm">Lunch - 2 Guests</span>
+                                                <span class="text-xs text-gray-500">Aug 05, 2023</span>
+                                            </div>
+                                            <p class="text-xs text-gray-500">Total Spend: <span class="font-bold text-gray-700">$85.50</span> • Patio Table 12</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Timeline Item 3 -->
+                                    <div class="timeline-item relative pl-10">
+                                        <div class="absolute left-0 top-1 w-8 h-8 bg-brand-surface rounded-full border-2 border-red-200 flex items-center justify-center z-10">
+                                            <i class="fa-solid fa-xmark text-red-500 text-xs"></i>
+                                        </div>
+                                        <div class="bg-white border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer opacity-75">
+                                            <div class="flex justify-between items-start mb-1">
+                                                <span class="font-bold text-gray-900 text-sm">Cancelled (No Show)</span>
+                                                <span class="text-xs text-gray-500">Jul 10, 2023</span>
+                                            </div>
+                                            <p class="text-xs text-gray-500">Marked as no-show by Staff Member</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="w-full mt-2 text-center text-sm text-brand-dark font-medium hover:underline">View All History</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Actions & Status (4 cols) -->
+                <div class="lg:col-span-4 space-y-6">
+                    
+                    <!-- Quick Actions Card -->
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-card p-6">
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Quick Actions</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-brand-surface border border-gray-200 hover:border-brand-accent hover:bg-white hover:shadow-md transition-all group">
+                                <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </div>
+                                <span class="text-xs font-bold text-gray-700">Message</span>
+                            </button>
+                            <button class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-brand-surface border border-gray-200 hover:border-brand-accent hover:bg-white hover:shadow-md transition-all group">
+                                <div class="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </div>
+                                <span class="text-xs font-bold text-gray-700">Modify</span>
+                            </button>
+                            <button class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-brand-surface border border-gray-200 hover:border-brand-accent hover:bg-white hover:shadow-md transition-all group">
+                                <div class="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                                    <i class="fa-solid fa-chair"></i>
+                                </div>
+                                <span class="text-xs font-bold text-gray-700">Reassign</span>
+                            </button>
+                            <button class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-brand-surface border border-gray-200 hover:border-brand-accent hover:bg-white hover:shadow-md transition-all group">
+                                <div class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center group-hover:bg-gray-800 group-hover:text-white transition-colors">
+                                    <i class="fa-solid fa-ban"></i>
+                                </div>
+                                <span class="text-xs font-bold text-gray-700">Block</span>
+                            </button>
+                        </div>
+                        <button class="w-full mt-4 py-3 border border-red-200 text-red-600 rounded-xl text-sm font-bold hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-xmark"></i> Cancel Booking
+                        </button>
+                    </div>
+
+                    <!-- Tags Card -->
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-card p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Tags</h3>
+                            <button class="text-xs text-brand-dark hover:underline">Edit</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1.5 rounded-lg bg-brand-amber/10 text-brand-amber border border-brand-amber/20 text-xs font-bold">VIP</span>
+                            <span class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 text-xs font-bold">Regular</span>
+                            <span class="px-3 py-1.5 rounded-lg bg-pink-50 text-pink-600 border border-pink-100 text-xs font-bold">Anniversary</span>
+                            <span class="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 border border-gray-200 text-xs font-bold border-dashed flex items-center gap-1 cursor-pointer hover:bg-gray-200 transition-colors">
+                                <i class="fa-solid fa-plus text-[10px]"></i> Add Tag
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Metadata Card -->
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-card p-6">
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Booking Metadata</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-500">Source</span>
+                                <span class="font-medium text-gray-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-globe text-gray-400"></i> Online Widget
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-500">Created By</span>
+                                <span class="font-medium text-gray-900">System (Auto)</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-500">Created At</span>
+                                <span class="font-medium text-gray-900">Oct 24, 10:45 AM</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-500">Confirmation Sent</span>
+                                <span class="font-medium text-green-600 flex items-center gap-1">
+                                    <i class="fa-solid fa-check-circle text-xs"></i> Yes (Email)
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-500">Reminder Sent</span>
+                                <span class="font-medium text-green-600 flex items-center gap-1">
+                                    <i class="fa-solid fa-check-circle text-xs"></i> Yes (SMS)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                     <!-- Map/Location Context -->
+                     <div class="bg-white rounded-2xl border border-gray-200 shadow-card overflow-hidden">
+                        <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+                            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Table Location</h3>
+                            <button class="text-xs text-brand-dark hover:underline">Change</button>
+                        </div>
+                        <div class="relative h-48 bg-gray-100">
+                            <!-- Visual representation of floor plan snippet -->
+                            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2U1ZTdlYiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIgLz48L3N2Zz4=')] opacity-50"></div>
+                            
+                            <!-- Other Tables -->
+                            <div class="absolute top-10 left-10 w-12 h-12 bg-white border-2 border-gray-300 rounded-lg shadow-sm flex items-center justify-center text-xs text-gray-400 font-bold">01</div>
+                            <div class="absolute top-10 left-32 w-12 h-12 bg-white border-2 border-gray-300 rounded-lg shadow-sm flex items-center justify-center text-xs text-gray-400 font-bold">03</div>
+                            <div class="absolute bottom-10 left-10 w-12 h-12 bg-white border-2 border-gray-300 rounded-lg shadow-sm flex items-center justify-center text-xs text-gray-400 font-bold">04</div>
+                            
+                            <!-- Selected Table -->
+                            <div class="absolute top-24 left-20 w-16 h-16 bg-brand-dark border-2 border-brand-accent rounded-lg shadow-lg flex flex-col items-center justify-center z-10 animate-pulse">
+                                <span class="text-white font-bold text-sm">02</span>
+                                <span class="text-[10px] text-brand-accent">4 Seats</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 text-xs text-center text-gray-500 border-t border-gray-100">
+                            Main Dining Room • Window Seat
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <!-- Bottom Spacer -->
+            <div class="h-10"></div>
+        </div>
+    </main>
+
+    <!-- Floating Action Button (Mobile) -->
+    <div class="lg:hidden fixed bottom-6 right-6 z-50">
+        <button class="w-14 h-14 bg-brand-amber text-white rounded-full shadow-floating flex items-center justify-center text-2xl hover:scale-105 transition-transform" title="Add Note">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+    </div>
+
+</body>
+</html>

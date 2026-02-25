@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        window.FontAwesomeConfig = {
+          autoReplaceSvg: 'nest'
+        };
+      </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Rezvo Restaurant Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#1B4332', // Forest Green
+                            DEFAULT: '#2D6A4F',
+                            light: '#40916C',
+                            accent: '#52B788', // Teal
+                            amber: '#D4A373', // Amber
+                            surface: '#F8F9FA',
+                            gray: '#F3F4F6',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Figtree', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px rgba(0, 0, 0, 0.05)',
+                        'card': '0 10px 30px -5px rgba(27, 67, 50, 0.1)',
+                        'floating': '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
+                        'input': '0 0 0 4px rgba(82, 183, 136, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body { font-family: 'Figtree', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Smooth fade animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        
+        /* Custom Input Styling */
+        .custom-input:focus {
+            box-shadow: 0 0 0 4px rgba(82, 183, 136, 0.15);
+            border-color: #52B788;
+        }
+        
+        /* Checkbox Styling */
+        .custom-checkbox:checked {
+            background-color: #1B4332;
+            border-color: #1B4332;
+        }
+        .custom-checkbox:checked + div svg {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-brand-surface min-h-screen text-gray-800 antialiased overflow-x-hidden">
+
+    <!-- Main Container -->
+    <div id="main-container" class="relative min-h-screen flex flex-col lg:flex-row">
+        
+        <!-- Left Section: Visual / Testimonial (Consistent with Screen 2) -->
+        <section id="hero-section" class="relative w-full lg:w-5/12 xl:w-5/12 bg-brand-dark overflow-hidden min-h-[300px] lg:min-h-screen flex flex-col justify-between p-8 lg:p-12 text-white">
+            
+            <!-- Background Elements -->
+            <div class="absolute inset-0 opacity-10">
+                <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
+                </svg>
+            </div>
+            
+            <!-- Radial Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-br from-brand-light/20 to-brand-dark/90 pointer-events-none"></div>
+
+            <!-- Header / Logo Area -->
+            <div class="relative z-10 flex justify-between items-start animate-fade-in">
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 bg-brand-amber rounded-lg flex items-center justify-center text-brand-dark font-bold text-xl shadow-lg group-hover:scale-105 transition-transform">
+                        R.
+                    </div>
+                    <span class="text-2xl font-bold tracking-tight">Rezvo</span>
+                </a>
+            </div>
+
+            <!-- Testimonial Content (Centered vertically on Desktop) -->
+            <div class="relative z-10 flex-1 flex flex-col justify-center max-w-lg mt-12 lg:mt-0 animate-fade-in delay-100">
+                <div class="mb-8">
+                    <div class="flex gap-1 mb-4">
+                        <i class="fa-solid fa-star text-brand-amber text-sm"></i>
+                        <i class="fa-solid fa-star text-brand-amber text-sm"></i>
+                        <i class="fa-solid fa-star text-brand-amber text-sm"></i>
+                        <i class="fa-solid fa-star text-brand-amber text-sm"></i>
+                        <i class="fa-solid fa-star text-brand-amber text-sm"></i>
+                    </div>
+                    <h2 class="text-3xl lg:text-4xl font-bold leading-tight mb-6">
+                        "The floor plan editor is a game changer. We reseat tables 2x faster now."
+                    </h2>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full border-2 border-brand-amber overflow-hidden bg-brand-light">
+                             <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg" alt="Restaurant Manager" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <p class="font-bold text-white">Sarah Jenkins</p>
+                            <p class="text-sm text-brand-accent">General Manager, Bistro 42</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trust Badges -->
+                <div class="pt-8 border-t border-white/10 hidden lg:block">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Trusted by 200+ restaurants</p>
+                    <div class="flex gap-6 opacity-60 grayscale">
+                        <div class="text-lg font-bold flex items-center gap-2"><i class="fa-solid fa-utensils"></i> HAWKSMOOR</div>
+                        <div class="text-lg font-bold flex items-center gap-2"><i class="fa-solid fa-wine-glass"></i> GAUCHO</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile Footer (Copyright) -->
+            <div class="relative z-10 lg:hidden mt-8 text-xs text-gray-400">
+                &copy; 2024 Rezvo Systems Inc.
+            </div>
+        </section>
+
+        <!-- Right Section: Sign In Form -->
+        <section id="auth-section" class="w-full lg:w-7/12 xl:w-7/12 bg-white flex flex-col justify-center p-6 sm:p-12 lg:p-16 xl:p-24 shadow-2xl z-20 overflow-y-auto">
+            
+            <div class="max-w-md mx-auto w-full animate-fade-in">
+                <!-- Back Link -->
+                <div class="mb-8">
+                    <a href="#" class="text-sm font-medium text-gray-500 hover:text-brand-dark flex items-center gap-2 transition-colors">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Home
+                    </a>
+                </div>
+
+                <!-- Form Header -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
+                    <p class="text-gray-500">Please enter your details to sign in.</p>
+                </div>
+
+                <!-- Social Sign In -->
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <button class="flex items-center justify-center gap-2 py-3 px-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors group shadow-sm hover:shadow-md">
+                        <i class="fa-brands fa-google text-red-500 text-lg group-hover:scale-110 transition-transform"></i>
+                        <span class="text-sm font-semibold text-gray-700">Google</span>
+                    </button>
+                    <button class="flex items-center justify-center gap-2 py-3 px-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors group shadow-sm hover:shadow-md">
+                        <i class="fa-brands fa-apple text-gray-900 text-lg group-hover:scale-110 transition-transform"></i>
+                        <span class="text-sm font-semibold text-gray-700">Apple</span>
+                    </button>
+                </div>
+
+                <div class="relative flex py-2 items-center mb-8">
+                    <div class="flex-grow border-t border-gray-200"></div>
+                    <span class="flex-shrink-0 mx-4 text-gray-400 text-xs font-medium uppercase tracking-wider">Or sign in with email</span>
+                    <div class="flex-grow border-t border-gray-200"></div>
+                </div>
+
+                <!-- Login Form -->
+                <form class="space-y-5" action="#" method="POST">
+                    <!-- Email Field -->
+                    <div class="space-y-1.5">
+                        <label for="email" class="block text-sm font-semibold text-gray-700">Email Address</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fa-regular fa-envelope text-gray-400"></i>
+                            </div>
+                            <input type="email" id="email" name="email" placeholder="name@restaurant.com" class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10 transition-all duration-200 custom-input bg-gray-50 focus:bg-white" required>
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="space-y-1.5">
+                        <label for="password" class="block text-sm font-semibold text-gray-700">Password</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fa-regular fa-lock text-gray-400"></i>
+                            </div>
+                            <input type="password" id="password" name="password" placeholder="Enter your password" class="w-full pl-11 pr-12 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-brand-accent focus:ring-4 focus:ring-brand-accent/10 transition-all duration-200 custom-input bg-gray-50 focus:bg-white" required>
+                            <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors" onclick="togglePasswordVisibility()">
+                                <i class="fa-regular fa-eye" id="password-toggle-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Remember Me & Forgot Password -->
+                    <div class="flex items-center justify-between pt-1">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <div class="relative flex items-center">
+                                <input type="checkbox" class="peer appearance-none h-5 w-5 border border-gray-300 rounded-md bg-white checked:bg-brand-dark checked:border-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-accent/20 transition-all cursor-pointer custom-checkbox">
+                                <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity">
+                                    <i class="fa-solid fa-check text-white text-xs"></i>
+                                </div>
+                            </div>
+                            <span class="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">Remember for 30 days</span>
+                        </label>
+                        <a href="#" class="text-sm font-semibold text-brand-dark hover:text-brand-light hover:underline decoration-brand-amber underline-offset-2 transition-colors">Forgot password?</a>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-4">
+                        <button type="submit" class="w-full bg-brand-dark hover:bg-brand-light text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-brand-dark/20 hover:shadow-brand-dark/30 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2">
+                            Sign in
+                            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Create Account Link -->
+                <div class="mt-8 text-center">
+                    <p class="text-sm text-gray-600">
+                        Don't have an account? 
+                        <a href="#" class="text-brand-dark font-bold hover:text-brand-light transition-colors">Create account</a>
+                    </p>
+                </div>
+
+                <!-- Help/Support Footer (Desktop) -->
+                <div class="mt-12 pt-6 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-lock text-brand-accent"></i>
+                        <span>Protected by Rezvo Shield</span>
+                    </div>
+                    <div class="flex gap-4">
+                        <a href="#" class="hover:text-gray-600 transition-colors">Privacy</a>
+                        <a href="#" class="hover:text-gray-600 transition-colors">Terms</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Features Marquee (Bottom - Same as previous screen for consistency) -->
+    <div class="fixed bottom-0 left-0 w-full lg:w-5/12 xl:w-5/12 bg-black/20 backdrop-blur-sm py-3 z-20 pointer-events-none hidden lg:block overflow-hidden">
+        <div class="flex gap-8 animate-marquee whitespace-nowrap text-white/80 text-xs font-medium tracking-wide motion-reduce:animate-none">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-amber"></i> Real-time Sync</span>
+            <span class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-amber"></i> Waitlist Management</span>
+            <span class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-amber"></i> Server Rotation</span>
+            <span class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-amber"></i> Shift Reporting</span>
+            <span class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-amber"></i> Guest Profiles</span>
+            <span class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-amber"></i> Real-time Sync</span>
+            <span class="flex items-center gap-2"><i class="fa-solid fa-check text-brand-amber"></i> Waitlist Management</span>
+        </div>
+    </div>
+
+    <style>
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            animation: marquee 25s linear infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .animate-marquee {
+                animation: none;
+                white-space: normal;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('password-toggle-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+</html>

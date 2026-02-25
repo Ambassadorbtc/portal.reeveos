@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        window.FontAwesomeConfig = {
+          autoReplaceSvg: 'nest'
+        };
+      </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Rezvo Restaurant Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#1B4332', // Forest Green
+                            DEFAULT: '#2D6A4F',
+                            light: '#40916C',
+                            accent: '#52B788', // Teal
+                            amber: '#D4A373', // Amber
+                            surface: '#F8F9FA',
+                            gray: '#F3F4F6',
+                            text: '#1F2937',
+                            muted: '#6B7280',
+                            danger: '#EF4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Figtree', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px rgba(0, 0, 0, 0.05)',
+                        'card': '0 2px 10px rgba(0, 0, 0, 0.03)',
+                        'card-hover': '0 10px 30px -5px rgba(27, 67, 50, 0.1)',
+                        'floating': '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
+                        'input': '0 0 0 4px rgba(82, 183, 136, 0.15)',
+                        'action-bar': '0 -4px 20px rgba(0,0,0,0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body { font-family: 'Figtree', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .sidebar-item-active {
+            background-color: #1B4332;
+            color: #ffffff;
+            border-right: 4px solid #D4A373;
+        }
+        .sidebar-item-inactive {
+            color: #4B5563;
+        }
+        .sidebar-item-inactive:hover {
+            background-color: #F3F4F6;
+            color: #1B4332;
+        }
+        
+        /* Custom scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #d1d5db; 
+            border-radius: 3px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af; 
+        }
+
+        /* Unread notification dot animation */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.33); }
+            80%, 100% { opacity: 0; }
+        }
+        .ring-pulse::before {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: -4px;
+            width: calc(100% + 8px);
+            height: calc(100% + 8px);
+            background-color: #D4A373;
+            border-radius: 50%;
+            animation: pulse-ring 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        .notification-item {
+            transition: all 0.2s ease;
+        }
+        .notification-item:hover {
+            transform: translateX(4px);
+            background-color: #F8FAFC;
+        }
+        .notification-unread {
+            background-color: #F0FDF4; /* Very light green tint */
+        }
+        .notification-unread:hover {
+            background-color: #DCFCE7;
+        }
+    </style>
+</head>
+<body class="bg-brand-surface h-screen flex overflow-hidden text-gray-800 antialiased">
+
+    <!-- Sidebar Navigation (Persistent) -->
+    <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col h-full z-20 hidden lg:flex shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        <!-- Logo Area -->
+        <div class="h-20 flex items-center px-6 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-brand-amber rounded-lg flex items-center justify-center text-brand-dark font-bold text-xl shadow-md">
+                    R.
+                </div>
+                <span class="text-xl font-bold tracking-tight text-brand-dark">Rezvo</span>
+            </div>
+        </div>
+
+        <!-- Main Navigation -->
+        <div class="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scroll">
+            
+            <div class="px-3 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Main</div>
+            
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-house w-5 text-center"></i>
+                <span>Home Dashboard</span>
+            </a>
+            
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-magnifying-glass w-5 text-center"></i>
+                <span>Browse</span>
+            </a>
+            
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-plus-circle w-5 text-center"></i>
+                <span>Create/New</span>
+            </a>
+
+            <a href="#" class="sidebar-item-active flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group shadow-sm">
+                <i class="fa-solid fa-bell w-5 text-center"></i>
+                <span>Notifications</span>
+                <span class="ml-auto bg-brand-amber text-white text-xs font-bold px-2 py-0.5 rounded-full">3</span>
+            </a>
+
+            <div class="px-3 mt-8 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Account</div>
+
+            <a href="#" class="sidebar-item-inactive flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all group">
+                <i class="fa-solid fa-user-gear w-5 text-center"></i>
+                <span>Profile & Settings</span>
+            </a>
+        </div>
+
+        <!-- User Profile (Bottom) -->
+        <div class="p-4 border-t border-gray-100">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                <div class="w-10 h-10 rounded-full bg-brand-dark text-white flex items-center justify-center font-bold border-2 border-white shadow-sm overflow-hidden">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="User" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-900 truncate">Alex Johnson</p>
+                    <p class="text-xs text-gray-500 truncate">General Manager</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative bg-brand-surface">
+        
+        <!-- Top Navigation Bar -->
+        <header id="top-nav" class="bg-white h-20 border-b border-gray-200 flex items-center justify-between px-6 lg:px-8 z-10 shadow-sm flex-shrink-0">
+            <!-- Mobile Menu Trigger -->
+            <button class="lg:hidden p-2 text-gray-600 hover:text-brand-dark">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+
+            <!-- Page Title / Context -->
+            <div class="flex items-center gap-4">
+                <div>
+                    <h1 class="text-xl lg:text-2xl font-bold text-gray-900">Notifications</h1>
+                    <p class="text-xs text-gray-500 hidden sm:block">Stay updated with bookings, alerts, and system messages</p>
+                </div>
+            </div>
+
+            <!-- Top Actions -->
+            <div class="flex items-center gap-3 md:gap-4">
+                <div class="relative hidden sm:block">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent/20 focus:border-brand-accent w-48 transition-all">
+                </div>
+                <button class="p-2 text-gray-500 hover:text-brand-dark hover:bg-gray-100 rounded-lg transition-colors" title="Mark all as read">
+                    <i class="fa-solid fa-check-double"></i>
+                </button>
+                <button class="p-2 text-gray-500 hover:text-brand-dark hover:bg-gray-100 rounded-lg transition-colors">
+                    <i class="fa-solid fa-sliders"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Notifications Content Area -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 custom-scroll relative">
+            <div class="max-w-5xl mx-auto pb-24">
+                
+                <!-- Filters & Stats -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <!-- Tabs -->
+                    <div class="flex p-1 bg-white border border-gray-200 rounded-xl shadow-sm overflow-x-auto max-w-full">
+                        <button class="px-4 py-2 rounded-lg text-sm font-bold bg-brand-dark text-white shadow-sm transition-all whitespace-nowrap">
+                            All <span class="ml-1.5 opacity-70 text-[10px]">12</span>
+                        </button>
+                        <button class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-all whitespace-nowrap">
+                            Unread <span class="ml-1.5 px-1.5 py-0.5 rounded-full bg-brand-amber text-white text-[10px]">3</span>
+                        </button>
+                        <button class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-all whitespace-nowrap">
+                            Bookings
+                        </button>
+                        <button class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-all whitespace-nowrap">
+                            Waitlist
+                        </button>
+                        <button class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-all whitespace-nowrap">
+                            System
+                        </button>
+                    </div>
+
+                    <!-- Date Filter -->
+                    <div class="flex items-center gap-2">
+                         <button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:border-brand-accent hover:text-brand-dark transition-all shadow-sm">
+                            <i class="fa-regular fa-calendar"></i>
+                            <span>Last 30 Days</span>
+                            <i class="fa-solid fa-chevron-down text-xs ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Notification List Container -->
+                <div class="bg-white rounded-2xl border border-gray-200 shadow-card overflow-hidden">
+                    
+                    <!-- Group: Today -->
+                    <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-3 sticky top-0 z-10 backdrop-blur-sm bg-opacity-90">
+                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Today</h3>
+                    </div>
+
+                    <div class="divide-y divide-gray-100">
+                        
+                        <!-- Item 1: High Priority / Unread -->
+                        <div class="notification-item notification-unread p-5 flex gap-4 cursor-pointer group relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-amber"></div>
+                            
+                            <!-- Icon/Avatar -->
+                            <div class="flex-shrink-0 pt-1">
+                                <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center relative">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                    <div class="absolute top-0 right-0 w-3 h-3 bg-brand-amber rounded-full border-2 border-white ring-pulse"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start mb-1">
+                                    <p class="text-sm font-bold text-gray-900">Urgent: Kitchen Printer Offline</p>
+                                    <span class="text-xs font-medium text-brand-amber whitespace-nowrap">2 min ago</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-2">The thermal printer in the main kitchen station is not responding. Orders may be delayed.</p>
+                                
+                                <!-- Actions -->
+                                <div class="flex items-center gap-3 mt-2">
+                                    <button class="text-xs font-bold text-white bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg transition-colors">
+                                        Check Settings
+                                    </button>
+                                    <button class="text-xs font-semibold text-gray-500 hover:text-gray-900 transition-colors">
+                                        Dismiss
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Status Dot for Unread -->
+                            <div class="flex-shrink-0 self-center">
+                                <div class="w-2.5 h-2.5 rounded-full bg-brand-amber"></div>
+                            </div>
+                        </div>
+
+                        <!-- Item 2: New Booking / Unread -->
+                        <div class="notification-item notification-unread p-5 flex gap-4 cursor-pointer group">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-accent"></div>
+                            
+                            <!-- Icon/Avatar -->
+                            <div class="flex-shrink-0 pt-1">
+                                <div class="w-10 h-10 rounded-full bg-brand-surface border border-gray-200 overflow-hidden">
+                                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-6.jpg" alt="Sarah" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                            
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start mb-1">
+                                    <p class="text-sm font-bold text-gray-900">New Reservation Request</p>
+                                    <span class="text-xs font-medium text-brand-light whitespace-nowrap">15 min ago</span>
+                                </div>
+                                <p class="text-sm text-gray-600">
+                                    <span class="font-semibold text-gray-800">Sarah Williams</span> requested a table for <span class="font-semibold text-gray-800">6 people</span> on <span class="font-semibold text-gray-800">Oct 28 at 7:00 PM</span>.
+                                </p>
+                                <div class="flex gap-2 mt-2">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
+                                        <i class="fa-solid fa-cake-candles text-[10px]"></i> Birthday
+                                    </span>
+                                </div>
+                                <!-- Visible Actions -->
+                                <div class="flex items-center gap-2 mt-3">
+                                    <button class="flex-1 sm:flex-none px-4 py-1.5 bg-brand-dark text-white text-xs font-bold rounded-lg hover:bg-brand-light transition-colors shadow-sm">
+                                        Accept
+                                    </button>
+                                    <button class="flex-1 sm:flex-none px-4 py-1.5 bg-white border border-gray-200 text-gray-600 text-xs font-bold rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all">
+                                        Decline
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Status Dot -->
+                            <div class="flex-shrink-0 self-start pt-1">
+                                <div class="w-2.5 h-2.5 rounded-full bg-brand-accent"></div>
+                            </div>
+                        </div>
+
+                        <!-- Item 3: Waitlist Update / Unread -->
+                        <div class="notification-item notification-unread p-5 flex gap-4 cursor-pointer group">
+                             <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                             
+                            <!-- Icon/Avatar -->
+                            <div class="flex-shrink-0 pt-1">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-stopwatch"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start mb-1">
+                                    <p class="text-sm font-bold text-gray-900">Waitlist Alert: Table Ready</p>
+                                    <span class="text-xs font-medium text-brand-light whitespace-nowrap">24 min ago</span>
+                                </div>
+                                <p class="text-sm text-gray-600">
+                                    <span class="font-semibold text-gray-800">Table 05</span> is now available for the <span class="font-semibold text-gray-800">Miller Party (4 ppl)</span>. Wait time exceeded by 5 mins.
+                                </p>
+                                <div class="mt-2 flex items-center gap-2">
+                                     <button class="text-xs font-bold text-brand-dark hover:underline flex items-center gap-1">
+                                        View Waitlist <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Status Dot -->
+                            <div class="flex-shrink-0 self-center">
+                                <div class="w-2.5 h-2.5 rounded-full bg-brand-accent"></div>
+                            </div>
+                        </div>
+
+                        <!-- Item 4: Payment Received / Read -->
+                        <div class="notification-item p-5 flex gap-4 cursor-pointer group opacity-75 hover:opacity-100">
+                            <!-- Icon/Avatar -->
+                            <div class="flex-shrink-0 pt-1">
+                                <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-receipt"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start mb-1">
+                                    <p class="text-sm font-bold text-gray-800">Deposit Received</p>
+                                    <span class="text-xs text-gray-400 whitespace-nowrap">2 hours ago</span>
+                                </div>
+                                <p class="text-sm text-gray-500">
+                                    Payment of <span class="font-semibold text-gray-700">$50.00</span> received from <span class="font-semibold text-gray-700">James Anderson</span> for booking #8823.
+                                </p>
+                            </div>
+                             <!-- Actions (Hover) -->
+                             <div class="flex-shrink-0 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-brand-dark hover:bg-gray-50 transition-all shadow-sm" title="View Details">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Group: Yesterday -->
+                    <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-3 sticky top-0 z-10 backdrop-blur-sm bg-opacity-90 mt-1">
+                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Yesterday</h3>
+                    </div>
+
+                    <div class="divide-y divide-gray-100">
+                        <!-- Item 5: Review / Read -->
+                        <div class="notification-item p-5 flex gap-4 cursor-pointer group opacity-75 hover:opacity-100">
+                            <!-- Icon/Avatar -->
+                            <div class="flex-shrink-0 pt-1">
+                                <div class="w-10 h-10 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-star"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start mb-1">
+                                    <p class="text-sm font-bold text-gray-800">New 5-Star Review</p>
+                                    <span class="text-xs text-gray-400 whitespace-nowrap">Yesterday, 9:30 PM</span>
+                                </div>
+                                <p class="text-sm text-gray-500">
+                                    "Amazing service and the food was spectacular! Will definitely come back." - <span class="font-medium text-gray-700">via Google Reviews</span>
+                                </p>
+                            </div>
+                        </div>
+
+                         <!-- Item 6: System Update / Read -->
+                         <div class="notification-item p-5 flex gap-4 cursor-pointer group opacity-75 hover:opacity-100">
+                            <!-- Icon/Avatar -->
+                            <div class="flex-shrink-0 pt-1">
+                                <div class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-server"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start mb-1">
+                                    <p class="text-sm font-bold text-gray-800">System Maintenance Completed</p>
+                                    <span class="text-xs text-gray-400 whitespace-nowrap">Yesterday, 4:00 AM</span>
+                                </div>
+                                <p class="text-sm text-gray-500">
+                                    Scheduled maintenance was successfully completed. Rezvo is now running version 2.4.1.
+                                </p>
+                                <button class="text-xs font-bold text-brand-dark hover:underline mt-1">See Release Notes</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Item 7: User Mention / Read -->
+                         <div class="notification-item p-5 flex gap-4 cursor-pointer group opacity-75 hover:opacity-100">
+                            <!-- Icon/Avatar -->
+                            <div class="flex-shrink-0 pt-1">
+                                <div class="w-10 h-10 rounded-full bg-brand-surface border border-gray-200 overflow-hidden">
+                                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" alt="Mike" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                            
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start mb-1">
+                                    <p class="text-sm font-bold text-gray-800">Mentioned in Booking Note</p>
+                                    <span class="text-xs text-gray-400 whitespace-nowrap">Yesterday, 2:15 PM</span>
+                                </div>
+                                <p class="text-sm text-gray-500">
+                                    <span class="font-semibold text-gray-700">Mike Ross</span> mentioned you in a note for <span class="font-semibold text-gray-700">Table 12</span>: "@Alex please check if we can accommodate a high chair for this table."
+                                </p>
+                            </div>
+                             <!-- Actions (Hover) -->
+                             <div class="flex-shrink-0 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-brand-dark hover:bg-gray-50 transition-all shadow-sm" title="Reply">
+                                    <i class="fa-solid fa-reply"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Load More -->
+                <div class="mt-6 text-center">
+                    <button class="px-6 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:text-brand-dark hover:border-brand-accent hover:bg-gray-50 transition-all shadow-sm">
+                        Load Older Notifications
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sticky Mobile Action Bar (If needed, currently hidden as not specified for this screen but kept structure) -->
+        <!-- 
+        <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-action-bar z-50 flex items-center gap-3">
+           ... mobile actions ...
+        </div>
+        -->
+
+    </main>
+
+    <!-- Settings Popover (Hidden by default) -->
+    <div id="settings-popover" class="hidden absolute top-20 right-6 w-72 bg-white rounded-2xl shadow-floating border border-gray-100 z-50 overflow-hidden animate-fade-in-down origin-top-right">
+        <div class="p-4 border-b border-gray-100">
+            <h3 class="font-bold text-gray-800">Notification Settings</h3>
+        </div>
+        <div class="p-2">
+            <label class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <span class="text-sm text-gray-700 font-medium">Email Notifications</span>
+                <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-brand-accent checked:bg-brand-accent"/>
+                    <label class="block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                </div>
+            </label>
+            <label class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <span class="text-sm text-gray-700 font-medium">Sound Alerts</span>
+                <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-brand-accent checked:bg-brand-accent"/>
+                    <label class="block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                </div>
+            </label>
+            <label class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <span class="text-sm text-gray-700 font-medium">SMS Alerts</span>
+                <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-brand-accent checked:bg-brand-accent"/>
+                    <label class="block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                </div>
+            </label>
+        </div>
+        <div class="p-2 bg-gray-50 border-t border-gray-100 text-center">
+            <a href="#" class="text-xs font-bold text-brand-dark hover:underline">View all settings</a>
+        </div>
+    </div>
+
+    <script>
+        // Simple toggle logic for settings popover
+        const settingsBtn = document.querySelector('.fa-sliders').parentElement;
+        const popover = document.getElementById('settings-popover');
+        
+        if(settingsBtn && popover) {
+            settingsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                popover.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', (e) => {
+                if(!popover.contains(e.target) && !settingsBtn.contains(e.target)) {
+                    popover.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

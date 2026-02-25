@@ -25,8 +25,8 @@ import copy
 
 # ── Restaurant spacing constants (in canvas pixels, ~1px = 1cm at standard zoom) ──
 
-MIN_TABLE_GAP = 60        # ~60cm minimum between table edges (casual dining)
-MIN_TABLE_GAP_FINE = 80   # ~80cm for fine dining
+MIN_TABLE_GAP = 30        # ~30px minimum between table edges (casual dining)
+MIN_TABLE_GAP_FINE = 50   # ~50px for fine dining
 MIN_AISLE_WIDTH = 90      # ~90cm / 36 inches — ADA minimum
 FIXTURE_CLEARANCE = 40    # ~40cm clearance from fixtures
 WALL_CLEARANCE = 30       # ~30cm from canvas edges
@@ -323,8 +323,8 @@ def auto_arrange(
 
     # Style-based gap
     if min_gap is None:
-        gaps = {"dense": 40, "balanced": 60, "spacious": 90, "grid": 50}
-        min_gap = gaps.get(style, 60)
+        gaps = {"dense": 25, "balanced": 35, "spacious": 55, "grid": 30}
+        min_gap = gaps.get(style, 35)
 
     # ── Step 1: Compute available space ──
     # Build obstacle map from fixtures
@@ -342,8 +342,7 @@ def auto_arrange(
         return w * h
     target_tables.sort(key=table_area, reverse=True)
 
-    # ── Step 3: Intelligent grid placement ──
-    # Compute how many columns/rows we need
+    # ── Step 3: Tight grid placement (pack, don't spread) ──
     n = len(target_tables)
     usable_w = avail_x1 - avail_x0
     usable_h = avail_y1 - avail_y0
@@ -352,25 +351,40 @@ def auto_arrange(
     avg_tw = sum(get_table_size(t)[0] for t in target_tables) / n
     avg_th = sum(get_table_size(t)[1] for t in target_tables) / n
 
-    # Calculate grid dimensions
+    # Calculate tight grid — pack based on actual table sizes, not canvas size
     cell_w = avg_tw + min_gap
     cell_h = avg_th + min_gap
     cols = max(1, int(usable_w / cell_w))
+    if cols > n:
+        cols = n  # Don't use more columns than tables
     rows = max(1, math.ceil(n / cols))
 
-    # Recalculate cell size to spread evenly
-    cell_w = usable_w / cols
-    cell_h = usable_h / max(rows, 1)
+    # Keep cell size tight — DON'T expand to fill canvas
+    # Only expand slightly if there's room and it looks better
+    actual_grid_w = cols * cell_w
+    actual_grid_h = rows * cell_h
 
-    # Place tables in grid cells
+    # If grid fits comfortably, add a little breathing room but NOT full spread
+    if actual_grid_w < usable_w * 0.9:
+        cell_w = min(cell_w * 1.2, usable_w / cols)
+        actual_grid_w = cols * cell_w
+    if actual_grid_h < usable_h * 0.9:
+        cell_h = min(cell_h * 1.2, usable_h / rows)
+        actual_grid_h = rows * cell_h
+
+    # Centre the grid group on the canvas
+    offset_x = avail_x0 + (usable_w - actual_grid_w) / 2
+    offset_y = avail_y0 + (usable_h - actual_grid_h) / 2
+
+    # Place tables in grid cells, centred within each cell
     for idx, table in enumerate(target_tables):
         col = idx % cols
         row = idx // cols
         tw, th = get_table_size(table)
 
-        # Center table within its cell
-        cx = avail_x0 + col * cell_w + (cell_w - tw) / 2
-        cy = avail_y0 + row * cell_h + (cell_h - th) / 2
+        # Centre table within its tight cell
+        cx = offset_x + col * cell_w + (cell_w - tw) / 2
+        cy = offset_y + row * cell_h + (cell_h - th) / 2
 
         table["x"] = round(cx)
         table["y"] = round(cy)
@@ -471,8 +485,8 @@ def _simulated_annealing(
                     e += 2000
                 elif dist < min_gap:
                     e += (min_gap - dist) * 10  # Spacing violation
-                elif dist > min_gap * 4:
-                    e += (dist - min_gap * 4) * 0.5  # Too far apart
+                elif dist > min_gap * 3:
+                    e += (dist - min_gap * 3) * 1.0  # Too far apart — pull closer
 
         return e
 

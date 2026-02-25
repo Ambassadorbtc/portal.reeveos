@@ -1,8 +1,8 @@
 /**
  * Floor Plan — Full drag-drop table editor + live status view
- * Zone views: Main Floor, Bar, Kitchen, Terrace, Upstairs, Outside, Basement, Window
+ * Zone views: Main Floor, Bar, Kitchen, Terrace, Window, Upstairs, Outside, Basement
  * Table shapes: round, square, long, booth
- * Lock/unlock toggle, add/remove tables, zone tabs
+ * Lock/unlock toggle, add/remove tables, zone tabs, proper spacing
  */
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import {
@@ -49,26 +49,44 @@ const TABLE_SHAPES = [
 
 const SEAT_OPTIONS = [2, 4, 6, 8, 10, 12]
 
+/* Demo tables with proper zones, shapes, statuses, and spaced positions */
 const DEFAULT_TABLES = [
-  { id: 't1',  name: 'T-01', seats: 4, zone: 'window', shape: 'round', x: 80,  y: 60,  status: 'seated',    guest: 'Smith', timer: '45m', vip: false },
-  { id: 't2',  name: 'T-02', seats: 4, zone: 'window', shape: 'square', x: 250, y: 60,  status: 'reserved',  guest: 'Smith (4)', nextTime: '6:30 PM' },
-  { id: 't3',  name: 'T-03', seats: 2, zone: 'main',   shape: 'square', x: 80,  y: 240, status: 'available' },
-  { id: 't4',  name: 'T-04', seats: 6, zone: 'main',   shape: 'round',  x: 280, y: 250, status: 'seated',   guest: '', timer: '12m', vip: true },
-  { id: 't5',  name: 'T-05', seats: 4, zone: 'main',   shape: 'round',  x: 500, y: 60,  status: 'dirty' },
-  { id: 't6',  name: 'T-06', seats: 8, zone: 'main',   shape: 'long',   x: 480, y: 230, status: 'available' },
-  { id: 't7',  name: 'T-07', seats: 4, zone: 'bar',    shape: 'round',  x: 80,  y: 60,  status: 'seated',   guest: 'Johnson', timer: '20m' },
-  { id: 't8',  name: 'T-08', seats: 2, zone: 'bar',    shape: 'round',  x: 240, y: 60,  status: 'available' },
-  { id: 't9',  name: 'T-09', seats: 4, zone: 'bar',    shape: 'booth',  x: 80,  y: 220, status: 'reserved', nextTime: '7:00 PM' },
-  { id: 't10', name: 'T-10', seats: 6, zone: 'terrace', shape: 'round', x: 100, y: 80,  status: 'available' },
-  { id: 't11', name: 'T-11', seats: 4, zone: 'terrace', shape: 'square', x: 300, y: 80, status: 'seated', guest: 'Park', timer: '35m' },
-  { id: 't12', name: 'T-12', seats: 8, zone: 'terrace', shape: 'long',  x: 150, y: 240, status: 'mains', guest: 'Williams' },
-  { id: 't13', name: 'T-13', seats: 4, zone: 'upstairs', shape: 'round', x: 120, y: 100, status: 'available' },
-  { id: 't14', name: 'T-14', seats: 6, zone: 'upstairs', shape: 'long',  x: 320, y: 100, status: 'reserved', nextTime: '8:00 PM' },
-  { id: 't15', name: 'T-15', seats: 4, zone: 'outside',  shape: 'round', x: 100, y: 100, status: 'available' },
-  { id: 't16', name: 'T-16', seats: 2, zone: 'outside',  shape: 'round', x: 280, y: 100, status: 'available' },
+  // Main Floor
+  { id: 't1',  name: 'T-01', seats: 4, zone: 'main', shape: 'round',  x: 60,  y: 50,  status: 'seated',    timer: '45m', vip: false },
+  { id: 't2',  name: 'T-02', seats: 4, zone: 'main', shape: 'square', x: 250, y: 50,  status: 'reserved',  nextTime: '6:30 PM', guest: 'Smith (4)' },
+  { id: 't3',  name: 'T-03', seats: 2, zone: 'main', shape: 'square', x: 440, y: 50,  status: 'available' },
+  { id: 't4',  name: 'T-04', seats: 6, zone: 'main', shape: 'round',  x: 60,  y: 230, status: 'seated',    timer: '12m', vip: true },
+  { id: 't5',  name: 'T-05', seats: 4, zone: 'main', shape: 'round',  x: 250, y: 230, status: 'dirty' },
+  { id: 't6',  name: 'T-06', seats: 8, zone: 'main', shape: 'long',   x: 440, y: 230, status: 'mains', guest: 'Williams' },
+  // Window
+  { id: 't7',  name: 'T-07', seats: 2, zone: 'window', shape: 'round',  x: 60,  y: 50,  status: 'seated', timer: '20m', guest: 'Johnson' },
+  { id: 't8',  name: 'T-08', seats: 2, zone: 'window', shape: 'round',  x: 250, y: 50,  status: 'available' },
+  { id: 't9',  name: 'T-09', seats: 4, zone: 'window', shape: 'square', x: 440, y: 50,  status: 'reserved', nextTime: '7:15 PM' },
+  // Bar
+  { id: 't10', name: 'T-10', seats: 2, zone: 'bar', shape: 'round', x: 60,  y: 50,  status: 'seated', timer: '30m' },
+  { id: 't11', name: 'T-11', seats: 2, zone: 'bar', shape: 'round', x: 220, y: 50,  status: 'available' },
+  { id: 't12', name: 'T-12', seats: 4, zone: 'bar', shape: 'booth', x: 380, y: 50,  status: 'reserved', nextTime: '7:00 PM' },
+  { id: 't13', name: 'T-13', seats: 4, zone: 'bar', shape: 'booth', x: 60,  y: 200, status: 'available' },
+  // Terrace
+  { id: 't14', name: 'T-14', seats: 6, zone: 'terrace', shape: 'round',  x: 60,  y: 50,  status: 'available' },
+  { id: 't15', name: 'T-15', seats: 4, zone: 'terrace', shape: 'square', x: 260, y: 50,  status: 'seated', timer: '35m', guest: 'Park' },
+  { id: 't16', name: 'T-16', seats: 8, zone: 'terrace', shape: 'long',   x: 60,  y: 230, status: 'mains', guest: 'Chen' },
+  // Upstairs
+  { id: 't17', name: 'T-17', seats: 4, zone: 'upstairs', shape: 'round', x: 60,  y: 50,  status: 'available' },
+  { id: 't18', name: 'T-18', seats: 6, zone: 'upstairs', shape: 'long',  x: 260, y: 50,  status: 'reserved', nextTime: '8:00 PM' },
+  { id: 't19', name: 'T-19', seats: 4, zone: 'upstairs', shape: 'round', x: 60,  y: 230, status: 'seated', timer: '15m' },
+  // Outside
+  { id: 't20', name: 'T-20', seats: 4, zone: 'outside', shape: 'round', x: 60,  y: 50,  status: 'available' },
+  { id: 't21', name: 'T-21', seats: 2, zone: 'outside', shape: 'round', x: 250, y: 50,  status: 'available' },
+  { id: 't22', name: 'T-22', seats: 6, zone: 'outside', shape: 'long',  x: 60,  y: 230, status: 'seated', timer: '25m' },
+  // Basement
+  { id: 't23', name: 'T-23', seats: 8, zone: 'basement', shape: 'long',   x: 60,  y: 50,  status: 'available' },
+  { id: 't24', name: 'T-24', seats: 10, zone: 'basement', shape: 'long',  x: 60,  y: 220, status: 'reserved', nextTime: '8:30 PM', guest: 'Party booking' },
+  // Kitchen (chef's table)
+  { id: 't25', name: 'Chef Table', seats: 6, zone: 'kitchen', shape: 'long', x: 60, y: 50, status: 'reserved', nextTime: '7:30 PM', guest: 'VIP', vip: true },
 ]
 
-/* ═══════════════ TABLE COMPONENT ═══════════════ */
+/* ═══════════════ SEAT DOTS ═══════════════ */
 
 const SeatDots = ({ seats, w, h, color, active }) => {
   const count = Math.min(seats, 12)
@@ -81,11 +99,13 @@ const SeatDots = ({ seats, w, h, color, active }) => {
         background: active ? color : '#D1D5DB',
         left: w / 2 + Math.cos(angle) * rx - 4,
         top: h / 2 + Math.sin(angle) * ry - 4,
-        opacity: active ? 0.6 : 0.3, transition: 'all 0.3s',
+        opacity: active ? 0.5 : 0.25, transition: 'all 0.3s',
       }} />
     )
   })
 }
+
+/* ═══════════════ TABLE NODE ═══════════════ */
 
 const TableNode = ({ table, status, isSelected, locked, isDragging, onMouseDown, onTouchStart, onClick, onEdit, onDelete }) => {
   const st = STATUS[status] || STATUS.available
@@ -118,17 +138,16 @@ const TableNode = ({ table, status, isSelected, locked, isDragging, onMouseDown,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         fontFamily: "'Figtree', sans-serif",
       }}
-      onClick={onClick}
-      onMouseDown={onMouseDown}
-      onTouchStart={onTouchStart}
+      onClick={onClick} onMouseDown={onMouseDown} onTouchStart={onTouchStart}
     >
       {table.vip && (
-        <div style={{ position: 'absolute', top: -8, right: -8, background: '#F59E0B', color: '#fff', fontSize: 8, fontWeight: 800, padding: '2px 6px', borderRadius: 6, letterSpacing: '0.5px', boxShadow: '0 2px 6px rgba(245,158,11,0.4)' }}>VIP</div>
+        <div style={{ position: 'absolute', top: -8, right: -8, background: '#F59E0B', color: '#fff', fontSize: 8, fontWeight: 800, padding: '2px 6px', borderRadius: 6, boxShadow: '0 2px 6px rgba(245,158,11,0.4)' }}>VIP</div>
       )}
       {!locked && <div style={{ position: 'absolute', top: 4, right: 4, opacity: 0.3 }}><GripVertical size={12} /></div>}
+
       <span style={{ fontSize: 14, fontWeight: 800, color: st.text, letterSpacing: '-0.02em' }}>{table.name}</span>
 
-      {status === 'seated' && table.timer && (
+      {status === 'seated' && table.timer ? (
         <>
           <div style={{ display: 'flex', gap: 3, marginTop: 3 }}>
             {Array.from({ length: Math.min(seats, 6) }).map((_, i) => (
@@ -137,16 +156,18 @@ const TableNode = ({ table, status, isSelected, locked, isDragging, onMouseDown,
           </div>
           <span style={{ fontSize: 10, fontWeight: 700, color: st.text, marginTop: 2, opacity: 0.8 }}>{table.timer}</span>
         </>
-      )}
-      {status === 'reserved' && table.nextTime && (
+      ) : status === 'reserved' && table.nextTime ? (
         <>
           <span style={{ fontSize: 11, fontWeight: 600, color: st.border, marginTop: 2 }}>{table.nextTime}</span>
           {table.guest && <span style={{ fontSize: 9, color: st.text, opacity: 0.7 }}>{table.guest}</span>}
         </>
+      ) : status === 'dirty' ? (
+        <span style={{ fontSize: 10, fontWeight: 800, color: st.text, marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.5px' }}>DIRTY</span>
+      ) : status === 'mains' ? (
+        <span style={{ fontSize: 10, fontWeight: 700, color: st.text, marginTop: 2 }}>{table.guest || 'Mains'}</span>
+      ) : (
+        <span style={{ fontSize: 10, fontWeight: 600, color: '#9CA3AF', marginTop: 2 }}>Available</span>
       )}
-      {status === 'available' && <span style={{ fontSize: 10, fontWeight: 600, color: '#9CA3AF', marginTop: 2 }}>Available</span>}
-      {status === 'dirty' && <span style={{ fontSize: 10, fontWeight: 800, color: st.text, marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.5px' }}>DIRTY</span>}
-      {status === 'mains' && <span style={{ fontSize: 10, fontWeight: 700, color: st.text, marginTop: 2 }}>{table.guest || 'Mains'}</span>}
 
       <SeatDots seats={seats} w={w} h={h} color={st.dot} active={status !== 'available' && status !== 'dirty'} />
 
@@ -180,11 +201,11 @@ const FloorPlan = ({ embedded = false }) => {
   const bid = business?.id ?? business?._id
   const isFood = businessType === 'food' || businessType === 'restaurant'
 
-  const [tables, setTables] = useState([])
+  const [tables, setTables] = useState(DEFAULT_TABLES)
   const [bookings, setBookings] = useState([])
   const [selectedTable, setSelectedTable] = useState(null)
   const [locked, setLocked] = useState(true)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [activeZone, setActiveZone] = useState('all')
   const [toast, setToast] = useState(null)
   const [dragging, setDragging] = useState(null)
@@ -196,26 +217,15 @@ const FloorPlan = ({ embedded = false }) => {
   const [addZone, setAddZone] = useState('main')
   const [addName, setAddName] = useState('')
   const [editTable, setEditTable] = useState(null)
-  const today = new Date().toISOString().slice(0, 10)
 
-  /* ── Load Data ── */
+  /* ── Load bookings from API (keep demo tables for layout) ── */
   useEffect(() => {
-    if (!bid) { setTables(DEFAULT_TABLES); setLoading(false); return }
+    if (!bid) return
+    const today = new Date().toISOString().slice(0, 10)
     api.get(`/calendar/business/${bid}/restaurant?date=${today}&view=day`)
-      .then(d => {
-        const apiTables = (d.tables || []).map((t, i) => ({
-          ...t, id: t.id || `t${i+1}`, name: t.name || `T-${String(i+1).padStart(2,'0')}`,
-          shape: t.shape || 'round', zone: t.zone || t.section?.toLowerCase() || 'main',
-          x: t.x ?? DEFAULT_TABLES[i]?.x ?? 80 + (i % 4) * 180,
-          y: t.y ?? DEFAULT_TABLES[i]?.y ?? 60 + Math.floor(i / 4) * 160,
-          status: t.status || 'available',
-        }))
-        setTables(apiTables.length > 0 ? apiTables : DEFAULT_TABLES)
-        setBookings(d.bookings || [])
-      })
-      .catch(() => { setTables(DEFAULT_TABLES) })
-      .finally(() => setLoading(false))
-  }, [bid, today])
+      .then(d => { if (d.bookings?.length) setBookings(d.bookings) })
+      .catch(() => {})
+  }, [bid])
 
   const visibleTables = useMemo(() => activeZone === 'all' ? tables : tables.filter(t => t.zone === activeZone), [tables, activeZone])
 
@@ -282,10 +292,10 @@ const FloorPlan = ({ embedded = false }) => {
 
   /* ── Table CRUD ── */
   const addTableFn = () => {
-    const zone = addZone || activeZone || 'main'
+    const zone = addZone || (activeZone !== 'all' ? activeZone : 'main')
     const num = tables.length + 1
     const name = addName.trim() || `T-${String(num).padStart(2, '0')}`
-    setTables(prev => [...prev, { id: `t${Date.now()}`, name, seats: addSeats, zone, shape: addShape, x: 100 + Math.random() * 350, y: 80 + Math.random() * 250, status: 'available' }])
+    setTables(prev => [...prev, { id: `t${Date.now()}`, name, seats: addSeats, zone, shape: addShape, x: 60 + Math.random() * 350, y: 50 + Math.random() * 250, status: 'available' }])
     setShowAddPanel(false); setAddName('')
     showToast(`${name} added to ${ZONES.find(z => z.id === zone)?.label || zone}`)
   }
@@ -327,28 +337,23 @@ const FloorPlan = ({ embedded = false }) => {
   if (!isFood) return <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center shadow-sm"><h2 className="font-bold text-xl text-gray-900 mb-2">Floor Plan</h2><p className="text-gray-500">Floor plans are available for restaurant businesses.</p></div>
 
   return (
-    <div className={`flex flex-col overflow-hidden ${embedded ? 'h-full' : '-m-6 lg:-m-8 h-[calc(100vh-4rem)]'}`} style={{ fontFamily: "'Figtree', sans-serif" }}>
+    <div className={`flex flex-col overflow-hidden bg-white ${embedded ? 'h-full' : 'h-full'}`} style={{ fontFamily: "'Figtree', sans-serif" }}>
 
-      {/* ═══ TOP HEADER ═══ */}
+      {/* ═══ CONTROLS BAR (no duplicate title — TopBar already shows Floor Plan) ═══ */}
       {!embedded && (
-        <div className="bg-white border-b border-gray-200 px-6 py-4 shrink-0">
+        <div className="border-b border-gray-100 px-5 py-3 shrink-0">
+          {/* Row 1: Stats + Controls */}
           <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-6">
-              <div>
-                <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">Floor Plan</h1>
-                <p className="text-xs text-gray-500 mt-0.5">{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
-              </div>
-              <div className="hidden md:flex items-center gap-4">
-                <StatPill label="Tables" value={stats.total} color="#1B4332" />
-                <StatPill label="Seated" value={stats.seated} color="#059669" />
-                <StatPill label="Available" value={stats.available} color="#9CA3AF" />
-                <StatPill label="Reserved" value={stats.reserved} color="#D4A373" />
-                {stats.dirty > 0 && <StatPill label="Dirty" value={stats.dirty} color="#EF4444" />}
-                <div className="h-5 w-px bg-gray-200" />
-                <div className="flex items-center gap-1.5">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm" style={{ background: occupancy > 70 ? '#ECFDF5' : '#F7F7F5', color: occupancy > 70 ? '#059669' : '#6B7280' }}>{occupancy}%</div>
-                  <span className="text-[10px] font-medium text-gray-400">occupancy</span>
-                </div>
+            <div className="flex items-center gap-5">
+              <StatPill label="Tables" value={stats.total} color="#1B4332" />
+              <StatPill label="Seated" value={stats.seated} color="#059669" />
+              <StatPill label="Available" value={stats.available} color="#9CA3AF" />
+              <StatPill label="Reserved" value={stats.reserved} color="#D4A373" />
+              {stats.dirty > 0 && <StatPill label="Dirty" value={stats.dirty} color="#EF4444" />}
+              <div className="h-4 w-px bg-gray-200" />
+              <div className="flex items-center gap-1.5">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center font-extrabold text-xs" style={{ background: occupancy > 50 ? '#ECFDF5' : '#F7F7F5', color: occupancy > 50 ? '#059669' : '#6B7280' }}>{occupancy}%</div>
+                <span className="text-[10px] font-medium text-gray-400">occupancy</span>
               </div>
             </div>
 
@@ -368,15 +373,15 @@ const FloorPlan = ({ embedded = false }) => {
             </div>
           </div>
 
-          {/* ═══ ZONE TABS ═══ */}
-          <div className="flex items-center gap-1.5 mt-4 overflow-x-auto pb-1 -mb-1" style={{ scrollbarWidth: 'none' }}>
-            {ZONES.filter(z => z.id === 'all' || zoneCounts[z.id] > 0 || !locked).map(zone => {
+          {/* Row 2: Zone Tabs — ALWAYS show all zones */}
+          <div className="flex items-center gap-1.5 mt-3 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
+            {ZONES.map(zone => {
               const isActive = activeZone === zone.id
               const count = zoneCounts[zone.id] || 0
               return (
                 <button key={zone.id} onClick={() => { setActiveZone(zone.id); if (zone.id !== 'all') setAddZone(zone.id) }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all shrink-0"
-                  style={{ background: isActive ? zone.color + '12' : 'transparent', color: isActive ? zone.color : '#9CA3AF', border: isActive ? `1.5px solid ${zone.color}30` : '1.5px solid transparent' }}>
+                  style={{ background: isActive ? zone.color + '12' : 'transparent', color: isActive ? zone.color : count > 0 ? '#6B7280' : '#C9C9C9', border: isActive ? `1.5px solid ${zone.color}30` : '1.5px solid transparent' }}>
                   <span className="text-sm">{zone.icon}</span>
                   {zone.label}
                   {count > 0 && <span className="ml-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold" style={{ background: isActive ? zone.color + '18' : '#F3F4F6', color: isActive ? zone.color : '#9CA3AF' }}>{count}</span>}
@@ -385,11 +390,11 @@ const FloorPlan = ({ embedded = false }) => {
             })}
           </div>
 
-          {/* Status Legend */}
-          <div className="flex items-center gap-3 mt-3">
+          {/* Row 3: Status Legend */}
+          <div className="flex items-center gap-3 mt-2.5">
             {['available', 'seated', 'reserved', 'mains', 'paying', 'dirty'].map(k => (
               <div key={k} className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: STATUS[k].dot }} />
+                <div className="w-2 h-2 rounded-full" style={{ background: STATUS[k].dot }} />
                 <span className="text-[10px] font-semibold text-gray-400">{STATUS[k].label}</span>
               </div>
             ))}
@@ -399,23 +404,23 @@ const FloorPlan = ({ embedded = false }) => {
 
       {/* ═══ ADD TABLE PANEL ═══ */}
       {showAddPanel && !locked && (
-        <div className="bg-white border-b border-gray-200 px-6 py-4 shrink-0">
+        <div className="border-b border-gray-100 px-5 py-3 bg-gray-50/50 shrink-0">
           <div className="flex items-center gap-5 flex-wrap">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-gray-500">Name:</span>
               <input type="text" value={addName} onChange={e => setAddName(e.target.value)} placeholder={`T-${String(tables.length + 1).padStart(2, '0')}`}
-                className="w-20 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                className="w-20 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-gray-500">Shape:</span>
               {TABLE_SHAPES.map(s => { const SIcon = s.Icon; return (
-                <button key={s.id} onClick={() => setAddShape(s.id)} className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${addShape === s.id ? 'bg-primary text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`} title={s.label}><SIcon size={16} /></button>
+                <button key={s.id} onClick={() => setAddShape(s.id)} className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${addShape === s.id ? 'bg-primary text-white shadow-md' : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200'}`} title={s.label}><SIcon size={16} /></button>
               )})}
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-gray-500">Seats:</span>
               {SEAT_OPTIONS.map(n => (
-                <button key={n} onClick={() => setAddSeats(n)} className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${addSeats === n ? 'bg-primary text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>{n}</button>
+                <button key={n} onClick={() => setAddSeats(n)} className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${addSeats === n ? 'bg-primary text-white shadow-md' : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200'}`}>{n}</button>
               ))}
             </div>
             <div className="flex items-center gap-2">
@@ -423,7 +428,7 @@ const FloorPlan = ({ embedded = false }) => {
               <div className="flex gap-1.5 flex-wrap">
                 {ZONES.filter(z => z.id !== 'all').map(z => (
                   <button key={z.id} onClick={() => setAddZone(z.id)}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border ${addZone === z.id ? 'text-white' : 'text-gray-500 bg-gray-50 border-gray-200 hover:bg-gray-100'}`}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border ${addZone === z.id ? 'text-white' : 'text-gray-500 bg-white border-gray-200 hover:bg-gray-50'}`}
                     style={addZone === z.id ? { background: z.color, borderColor: z.color } : {}}>{z.icon} {z.label}</button>
                 ))}
               </div>
@@ -439,15 +444,19 @@ const FloorPlan = ({ embedded = false }) => {
       {/* ═══ MAIN: CANVAS + SIDEBAR ═══ */}
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 overflow-auto" style={{ background: '#FAFAF8' }}>
-          <div ref={canvasRef} className="relative w-full"
-            style={{ minHeight: 'calc(100vh - 14rem)', backgroundImage: locked ? 'radial-gradient(circle, #E8E4DD 0.8px, transparent 0.8px)' : 'radial-gradient(circle, #93C5FD 0.8px, transparent 0.8px)', backgroundSize: '24px 24px', transition: 'background-image 0.3s' }}
+          <div ref={canvasRef} className="relative"
+            style={{ minWidth: 700, minHeight: 500, height: '100%',
+              backgroundImage: locked ? 'radial-gradient(circle, #E5E5E0 0.8px, transparent 0.8px)' : 'radial-gradient(circle, #93C5FD 0.8px, transparent 0.8px)',
+              backgroundSize: '24px 24px', transition: 'background-image 0.3s',
+              padding: 20,
+            }}
             onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
 
             {/* Zone label watermark */}
             {activeZone !== 'all' && (
-              <div style={{ position: 'absolute', left: 20, top: 16, display: 'flex', alignItems: 'center', gap: 8, opacity: 0.12, pointerEvents: 'none' }}>
-                <span style={{ fontSize: 32 }}>{ZONES.find(z => z.id === activeZone)?.icon}</span>
-                <span style={{ fontSize: 28, fontWeight: 900, color: ZONES.find(z => z.id === activeZone)?.color || '#1B4332', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{ZONES.find(z => z.id === activeZone)?.label}</span>
+              <div style={{ position: 'absolute', right: 30, bottom: 20, display: 'flex', alignItems: 'center', gap: 8, opacity: 0.08, pointerEvents: 'none' }}>
+                <span style={{ fontSize: 48 }}>{ZONES.find(z => z.id === activeZone)?.icon}</span>
+                <span style={{ fontSize: 36, fontWeight: 900, color: ZONES.find(z => z.id === activeZone)?.color, letterSpacing: '0.05em', textTransform: 'uppercase' }}>{ZONES.find(z => z.id === activeZone)?.label}</span>
               </div>
             )}
 
@@ -479,9 +488,9 @@ const FloorPlan = ({ embedded = false }) => {
 
         {/* ═══ SIDEBAR ═══ */}
         {!embedded && (
-          <div className="w-72 bg-white border-l border-gray-100 flex flex-col overflow-hidden shrink-0 hidden lg:flex">
-            <div className="p-4 border-b border-gray-50">
-              <h2 className="font-extrabold text-sm text-gray-900">{selectedTable ? tables.find(t => t.id === selectedTable)?.name || 'Table' : "Today's Bookings"}</h2>
+          <div className="w-[280px] bg-white border-l border-gray-100 flex flex-col overflow-hidden shrink-0 hidden lg:flex">
+            <div className="px-4 py-3 border-b border-gray-50">
+              <h2 className="font-extrabold text-sm text-gray-900">Today's Bookings</h2>
               <p className="text-[11px] text-gray-400 mt-0.5 font-medium">{bookings.length} total</p>
             </div>
             <div className="flex-1 overflow-y-auto p-3 space-y-2">
@@ -494,7 +503,7 @@ const FloorPlan = ({ embedded = false }) => {
                       <span className="text-xs font-extrabold" style={{ color: st.text }}>{b.time}</span>
                     </div>
                     <div className="flex items-center gap-2 text-[11px] text-gray-500 font-medium">
-                      <span>{b.partySize || 2} guests</span><span>·</span><span>{b.tableName}</span>
+                      <span>{b.partySize || 2} guests</span><span>·</span><span>{b.tableName || `Table ${b.tableId}`}</span>
                       <span className="ml-auto px-2 py-0.5 rounded-full text-[9px] font-extrabold" style={{ background: st.bg, color: st.text }}>{st.label}</span>
                     </div>
                   </div>
@@ -580,7 +589,7 @@ const FloorPlan = ({ embedded = false }) => {
 
       {/* Toast */}
       {toast && (
-        <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 999, background: '#1B4332', color: '#fff', padding: '10px 20px', borderRadius: 12, fontSize: 13, fontWeight: 700, boxShadow: '0 8px 30px rgba(27,67,50,0.3)', animation: 'sidebarPopIn 250ms cubic-bezier(0.16,1,0.3,1) forwards', fontFamily: "'Figtree', sans-serif" }}>
+        <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 999, background: '#1B4332', color: '#fff', padding: '10px 20px', borderRadius: 12, fontSize: 13, fontWeight: 700, boxShadow: '0 8px 30px rgba(27,67,50,0.3)', fontFamily: "'Figtree', sans-serif" }}>
           ✓ {toast}
         </div>
       )}

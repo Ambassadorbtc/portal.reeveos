@@ -54,7 +54,7 @@ const ICON_MAP = {
 /* ── Build grouped sections from nav config ── */
 function buildSections(navItems, tier, businessType) {
   const iconFor = (item) => ICON_MAP[item.icon] || LayoutDashboard
-  const locked = (item) => !isFeatureUnlocked(tier, item.minTier)
+  const locked = () => false // All features unlocked
 
   // Group: MAIN
   const mainChildren = [
@@ -173,7 +173,7 @@ function WaterfallChild({ child, index, total, isActive, onClick, baseDelay, pan
       }}
         onMouseOver={e => { if (!child.locked && !isActive) { e.currentTarget.style.background = 'rgba(27,67,50,0.04)'; e.currentTarget.style.color = T.text; }}}
         onMouseOut={e => { if (!child.locked && !isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = child.locked ? '#C5C2BC' : T.muted; }}}
-      >{child.label}{child.badge && <span style={{ marginLeft: 'auto', background: '#D4A373', color: '#fff', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 10, lineHeight: '16px' }}>{child.badge}</span>}</button>
+      >{child.label}{child.badge && <span style={{ marginLeft: 6, background: '#D4A373', color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 10, lineHeight: '14px', display: 'inline-block', minWidth: 18, textAlign: 'center' }}>{child.badge}</span>}</button>
       {child.locked && <Lock size={11} style={{ color: '#D5D2CC', marginRight: 8 }} />}
     </div>
   )

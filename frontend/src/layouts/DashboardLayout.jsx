@@ -31,22 +31,8 @@ const DashboardLayout = () => {
     }
   }, [user, navigate])
 
-  // Route protection: if user navigates directly to a locked page
-  useEffect(() => {
-    const nav = getNavItems(businessType)
-    const allItems = [
-      ...(nav.main || []),
-      ...(nav.management || []),
-      ...(nav.business || []),
-      ...(nav.advanced || []),
-      ...(nav.system || []),
-    ]
-    const current = allItems.find((item) => item.path === location.pathname)
-    if (current && !isFeatureUnlocked(tier, current.minTier)) {
-      navigate('/dashboard')
-      setUpgradeModal(TIERS[current.minTier]?.label || current.minTier)
-    }
-  }, [location.pathname, businessType, tier, navigate])
+  // Route protection disabled — all features unlocked for all tiers
+  // useEffect(() => { ... }, [location.pathname, businessType, tier, navigate])
 
   if (!user) {
     return null

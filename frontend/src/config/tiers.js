@@ -11,12 +11,6 @@ export const TIERS = {
   enterprise: { level: 4, label: 'Enterprise', color: '#DC2626', bg: '#EF444420' },
 }
 
-export const isFeatureUnlocked = (currentTier, requiredTier) => {
-  if (!currentTier || !requiredTier) return false
-  const current = TIERS[currentTier]
-  const required = TIERS[requiredTier]
-  if (!current || !required) return false
-  return current.level >= required.level
-}
+export const isFeatureUnlocked = () => true // All features unlocked
 
 export const TIER_ORDER = ['free', 'starter', 'growth', 'scale', 'enterprise']

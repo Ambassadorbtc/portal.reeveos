@@ -144,6 +144,7 @@ async def get_booking_page(business_slug: str):
             "reviewCount": business.get("review_count", 0),
             "address": _get_address_str(business),
             "phone": business.get("phone", ""),
+            "website": business.get("website", ""),
             "isOpen": True,
             "currency": "GBP",
         },

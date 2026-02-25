@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react'
-import { ArrowLeft, Users, Calendar, Clock, MapPin, CheckCircle, MessageSquare } from 'lucide-react'
+import { ArrowLeft, Users, Calendar, Clock, MapPin, CheckCircle, MessageSquare, ExternalLink, ArrowRight } from 'lucide-react'
 import RezvoLoader from '../../../../components/shared/RezvoLoader'
 import BookingHeader from '../../components/BookingHeader'
 import StepIndicator from '../../components/StepIndicator'
@@ -93,6 +93,20 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
             <p className="text-xs text-emerald-800 font-medium mb-0.5">You're all set!</p>
             <p className="text-[10px] text-emerald-600 leading-relaxed">We'll confirm via email and text. You can close this page.</p>
           </div>
+
+          {/* CTA: Visit restaurant website */}
+          {business.website && (
+            <a
+              href={business.website.startsWith('http') ? business.website : `https://${business.website}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group mt-3 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#1B4332] text-white text-xs font-semibold hover:bg-[#2D6A4F] transition-all duration-300 shadow-lg shadow-[#1B4332]/20 hover:shadow-[#1B4332]/30 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Visit {business.name}
+              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+            </a>
+          )}
+
           <p className="text-[10px] text-gray-400 mt-2">Need changes? Reply to your confirmation email.</p>
         </div>
       </div>

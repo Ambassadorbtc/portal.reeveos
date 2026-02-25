@@ -199,7 +199,20 @@ async def get_calendar_restaurant(
         except Exception:
             tables = []
 
-    bookings = []
+    # ── Smart Table Assignment Algorithm ──
+    # Phase 1: Build time-occupation map for pre-assigned bookings
+    # Phase 2: Assign unassigned bookings to best available table
+    
+    def _parse_time(t_str):
+        """Convert 'HH:MM' to minutes since midnight."""
+        try:
+            parts = (t_str or "0:00").split(":")
+            return int(parts[0]) * 60 + int(parts[1])
+        except (ValueError, IndexError):
+            return 0
+
+    # First pass: collect all bookings with their data
+    booking_list = []
     for b in bookings_raw:
         customer_name = ""
         if b.get("customer") and isinstance(b["customer"], dict):
@@ -211,26 +224,75 @@ async def get_calendar_restaurant(
 
         table_id = b.get("tableId") or b.get("table_id")
         party = b.get("partySize") or b.get("party_size") or 2
+        time_str = b.get("time") or b.get("start_time") or "12:00"
+        duration = b.get("duration") or b.get("turn_time") or 90
+        start_min = _parse_time(time_str)
+        end_min = start_min + duration
 
-        # Auto-assign unassigned bookings to best-fit table
-        if not table_id and tables:
-            suitable = [t for t in tables if t.get("capacity", 4) >= party]
-            suitable.sort(key=lambda t: t.get("capacity", 4))  # smallest that fits
-            if suitable:
-                table_id = _safe_str(suitable[0].get("_id", suitable[0].get("id", "")))
+        booking_list.append({
+            "raw": b,
+            "customer_name": customer_name,
+            "table_id": table_id,
+            "party": party,
+            "time_str": time_str,
+            "duration": duration,
+            "start_min": start_min,
+            "end_min": end_min,
+        })
 
+    # Build occupation map: table_id → list of (start_min, end_min)
+    table_slots = {}
+    for bl in booking_list:
+        if bl["table_id"]:
+            tid = bl["table_id"]
+            table_slots.setdefault(tid, []).append((bl["start_min"], bl["end_min"]))
+
+    def _table_available(tid, start, end):
+        """Check if a table is free during the given time window."""
+        for (s, e) in table_slots.get(tid, []):
+            if start < e and end > s:  # overlap
+                return False
+        return True
+
+    # Sort tables by capacity for efficient assignment
+    tables_sorted = sorted(tables, key=lambda t: t.get("capacity", 4))
+    table_id_map = {_safe_str(t.get("_id", t.get("id", ""))): t for t in tables}
+
+    # Second pass: assign unassigned bookings (VIP first, then by party size desc)
+    unassigned = [bl for bl in booking_list if not bl["table_id"]]
+    unassigned.sort(key=lambda bl: (
+        0 if bl["raw"].get("is_vip") or bl["raw"].get("isVip") else 1,
+        -bl["party"],  # larger parties first
+    ))
+
+    for bl in unassigned:
+        best_table = None
+        for t in tables_sorted:
+            tid = _safe_str(t.get("_id", t.get("id", "")))
+            cap = t.get("capacity", 4)
+            if cap >= bl["party"] and _table_available(tid, bl["start_min"], bl["end_min"]):
+                best_table = tid
+                break
+        if best_table:
+            bl["table_id"] = best_table
+            table_slots.setdefault(best_table, []).append((bl["start_min"], bl["end_min"]))
+
+    # Build final bookings list
+    bookings = []
+    for bl in booking_list:
+        b = bl["raw"]
         bookings.append({
             "id": _safe_str(b.get("_id")),
-            "time": b.get("time") or b.get("start_time") or "",
-            "partySize": party,
-            "customerName": customer_name,
-            "tableId": table_id,
-            "tableName": b.get("table_name", ""),
+            "time": bl["time_str"],
+            "partySize": bl["party"],
+            "customerName": bl["customer_name"],
+            "tableId": bl["table_id"],
+            "tableName": b.get("table_name") or table_id_map.get(bl["table_id"], {}).get("name", ""),
             "status": b.get("status", "confirmed"),
             "occasion": b.get("occasion"),
-            "isVip": b.get("is_vip", False),
+            "isVip": b.get("is_vip") or b.get("isVip", False),
             "notes": b.get("notes", ""),
-            "duration": b.get("duration") or b.get("turn_time") or 90,
+            "duration": bl["duration"],
         })
 
     bookings.sort(key=lambda x: x.get("time", ""))

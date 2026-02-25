@@ -4,7 +4,7 @@
  * Faithful to 1-Timeline-Polished.html UXPilot design
  */
 
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { ChevronLeft, ChevronRight, Clock, Users, LayoutGrid, List, CalendarDays, MapPin, Search, Plus, Star, AlertTriangle, Crown, Wine, Cake, CreditCard, IceCream, ChevronDown, ChevronUp, Maximize2, Minimize2, X, Phone, Mail, Edit3, RotateCcw, UserX, MoreHorizontal } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
@@ -58,15 +58,30 @@ const statusColor = (status, isVip) => {
   return T.status[status] || T.status.confirmed
 }
 
-/* Zone accent colors */
+/* Zone accent colors — aligned with FloorPlan ZONES */
 const ZONE_COLORS = {
-  Window: T.amber,
-  Main: T.forest,
-  Bar: '#3B82F6',
-  Patio: T.sage,
-  Private: '#8B5CF6',
-  Terrace: '#10B981',
+  // Capitalized (from seed data)
+  Window: '#2563EB',
+  Main: '#1B4332',
+  Bar: '#D97706',
+  Patio: '#059669',
+  Private: '#7C3AED',
+  Terrace: '#059669',
+  Kitchen: '#DC2626',
+  Outside: '#0891B2',
+  Upstairs: '#7C3AED',
+  // Lowercase (from floor plan editor)
+  window: '#2563EB',
+  main: '#1B4332',
+  bar: '#D97706',
+  patio: '#059669',
+  private: '#7C3AED',
+  terrace: '#059669',
+  kitchen: '#DC2626',
+  outside: '#0891B2',
+  upstairs: '#7C3AED',
 }
+const getZoneColor = (zone) => ZONE_COLORS[zone] || ZONE_COLORS[zone?.toLowerCase?.()] || T.forest
 
 /* ── Occasion badge ── */
 const OccasionBadge = ({ occasion }) => {
@@ -110,6 +125,8 @@ export default function RestaurantCalendar() {
   const [customTags, setCustomTags] = useState({})
   const [dragBooking, setDragBooking] = useState(null)
   const [moveHistory, setMoveHistory] = useState([]) // tracks drag-drop moves
+  const [newBookingIds, setNewBookingIds] = useState(new Set())
+  const seenIdsRef = useRef(new Set())
   const scrollRef = useRef(null)
 
   const dateObj = new Date(selectedDate + 'T00:00:00')
@@ -117,13 +134,40 @@ export default function RestaurantCalendar() {
   const dateLabel = `${DAY_NAMES[dateObj.getDay()]} ${dateObj.getDate()} ${MONTH_NAMES[dateObj.getMonth()]} ${dateObj.getFullYear()}`
 
   /* ── Fetch ── */
-  useEffect(() => {
+  const fetchCalendar = useCallback((showLoading = true) => {
     if (!bid) return
-    setLoading(true)
+    if (showLoading) setLoading(true)
     api.get(`/calendar/business/${bid}/restaurant?date=${selectedDate}&view=day`)
-      .then(d => { setData(d); setLoading(false) })
+      .then(d => {
+        // Detect new bookings
+        const bks = d.bookings || []
+        if (seenIdsRef.current.size > 0) {
+          const freshIds = new Set()
+          bks.forEach(b => { if (!seenIdsRef.current.has(b.id)) freshIds.add(b.id) })
+          if (freshIds.size > 0) setNewBookingIds(freshIds)
+        }
+        bks.forEach(b => seenIdsRef.current.add(b.id))
+        setData(d)
+        setLoading(false)
+      })
       .catch(err => { console.error('Calendar error:', err); setLoading(false) })
   }, [bid, selectedDate])
+
+  useEffect(() => { fetchCalendar(true) }, [fetchCalendar])
+
+  // Live polling — silently refresh every 15 seconds
+  useEffect(() => {
+    if (!bid) return
+    const interval = setInterval(() => fetchCalendar(false), 15000)
+    return () => clearInterval(interval)
+  }, [fetchCalendar, bid])
+
+  // Clear new-booking animation after 3 seconds
+  useEffect(() => {
+    if (newBookingIds.size === 0) return
+    const t = setTimeout(() => setNewBookingIds(new Set()), 3000)
+    return () => clearTimeout(t)
+  }, [newBookingIds])
 
   /* ── Date nav ── */
   const prevDay = () => { const d = new Date(dateObj); d.setDate(d.getDate() - 1); setSelectedDate(d.toISOString().slice(0, 10)) }
@@ -497,7 +541,7 @@ export default function RestaurantCalendar() {
                   <div key={`z-${row.zone}`} onClick={() => setCollapsedZones(prev => ({ ...prev, [row.zone]: !prev[row.zone] }))}
                     style={{ height: ZONE_H, background: '#FAFAFA', padding: '0 12px', borderBottom: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 3, height: 12, borderRadius: 2, background: ZONE_COLORS[row.zone] || T.forest }} />
+                      <div style={{ width: 3, height: 12, borderRadius: 2, background: getZoneColor(row.zone) }} />
                       <span style={{ fontSize: 12, fontWeight: 700, color: '#374151', textTransform: 'uppercase' }}>{row.zone}</span>
                     </div>
                     {collapsedZones[row.zone] ? <ChevronRight size={12} color="#555" /> : <ChevronDown size={12} color="#555" />}
@@ -506,8 +550,9 @@ export default function RestaurantCalendar() {
               }
               const t = row.table
               const shortName = t.name.replace('Table ', 'T')
+              const zc = getZoneColor(row.zone)
               return (
-                <div key={`t-${t.id}`} style={{ height: ROW_H, borderBottom: '1px solid #F9FAFB', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 16px' }}>
+                <div key={`t-${t.id}`} style={{ height: ROW_H, borderBottom: '1px solid #F9FAFB', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 16px', borderLeft: `3px solid ${zc}` }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: 16, fontWeight: 700, color: '#1F2937' }}>{shortName}</span>
                     <span style={{ fontSize: 14, color: '#555', fontWeight: 500 }}>{t.capacity}-top</span>
@@ -559,14 +604,15 @@ export default function RestaurantCalendar() {
 
                 const t = row.table
                 const tableBookings = bookingsByTable[t.id] || []
+                const zc = getZoneColor(row.zone)
 
                 return (
-                  <div key={`tr-${t.id}`} style={{ height: ROW_H, borderBottom: '1px solid #F9FAFB', position: 'relative', background: dragBooking && dragBooking.tableId !== t.id ? 'transparent' : 'transparent' }}
-                    onDragOver={e => { e.preventDefault(); e.currentTarget.style.background = '#F0F7F4' }}
-                    onDragLeave={e => { e.currentTarget.style.background = 'transparent' }}
+                  <div key={`tr-${t.id}`} style={{ height: ROW_H, borderBottom: '1px solid #F9FAFB', position: 'relative', borderLeft: `3px solid ${zc}`, background: `${zc}04` }}
+                    onDragOver={e => { e.preventDefault(); e.currentTarget.style.background = `${zc}10` }}
+                    onDragLeave={e => { e.currentTarget.style.background = `${zc}04` }}
                     onDrop={e => {
                       e.preventDefault()
-                      e.currentTarget.style.background = 'transparent'
+                      e.currentTarget.style.background = `${zc}04`
                       if (dragBooking && dragBooking.tableId !== t.id) {
                         const oldTable = dragBooking.tableName
                         setMoveHistory(prev => [...prev, { bookingId: dragBooking.id, guest: dragBooking.customerName, from: oldTable, to: t.name, time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }), date: new Date().toLocaleDateString('en-GB') }])
@@ -580,6 +626,7 @@ export default function RestaurantCalendar() {
                       const color = statusColor(b.status, b.isVip)
                       const isVip = b.isVip
                       const isSelected = selectedBooking?.id === b.id
+                      const isNew = newBookingIds.has(b.id)
                       return (
                         <div key={b.id}
                           draggable
@@ -589,6 +636,7 @@ export default function RestaurantCalendar() {
                           style={{
                             position: 'absolute', top: 4, bottom: 4,
                             left: pos.left, width: pos.width,
+                            animation: isNew ? 'calendarPulse 0.6s ease-out' : 'none',
                             background: (() => {
                               // Convert hex color to solid light tint (no transparency)
                               const hex = color.replace('#', '');
@@ -601,7 +649,7 @@ export default function RestaurantCalendar() {
                             })(),
                             border: `1px solid ${color}40`,
                             borderRadius: 6,
-                            boxShadow: isSelected ? `0 0 0 2px ${color}50` : '0 1px 3px rgba(0,0,0,0.04)',
+                            boxShadow: isNew ? '0 0 0 3px rgba(16,185,129,0.4), 0 4px 12px rgba(16,185,129,0.2)' : isSelected ? `0 0 0 2px ${color}50` : '0 1px 3px rgba(0,0,0,0.04)',
                             display: 'flex', alignItems: 'center', padding: '0 8px',
                             cursor: 'grab', zIndex: 5,
                             transition: 'all 0.15s',

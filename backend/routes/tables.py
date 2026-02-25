@@ -4,29 +4,76 @@ from middleware.auth import get_current_owner
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-from bson import ObjectId
 
 router = APIRouter(prefix="/tables", tags=["tables"])
 
 
+class TableCreate(BaseModel):
+    name: str
+    capacity: int
+    x: float
+    y: float
+    width: float
+    height: float
+    shape: str = "rectangle"
+
+
+class TableUpdate(BaseModel):
+    name: Optional[str] = None
+    capacity: Optional[int] = None
+    x: Optional[float] = None
+    y: Optional[float] = None
+    width: Optional[float] = None
+    height: Optional[float] = None
+    shape: Optional[str] = None
+
+
 class FloorPlanUpdate(BaseModel):
-    floors: Optional[List[Dict[str, Any]]] = None
-    tables: Optional[List[Dict[str, Any]]] = None
-    width: float = 1000
-    height: float = 800
+    tables: List[Dict[str, Any]]
+    width: float
+    height: float
 
 
-async def _get_business(db, business_id: str, owner_id):
-    """Look up business with ObjectId fallback, check ownership."""
-    try:
-        business = await db.businesses.find_one({"_id": ObjectId(business_id)})
-    except Exception:
-        business = await db.businesses.find_one({"_id": business_id})
+@router.post("/business/{business_id}/tables")
+async def add_table(
+    business_id: str,
+    table_data: TableCreate,
+    current_user: dict = Depends(get_current_owner)
+):
+    db = get_database()
+    
+    business = await db.businesses.find_one({"_id": business_id})
     if not business:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
-    if str(business.get("owner_id", "")) != str(owner_id):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
-    return business
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Business not found"
+        )
+    
+    if business["owner_id"] != str(current_user["_id"]):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized"
+        )
+    
+    if business.get("tier") != "venue":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Table management only available for venue tier"
+        )
+    
+    table_dict = table_data.model_dump()
+    table_dict["id"] = f"table_{datetime.utcnow().timestamp()}"
+    table_dict["created_at"] = datetime.utcnow()
+    
+    floor_plan = business.get("floor_plan", {"tables": [], "width": 1000, "height": 800})
+    floor_plan["tables"].append(table_dict)
+    
+    await db.businesses.update_one(
+        {"_id": business_id},
+        {"$set": {"floor_plan": floor_plan, "updated_at": datetime.utcnow()}}
+    )
+    
+    return table_dict
 
 
 @router.get("/business/{business_id}/floor-plan")
@@ -35,23 +82,22 @@ async def get_floor_plan(
     current_user: dict = Depends(get_current_owner)
 ):
     db = get_database()
-    business = await _get_business(db, business_id, current_user["_id"])
-
-    floor_plan = business.get("floor_plan", {})
-
-    # Migrate legacy format
-    if "tables" in floor_plan and "floors" not in floor_plan:
-        legacy_tables = floor_plan.get("tables", [])
-        floor_plan = {
-            "floors": [{"id": "main", "name": "Main Floor", "elements": [{**t, "type": "table"} for t in legacy_tables]}],
-            "width": floor_plan.get("width", 1000),
-            "height": floor_plan.get("height", 800),
-        }
-
-    # Ensure floors key exists
-    if "floors" not in floor_plan:
-        floor_plan["floors"] = []
-
+    
+    business = await db.businesses.find_one({"_id": business_id})
+    if not business:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Business not found"
+        )
+    
+    if business["owner_id"] != str(current_user["_id"]):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized"
+        )
+    
+    floor_plan = business.get("floor_plan", {"tables": [], "width": 1000, "height": 800})
+    
     return floor_plan
 
 
@@ -62,26 +108,28 @@ async def update_floor_plan(
     current_user: dict = Depends(get_current_owner)
 ):
     db = get_database()
-    business = await _get_business(db, business_id, current_user["_id"])
-
-    data = floor_plan_data.model_dump(exclude_none=True)
-    if "tables" in data and "floors" not in data:
-        data["floors"] = [{"id": "main", "name": "Main Floor", "elements": [{**t, "type": "table"} for t in data.pop("tables")]}]
-    elif "tables" in data:
-        del data["tables"]
-
-    try:
-        await db.businesses.update_one(
-            {"_id": ObjectId(business_id)},
-            {"$set": {"floor_plan": data, "updated_at": datetime.utcnow()}}
+    
+    business = await db.businesses.find_one({"_id": business_id})
+    if not business:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Business not found"
         )
-    except Exception:
-        await db.businesses.update_one(
-            {"_id": business_id},
-            {"$set": {"floor_plan": data, "updated_at": datetime.utcnow()}}
+    
+    if business["owner_id"] != str(current_user["_id"]):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized"
         )
-
-    return data
+    
+    floor_plan = floor_plan_data.model_dump()
+    
+    await db.businesses.update_one(
+        {"_id": business_id},
+        {"$set": {"floor_plan": floor_plan, "updated_at": datetime.utcnow()}}
+    )
+    
+    return floor_plan
 
 
 @router.post("/business/{business_id}/floor-plan")
@@ -90,6 +138,7 @@ async def save_floor_plan(
     floor_plan_data: FloorPlanUpdate,
     current_user: dict = Depends(get_current_owner)
 ):
+    """POST alias for floor plan save (same as PUT)"""
     return await update_floor_plan(business_id, floor_plan_data, current_user)
 
 
@@ -100,23 +149,26 @@ async def delete_table(
     current_user: dict = Depends(get_current_owner)
 ):
     db = get_database()
-    business = await _get_business(db, business_id, current_user["_id"])
-
-    floor_plan = business.get("floor_plan", {"floors": []})
-    for floor in floor_plan.get("floors", []):
-        floor["elements"] = [e for e in floor.get("elements", []) if e.get("id") != table_id]
-    if "tables" in floor_plan:
-        floor_plan["tables"] = [t for t in floor_plan["tables"] if t.get("id") != table_id]
-
-    try:
-        await db.businesses.update_one(
-            {"_id": ObjectId(business_id)},
-            {"$set": {"floor_plan": floor_plan, "updated_at": datetime.utcnow()}}
+    
+    business = await db.businesses.find_one({"_id": business_id})
+    if not business:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Business not found"
         )
-    except Exception:
-        await db.businesses.update_one(
-            {"_id": business_id},
-            {"$set": {"floor_plan": floor_plan, "updated_at": datetime.utcnow()}}
+    
+    if business["owner_id"] != str(current_user["_id"]):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized"
         )
-
+    
+    floor_plan = business.get("floor_plan", {"tables": []})
+    floor_plan["tables"] = [t for t in floor_plan["tables"] if t.get("id") != table_id]
+    
+    await db.businesses.update_one(
+        {"_id": business_id},
+        {"$set": {"floor_plan": floor_plan, "updated_at": datetime.utcnow()}}
+    )
+    
     return {"detail": "Table deleted successfully"}

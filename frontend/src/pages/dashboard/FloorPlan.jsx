@@ -755,22 +755,29 @@ const FloorPlan = ({ embedded = false }) => {
                     const floorElements = elements.filter(e => e.zone === floor.id)
                     const floorTables = floorElements.filter(e => e.type !== 'fixture')
 
-                    // Proper bounding box: compute actual right/bottom edge of every element
-                    const getElBounds = (el) => {
-                      if (el.type === 'fixture') return { r: (el.x || 0) + (el.w || 100), b: (el.y || 0) + (el.h || 50) }
+                    // Tight bounding box: min origin to max edge
+                    const getElSize = (el) => {
+                      if (el.type === 'fixture') return { w: (el.w || 100), h: (el.h || 50) }
                       const seats = el.seats || 4
                       const raw = seats <= 2 ? 85 : seats <= 4 ? 100 : seats <= 6 ? 120 : seats <= 8 ? 140 : 155
-                      let elW = raw, elH = raw
-                      if (el.shape === 'long') { elW = raw * 1.7; elH = raw * 0.65 }
-                      else if (el.shape === 'booth') { elW = raw * 1.4; elH = raw * 0.8 }
-                      return { r: (el.x || 0) + elW + 25, b: (el.y || 0) + elH + 25 } // +25 for seat dots
+                      let w = raw, h = raw
+                      if (el.shape === 'long') { w = raw * 1.7; h = raw * 0.65 }
+                      else if (el.shape === 'booth') { w = raw * 1.4; h = raw * 0.8 }
+                      return { w: w + 25, h: h + 25 }
                     }
-                    const pad = 30
-                    const contentW = floorElements.length > 0 ? Math.max(...floorElements.map(e => getElBounds(e).r)) + pad : 400
-                    const contentH = floorElements.length > 0 ? Math.max(...floorElements.map(e => getElBounds(e).b)) + pad : 400
+                    const pad = 15
+                    const minX = floorElements.length > 0 ? Math.min(...floorElements.map(e => (e.x || 0))) - pad : 0
+                    const minY = floorElements.length > 0 ? Math.min(...floorElements.map(e => (e.y || 0))) - pad : 0
+                    const maxR = floorElements.length > 0 ? Math.max(...floorElements.map(e => (e.x || 0) + getElSize(e).w)) + pad : 400
+                    const maxB = floorElements.length > 0 ? Math.max(...floorElements.map(e => (e.y || 0) + getElSize(e).h)) + pad : 400
+                    const contentW = maxR - minX
+                    const contentH = maxB - minY
                     const colW = (azW / activeFloors.length) - 2
-                    const colH = azH - 44 // minus label bar height
+                    const colH = azH - 44
                     const scale = Math.min(colW / contentW, colH / contentH, 1.0)
+                    // Offset to shift content so it starts from edge
+                    const offX = -minX
+                    const offY = -minY
 
                     return (
                       <div key={floor.id} className="flex flex-col flex-1 min-w-[180px]" style={{ borderRight: fi < activeFloors.length - 1 ? '1px solid #E5E7EB' : 'none' }}>
@@ -785,11 +792,11 @@ const FloorPlan = ({ embedded = false }) => {
                           onClick={() => setActiveZone(floor.id)}
                           style={{ backgroundImage: 'radial-gradient(circle, #E5E5E0 0.8px, transparent 0.8px)', backgroundSize: '24px 24px' }}>
                           {floorElements.filter(e => e.type === 'fixture').map(item => (
-                            <FixtureNode key={item.id} item={item} locked={true} isDragging={false} scale={scale}
+                            <FixtureNode key={item.id} item={{ ...item, x: (item.x || 0) + offX, y: (item.y || 0) + offY }} locked={true} isDragging={false} scale={scale}
                               onMouseDown={() => {}} onTouchStart={() => {}} onDelete={() => {}} onRotate={() => {}} />
                           ))}
                           {floorTables.map(table => (
-                            <TableNode key={table.id} table={table} status={table.status || 'available'} isSelected={false} locked={true} isDragging={false} scale={scale}
+                            <TableNode key={table.id} table={{ ...table, x: (table.x || 0) + offX, y: (table.y || 0) + offY }} status={table.status || 'available'} isSelected={false} locked={true} isDragging={false} scale={scale}
                               onMouseDown={() => {}} onTouchStart={() => {}}
                               onClick={() => setActiveZone(floor.id)}
                               onEdit={() => {}} onDelete={() => {}} onRotate={() => {}} />

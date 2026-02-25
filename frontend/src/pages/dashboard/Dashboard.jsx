@@ -1,3 +1,4 @@
+import RezvoLoader from "../../components/shared/RezvoLoader"
 /**
  * Run 3: Dashboard — styled to match 5-Brand Design - Home Dashboard.html
  * KPI cards with icons, activity feed with avatars, cream/rounded/shadow layout
@@ -72,8 +73,7 @@ const Dashboard = () => {
   if (loading && !summary) {
     return (
       <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
-        <p className="mt-4 text-muted">Loading...</p>
+        <RezvoLoader message="Loading dashboard..." />
       </div>
     )
   }

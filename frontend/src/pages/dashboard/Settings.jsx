@@ -1,3 +1,4 @@
+import RezvoLoader from "../../components/shared/RezvoLoader"
 /**
  * Run 13: Settings — Business, Opening Hours, Notifications, Integrations, Subscription, Team, Danger Zone
  */
@@ -356,7 +357,7 @@ const Settings = () => {
   if (loading && !settings) {
     return (
       <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forest mx-auto" />
+        <RezvoLoader message="Loading settings..." />
         <p className="mt-4 text-gray-500">Loading settings...</p>
       </div>
     )

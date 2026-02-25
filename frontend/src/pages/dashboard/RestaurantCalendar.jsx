@@ -8,6 +8,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { ChevronLeft, ChevronRight, Clock, Users, LayoutGrid, List, CalendarDays, MapPin, Search, Plus, Star, AlertTriangle, Crown, Wine, Cake, CreditCard, IceCream, ChevronDown, ChevronUp } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
+import RezvoLoader from '../../components/shared/RezvoLoader'
 
 /* ── Design Tokens (from UXPilot polished HTML) ── */
 const T = {
@@ -187,14 +188,21 @@ export default function RestaurantCalendar() {
     return { covers, confirmed, seated, late, pending, available: (data.tables || []).length - seated }
   }, [filteredBookings, data.tables])
 
-  /* ── Current time line position ── */
+  /* ── Current time line position (updates every 60s) ── */
+  const [clockTick, setClockTick] = useState(0)
+  useEffect(() => {
+    const interval = setInterval(() => setClockTick(t => t + 1), 60000)
+    return () => clearInterval(interval)
+  }, [])
+
   const nowPercent = useMemo(() => {
     if (!isToday) return null
     const now = new Date()
     const nowMin = now.getHours() * 60 + now.getMinutes()
     if (nowMin < timeRange.start || nowMin > timeRange.end) return null
     return ((nowMin - timeRange.start) / (timeRange.end - timeRange.start)) * 100
-  }, [isToday, timeRange])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isToday, timeRange, clockTick])
 
   /* ── Capacity per slot ── */
   const slotCaps = useMemo(() => {
@@ -250,15 +258,7 @@ export default function RestaurantCalendar() {
   /* ═══════════════════════ RENDER ═══════════════════════ */
 
   if (loading && (data.tables || []).length === 0) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', background: T.white, fontFamily: "'Figtree', sans-serif" }}>
-        <div style={{ textAlign: 'center', color: T.muted }}>
-          <div style={{ width: 32, height: 32, border: `3px solid ${T.border}`, borderTopColor: T.forest, borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
-          <span style={{ fontSize: 13, fontWeight: 500 }}>Loading reservations...</span>
-          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-        </div>
-      </div>
-    )
+    return <RezvoLoader message="Loading reservations..." size="md" />
   }
 
   return (
@@ -388,10 +388,15 @@ export default function RestaurantCalendar() {
               ))}
             </div>
 
-            {/* Current time red line */}
+            {/* Current time red line — design: red line + diamond top */}
             {nowPercent != null && (
-              <div style={{ position: 'absolute', top: 0, bottom: 0, left: `${nowPercent}%`, width: 1.5, background: T.status.late, zIndex: 15, pointerEvents: 'none' }}>
-                <div style={{ width: 8, height: 8, background: T.status.late, borderRadius: '50%', position: 'absolute', top: 36, left: -3.5 }} />
+              <div style={{ position: 'absolute', top: 0, bottom: 0, left: `${nowPercent}%`, width: 2, background: '#EF4444', zIndex: 25, pointerEvents: 'none' }}>
+                {/* Diamond indicator at top */}
+                <div style={{ width: 10, height: 10, background: '#EF4444', transform: 'rotate(45deg)', position: 'absolute', top: 35, left: -4, borderRadius: 1 }} />
+                {/* Time label */}
+                <div style={{ position: 'absolute', top: 22, left: 8, background: '#EF4444', color: '#fff', fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 3, whiteSpace: 'nowrap' }}>
+                  {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                </div>
               </div>
             )}
 

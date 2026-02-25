@@ -8,6 +8,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
 import RestaurantCalendar from './RestaurantCalendar'
+import RezvoLoader from '../../components/shared/RezvoLoader'
 
 /* ───────────────────── Constants ───────────────────── */
 const SH = 8, EH = 20, HH = 80, TCW = 52
@@ -115,15 +116,7 @@ const Calendar = () => {
 
   /* ── Still loading business context — don't flash salon calendar ── */
   if (bizLoading || (!business && isDemo)) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', background: '#fff', fontFamily: "'Figtree', sans-serif" }}>
-        <div style={{ textAlign: 'center', color: '#6B7280' }}>
-          <div style={{ width: 32, height: 32, border: '3px solid #EBEBEB', borderTopColor: '#1B4332', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
-          <span style={{ fontSize: 13, fontWeight: 500 }}>Loading...</span>
-          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-        </div>
-      </div>
-    )
+    return <RezvoLoader message="Loading..." size="md" />
   }
 
   /* ── State ── */

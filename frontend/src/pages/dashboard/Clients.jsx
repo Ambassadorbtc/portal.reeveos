@@ -1,3 +1,4 @@
+import RezvoLoader from "../../components/shared/RezvoLoader"
 /**
  * Clients (CRM) — styled to match 8-Brand Design - Clients (CRM).html
  * List + Detail panel with profile, tags, stats, notes, activity timeline
@@ -75,7 +76,7 @@ const Clients = () => {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" /></div>
+    return <RezvoLoader message="Loading clients..." />
   }
 
   return (

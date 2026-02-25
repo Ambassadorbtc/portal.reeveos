@@ -1,3 +1,4 @@
+import RezvoLoader from "../../components/shared/RezvoLoader"
 /**
  * Floor Plan — Live table map with status colours and booking sidebar
  * Uses restaurant calendar endpoint for real data
@@ -80,7 +81,7 @@ const FloorPlan = () => {
   const tableBookings = (tid) => bookings.filter(b => b.tableId === tid)
 
   if (loading) {
-    return <div className="h-full flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" /></div>
+    return <RezvoLoader message="Loading floor plan..." />
   }
 
   if (!isFood) {

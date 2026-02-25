@@ -1,3 +1,4 @@
+import RezvoLoader from "../../components/shared/RezvoLoader"
 /**
  * Payments & Analytics — styled to match 9-Brand Design - Payments & Anal.html
  * Tabs: Analytics (KPI cards, charts, top services) | Payments (Stripe, deposits, transactions)
@@ -86,7 +87,7 @@ const Payments = () => {
   const displayTransactions = transactions.length > 0 ? transactions : (isDemo ? demoTransactions : [])
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" /></div>
+    return <RezvoLoader message="Loading payments..." />
   }
 
   return (

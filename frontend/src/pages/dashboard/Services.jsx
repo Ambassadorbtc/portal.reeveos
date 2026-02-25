@@ -1,3 +1,4 @@
+import RezvoLoader from "../../components/shared/RezvoLoader"
 /**
  * Services / Menu — styled to match 7-Brand Design - Services/Menu.html
  * Two-pane: categorized service list (left) + editor form (right)
@@ -96,7 +97,7 @@ const Services = () => {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" /></div>
+    return <RezvoLoader message="Loading menu..." />
   }
 
   return (

@@ -1,3 +1,4 @@
+import RezvoLoader from "../../components/shared/RezvoLoader"
 /**
  * Rezvo Email Marketing Suite — V10 FULLY AUTO
  * ================================================
@@ -402,7 +403,7 @@ const Marketing = () => {
   const clickData = useMemo(() => analytics?.timeline?.map(d => d.clicked) || [], [analytics])
   const enabledAutoCount = autoCamps.filter(a => a.enabled).length
 
-  if (loading) return <div className="flex items-center justify-center py-24"><div className="text-center"><div className="w-10 h-10 border-[3px] border-primary/20 border-t-primary rounded-full animate-spin mx-auto" /><p className="text-sm text-gray-400 mt-3">Loading marketing suite...</p></div></div>
+  if (loading) return <RezvoLoader message="Loading marketing suite..." />
 
   /* ─── AI GENERATOR MODAL ─── */
   const AIModal = () => aiOpen ? (

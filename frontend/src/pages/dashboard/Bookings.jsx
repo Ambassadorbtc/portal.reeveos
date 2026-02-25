@@ -1,3 +1,4 @@
+import RezvoLoader from "../../components/shared/RezvoLoader"
 /**
  * Bookings — styled to match 4-Brand Design - Bookings.html
  * Table with filters toolbar, bulk actions, and slide-over detail panel
@@ -158,7 +159,7 @@ const Bookings = () => {
 
       <div className="flex-1 overflow-auto px-6 pb-6 pt-4">
         {loading ? (
-          <div className="flex items-center justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" /></div>
+          <RezvoLoader message="Loading bookings..." />
         ) : displayBookings.length === 0 ? (
           <div className="bg-white border border-border rounded-xl shadow-sm p-12 text-center">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"><i className="fa-regular fa-calendar text-gray-400 text-2xl" /></div>
@@ -224,7 +225,7 @@ const Bookings = () => {
               <button className="w-8 h-8 rounded hover:bg-gray-200 flex items-center justify-center text-gray-400" onClick={closeDetail}><i className="fa-solid fa-xmark" /></button>
             </div>
             {detailLoading ? (
-              <div className="flex-1 flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" /></div>
+              <RezvoLoader message="Loading..." size="sm" />
             ) : (
               <>
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">

@@ -382,7 +382,7 @@ export default function RestaurantCalendar() {
     }}>
 
       {/* ══════ SUB-HEADER TOOLBAR ══════ */}
-      <header style={{ display: 'flex', alignItems: 'center', padding: '10px 16px', gap: 8, background: '#fff', borderBottom: `1px solid ${T.border}`, flexShrink: 0, zIndex: 40, flexWrap: 'wrap' }}>
+      <header style={{ display: 'flex', alignItems: 'center', padding: '10px 24px 10px 16px', gap: 8, background: '#fff', borderBottom: `1px solid ${T.border}`, flexShrink: 0, zIndex: 40, flexWrap: 'wrap' }}>
 
         {/* Date Nav Pill */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 2, background: '#F5F5F5', borderRadius: 24, padding: '3px 4px' }}>
@@ -423,7 +423,7 @@ export default function RestaurantCalendar() {
         <div style={{ flex: '1 0 0', minWidth: 0 }} />
 
         {/* Live Status Chips + Search + Tablet Toggle (all top-right) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'nowrap', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'nowrap', overflow: 'visible' }}>
           <StatChip color={T.forest} value={stats.covers} label="Covers" />
           <StatChip color="#059669" value={stats.available} label="Available" />
           <StatChip color={T.sage} value={stats.seated} label="Seated" />

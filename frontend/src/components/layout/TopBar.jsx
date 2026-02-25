@@ -49,7 +49,7 @@ const TopBar = ({ onMenuClick, sidebarOpen }) => {
     : '?'
 
   return (
-    <header className="h-16 bg-white border-b border-border sticky top-0 z-50 flex items-center justify-between px-4 lg:px-6 shrink-0">
+    <header className="h-16 bg-white border-b border-border sticky top-0 z-50 flex items-center justify-between px-4 lg:px-6 pr-5 lg:pr-8 shrink-0">
       <div className="flex items-center gap-4">
         {/* Hamburger (mobile) */}
         <button

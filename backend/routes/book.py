@@ -4,11 +4,14 @@ Customer-facing flow: /book/:businessSlug
 """
 
 import os
+import logging
 from fastapi import APIRouter, HTTPException, status, Query
 from database import get_database
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from datetime import datetime, date, time, timedelta
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/book", tags=["book"])
 
@@ -309,6 +312,14 @@ async def create_booking(business_slug: str, payload: dict):
     if client_id:
         await refresh_client_stats(db, biz_id, client_id)
 
+    # ── Fire email + SMS notifications (async, non-blocking) ──
+    try:
+        from helpers.notifications import notify_booking_created
+        import asyncio
+        asyncio.ensure_future(notify_booking_created(doc, business))
+    except Exception as notify_err:
+        logger.warning(f"Notification dispatch failed (booking still created): {notify_err}")
+
     # Run 3: Log to activity feed
     cust_name = (doc.get("customer") or {}).get("name", "Customer")
     svc_name = (doc.get("service") or {}).get("name", "Booking")
@@ -421,6 +432,15 @@ async def cancel_booking(business_slug: str, booking_id: str):
         {"_id": booking_id},
         {"$set": {"status": "cancelled", "cancelledAt": datetime.utcnow(), "updatedAt": datetime.utcnow()}},
     )
+
+    # Fire cancellation notifications
+    try:
+        from helpers.notifications import notify_booking_cancelled
+        import asyncio
+        asyncio.ensure_future(notify_booking_cancelled(bkg, business, cancelled_by="customer"))
+    except Exception as notify_err:
+        logger.warning(f"Cancel notification failed: {notify_err}")
+
     return {"detail": "Booking cancelled"}
 
 

@@ -209,12 +209,22 @@ async def get_calendar_restaurant(
         elif b.get("guest_name"):
             customer_name = b["guest_name"]
 
+        table_id = b.get("tableId") or b.get("table_id")
+        party = b.get("partySize") or b.get("party_size") or 2
+
+        # Auto-assign unassigned bookings to best-fit table
+        if not table_id and tables:
+            suitable = [t for t in tables if t.get("capacity", 4) >= party]
+            suitable.sort(key=lambda t: t.get("capacity", 4))  # smallest that fits
+            if suitable:
+                table_id = _safe_str(suitable[0].get("_id", suitable[0].get("id", "")))
+
         bookings.append({
             "id": _safe_str(b.get("_id")),
             "time": b.get("time") or b.get("start_time") or "",
-            "partySize": b.get("partySize") or b.get("party_size") or 2,
+            "partySize": party,
             "customerName": customer_name,
-            "tableId": b.get("tableId") or b.get("table_id"),
+            "tableId": table_id,
             "tableName": b.get("table_name", ""),
             "status": b.get("status", "confirmed"),
             "occasion": b.get("occasion"),

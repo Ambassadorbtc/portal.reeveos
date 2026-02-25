@@ -220,8 +220,8 @@ const Bookings = () => {
               const primary = getPrimaryAction(b)
               const guests = b.guests || b.partySize || parseInt(b.service?.match(/\d+/)?.[0]) || 2
               const table = b.table || b.tableName
-              const phone = b.phone || b.customer?.phone
-              const email = b.email || b.customer?.email
+              const phone = b.customerPhone || b.phone || b.customer?.phone
+              const email = b.customerEmail || b.email || b.customer?.email
               const time = formatTime(b.time)
 
               return (

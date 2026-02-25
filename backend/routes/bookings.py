@@ -233,7 +233,24 @@ async def list_bookings(
     if str(business.get("owner_id")) != str(current_user.get("_id")) and current_user.get("role") not in ["staff", "admin"]:
         raise HTTPException(403, "Not authorized")
 
-    match = {"businessId": business_id}
+    # Build business ID values (string + ObjectId) for compatibility
+    bid_values = [business_id]
+    try:
+        bid_values.append(ObjectId(business_id))
+    except Exception:
+        pass
+    bid_str = str(business.get("_id", ""))
+    if bid_str and bid_str not in bid_values:
+        bid_values.append(bid_str)
+        try:
+            bid_values.append(ObjectId(bid_str))
+        except Exception:
+            pass
+
+    match = {"$or": [
+        {"businessId": {"$in": bid_values}},
+        {"business_id": {"$in": bid_values}},
+    ]}
     if status != "all":
         match["status"] = status
     if from_date:
@@ -242,12 +259,17 @@ async def list_bookings(
         match.setdefault("date", {})["$lte"] = to_date
     if search:
         # Search customer name, reference, phone, email
-        match["$or"] = [
+        # Need to handle both field naming conventions
+        search_or = [
             {"customer.name": {"$regex": search, "$options": "i"}},
+            {"client_name": {"$regex": search, "$options": "i"}},
             {"reference": {"$regex": search, "$options": "i"}},
             {"customer.phone": {"$regex": search, "$options": "i"}},
+            {"client_phone": {"$regex": search, "$options": "i"}},
             {"customer.email": {"$regex": search, "$options": "i"}},
+            {"client_email": {"$regex": search, "$options": "i"}},
         ]
+        match = {"$and": [match, {"$or": search_or}]}
 
     total = await db.bookings.count_documents(match)
     sort_dir = -1 if sort == "date_desc" else 1
@@ -258,30 +280,48 @@ async def list_bookings(
 
     bookings = []
     for d in docs:
-        staff = staff_map.get(d.get("staffId"), {})
+        staff = staff_map.get(d.get("staffId") or d.get("server_id"), {})
         svc = d.get("service") or {}
+        # Normalize customer name from both formats
+        if d.get("customer") and isinstance(d["customer"], dict):
+            cust_name = d["customer"].get("name", "")
+            cust_phone = d["customer"].get("phone", "")
+            cust_email = d["customer"].get("email", "")
+        else:
+            cust_name = d.get("client_name", "")
+            cust_phone = d.get("client_phone", "")
+            cust_email = d.get("client_email", "")
         bookings.append({
-            "id": d.get("_id"),
-            "reference": d.get("reference"),
-            "customerName": (d.get("customer") or {}).get("name", ""),
-            "customerPhone": (d.get("customer") or {}).get("phone", ""),
-            "customerEmail": (d.get("customer") or {}).get("email", ""),
-            "service": svc.get("name", "Booking"),
+            "id": str(d.get("_id", "")),
+            "reference": d.get("reference", ""),
+            "customerName": cust_name,
+            "customerPhone": cust_phone,
+            "customerEmail": cust_email,
+            "service": svc.get("name") or d.get("service_period") or "Booking",
             "staff": staff.get("name", ""),
             "date": d.get("date"),
-            "time": d.get("time"),
-            "duration": svc.get("duration", 60),
+            "time": d.get("time") or d.get("start_time", ""),
+            "partySize": d.get("partySize") or d.get("party_size"),
+            "duration": svc.get("duration") or d.get("duration") or d.get("turn_time") or 60,
             "status": d.get("status", "confirmed"),
-            "source": d.get("source", "online"),
-            "depositPaid": (d.get("deposit") or {}).get("status") == "paid",
-            "createdAt": d.get("createdAt"),
+            "source": d.get("source") or d.get("channel") or "online",
+            "occasion": d.get("occasion"),
+            "tableName": d.get("table_name", ""),
+            "isVip": d.get("is_vip") or d.get("isVip", False),
+            "depositPaid": (d.get("deposit") or {}).get("status") == "paid" or d.get("deposit_paid", False),
+            "createdAt": d.get("createdAt") or d.get("created_at"),
         })
 
+    # Count bookings using both field name conventions
+    bid_match = {"$or": [
+        {"businessId": {"$in": bid_values}},
+        {"business_id": {"$in": bid_values}},
+    ]}
     counts = {}
     for s in ["all", "confirmed", "pending", "checked_in", "completed", "cancelled", "no_show"]:
-        m = {"businessId": business_id}
+        m = dict(bid_match)
         if s != "all":
-            m["status"] = s
+            m = {"$and": [bid_match, {"status": s}]}
         counts[s] = await db.bookings.count_documents(m)
 
     return {
@@ -298,42 +338,68 @@ async def get_booking_detail(
     current_user: dict = Depends(get_current_staff),
 ):
     """Run 3: Full booking detail for side panel."""
+    from bson import ObjectId
     db = get_database()
-    business = await db.businesses.find_one({"_id": business_id})
+    try:
+        business = await db.businesses.find_one({"_id": ObjectId(business_id)})
+    except Exception:
+        business = await db.businesses.find_one({"_id": business_id})
     if not business:
         raise HTTPException(404, "Business not found")
     if str(business.get("owner_id")) != str(current_user.get("_id")) and current_user.get("role") not in ["staff", "admin"]:
         raise HTTPException(403, "Not authorized")
 
-    b = await db.bookings.find_one({"_id": booking_id, "businessId": business_id})
+    # Try both _id formats and both businessId field names
+    bid_str = str(business.get("_id", ""))
+    b = None
+    for bid_field, bid_val in [("businessId", business_id), ("businessId", bid_str), ("business_id", business_id), ("business_id", bid_str)]:
+        b = await db.bookings.find_one({"_id": booking_id, bid_field: bid_val})
+        if b:
+            break
+        try:
+            b = await db.bookings.find_one({"_id": ObjectId(booking_id), bid_field: bid_val})
+            if b:
+                break
+        except Exception:
+            pass
     if not b:
         raise HTTPException(404, "Booking not found")
 
-    staff = next((st for st in business.get("staff", []) if st.get("id") == b.get("staffId")), {})
+    staff = next((st for st in business.get("staff", []) if st.get("id") in [b.get("staffId"), b.get("server_id")]), {})
     svc = b.get("service") or {}
+
+    # Normalize customer from both formats
+    if b.get("customer") and isinstance(b["customer"], dict):
+        cust = b["customer"]
+    else:
+        cust = {"name": b.get("client_name", ""), "phone": b.get("client_phone", ""), "email": b.get("client_email", "")}
 
     return {
         "booking": {
-            "id": b.get("_id"),
-            "reference": b.get("reference"),
+            "id": str(b.get("_id", "")),
+            "reference": b.get("reference", ""),
             "status": b.get("status"),
-            "type": b.get("type", "services"),
+            "type": b.get("type", "restaurant" if b.get("table_id") or b.get("tableId") else "services"),
             "customer": {
-                "name": (b.get("customer") or {}).get("name", ""),
-                "phone": (b.get("customer") or {}).get("phone", ""),
-                "email": (b.get("customer") or {}).get("email", ""),
-                "isNew": True,
+                "name": cust.get("name", ""),
+                "phone": cust.get("phone", ""),
+                "email": cust.get("email", ""),
+                "isNew": b.get("is_new_client", True),
                 "totalBookings": 1,
             },
-            "service": {"name": svc.get("name"), "duration": svc.get("duration", 60), "price": svc.get("price")},
-            "staff": {"id": b.get("staffId"), "name": staff.get("name", "")},
+            "service": {"name": svc.get("name") or b.get("service_period"), "duration": svc.get("duration") or b.get("turn_time", 60), "price": svc.get("price")},
+            "staff": {"id": b.get("staffId") or b.get("server_id"), "name": staff.get("name", "")},
             "date": b.get("date"),
-            "time": b.get("time"),
-            "endTime": b.get("endTime"),
+            "time": b.get("time") or b.get("start_time"),
+            "endTime": b.get("endTime") or b.get("end_time"),
+            "partySize": b.get("partySize") or b.get("party_size"),
+            "tableName": b.get("table_name", ""),
+            "occasion": b.get("occasion"),
+            "isVip": b.get("is_vip") or b.get("isVip", False),
             "notes": b.get("notes"),
-            "source": b.get("source", "online"),
+            "source": b.get("source") or b.get("channel", "online"),
             "deposit": b.get("deposit", {}),
-            "history": [{"action": "created", "timestamp": b.get("createdAt"), "by": "customer"}],
+            "history": [{"action": "created", "timestamp": b.get("createdAt") or b.get("created_at"), "by": "customer"}],
         }
     }
 
@@ -346,14 +412,32 @@ async def update_booking_status(
     current_user: dict = Depends(get_current_staff),
 ):
     """Run 3: Update booking status (confirm, check-in, complete, cancel, no-show)."""
+    from bson import ObjectId
     db = get_database()
-    business = await db.businesses.find_one({"_id": business_id})
+    try:
+        business = await db.businesses.find_one({"_id": ObjectId(business_id)})
+    except Exception:
+        business = await db.businesses.find_one({"_id": business_id})
     if not business:
         raise HTTPException(404, "Business not found")
     if str(business.get("owner_id")) != str(current_user.get("_id")) and current_user.get("role") not in ["staff", "admin"]:
         raise HTTPException(403, "Not authorized")
 
-    b = await db.bookings.find_one({"_id": booking_id, "businessId": business_id})
+    bid_str = str(business.get("_id", ""))
+    b = None
+    doc_id = None
+    for bid_field, bid_val in [("businessId", business_id), ("businessId", bid_str), ("business_id", business_id), ("business_id", bid_str)]:
+        b = await db.bookings.find_one({"_id": booking_id, bid_field: bid_val})
+        if b:
+            doc_id = booking_id
+            break
+        try:
+            b = await db.bookings.find_one({"_id": ObjectId(booking_id), bid_field: bid_val})
+            if b:
+                doc_id = ObjectId(booking_id)
+                break
+        except Exception:
+            pass
     if not b:
         raise HTTPException(404, "Booking not found")
 
@@ -363,21 +447,25 @@ async def update_booking_status(
         raise HTTPException(400, f"Invalid status. Use one of: {valid}")
 
     await db.bookings.update_one(
-        {"_id": booking_id},
+        {"_id": doc_id},
         {"$set": {"status": new_status, "updatedAt": datetime.utcnow()}},
     )
 
     # Log to activity
-    cust = (b.get("customer") or {}).get("name", "Customer")
+    cust_name = ""
+    if b.get("customer") and isinstance(b["customer"], dict):
+        cust_name = b["customer"].get("name", "Customer")
+    else:
+        cust_name = b.get("client_name", "Customer")
     await db.activity_log.insert_one({
         "businessId": business_id,
         "type": f"booking_{new_status}" if new_status != "cancelled" else "booking_cancelled",
-        "message": f"Booking {b.get('reference', '')} {new_status}: {cust}",
-        "bookingId": booking_id,
+        "message": f"Booking {b.get('reference', '')} {new_status}: {cust_name}",
+        "bookingId": str(doc_id),
         "timestamp": datetime.utcnow(),
     })
 
-    updated = await db.bookings.find_one({"_id": booking_id})
+    updated = await db.bookings.find_one({"_id": doc_id})
     staff = next((st for st in business.get("staff", []) if st.get("id") == updated.get("staffId")), {})
     svc = updated.get("service") or {}
     return {

@@ -8,7 +8,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import {
   Lock, Unlock, Plus, Trash2, X, Settings, GripVertical,
   LayoutGrid, Copy, Move,
-  Circle, Square, RectangleHorizontal, Sofa
+  Circle, Square, RectangleHorizontal, Sofa,
+  Home, UtensilsCrossed, Wine, ChefHat, Sun, PanelTop, ArrowUp, TreePine, ArrowDown
 } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
@@ -29,15 +30,15 @@ const STATUS = {
 }
 
 const ZONES = [
-  { id: 'all',       label: 'All Zones',    icon: '🏠', color: '#1B4332' },
-  { id: 'main',      label: 'Main Floor',   icon: '🍽️', color: '#1B4332' },
-  { id: 'bar',       label: 'Bar',          icon: '🍸', color: '#D97706' },
-  { id: 'kitchen',   label: 'Kitchen',      icon: '👨‍🍳', color: '#DC2626' },
-  { id: 'terrace',   label: 'Terrace',      icon: '☀️', color: '#059669' },
-  { id: 'window',    label: 'Window',       icon: '🪟', color: '#2563EB' },
-  { id: 'upstairs',  label: 'Upstairs',     icon: '⬆️', color: '#7C3AED' },
-  { id: 'outside',   label: 'Outside',      icon: '🌳', color: '#0891B2' },
-  { id: 'basement',  label: 'Basement',     icon: '⬇️', color: '#78716C' },
+  { id: 'all',       label: 'All Zones',    Icon: Home,              color: '#1B4332' },
+  { id: 'main',      label: 'Main Floor',   Icon: UtensilsCrossed,   color: '#1B4332' },
+  { id: 'bar',       label: 'Bar',          Icon: Wine,              color: '#D97706' },
+  { id: 'kitchen',   label: 'Kitchen',      Icon: ChefHat,           color: '#DC2626' },
+  { id: 'terrace',   label: 'Terrace',      Icon: Sun,               color: '#059669' },
+  { id: 'window',    label: 'Window',       Icon: PanelTop,          color: '#2563EB' },
+  { id: 'upstairs',  label: 'Upstairs',     Icon: ArrowUp,           color: '#7C3AED' },
+  { id: 'outside',   label: 'Outside',      Icon: TreePine,          color: '#0891B2' },
+  { id: 'basement',  label: 'Basement',     Icon: ArrowDown,         color: '#78716C' },
 ]
 
 const TABLE_SHAPES = [
@@ -382,7 +383,7 @@ const FloorPlan = ({ embedded = false }) => {
                 <button key={zone.id} onClick={() => { setActiveZone(zone.id); if (zone.id !== 'all') setAddZone(zone.id) }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all shrink-0"
                   style={{ background: isActive ? zone.color + '12' : 'transparent', color: isActive ? zone.color : count > 0 ? '#6B7280' : '#C9C9C9', border: isActive ? `1.5px solid ${zone.color}30` : '1.5px solid transparent' }}>
-                  <span className="text-sm">{zone.icon}</span>
+                  {zone.Icon && <zone.Icon size={14} strokeWidth={2} />}
                   {zone.label}
                   {count > 0 && <span className="ml-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold" style={{ background: isActive ? zone.color + '18' : '#F3F4F6', color: isActive ? zone.color : '#9CA3AF' }}>{count}</span>}
                 </button>
@@ -429,7 +430,7 @@ const FloorPlan = ({ embedded = false }) => {
                 {ZONES.filter(z => z.id !== 'all').map(z => (
                   <button key={z.id} onClick={() => setAddZone(z.id)}
                     className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border ${addZone === z.id ? 'text-white' : 'text-gray-500 bg-white border-gray-200 hover:bg-gray-50'}`}
-                    style={addZone === z.id ? { background: z.color, borderColor: z.color } : {}}>{z.icon} {z.label}</button>
+                    style={addZone === z.id ? { background: z.color, borderColor: z.color } : {}}><z.Icon size={11} className="inline -mt-px" /> {z.label}</button>
                 ))}
               </div>
             </div>
@@ -455,7 +456,7 @@ const FloorPlan = ({ embedded = false }) => {
             {/* Zone label watermark */}
             {activeZone !== 'all' && (
               <div style={{ position: 'absolute', right: 30, bottom: 20, display: 'flex', alignItems: 'center', gap: 8, opacity: 0.08, pointerEvents: 'none' }}>
-                <span style={{ fontSize: 48 }}>{ZONES.find(z => z.id === activeZone)?.icon}</span>
+                {(() => { const ZI = ZONES.find(z => z.id === activeZone)?.Icon; return ZI ? <ZI size={48} strokeWidth={1.2} color={ZONES.find(z => z.id === activeZone)?.color} /> : null })()}
                 <span style={{ fontSize: 36, fontWeight: 900, color: ZONES.find(z => z.id === activeZone)?.color, letterSpacing: '0.05em', textTransform: 'uppercase' }}>{ZONES.find(z => z.id === activeZone)?.label}</span>
               </div>
             )}
@@ -562,7 +563,7 @@ const FloorPlan = ({ embedded = false }) => {
                   {ZONES.filter(z => z.id !== 'all').map(z => (
                     <button key={z.id} onClick={() => { setEditTable(p => ({ ...p, zone: z.id })); updateTable(editTable.id, { zone: z.id }) }}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${editTable.zone === z.id ? 'text-white shadow-md' : 'text-gray-500 bg-gray-50 border-gray-200 hover:bg-gray-100'}`}
-                      style={editTable.zone === z.id ? { background: z.color, borderColor: z.color } : {}}>{z.icon} {z.label}</button>
+                      style={editTable.zone === z.id ? { background: z.color, borderColor: z.color } : {}}><z.Icon size={11} className="inline -mt-px" /> {z.label}</button>
                   ))}
                 </div>
               </div>

@@ -3,7 +3,7 @@ import RezvoLoader from "../../components/shared/RezvoLoader"
  * Bookings — Card-based browse view matching UXPilot Browse design
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Search, ChevronRight, RefreshCw, Download, X, Check, Users, Armchair, Phone, Mail, Cake, Pencil, SlidersHorizontal, Clock } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
@@ -72,18 +72,33 @@ const Bookings = () => {
 
   const bookingId = searchParams.get('booking')
   const bid = business?.id ?? business?._id
+  const seenIdsRef = useRef(new Set())
+  const [newBookingIds, setNewBookingIds] = useState(new Set())
 
-  const fetchBookings = async () => {
+  const fetchBookings = async (silent = false) => {
     if (!bid) { setLoading(false); return }
-    setLoading(true)
+    if (!silent) setLoading(true)
     try {
       const params = new URLSearchParams()
       params.set('page', '1'); params.set('limit', '20'); params.set('status', status)
       if (searchDebounce) params.set('search', searchDebounce)
       const res = await api.get(`/bookings/business/${bid}?${params}`)
-      setBookings(res.bookings || []); setPagination(res.pagination || {}); setCounts(res.counts || {})
+      const fetched = res.bookings || []
+
+      // Detect new bookings for animation
+      if (seenIdsRef.current.size > 0) {
+        const freshIds = new Set()
+        fetched.forEach(b => {
+          if (!seenIdsRef.current.has(b.id)) freshIds.add(b.id)
+        })
+        if (freshIds.size > 0) setNewBookingIds(freshIds)
+      }
+      // Track all seen IDs
+      fetched.forEach(b => seenIdsRef.current.add(b.id))
+
+      setBookings(fetched); setPagination(res.pagination || {}); setCounts(res.counts || {})
     } catch (err) { console.error('Failed to fetch bookings:', err) }
-    finally { setLoading(false) }
+    finally { if (!silent) setLoading(false) }
   }
 
   const fetchDetail = async (id) => {
@@ -106,8 +121,22 @@ const Bookings = () => {
   }
 
   useEffect(() => { const t = setTimeout(() => setSearchDebounce(search), 300); return () => clearTimeout(t) }, [search])
-  useEffect(() => { fetchBookings() }, [bid, status, searchDebounce])
+  useEffect(() => { fetchBookings(false) }, [bid, status, searchDebounce])
   useEffect(() => { if (bookingId) fetchDetail(bookingId); else setDetail(null) }, [bookingId, bid])
+
+  // Live polling — silently refresh every 15 seconds
+  useEffect(() => {
+    if (!bid || isDemo) return
+    const interval = setInterval(() => fetchBookings(true), 15000)
+    return () => clearInterval(interval)
+  }, [bid, status, searchDebounce, isDemo])
+
+  // Clear new-booking animation after 3 seconds
+  useEffect(() => {
+    if (newBookingIds.size === 0) return
+    const t = setTimeout(() => setNewBookingIds(new Set()), 3000)
+    return () => clearTimeout(t)
+  }, [newBookingIds])
 
   const openDetail = (id) => setSearchParams({ booking: id })
   const closeDetail = () => setSearchParams({})
@@ -197,7 +226,7 @@ const Bookings = () => {
 
               return (
                 <div key={b.id} onClick={() => openDetail(b.id)}
-                  className="bg-white rounded-xl border border-gray-200 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_-5px_rgba(27,67,50,0.1)] transition-all duration-200 p-5 flex flex-col md:flex-row gap-4 md:gap-5 items-start md:items-center cursor-pointer group relative overflow-hidden">
+                  className={`bg-white rounded-xl border border-gray-200 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_-5px_rgba(27,67,50,0.1)] transition-all duration-200 p-5 flex flex-col md:flex-row gap-4 md:gap-5 items-start md:items-center cursor-pointer group relative overflow-hidden ${newBookingIds.has(b.id) ? 'animate-[slideInGlow_0.6s_ease-out] ring-2 ring-emerald-400/50' : ''}`}>
                   <div className={`absolute left-0 top-0 bottom-0 w-1 ${sc.bar}`} />
 
                   <div className="flex flex-row md:flex-col items-center md:items-start gap-3 md:gap-1 min-w-[100px] pl-2">

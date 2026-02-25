@@ -251,6 +251,13 @@ const Dashboard = () => {
 
   useEffect(() => { loadDashboard() }, [loadDashboard])
 
+  // Live polling — silently refresh every 20 seconds
+  useEffect(() => {
+    if (!bid) return
+    const interval = setInterval(() => loadDashboard(), 20000)
+    return () => clearInterval(interval)
+  }, [loadDashboard, bid])
+
   // Also load from bookings as fallback for activity
   useEffect(() => {
     if (!bid || activity.length > 0) return

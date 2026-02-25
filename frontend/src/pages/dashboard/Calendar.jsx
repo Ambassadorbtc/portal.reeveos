@@ -144,6 +144,8 @@ const Calendar = () => {
   const [showStaffDD, setShowStaffDD] = useState(false)
   const scrollRef = useRef(null)
   const gridRef = useRef(null)
+  const calSeenIdsRef = useRef(new Set())
+  const [newCalBookingIds, setNewCalBookingIds] = useState(new Set())
 
   /* ── Drag & Drop State ── */
   const [drag, setDrag] = useState(null)
@@ -195,6 +197,14 @@ const Calendar = () => {
           }
         })
         setData({ staff, bookings, blocks: d.blocks || [] })
+
+        // Detect new bookings for animation
+        if (calSeenIdsRef.current.size > 0) {
+          const freshIds = new Set()
+          bookings.forEach(b => { if (!calSeenIdsRef.current.has(b.id)) freshIds.add(b.id) })
+          if (freshIds.size > 0) setNewCalBookingIds(freshIds)
+        }
+        bookings.forEach(b => calSeenIdsRef.current.add(b.id))
       })
       .catch(err => {
         console.error('Calendar fetch error:', err)
@@ -207,12 +217,19 @@ const Calendar = () => {
     fetchCalendarData(true)
   }, [fetchCalendarData])
 
-  // Live polling — refresh every 30 seconds without showing loading spinner
+  // Live polling — refresh every 15 seconds without showing loading spinner
   useEffect(() => {
     if (!bid || isDemo) return
-    const interval = setInterval(() => fetchCalendarData(false), 30000)
+    const interval = setInterval(() => fetchCalendarData(false), 15000)
     return () => clearInterval(interval)
   }, [fetchCalendarData, bid, isDemo])
+
+  // Clear new-booking animation after 3 seconds
+  useEffect(() => {
+    if (newCalBookingIds.size === 0) return
+    const t = setTimeout(() => setNewCalBookingIds(new Set()), 3000)
+    return () => clearTimeout(t)
+  }, [newCalBookingIds])
 
   /* ── Time updater ── */
   useEffect(() => { const iv = setInterval(() => { setTp(gtp()); setTs(gts()) }, 30000); return () => clearInterval(iv) }, [])
@@ -467,6 +484,7 @@ const Calendar = () => {
   /* ── Booking Block with drag ── */
   const Bl = ({ a }) => {
     const isDragging = drag?.id === a.id
+    const isNewBooking = newCalBookingIds.has(a.id)
     const top = isDragging ? drag.ghostTop : timeToPx(a.start)
     const h = isDragging ? drag.ghostH : a.dur * HH
     const bg = gc(a)
@@ -499,7 +517,9 @@ const Calendar = () => {
             overflow: 'hidden', color: '#111',
             transition: isDragging ? 'none' : 'all 0.2s cubic-bezier(0.22,1,0.36,1)',
             transform: isDragging ? 'scale(1.03)' : hov && !sel ? 'scale(1.012) translateY(-1px)' : 'none',
-            boxShadow: isDragging ? `0 12px 36px ${bg}40, 0 0 0 2px #fff, 0 0 0 4px ${bg}`
+            animation: isNewBooking ? 'calendarPulse 0.6s ease-out' : 'none',
+            boxShadow: isNewBooking ? `0 0 0 3px rgba(16,185,129,0.4), 0 8px 24px ${bg}25`
+              : isDragging ? `0 12px 36px ${bg}40, 0 0 0 2px #fff, 0 0 0 4px ${bg}`
               : sel ? `0 0 0 2.5px #fff, 0 0 0 4.5px ${bg}, 0 8px 24px ${bg}25`
               : hov ? `0 8px 24px ${bg}30` : `0 2px 6px ${bg}12`,
             zIndex: isDragging ? 40 : sel ? 30 : hov ? 20 : 2,

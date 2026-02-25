@@ -61,7 +61,7 @@ const PickDateTime = ({ data, onContinue, onBack }) => {
   const grouped = groupSlots(slots)
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-3 overflow-hidden">
+    <div className="px-4 pt-3 overflow-hidden">
       {/* Back button */}
       <button
         onClick={onBack}
@@ -85,7 +85,7 @@ const PickDateTime = ({ data, onContinue, onBack }) => {
         </div>
       )}
 
-      <h2 className="text-base font-semibold text-[#1B4332] mb-3">Pick a date</h2>
+      <h2 className="text-sm font-semibold text-[#1B4332] mb-3">Pick a date</h2>
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
@@ -122,7 +122,7 @@ const PickDateTime = ({ data, onContinue, onBack }) => {
                   <span className={`block text-[11px] font-medium ${isSelected ? 'text-white/80' : isAvailable ? 'text-gray-400' : 'text-gray-300'}`}>
                     {dayName}
                   </span>
-                  <span className={`block text-lg font-semibold mt-0.5 ${isSelected ? 'text-white' : ''}`}>
+                  <span className={`block text-base font-semibold mt-0.5 ${isSelected ? 'text-white' : ''}`}>
                     {dayNum}
                   </span>
                   {isToday && !isSelected && (
@@ -184,7 +184,7 @@ const PickDateTime = ({ data, onContinue, onBack }) => {
         <button
           onClick={() => selectedDate && selectedTime && onContinue({ date: selectedDate, time: selectedTime })}
           disabled={!selectedDate || !selectedTime}
-          className={`w-full py-3.5 rounded-xl font-medium text-[15px] transition-all flex items-center justify-center gap-2 ${
+          className={`w-full py-3 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 ${
             selectedDate && selectedTime
               ? 'bg-[#1B4332] text-white hover:bg-[#143326] shadow-sm'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'

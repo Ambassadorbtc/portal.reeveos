@@ -67,7 +67,7 @@ const PickGuestsDate = ({ data, onContinue }) => {
   const canContinue = guests > 0 && selectedDate
 
   return (
-    <div className="max-w-md mx-auto px-4 sm:px-5 pt-3 sm:pt-4 overflow-hidden">
+    <div className="px-4 pt-3 overflow-hidden">
       <BookingHeader business={business} />
       <StepIndicator step={1} total={3} />
 

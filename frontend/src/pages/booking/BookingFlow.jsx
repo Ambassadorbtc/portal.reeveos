@@ -114,13 +114,17 @@ const BookingFlow = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FEFBF4] overflow-x-hidden">
-      <StepComponent
-        data={stepData}
-        onContinue={handleContinue}
-        onBack={handleBack}
-        onCreate={handleCreate}
-      />
+    <div className="min-h-screen bg-[#FEFBF4] overflow-x-hidden flex items-start justify-center" style={{ fontFamily: "'Figtree', sans-serif" }}>
+      {/* Phone-frame on desktop, full-width on mobile */}
+      <div className="w-full sm:max-w-[400px] sm:my-6 sm:rounded-2xl sm:border sm:border-gray-200 sm:shadow-xl sm:bg-[#FEFBF4] sm:overflow-hidden min-h-screen sm:min-h-0">
+        <StepComponent
+          data={stepData}
+          onContinue={handleContinue}
+          onBack={handleBack}
+          onCreate={handleCreate}
+        />
+        <p className="text-center text-[10px] text-gray-400 pb-3">Powered by <span className="font-semibold text-[#1B4332]">Rezvo</span></p>
+      </div>
     </div>
   )
 }

@@ -61,19 +61,18 @@ const BookingManage = () => {
 
   if (cancelled) {
     return (
-      <div className="min-h-screen bg-[#FEFBF4] px-5 pt-16 max-w-md mx-auto text-center">
-        <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-          <XCircle className="w-7 h-7 text-gray-400" />
+      <div className="min-h-screen bg-[#FEFBF4] flex items-start justify-center" style={{ fontFamily: "'Figtree', sans-serif" }}>
+      <div className="w-full sm:max-w-[400px] sm:my-6 sm:rounded-2xl sm:border sm:border-gray-200 sm:shadow-xl sm:bg-[#FEFBF4] sm:overflow-hidden px-4 pt-12 pb-10 text-center">
+        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+          <XCircle className="w-6 h-6 text-gray-400" />
         </div>
-        <h1 className="text-xl font-semibold text-[#1B4332]">Booking Cancelled</h1>
-        <p className="text-sm text-gray-500 mt-2">Your booking has been cancelled successfully.</p>
-        <Link
-          to={`/book/${businessSlug}`}
-          className="inline-flex items-center gap-2 mt-6 px-6 py-2.5 rounded-xl bg-[#1B4332] text-white font-medium text-sm hover:bg-[#143326] transition-colors"
-        >
-          <RotateCcw className="w-4 h-4" />
-          Book again
+        <h1 className="text-lg font-semibold text-[#1B4332]">Booking Cancelled</h1>
+        <p className="text-xs text-gray-500 mt-1.5">Your booking has been cancelled successfully.</p>
+        <Link to={`/book/${businessSlug}`}
+          className="inline-flex items-center gap-2 mt-4 px-5 py-2 rounded-xl bg-[#1B4332] text-white font-medium text-xs hover:bg-[#143326] transition-colors">
+          <RotateCcw className="w-3.5 h-3.5" /> Book again
         </Link>
+      </div>
       </div>
     )
   }
@@ -81,37 +80,35 @@ const BookingManage = () => {
   const biz = booking.business || {}
 
   return (
-    <div className="min-h-screen bg-[#FEFBF4] px-5 pt-6 pb-12 max-w-md mx-auto">
-      <Link
-        to={`/book/${businessSlug}/confirm/${bookingId}`}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1B4332] mb-6 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to confirmation
+    <div className="min-h-screen bg-[#FEFBF4] flex items-start justify-center" style={{ fontFamily: "'Figtree', sans-serif" }}>
+    <div className="w-full sm:max-w-[400px] sm:my-6 sm:rounded-2xl sm:border sm:border-gray-200 sm:shadow-xl sm:bg-[#FEFBF4] sm:overflow-hidden px-4 pt-4 pb-8">
+      <Link to={`/book/${businessSlug}/confirm/${bookingId}`}
+        className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#1B4332] mb-4 transition-colors">
+        <ArrowLeft className="w-3.5 h-3.5" /> Back to confirmation
       </Link>
 
-      <h1 className="text-xl font-semibold text-[#1B4332] mb-5">Manage Booking</h1>
+      <h1 className="text-base font-semibold text-[#1B4332] mb-3">Manage Booking</h1>
 
       {/* Booking details card */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-[#1B4332]">{biz.name}</h3>
-          <span className="font-mono text-sm text-gray-500">{booking.reference}</span>
+      <div className="bg-white rounded-xl border border-gray-200 p-3 mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-semibold text-sm text-[#1B4332]">{biz.name}</h3>
+          <span className="font-mono text-xs text-gray-500">{booking.reference}</span>
         </div>
-        <div className="space-y-2 text-sm">
+        <div className="space-y-1.5 text-xs">
           {booking.service?.name && (
             <div className="flex items-center gap-2 text-gray-600">
-              <Clock className="w-4 h-4 text-gray-400 shrink-0" />
+              <Clock className="w-3.5 h-3.5 text-gray-400 shrink-0" />
               <span>{booking.service.name}</span>
             </div>
           )}
           <div className="flex items-center gap-2 text-gray-600">
-            <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
+            <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
             <span>{formatDate(booking.date)} at {booking.time}</span>
           </div>
           {biz.address && (
             <div className="flex items-center gap-2 text-gray-600">
-              <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
+              <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
               <span>{biz.address}</span>
             </div>
           )}
@@ -119,37 +116,27 @@ const BookingManage = () => {
       </div>
 
       {/* Actions */}
-      <div className="space-y-2.5">
-        <Link
-          to={`/book/${businessSlug}`}
-          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-[#1B4332] text-[#1B4332] font-medium text-[15px] hover:bg-[#1B4332] hover:text-white transition-all"
-        >
-          <RotateCcw className="w-4 h-4" />
-          Reschedule Booking
+      <div className="space-y-2">
+        <Link to={`/book/${businessSlug}`}
+          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[#1B4332] text-[#1B4332] font-medium text-xs hover:bg-[#1B4332] hover:text-white transition-all">
+          <RotateCcw className="w-3.5 h-3.5" /> Reschedule Booking
         </Link>
 
         {!showConfirm ? (
-          <button
-            onClick={() => setShowConfirm(true)}
-            className="w-full py-3 rounded-xl border border-red-200 text-red-600 font-medium text-[15px] hover:bg-red-50 transition-all"
-          >
+          <button onClick={() => setShowConfirm(true)}
+            className="w-full py-2.5 rounded-xl border border-red-200 text-red-600 font-medium text-xs hover:bg-red-50 transition-all">
             Cancel Booking
           </button>
         ) : (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-            <p className="text-sm text-red-700 mb-3">Are you sure you want to cancel this booking?</p>
+          <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+            <p className="text-xs text-red-700 mb-2">Are you sure you want to cancel?</p>
             <div className="flex gap-2">
-              <button
-                onClick={handleCancel}
-                disabled={cancelling}
-                className="flex-1 py-2.5 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-all"
-              >
+              <button onClick={handleCancel} disabled={cancelling}
+                className="flex-1 py-2 rounded-lg bg-red-600 text-white text-xs font-medium hover:bg-red-700 disabled:opacity-50 transition-all">
                 {cancelling ? 'Cancelling...' : 'Yes, cancel'}
               </button>
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="flex-1 py-2.5 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-all"
-              >
+              <button onClick={() => setShowConfirm(false)}
+                className="flex-1 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-xs font-medium hover:bg-gray-50 transition-all">
                 Keep booking
               </button>
             </div>
@@ -157,7 +144,8 @@ const BookingManage = () => {
         )}
       </div>
 
-      <p className="text-center text-xs text-gray-400 mt-10">Powered by Rezvo</p>
+      <p className="text-center text-xs text-gray-400 mt-6">Powered by Rezvo</p>
+    </div>
     </div>
   )
 }

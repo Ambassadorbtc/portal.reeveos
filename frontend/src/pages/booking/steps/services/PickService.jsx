@@ -19,11 +19,11 @@ const PickService = ({ data, onContinue }) => {
     : services.filter((s) => s.category === category)
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-3 overflow-hidden">
+    <div className="px-4 pt-3 overflow-hidden">
       <BookingHeader business={business} />
       <StepIndicator step={1} total={3} />
 
-      <h2 className="text-base font-semibold text-[#1B4332] mb-3">Choose a service</h2>
+      <h2 className="text-sm font-semibold text-[#1B4332] mb-3">Choose a service</h2>
 
       {/* Category pills — horizontal scroll */}
       <div className="flex gap-2 flex-wrap mb-4">
@@ -31,7 +31,7 @@ const PickService = ({ data, onContinue }) => {
           <button
             key={cat}
             onClick={() => setCategory(cat)}
-            className={`px-3.5 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+            className={`px-2.5 py-1 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
               category === cat
                 ? 'bg-[#1B4332] text-white shadow-sm'
                 : 'bg-white text-gray-600 border border-gray-200 hover:border-[#1B4332]/30'
@@ -51,7 +51,7 @@ const PickService = ({ data, onContinue }) => {
             <button
               key={svc.id}
               onClick={() => setSelectedId(svc.id)}
-              className={`w-full text-left p-3.5 rounded-xl border transition-all ${
+              className={`w-full text-left p-3 rounded-xl border transition-all ${
                 selected
                   ? 'border-[#1B4332] bg-[#1B4332]/[0.03] ring-1 ring-[#1B4332]/20'
                   : 'border-gray-200 bg-white hover:border-gray-300'
@@ -59,7 +59,7 @@ const PickService = ({ data, onContinue }) => {
             >
               <div className="flex justify-between items-start gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className={`font-medium text-[15px] ${selected ? 'text-[#1B4332]' : 'text-gray-900'}`}>
+                  <p className={`font-medium text-[13px] ${selected ? 'text-[#1B4332]' : 'text-gray-900'}`}>
                     {svc.name}
                   </p>
                   {svc.description && (
@@ -88,7 +88,7 @@ const PickService = ({ data, onContinue }) => {
         <button
           onClick={() => selectedId && onContinue({ serviceId: selectedId })}
           disabled={!selectedId}
-          className={`w-full py-3.5 rounded-xl font-medium text-[15px] transition-all flex items-center justify-center gap-2 ${
+          className={`w-full py-3 rounded-xl font-medium text-[13px] transition-all flex items-center justify-center gap-2 ${
             selectedId
               ? 'bg-[#1B4332] text-white hover:bg-[#143326] shadow-sm'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'

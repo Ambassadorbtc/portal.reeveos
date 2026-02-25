@@ -59,7 +59,7 @@ const YourDetails = ({ data, onCreate, onBack }) => {
   }
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-3 overflow-hidden">
+    <div className="px-4 pt-3 overflow-hidden">
       {/* Back */}
       <button
         onClick={onBack}
@@ -73,7 +73,7 @@ const YourDetails = ({ data, onCreate, onBack }) => {
       <StepIndicator step={3} total={3} />
 
       {/* Booking summary card */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-3 mb-4">
         <h3 className="text-sm font-semibold text-[#1B4332] mb-2">Booking Summary</h3>
         <div className="space-y-1.5 text-sm">
           <div className="flex items-center gap-2 text-gray-600">
@@ -100,7 +100,7 @@ const YourDetails = ({ data, onCreate, onBack }) => {
       </div>
 
       {/* Form */}
-      <h2 className="text-base font-semibold text-[#1B4332] mb-3">Your details</h2>
+      <h2 className="text-sm font-semibold text-[#1B4332] mb-3">Your details</h2>
 
       <form onSubmit={handleSubmit} className="space-y-3.5 pb-6">
         <div>
@@ -109,7 +109,7 @@ const YourDetails = ({ data, onCreate, onBack }) => {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-900 text-[15px] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] transition-all"
+            className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 text-[13px] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] transition-all"
             placeholder="Your full name"
             required
             autoComplete="name"
@@ -121,7 +121,7 @@ const YourDetails = ({ data, onCreate, onBack }) => {
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-900 text-[15px] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] transition-all"
+            className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 text-[13px] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] transition-all"
             placeholder="07xxx xxxxxx"
             required
             autoComplete="tel"
@@ -133,7 +133,7 @@ const YourDetails = ({ data, onCreate, onBack }) => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-900 text-[15px] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] transition-all"
+            className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 text-[13px] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] transition-all"
             placeholder="you@email.com"
             required
             autoComplete="email"
@@ -144,7 +144,7 @@ const YourDetails = ({ data, onCreate, onBack }) => {
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-900 text-[15px] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] transition-all min-h-[80px] resize-none"
+            className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 text-[13px] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] transition-all min-h-[80px] resize-none"
             placeholder="Anything we should know?"
             rows={3}
           />
@@ -159,7 +159,7 @@ const YourDetails = ({ data, onCreate, onBack }) => {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className={`w-full py-3.5 rounded-xl font-medium text-[15px] transition-all flex items-center justify-center gap-2 ${
+          className={`w-full py-3 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 ${
             loading
               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
               : 'bg-[#1B4332] text-white hover:bg-[#143326] shadow-sm'

@@ -60,7 +60,7 @@ const PickTimeSlot = ({ data, onContinue, onBack }) => {
   const fmt = (t) => { const [h,m]=t.split(':'); const hr=parseInt(h); return hr<12?`${hr}:${m}am`:hr===12?`12:${m}pm`:`${hr-12}:${m}pm` }
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-3 overflow-hidden">
+    <div className="px-4 pt-3 overflow-hidden">
       <BookingHeader business={business} />
       <StepIndicator step={2} total={3} />
 

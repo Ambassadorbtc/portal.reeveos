@@ -48,7 +48,7 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
 
   if (confirmed) {
     return (
-      <div className="max-w-md mx-auto px-4 pt-3 overflow-hidden">
+      <div className="px-4 pt-3 overflow-hidden">
         <div className="text-center pt-6 pb-4">
           <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-2">
             <CheckCircle className="w-6 h-6 text-emerald-600" />
@@ -102,7 +102,7 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
   const inputCls = (field) => `w-full px-3 py-2 rounded-lg border text-[13px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] ${errors[field] ? 'border-red-300 bg-red-50/30' : 'border-gray-200 bg-white'}`
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-3 overflow-hidden">
+    <div className="px-4 pt-3 overflow-hidden">
       <BookingHeader business={business} />
       <StepIndicator step={3} total={3} />
 

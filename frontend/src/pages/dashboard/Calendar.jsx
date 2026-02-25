@@ -105,12 +105,25 @@ const DEMO_BLOCKS = [
 
 /* ═══════════════════ MAIN COMPONENT ═══════════════════ */
 const Calendar = () => {
-  const { business, businessType, isDemo } = useBusiness()
+  const { business, businessType, isDemo, loading: bizLoading } = useBusiness()
   const bid = business?.id ?? business?._id
 
   /* ── Restaurant mode: use dedicated restaurant calendar ── */
-  if (businessType === 'restaurant' && !isDemo) {
+  if (businessType === 'restaurant') {
     return <RestaurantCalendar />
+  }
+
+  /* ── Still loading business context — don't flash salon calendar ── */
+  if (bizLoading || (!business && isDemo)) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', background: '#fff', fontFamily: "'Figtree', sans-serif" }}>
+        <div style={{ textAlign: 'center', color: '#6B7280' }}>
+          <div style={{ width: 32, height: 32, border: '3px solid #EBEBEB', borderTopColor: '#1B4332', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+          <span style={{ fontSize: 13, fontWeight: 500 }}>Loading...</span>
+          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+        </div>
+      </div>
+    )
   }
 
   /* ── State ── */

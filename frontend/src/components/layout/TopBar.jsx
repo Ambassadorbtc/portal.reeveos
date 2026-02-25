@@ -8,7 +8,7 @@ import { useBusiness } from '../../contexts/BusinessContext'
 import { getNavItems } from '../../config/navigation'
 
 const PAGE_TITLES = {
-  '/dashboard': 'Home Dashboard',
+  '/dashboard': 'Dashboard',
   '/dashboard/calendar': 'Calendar',
   '/dashboard/bookings': 'Bookings',
   '/dashboard/booking-link': 'Booking Link',

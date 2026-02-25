@@ -4,7 +4,7 @@
  */
 
 const StickyFooter = ({ children }) => (
-  <div className="pt-4 pb-6 sm:pt-5 sm:pb-8 bg-[#FEFBF4]">
+  <div className="pt-3 pb-4 bg-[#FEFBF4]">
     {children}
   </div>
 )

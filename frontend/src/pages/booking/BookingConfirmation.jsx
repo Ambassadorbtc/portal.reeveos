@@ -57,7 +57,7 @@ const BookingConfirmation = () => {
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(biz.address || '')}`
 
   return (
-    <div className="min-h-screen bg-[#FEFBF4] px-5 pt-10 pb-12 max-w-xl mx-auto">
+    <div className="min-h-screen bg-[#FEFBF4] px-5 pt-10 pb-12 max-w-md mx-auto">
       {/* Success icon */}
       <div className="text-center mb-8">
         <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">

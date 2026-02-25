@@ -19,7 +19,7 @@ const PickService = ({ data, onContinue }) => {
     : services.filter((s) => s.category === category)
 
   return (
-    <div className="max-w-xl mx-auto px-5 pt-6 overflow-hidden">
+    <div className="max-w-md mx-auto px-4 pt-3 overflow-hidden">
       <BookingHeader business={business} />
       <StepIndicator step={1} total={3} />
 

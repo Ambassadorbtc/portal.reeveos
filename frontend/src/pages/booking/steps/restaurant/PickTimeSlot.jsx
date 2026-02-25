@@ -1,6 +1,6 @@
 /**
  * Restaurant Step 2 — Pick a time slot
- * Shows available times for the selected date and party size
+ * Compact layout matching Step 1
  */
 
 import { useState, useEffect } from 'react'
@@ -10,73 +10,34 @@ import BookingHeader from '../../components/BookingHeader'
 import StepIndicator from '../../components/StepIndicator'
 import StickyFooter from '../../components/StickyFooter'
 
-const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 
-// Generate time slots based on business hours
 const generateSlots = (settings, date) => {
   const dayOfWeek = new Date(date).getDay()
-  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-  const dayName = dayNames[dayOfWeek]
-
-  // Check if business has hours defined
-  const hours = settings?.hours?.[dayName]
+  const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
+  const hours = settings?.hours?.[dayNames[dayOfWeek]]
   if (hours?.closed) return []
-
-  // If no hours configured at all, use restaurant defaults
   if (!hours || !hours.open) {
-    const defaults = []
-    // Restaurant default: 12-14:30 lunch, 17:30-22 dinner
-    for (let h = 12; h <= 14; h++) {
-      defaults.push(`${h.toString().padStart(2, '0')}:00`)
-      defaults.push(`${h.toString().padStart(2, '0')}:30`)
-    }
-    for (let h = 17; h <= 21; h++) {
-      defaults.push(`${h.toString().padStart(2, '0')}:00`)
-      if (h < 21) defaults.push(`${h.toString().padStart(2, '0')}:30`)
-      else defaults.push(`${h.toString().padStart(2, '0')}:30`)
-    }
-    return defaults
+    const d = []
+    for (let h = 12; h <= 14; h++) { d.push(`${h}:00`); d.push(`${h}:30`) }
+    for (let h = 17; h <= 21; h++) { d.push(`${h}:00`); d.push(`${h}:30`) }
+    return d
   }
-
-  const openH = parseInt(hours.open?.split(':')[0] || '11')
-  const openM = parseInt(hours.open?.split(':')[1] || '0')
-  const closeH = parseInt(hours.close?.split(':')[0] || '22')
-  const closeM = parseInt(hours.close?.split(':')[1] || '0')
-
-  const slots = []
-  for (let h = openH; h <= closeH; h++) {
-    for (let m = 0; m < 60; m += 30) {
-      if (h === openH && m < openM) continue
-      if (h === closeH && m > closeM - 30) continue
-      const time = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
-      slots.push(time)
-    }
+  const oH = parseInt(hours.open?.split(':')[0]||'11'), oM = parseInt(hours.open?.split(':')[1]||'0')
+  const cH = parseInt(hours.close?.split(':')[0]||'22'), cM = parseInt(hours.close?.split(':')[1]||'0')
+  const s = []
+  for (let h = oH; h <= cH; h++) for (let m = 0; m < 60; m += 30) {
+    if (h===oH && m<oM) continue; if (h===cH && m>cM-30) continue
+    s.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`)
   }
-
-  // If no hours configured, return sensible defaults
-  if (slots.length === 0) {
-    const defaults = []
-    for (let h = 11; h <= 21; h++) {
-      defaults.push(`${h.toString().padStart(2, '0')}:00`)
-      defaults.push(`${h.toString().padStart(2, '0')}:30`)
-    }
-    return defaults
-  }
-
-  return slots
+  return s.length ? s : Array.from({length:22},(_,i)=>`${String(Math.floor(i/2)+11).padStart(2,'0')}:${i%2?'30':'00'}`)
 }
 
-// Group slots into periods
 const groupSlots = (slots) => {
-  const groups = { 'Lunch': [], 'Afternoon': [], 'Evening': [] }
-  slots.forEach((slot) => {
-    const h = parseInt(slot.split(':')[0])
-    if (h < 15) groups['Lunch'].push(slot)
-    else if (h < 17) groups['Afternoon'].push(slot)
-    else groups['Evening'].push(slot)
-  })
-  return groups
+  const g = { Lunch:[], Afternoon:[], Evening:[] }
+  slots.forEach(s => { const h=parseInt(s); (h<15?g.Lunch:h<17?g.Afternoon:g.Evening).push(s) })
+  return g
 }
 
 const PickTimeSlot = ({ data, onContinue, onBack }) => {
@@ -86,100 +47,67 @@ const PickTimeSlot = ({ data, onContinue, onBack }) => {
   const [slots, setSlots] = useState([])
 
   const dateObj = new Date(date + 'T00:00:00')
-  const dateLabel = `${DAY_NAMES[dateObj.getDay()]} ${dateObj.getDate()} ${MONTH_NAMES[dateObj.getMonth()]}`
+  const dateLabel = `${DAY_NAMES[dateObj.getDay()].slice(0,3)} ${dateObj.getDate()} ${MONTH_NAMES[dateObj.getMonth()].slice(0,3)}`
 
   useEffect(() => {
-    // Simulate loading (in production this would call an availability API)
     setLoading(true)
-    const timer = setTimeout(() => {
-      const generated = generateSlots(settings, date)
-      setSlots(generated)
-      setLoading(false)
-    }, 400)
-    return () => clearTimeout(timer)
+    const t = setTimeout(() => { setSlots(generateSlots(settings, date)); setLoading(false) }, 400)
+    return () => clearTimeout(t)
   }, [date, settings])
 
   const grouped = groupSlots(slots)
   const canContinue = !!selectedTime
-
-  const formatTime = (t) => {
-    const [h, m] = t.split(':')
-    const hour = parseInt(h)
-    if (hour < 12) return `${hour}:${m} am`
-    if (hour === 12) return `12:${m} pm`
-    return `${hour - 12}:${m} pm`
-  }
+  const fmt = (t) => { const [h,m]=t.split(':'); const hr=parseInt(h); return hr<12?`${hr}:${m}am`:hr===12?`12:${m}pm`:`${hr-12}:${m}pm` }
 
   return (
-    <div className="max-w-md mx-auto px-4 sm:px-5 pt-3 sm:pt-4 overflow-hidden">
+    <div className="max-w-md mx-auto px-4 pt-3 overflow-hidden">
       <BookingHeader business={business} />
       <StepIndicator step={2} total={3} />
 
-      {/* Back + date summary */}
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-500 hover:text-[#1B4332] mb-3 sm:mb-4 transition-colors"
-      >
-        <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-        Back
+      <button onClick={onBack} className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#1B4332] mb-2 transition-colors">
+        <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      <div className="flex items-center gap-2 sm:gap-3 px-2.5 py-1.5 sm:p-3 bg-[#1B4332]/[0.03] rounded-lg sm:rounded-xl border border-[#1B4332]/10 mb-3 sm:mb-6">
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-[#1B4332]">
-            <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="font-medium">{guests} {guests === 1 ? 'guest' : 'guests'}</span>
-          </div>
-          <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-[#1B4332]">
-            <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="font-medium">{dateLabel}</span>
-          </div>
+      <div className="flex items-center gap-3 px-2.5 py-1.5 bg-[#1B4332]/[0.03] rounded-lg border border-[#1B4332]/10 mb-3">
+        <div className="flex items-center gap-1 text-xs text-[#1B4332]">
+          <Users className="w-3.5 h-3.5" />
+          <span className="font-medium">{guests}</span>
+        </div>
+        <div className="flex items-center gap-1 text-xs text-[#1B4332]">
+          <Calendar className="w-3.5 h-3.5" />
+          <span className="font-medium">{dateLabel}</span>
         </div>
       </div>
 
-      <h2 className="text-sm sm:text-base font-semibold text-[#1B4332] mb-3 sm:mb-4">Choose a time</h2>
+      <h2 className="text-sm font-semibold text-[#1B4332] mb-2">Choose a time</h2>
 
       {loading ? (
-        <div className="flex items-center justify-center py-16">
+        <div className="flex items-center justify-center py-12">
           <RezvoLoader size="sm" message="" />
         </div>
       ) : slots.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-            <Clock className="w-5 h-5 text-gray-400" />
+        <div className="text-center py-8">
+          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
+            <Clock className="w-4 h-4 text-gray-400" />
           </div>
-          <p className="text-sm text-gray-500">No availability on this date</p>
-          <button
-            onClick={onBack}
-            className="text-sm text-[#1B4332] font-medium mt-2 underline"
-          >
-            Pick a different date
-          </button>
+          <p className="text-xs text-gray-500">No availability on this date</p>
+          <button onClick={onBack} className="text-xs text-[#1B4332] font-medium mt-1 underline">Pick a different date</button>
         </div>
       ) : (
-        <div className="space-y-6 pb-6">
+        <div className="space-y-4 pb-4">
           {Object.entries(grouped).map(([period, times]) => {
-            if (times.length === 0) return null
+            if (!times.length) return null
             return (
               <div key={period}>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{period}</p>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                  {times.map((time) => {
-                    const sel = selectedTime === time
-                    return (
-                      <button
-                        key={time}
-                        onClick={() => setSelectedTime(time)}
-                        className={`py-2.5 rounded-xl text-sm font-medium transition-all ${
-                          sel
-                            ? 'bg-[#1B4332] text-white shadow-sm'
-                            : 'bg-white text-gray-700 border border-gray-200 hover:border-[#1B4332]/30'
-                        }`}
-                      >
-                        {formatTime(time)}
-                      </button>
-                    )
-                  })}
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{period}</p>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {times.map(time => (
+                    <button key={time} onClick={() => setSelectedTime(time)}
+                      className={`py-2 rounded-lg text-xs font-medium transition-all ${
+                        selectedTime===time ? 'bg-[#1B4332] text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:border-[#1B4332]/30'
+                      }`}
+                    >{fmt(time)}</button>
+                  ))}
                 </div>
               </div>
             )
@@ -188,17 +116,9 @@ const PickTimeSlot = ({ data, onContinue, onBack }) => {
       )}
 
       <StickyFooter>
-        <button
-          onClick={() => canContinue && onContinue({ time: selectedTime })}
-          disabled={!canContinue}
-          className={`w-full py-3.5 rounded-xl text-sm font-semibold transition-all ${
-            canContinue
-              ? 'bg-[#1B4332] text-white hover:bg-[#1B4332]/90 shadow-sm'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-          }`}
-        >
-          Continue
-        </button>
+        <button onClick={() => canContinue && onContinue({ time: selectedTime })} disabled={!canContinue}
+          className={`w-full py-3 rounded-xl text-sm font-semibold transition-all ${canContinue ? 'bg-[#1B4332] text-white hover:bg-[#1B4332]/90 shadow-sm' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+        >Continue</button>
       </StickyFooter>
     </div>
   )

@@ -61,7 +61,7 @@ const BookingManage = () => {
 
   if (cancelled) {
     return (
-      <div className="min-h-screen bg-[#FEFBF4] px-5 pt-16 max-w-xl mx-auto text-center">
+      <div className="min-h-screen bg-[#FEFBF4] px-5 pt-16 max-w-md mx-auto text-center">
         <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
           <XCircle className="w-7 h-7 text-gray-400" />
         </div>
@@ -81,7 +81,7 @@ const BookingManage = () => {
   const biz = booking.business || {}
 
   return (
-    <div className="min-h-screen bg-[#FEFBF4] px-5 pt-6 pb-12 max-w-xl mx-auto">
+    <div className="min-h-screen bg-[#FEFBF4] px-5 pt-6 pb-12 max-w-md mx-auto">
       <Link
         to={`/book/${businessSlug}/confirm/${bookingId}`}
         className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1B4332] mb-6 transition-colors"

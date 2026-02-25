@@ -1,14 +1,12 @@
 """
 Rezvo SMS Service
 =================
-SMS notifications via Sendly.live API.
-Credit-based: buy credits, pay per SMS.
-No monthly fee.
+SMS notifications via Sendly (sendly.live).
+Simple REST API — no SDK needed, just HTTP POST.
 
-API inferred from Sendly PHP SDK:
-  - Auth: Bearer sk_live_v1_xxx
-  - Endpoint: POST https://api.sendly.live/v1/messages
-  - Payload: { "to": "+447...", "text": "..." }
+API: POST https://sendly.live/api/v1/messages
+Auth: Bearer sk_live_... or sk_test_...
+Body: {"to": "+447...", "text": "...", "messageType": "transactional"}
 """
 
 import logging
@@ -18,12 +16,12 @@ from config import settings
 
 logger = logging.getLogger(__name__)
 
-SENDLY_BASE_URL = "https://api.sendly.live/v1"
+SENDLY_API_URL = "https://sendly.live/api/v1/messages"
 
 
 async def send_sms(to: str, body: str) -> Dict:
     """
-    Send an SMS via Sendly.live API.
+    Send an SMS via Sendly.
     `to` should be E.164 format, e.g. +447700900000
     Returns: {"success": True/False, "id": "...", "error": "..."}
     """
@@ -40,23 +38,27 @@ async def send_sms(to: str, body: str) -> Dict:
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.post(
-                f"{SENDLY_BASE_URL}/messages",
-                json={"to": to, "text": body},
+                SENDLY_API_URL,
                 headers={
                     "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json",
                 },
+                json={
+                    "to": to,
+                    "text": body,
+                    "messageType": "transactional",
+                },
             )
 
-            if resp.status_code in (200, 201, 202):
+            if resp.status_code in (200, 201):
                 data = resp.json()
-                msg_id = data.get("id") or data.get("messageId") or data.get("sid", "unknown")
+                msg_id = data.get("id") or data.get("messageId") or "unknown"
                 logger.info(f"SMS sent to {to}: {msg_id}")
                 return {"success": True, "id": msg_id, "to": to}
             else:
-                error_text = resp.text[:200]
-                logger.error(f"Sendly SMS failed ({resp.status_code}): {error_text}")
-                return {"success": False, "error": f"Sendly API error {resp.status_code}: {error_text}", "to": to}
+                error_msg = resp.text[:200]
+                logger.error(f"Sendly SMS failed ({resp.status_code}): {error_msg}")
+                return {"success": False, "error": f"Sendly {resp.status_code}: {error_msg}", "to": to}
 
     except Exception as e:
         logger.error(f"SMS failed to {to}: {str(e)}")
@@ -67,7 +69,7 @@ def normalise_uk_phone(phone: str) -> Optional[str]:
     """Convert UK phone to E.164 format."""
     if not phone:
         return None
-    # Strip spaces, dashes, dots, parens
+    # Strip spaces, dashes, dots, brackets
     phone = phone.replace(" ", "").replace("-", "").replace(".", "").replace("(", "").replace(")", "").strip()
     # Already E.164
     if phone.startswith("+") and len(phone) >= 12:
@@ -100,7 +102,7 @@ def booking_confirmation_sms(
         f"Hi {client_name}! Your booking at {business_name} is confirmed.\n"
         f"{booking_date} at {booking_time}{party}\n"
         f"Ref: {reference}\n"
-        f"- Powered by Rezvo"
+        f"- Rezvo"
     )
 
 

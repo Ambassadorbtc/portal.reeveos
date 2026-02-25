@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     resend_api_key: Optional[str] = None
     sendgrid_api_key: Optional[str] = None
     
+    sendly_api_key: Optional[str] = None
+    
+    # Legacy Twilio (kept for backwards compat, use Sendly instead)
     twilio_account_sid: Optional[str] = None
     twilio_auth_token: Optional[str] = None
     twilio_phone_number: Optional[str] = None

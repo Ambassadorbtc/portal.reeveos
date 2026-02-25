@@ -29,12 +29,17 @@ from services.floor_plan_solver import (
 
 # ── LLM Provider Config ──
 
-PROVIDER = os.environ.get("FLOOR_PLAN_LLM_PROVIDER", "anthropic")
+PROVIDER = os.environ.get("FLOOR_PLAN_LLM_PROVIDER", "gemini")
 
 PROVIDER_CONFIG = {
+    "gemini": {
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+        "model": "gemini-2.0-flash",
+        "key_env": "GEMINI_API_KEY",
+    },
     "anthropic": {
         "url": "https://api.anthropic.com/v1/messages",
-        "model": "claude-haiku-4-5-20251001",  # Fast + cheap for spatial tasks
+        "model": "claude-haiku-4-5-20251001",
         "key_env": "ANTHROPIC_API_KEY",
     },
     "xai": {
@@ -148,6 +153,8 @@ async def _call_llm(system: str, user: str) -> str:
                 api_key = getattr(settings, "xai_api_key", None)
             elif PROVIDER == "openai":
                 api_key = getattr(settings, "openai_api_key", None)
+            elif PROVIDER == "gemini":
+                api_key = getattr(settings, "gemini_api_key", None)
         except Exception:
             pass
 
@@ -155,7 +162,26 @@ async def _call_llm(system: str, user: str) -> str:
         raise RuntimeError(f"No API key found for provider '{PROVIDER}'. Set {config['key_env']} env var.")
 
     async with httpx.AsyncClient(timeout=30.0) as client:
-        if PROVIDER == "anthropic":
+        if PROVIDER == "gemini":
+            # Google Gemini API format
+            url = config["url"].format(model=config["model"]) + f"?key={api_key}"
+            resp = await client.post(
+                url,
+                headers={"Content-Type": "application/json"},
+                json={
+                    "systemInstruction": {"parts": [{"text": system}]},
+                    "contents": [{"parts": [{"text": user}]}],
+                    "generationConfig": {
+                        "temperature": 0.3,
+                        "maxOutputTokens": 2000,
+                    },
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            return data["candidates"][0]["content"]["parts"][0]["text"]
+
+        elif PROVIDER == "anthropic":
             # Anthropic Messages API format
             resp = await client.post(
                 config["url"],
@@ -280,13 +306,14 @@ async def ai_auto_arrange(
 
 def has_ai_key() -> bool:
     """Check if an LLM API key is available for AI arrange."""
-    config = PROVIDER_CONFIG.get(PROVIDER, PROVIDER_CONFIG["anthropic"])
+    config = PROVIDER_CONFIG.get(PROVIDER, PROVIDER_CONFIG["gemini"])
     key = os.environ.get(config["key_env"])
     if key:
         return True
     try:
         from config import settings
-        if PROVIDER == "anthropic" and settings.anthropic_api_key:
+        attr = config["key_env"].lower()  # e.g. GEMINI_API_KEY -> gemini_api_key
+        if getattr(settings, attr, None):
             return True
     except Exception:
         pass

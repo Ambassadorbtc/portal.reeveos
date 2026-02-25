@@ -168,16 +168,29 @@ const Calendar = () => {
       : `/calendar/business/${bid}?date=${selectedDate}&view=${viewMode.toLowerCase()}`
     api.get(endpoint)
       .then(d => {
-        const staff = (d.staff || []).map((s, i) => ({
+        // For restaurants: use tables as columns; for services: use staff
+        const rawColumns = isRestaurant
+          ? (d.tables || d.staff || [])
+          : (d.staff || [])
+        let staff = rawColumns.map((s, i) => ({
           ...s,
+          id: s.id || String(i),
           color: s.color || STAFF_PALETTES[i % STAFF_PALETTES.length],
           initials: s.name ? s.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '?',
-          full: s.full_name || s.name || 'Staff',
+          full: s.full_name || s.name || s.zone || 'Table',
         }))
+        // If restaurant has bookings but no tables, create a default column
+        if (isRestaurant && staff.length === 0 && (d.bookings || []).length > 0) {
+          staff = [{ id: '_unassigned', name: 'All Bookings', color: STAFF_PALETTES[0], initials: 'AB', full: 'All Bookings' }]
+        }
         const bookings = (d.bookings || []).map(b => {
           const [h, m] = (b.time || '9:00').split(':').map(Number)
+          // For restaurants: map tableId → staffId so the grid can place them
+          // If no tableId, use first available column
+          const mappedStaffId = b.staffId || b.tableId || (staff[0]?.id)
           return {
             ...b,
+            staffId: mappedStaffId,
             start: h + (m || 0) / 60,
             dur: (b.duration || 60) / 60,
             cat: b.category || b.service_type || 'default',
@@ -189,7 +202,6 @@ const Calendar = () => {
       .catch(err => {
         console.error('Calendar fetch error:', err)
         setError('Could not load calendar')
-        setData({ staff: DEMO_STAFF, bookings: DEMO_BOOKINGS, blocks: DEMO_BLOCKS })
       })
       .finally(() => setLoading(false))
   }, [bid, selectedDate, viewMode, isRestaurant, isDemo])

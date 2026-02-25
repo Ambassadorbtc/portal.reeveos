@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
+import { X, Camera, User, Clock, Plus } from 'lucide-react'
 
 
 
@@ -431,6 +432,7 @@ const StaffCard = ({ staff, onEdit, onDelete, onReinvite, onSchedule }) => {
 }
 
 const StaffEditPanel = ({ mode, staff, services, businessId, onSave, onClose, saving, addSuccess }) => {
+  const [panelTab, setPanelTab] = useState('details')
   const [form, setForm] = useState(staff)
   const [timeOffForm, setTimeOffForm] = useState({ startDate: '', endDate: '', reason: '' })
   const [showTimeOffForm, setShowTimeOffForm] = useState(false)
@@ -510,13 +512,31 @@ const StaffEditPanel = ({ mode, staff, services, businessId, onSave, onClose, sa
           isMobile ? 'w-full max-h-full' : 'w-full max-w-[400px] h-full max-h-screen'
         }`}
       >
-        <div className="sticky top-0 bg-white border-b border-border px-6 py-4 flex items-center justify-between z-10">
-          <h2 className="text-xl font-heading font-bold">
-            {mode === 'add' ? 'Add Staff Member' : 'Edit Staff Member'}
-          </h2>
-          <button onClick={onClose} className="p-2 text-gray-500 hover:text-primary rounded-lg">
-            <i className="fa-solid fa-times text-lg" />
-          </button>
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 z-10">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-extrabold text-gray-900" style={{ fontFamily: "'Figtree', sans-serif" }}>
+              {mode === 'add' ? 'Add Staff Member' : 'Edit Staff Member'}
+            </h2>
+            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setPanelTab('details')}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${panelTab === 'details' ? 'bg-[#1B4332] text-white shadow-lg shadow-[#1B4332]/20' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+              style={{ fontFamily: "'Figtree', sans-serif" }}
+            >
+              <span className="flex items-center gap-1.5"><User className="w-3 h-3" /> Details</span>
+            </button>
+            <button
+              onClick={() => setPanelTab('schedule')}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${panelTab === 'schedule' ? 'bg-[#1B4332] text-white shadow-lg shadow-[#1B4332]/20' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+              style={{ fontFamily: "'Figtree', sans-serif" }}
+            >
+              <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> Schedule</span>
+            </button>
+          </div>
         </div>
 
         <div className="p-6 space-y-6">
@@ -524,21 +544,22 @@ const StaffEditPanel = ({ mode, staff, services, businessId, onSave, onClose, sa
             <p className="text-green-600 text-sm font-medium">{addSuccess}</p>
           )}
 
+          {panelTab === 'details' && (<>
           {/* Avatar */}
           <div className="flex flex-col items-center">
-            <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden relative">
+            <div className="w-24 h-24 rounded-full bg-[#1B4332]/10 flex items-center justify-center overflow-hidden relative">
               {form.avatar ? (
                 <img src={form.avatar} alt="" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-3xl font-semibold text-primary">
+                <span className="text-3xl font-semibold text-[#1B4332]">
                   {(form.name || '?').slice(0, 2).toUpperCase()}
                 </span>
               )}
               <button
-                className="absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm"
+                className="absolute bottom-0 right-0 w-8 h-8 bg-[#1B4332] text-white rounded-full flex items-center justify-center"
                 title="Upload (placeholder)"
               >
-                <i className="fa-solid fa-camera" />
+                <Camera className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -589,6 +610,19 @@ const StaffEditPanel = ({ mode, staff, services, businessId, onSave, onClose, sa
             </select>
           </div>
 
+          {mode === 'add' && (
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={form.sendInvite !== false}
+                onChange={(e) => update('sendInvite', e.target.checked)}
+              />
+              <span className="text-sm">Send email invite</span>
+            </label>
+          )}
+          </>)}
+
+          {panelTab === 'schedule' && (<>
           {/* Working Hours */}
           <div>
             <div className="flex items-center justify-between mb-3">
@@ -747,25 +781,15 @@ const StaffEditPanel = ({ mode, staff, services, businessId, onSave, onClose, sa
             )}
           </div>
           )}
-
-          {mode === 'add' && (
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={form.sendInvite !== false}
-                onChange={(e) => update('sendInvite', e.target.checked)}
-              />
-              <span className="text-sm">Send email invite</span>
-            </label>
-          )}
+          </>)}
         </div>
 
-        <div className="sticky bottom-0 bg-white border-t border-border px-6 py-4 flex gap-3">
+        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex gap-3">
           <button onClick={() => onSave(form)} disabled={saving}
-            className="bg-primary text-white font-bold text-sm px-6 py-2.5 rounded-lg shadow-lg hover:bg-primary-hover transition-colors disabled:opacity-50">
+            className="bg-[#1B4332] text-white font-bold text-xs px-6 py-2 rounded-full shadow-lg shadow-[#1B4332]/20 hover:bg-[#2D6A4F] transition-all disabled:opacity-50" style={{ fontFamily: "'Figtree', sans-serif" }}>
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
-          <button onClick={onClose} className="text-sm text-gray-500 hover:text-primary py-2">
+          <button onClick={onClose} className="text-xs font-bold text-gray-400 hover:text-gray-600 py-2 transition-colors" style={{ fontFamily: "'Figtree', sans-serif" }}>
             Cancel
           </button>
         </div>

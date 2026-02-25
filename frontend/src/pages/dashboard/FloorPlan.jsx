@@ -28,7 +28,7 @@ const DEFAULT_POSITIONS = [
   { x: 140, y: 460 }, { x: 280, y: 460 }, { x: 420, y: 460 },
 ]
 
-const FloorPlan = () => {
+const FloorPlan = ({ embedded = false }) => {
   const { business, businessType } = useBusiness()
   const bid = business?.id ?? business?._id
   const isFood = businessType === 'food' || businessType === 'restaurant'
@@ -94,9 +94,10 @@ const FloorPlan = () => {
   }
 
   return (
-    <div className="h-full flex gap-0 overflow-hidden -m-6 lg:-m-8" style={{ fontFamily: "'Figtree', sans-serif" }}>
+    <div className={`h-full flex gap-0 overflow-hidden ${embedded ? '' : '-m-6 lg:-m-8'}`} style={{ fontFamily: "'Figtree', sans-serif" }}>
       {/* Canvas */}
       <div className="flex-1 overflow-auto relative" style={{ background: '#FAFAF8' }}>
+        {!embedded && (
         <div className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-200 px-5 py-3 flex items-center justify-between">
           <div>
             <h1 className="text-lg font-bold text-gray-900">Floor Plan</h1>
@@ -111,6 +112,7 @@ const FloorPlan = () => {
             ))}
           </div>
         </div>
+        )}
 
         <div className="p-6" style={{ minHeight: 560, backgroundImage: 'radial-gradient(#D1D5DB 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
           <div className="relative" style={{ minHeight: 520, minWidth: 520 }}>
@@ -162,7 +164,8 @@ const FloorPlan = () => {
         </div>
       </div>
 
-      {/* Sidebar */}
+      {/* Sidebar — only show when not embedded */}
+      {!embedded && (
       <div className="w-80 bg-white border-l border-gray-200 flex flex-col overflow-hidden shrink-0 hidden lg:flex">
         <div className="p-4 border-b border-gray-100">
           <h2 className="font-bold text-sm text-gray-900">
@@ -198,6 +201,7 @@ const FloorPlan = () => {
           )}
         </div>
       </div>
+      )}
     </div>
   )
 }

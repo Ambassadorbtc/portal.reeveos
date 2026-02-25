@@ -591,7 +591,7 @@ export default function RestaurantCalendar() {
       {/* ══════ TABLE PLANNER VIEW (Floor Plan) ══════ */}
       {view === 'tables' && (
         <div style={{ flex: 1, overflow: 'auto' }}>
-          <FloorPlanEmbed />
+          <FloorPlanEmbed embedded />
         </div>
       )}
 

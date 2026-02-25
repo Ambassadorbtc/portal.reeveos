@@ -1,504 +1,635 @@
 /**
- * Restaurant Calendar — Timeline Planner, Table Status, Reservation List
- * Designed for restaurant booking management with table-based views
+ * Restaurant Calendar — Reservations Planner
+ * Horizontal timeline: tables as ROWS, time on X-axis
+ * Faithful to 1-Timeline-Polished.html UXPilot design
  */
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { ChevronLeft, ChevronRight, Clock, Users, Search, Filter, Plus, LayoutGrid, List, CalendarDays, MapPin, AlertCircle, Phone, Mail } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Clock, Users, LayoutGrid, List, CalendarDays, MapPin, Search, Plus, Star, AlertTriangle, Crown, Wine, Cake, CreditCard, IceCream, ChevronDown, ChevronUp } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
 
-/* ── Constants ── */
-const STATUS_COLORS = {
-  confirmed: { bg: '#DCFCE7', border: '#16A34A', text: '#166534', label: 'Confirmed' },
-  pending:   { bg: '#FEF3C7', border: '#D97706', text: '#92400E', label: 'Pending' },
-  seated:    { bg: '#DBEAFE', border: '#2563EB', text: '#1E40AF', label: 'Seated' },
-  completed: { bg: '#F3F4F6', border: '#9CA3AF', text: '#4B5563', label: 'Completed' },
-  cancelled: { bg: '#FEE2E2', border: '#EF4444', text: '#991B1B', label: 'Cancelled' },
-  noshow:    { bg: '#FEE2E2', border: '#DC2626', text: '#991B1B', label: 'No Show' },
-  walkin:    { bg: '#E0E7FF', border: '#6366F1', text: '#3730A3', label: 'Walk-in' },
+/* ── Design Tokens (from UXPilot polished HTML) ── */
+const T = {
+  forest: '#1B4332',
+  sage: '#52B788',
+  amber: '#D4A373',
+  white: '#FFFFFF',
+  bg: '#FAFAF8',
+  border: '#EBEBEB',
+  borderLight: '#F0F0F0',
+  text: '#111111',
+  muted: '#6B7280',
+  status: {
+    confirmed: '#1B4332',
+    seated: '#52B788',
+    walkin: '#D4A373',
+    vip: '#3B82F6',
+    late: '#EF4444',
+    dessert: '#8B5CF6',
+    paying: '#9CA3AF',
+    pending: '#F59E0B',
+    completed: '#6B7280',
+    cancelled: '#EF4444',
+    noshow: '#DC2626',
+  }
 }
 
-const HOURS = Array.from({ length: 15 }, (_, i) => i + 8) // 8am to 10pm
-const SLOT_HEIGHT = 60 // px per hour
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
-const formatTime12 = (t) => {
+const fmt12 = (t) => {
+  if (!t) return ''
   const [h, m] = t.split(':').map(Number)
   const suffix = h >= 12 ? 'pm' : 'am'
   const hour = h === 0 ? 12 : h > 12 ? h - 12 : h
   return `${hour}:${String(m).padStart(2, '0')}${suffix}`
 }
 
-const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-const FULL_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const timeToMin = (t) => {
+  const [h, m] = t.split(':').map(Number)
+  return h * 60 + m
+}
 
+const statusColor = (status, isVip) => {
+  if (isVip) return T.status.vip
+  return T.status[status] || T.status.confirmed
+}
+
+/* Zone accent colors */
+const ZONE_COLORS = {
+  Window: T.amber,
+  Main: T.forest,
+  Bar: '#3B82F6',
+  Patio: T.sage,
+  Private: '#8B5CF6',
+  Terrace: '#10B981',
+}
+
+/* ── Occasion badge ── */
+const OccasionBadge = ({ occasion }) => {
+  if (!occasion) return null
+  const map = {
+    birthday: { icon: '🎂', label: 'Birthday' },
+    anniversary: { icon: '🥂', label: 'Anniversary' },
+    celebration: { icon: '🎉', label: 'Celebration' },
+    business: { icon: '💼', label: 'Business' },
+    date_night: { icon: '❤️', label: 'Date Night' },
+    graduation: { icon: '🎓', label: 'Graduation' },
+  }
+  const o = map[occasion]
+  if (!o) return null
+  return (
+    <span style={{ fontSize: 8, color: '#999', display: 'inline-flex', alignItems: 'center', gap: 2 }}>
+      <span style={{ fontSize: 8 }}>{o.icon}</span> {o.label}
+    </span>
+  )
+}
+
+/* ════════════════ MAIN COMPONENT ════════════════ */
 export default function RestaurantCalendar() {
   const { business } = useBusiness()
   const bid = business?.id ?? business?._id
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10))
-  const [view, setView] = useState('timeline') // 'timeline' | 'tables' | 'list'
+  const [view, setView] = useState('timeline')
   const [data, setData] = useState({ bookings: [], tables: [], covers: {}, servicePeriods: [] })
   const [loading, setLoading] = useState(true)
   const [selectedBooking, setSelectedBooking] = useState(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const timelineRef = useRef(null)
+  const [activePeriod, setActivePeriod] = useState('all')
+  const [collapsedZones, setCollapsedZones] = useState({})
+  const scrollRef = useRef(null)
 
   const dateObj = new Date(selectedDate + 'T00:00:00')
   const isToday = selectedDate === new Date().toISOString().slice(0, 10)
-  const dateLabel = `${DAY_NAMES[dateObj.getDay()]} ${dateObj.getDate()} ${MONTH_NAMES[dateObj.getMonth()]}`
+  const dateLabel = `${DAY_NAMES[dateObj.getDay()]} ${dateObj.getDate()} ${MONTH_NAMES[dateObj.getMonth()]} ${dateObj.getFullYear()}`
 
-  /* ── Fetch data ── */
+  /* ── Fetch ── */
   useEffect(() => {
     if (!bid) return
     setLoading(true)
     api.get(`/calendar/business/${bid}/restaurant?date=${selectedDate}&view=day`)
-      .then(d => setData(d))
-      .catch(err => console.error('Restaurant calendar error:', err))
-      .finally(() => setLoading(false))
+      .then(d => { setData(d); setLoading(false) })
+      .catch(err => { console.error('Calendar error:', err); setLoading(false) })
   }, [bid, selectedDate])
 
-  /* ── Auto-scroll to current time ── */
-  useEffect(() => {
-    if (view === 'timeline' && timelineRef.current && isToday) {
-      const now = new Date()
-      const scrollTo = (now.getHours() - 8) * SLOT_HEIGHT - 100
-      if (scrollTo > 0) timelineRef.current.scrollTop = scrollTo
-    }
-  }, [view, loading, isToday])
-
-  /* ── Navigation ── */
-  const goPrev = () => { const d = new Date(selectedDate); d.setDate(d.getDate() - 1); setSelectedDate(d.toISOString().slice(0, 10)) }
-  const goNext = () => { const d = new Date(selectedDate); d.setDate(d.getDate() + 1); setSelectedDate(d.toISOString().slice(0, 10)) }
+  /* ── Date nav ── */
+  const prevDay = () => { const d = new Date(dateObj); d.setDate(d.getDate() - 1); setSelectedDate(d.toISOString().slice(0, 10)) }
+  const nextDay = () => { const d = new Date(dateObj); d.setDate(d.getDate() + 1); setSelectedDate(d.toISOString().slice(0, 10)) }
   const goToday = () => setSelectedDate(new Date().toISOString().slice(0, 10))
 
-  /* ── Derived data ── */
-  const filteredBookings = useMemo(() => {
-    let b = data.bookings || []
-    if (statusFilter !== 'all') b = b.filter(x => x.status === statusFilter)
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase()
-      b = b.filter(x => x.customerName?.toLowerCase().includes(q) || x.tableName?.toLowerCase().includes(q))
+  /* ── Time range from service periods ── */
+  const timeRange = useMemo(() => {
+    const periods = data.servicePeriods || []
+    if (periods.length === 0) return { start: 720, end: 1380, slots: [] }
+
+    let startMin, endMin
+    if (activePeriod === 'lunch') {
+      const p = periods.find(p => p.name === 'Lunch')
+      startMin = p ? timeToMin(p.start) : 720
+      endMin = p ? timeToMin(p.end) + 60 : 900
+    } else if (activePeriod === 'dinner') {
+      const p = periods.find(p => p.name === 'Dinner')
+      startMin = p ? timeToMin(p.start) : 1080
+      endMin = p ? timeToMin(p.end) + 60 : 1380
+    } else {
+      startMin = Math.min(...periods.map(p => timeToMin(p.start)))
+      endMin = Math.max(...periods.map(p => timeToMin(p.end))) + 60
     }
-    return b
-  }, [data.bookings, statusFilter, searchQuery])
 
-  const tableBookings = useMemo(() => {
+    const slots = []
+    for (let m = startMin; m < endMin; m += 30) {
+      const h = Math.floor(m / 60)
+      const min = m % 60
+      slots.push({ minutes: m, label: `${h}:${String(min).padStart(2, '0')}` })
+    }
+    return { start: startMin, end: endMin, slots }
+  }, [data.servicePeriods, activePeriod])
+
+  /* ── Tables grouped by zone ── */
+  const tablesByZone = useMemo(() => {
+    const zones = {}
+    const order = []
+    for (const t of data.tables || []) {
+      const z = t.zone || 'Main'
+      if (!zones[z]) { zones[z] = []; order.push(z) }
+      zones[z].push(t)
+    }
+    return { zones, order }
+  }, [data.tables])
+
+  /* ── Filtered bookings ── */
+  const filteredBookings = useMemo(() => {
+    if (activePeriod === 'all') return data.bookings || []
+    return (data.bookings || []).filter(b => {
+      const bMin = timeToMin(b.time)
+      return bMin >= timeRange.start && bMin < timeRange.end
+    })
+  }, [data.bookings, activePeriod, timeRange])
+
+  /* ── Bookings by table ── */
+  const bookingsByTable = useMemo(() => {
     const map = {}
-    ;(data.tables || []).forEach(t => { map[t.id] = [] })
-    filteredBookings.forEach(b => {
-      if (map[b.tableId]) map[b.tableId].push(b)
-    })
+    for (const b of filteredBookings) {
+      if (!map[b.tableId]) map[b.tableId] = []
+      map[b.tableId].push(b)
+    }
     return map
-  }, [data.tables, filteredBookings])
+  }, [filteredBookings])
 
-  /* ── Current time indicator ── */
-  const now = new Date()
-  const nowMinutes = now.getHours() * 60 + now.getMinutes()
-  const timeIndicatorTop = ((now.getHours() - 8) + now.getMinutes() / 60) * SLOT_HEIGHT
+  /* ── Stats ── */
+  const stats = useMemo(() => {
+    const bs = filteredBookings
+    const covers = bs.reduce((s, b) => s + (b.partySize || 0), 0)
+    const confirmed = bs.filter(b => b.status === 'confirmed').length
+    const seated = bs.filter(b => b.status === 'seated').length
+    const late = bs.filter(b => b.status === 'late').length
+    const pending = bs.filter(b => b.status === 'pending').length
+    return { covers, confirmed, seated, late, pending, available: (data.tables || []).length - seated }
+  }, [filteredBookings, data.tables])
 
-  const getStatus = (s) => STATUS_COLORS[s] || STATUS_COLORS.confirmed
+  /* ── Current time line position ── */
+  const nowPercent = useMemo(() => {
+    if (!isToday) return null
+    const now = new Date()
+    const nowMin = now.getHours() * 60 + now.getMinutes()
+    if (nowMin < timeRange.start || nowMin > timeRange.end) return null
+    return ((nowMin - timeRange.start) / (timeRange.end - timeRange.start)) * 100
+  }, [isToday, timeRange])
 
-  /* ── Table status calculation ── */
-  const getTableStatus = (tableId) => {
-    const bookings = tableBookings[tableId] || []
-    const activeBooking = bookings.find(b => {
-      const [h, m] = b.time.split(':').map(Number)
-      const start = h * 60 + m
-      const end = start + (b.duration || 75)
-      return nowMinutes >= start && nowMinutes <= end && (b.status === 'seated' || b.status === 'confirmed')
+  /* ── Capacity per slot ── */
+  const slotCaps = useMemo(() => {
+    const totalCap = (data.tables || []).reduce((s, t) => s + (t.capacity || 0), 0)
+    return timeRange.slots.map(slot => {
+      const sStart = slot.minutes
+      const sEnd = sStart + 30
+      let covers = 0
+      for (const b of filteredBookings) {
+        const bStart = timeToMin(b.time)
+        const bEnd = bStart + (b.duration || 75)
+        if (bStart < sEnd && bEnd > sStart) covers += b.partySize || 0
+      }
+      const pct = totalCap ? Math.round((covers / totalCap) * 100) : 0
+      return { ...slot, covers, capacity: totalCap, pct }
     })
-    if (activeBooking) return { status: activeBooking.status, booking: activeBooking }
-    const nextBooking = bookings
-      .filter(b => { const [h, m] = b.time.split(':').map(Number); return h * 60 + m > nowMinutes })
-      .sort((a, b) => a.time.localeCompare(b.time))[0]
-    if (nextBooking) return { status: 'upcoming', booking: nextBooking }
-    return { status: 'available', booking: null }
+  }, [timeRange.slots, filteredBookings, data.tables])
+
+  /* ── Booking block position ── */
+  const bookingStyle = (b) => {
+    const bStart = timeToMin(b.time)
+    const bEnd = bStart + (b.duration || 75)
+    const range = timeRange.end - timeRange.start
+    const left = ((bStart - timeRange.start) / range) * 100
+    const width = ((bEnd - bStart) / range) * 100
+    return { left: `${left}%`, width: `${Math.max(width, 2)}%` }
+  }
+
+  /* ── Build flat row list with zone headers ── */
+  const rows = useMemo(() => {
+    const list = []
+    for (const zone of tablesByZone.order) {
+      list.push({ type: 'zone', zone })
+      if (!collapsedZones[zone]) {
+        for (const table of tablesByZone.zones[zone]) {
+          list.push({ type: 'table', table, zone })
+        }
+      }
+    }
+    return list
+  }, [tablesByZone, collapsedZones])
+
+  const ROW_H = 48
+  const ZONE_H = 31
+  const LEFT_W = 180
+
+  const capColor = (pct) => {
+    if (pct >= 90) return T.status.late
+    if (pct >= 70) return T.amber
+    return T.forest
+  }
+
+  /* ═══════════════════════ RENDER ═══════════════════════ */
+
+  if (loading && (data.tables || []).length === 0) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', background: T.white, fontFamily: "'Figtree', sans-serif" }}>
+        <div style={{ textAlign: 'center', color: T.muted }}>
+          <div style={{ width: 32, height: 32, border: `3px solid ${T.border}`, borderTopColor: T.forest, borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+          <span style={{ fontSize: 13, fontWeight: 500 }}>Loading reservations...</span>
+          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="h-full flex flex-col" style={{ fontFamily: '"Figtree", system-ui, sans-serif' }}>
-      {/* ── Top Bar ── */}
-      <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 lg:px-6 py-3">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          {/* Date nav */}
-          <div className="flex items-center gap-2">
-            <button onClick={goPrev} className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50">
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <span className="text-sm font-semibold text-[#1B4332] min-w-[100px] text-center">{dateLabel}</span>
-            <button onClick={goNext} className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50">
-              <ChevronRight className="w-4 h-4" />
-            </button>
-            <button onClick={goToday} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-              isToday ? 'bg-[#1B4332] text-white' : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
-            }`}>Today</button>
-          </div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: T.white, fontFamily: "'Figtree', sans-serif", overflow: 'hidden' }}>
 
-          {/* View toggle */}
-          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5">
-            {[
-              { id: 'timeline', icon: CalendarDays, label: 'Timeline' },
-              { id: 'tables', icon: LayoutGrid, label: 'Tables' },
-              { id: 'list', icon: List, label: 'List' },
-            ].map(v => (
-              <button key={v.id} onClick={() => setView(v.id)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                view === v.id ? 'bg-white text-[#1B4332] shadow-sm' : 'text-gray-500 hover:text-gray-700'
-              }`}>
-                <v.icon className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{v.label}</span>
-              </button>
-            ))}
-          </div>
+      {/* ══════ SUB-HEADER TOOLBAR ══════ */}
+      <header style={{ display: 'flex', alignItems: 'center', padding: '10px 16px', gap: 8, background: '#fff', borderBottom: `1px solid ${T.border}`, flexShrink: 0, zIndex: 40, flexWrap: 'wrap' }}>
 
-          {/* Stats */}
-          <div className="flex items-center gap-4 text-xs">
-            <div className="flex items-center gap-1.5 text-gray-500">
-              <Users className="w-3.5 h-3.5" />
-              <span><strong className="text-[#1B4332]">{data.covers?.total || 0}</strong> covers</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-gray-500">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>{filteredBookings.filter(b => b.status === 'confirmed').length} confirmed</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-gray-500">
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
-              <span>{filteredBookings.filter(b => b.status === 'seated').length} seated</span>
-            </div>
-          </div>
+        {/* Date Nav Pill */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2, background: '#F5F5F5', borderRadius: 24, padding: '3px 4px' }}>
+          <button onClick={prevDay} style={pillBtn}><ChevronLeft size={13} /></button>
+          <span style={{ fontSize: 14, fontWeight: 700, color: T.forest, padding: '0 8px', whiteSpace: 'nowrap' }}>{dateLabel}</span>
+          <button onClick={nextDay} style={pillBtn}><ChevronRight size={13} /></button>
         </div>
 
-        {/* Search + Filter row */}
-        {view === 'list' && (
-          <div className="flex items-center gap-3 mt-3">
-            <div className="relative flex-1 max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search guests or tables..."
-                className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332]"
-              />
+        {/* Today */}
+        <button onClick={goToday} style={{ padding: '8px 18px', borderRadius: 20, border: 'none', background: T.forest, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(27,67,50,0.2)' }}>Today</button>
+
+        <div style={divider} />
+
+        {/* Lunch / Dinner toggle */}
+        <div style={toggleWrap}>
+          {[{ key: 'all', label: 'All' }, { key: 'lunch', label: 'Lunch' }, { key: 'dinner', label: 'Dinner' }].map(p => (
+            <button key={p.key} onClick={() => setActivePeriod(p.key)}
+              style={activePeriod === p.key ? toggleActive : toggleInactive}>
+              {p.label}
+            </button>
+          ))}
+        </div>
+
+        <div style={divider} />
+
+        {/* View toggle */}
+        <div style={toggleWrap}>
+          {[{ key: 'timeline', icon: <Clock size={11} />, label: 'Timeline' },
+            { key: 'tables', icon: <LayoutGrid size={11} />, label: 'Tables' },
+            { key: 'list', icon: <List size={11} />, label: 'List' }].map(v => (
+            <button key={v.key} onClick={() => setView(v.key)}
+              style={view === v.key ? { ...toggleActive, display: 'flex', alignItems: 'center', gap: 5 } : { ...toggleInactive, display: 'flex', alignItems: 'center', gap: 5 }}>
+              {v.icon} {v.label}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ flex: 1 }} />
+
+        {/* Live Status Chips */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <StatChip color={T.forest} value={stats.covers} label="Covers" />
+          <StatChip color="#059669" value={stats.available} label="Available" />
+          <StatChip color={T.sage} value={stats.seated} label="Seated" />
+          <StatChip color={T.amber} value={stats.pending} label="Pending" />
+          <StatChip color={T.status.late} value={stats.late} label="Late" />
+        </div>
+
+        <div style={divider} />
+
+        <button style={iconBtn}><Search size={14} /></button>
+      </header>
+
+      {/* ══════ CAPACITY STRIP ══════ */}
+      {view === 'timeline' && (
+        <div style={{ height: 36, background: '#F5F5F5', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', flexShrink: 0, overflow: 'hidden' }}>
+          <div style={{ width: LEFT_W, flexShrink: 0, background: '#F5F5F5', borderRight: '1px solid #E5E7EB', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Capacity</span>
+          </div>
+          <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+            {slotCaps.map((s, i) => (
+              <div key={i} style={{ flex: 1, borderRight: '1px solid rgba(229,231,235,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '0 3px' }}>
+                <span style={{ fontSize: 9, color: s.pct >= 90 ? T.status.late : s.pct >= 70 ? '#1F2937' : '#6B7280', fontWeight: s.pct >= 70 ? 700 : 400, lineHeight: 1 }}>{s.covers}/{s.capacity}</span>
+                <div style={{ width: '100%', height: 3, background: '#E5E7EB', borderRadius: 2, marginTop: 2, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${s.pct}%`, background: capColor(s.pct), borderRadius: 2 }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ══════ TIMELINE VIEW ══════ */}
+      {view === 'timeline' && (
+        <div ref={scrollRef} style={{ flex: 1, overflow: 'auto', display: 'flex', background: T.white, position: 'relative' }}
+          className="timeline-scroll">
+
+          {/* LEFT COLUMN — Sticky tables */}
+          <div style={{ width: LEFT_W, flexShrink: 0, background: T.white, borderRight: '1px solid #E5E7EB', position: 'sticky', left: 0, zIndex: 30, boxShadow: '2px 0 4px rgba(0,0,0,0.03)' }}>
+            {/* TABLES header */}
+            <div style={{ height: 40, background: T.white, borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, zIndex: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#9CA3AF' }}>TABLES</span>
             </div>
-            <select
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20"
-            >
-              <option value="all">All statuses</option>
-              {Object.entries(STATUS_COLORS).map(([k, v]) => (
-                <option key={k} value={k}>{v.label}</option>
-              ))}
-            </select>
-          </div>
-        )}
-      </div>
 
-      {/* ── Main Content ── */}
-      <div className="flex-1 overflow-hidden">
-        {loading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="w-8 h-8 border-3 border-[#1B4332] border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : view === 'timeline' ? (
-          <TimelineView
-            timelineRef={timelineRef}
-            tables={data.tables || []}
-            bookings={filteredBookings}
-            tableBookings={tableBookings}
-            isToday={isToday}
-            timeIndicatorTop={timeIndicatorTop}
-            onSelectBooking={setSelectedBooking}
-            selectedBooking={selectedBooking}
-          />
-        ) : view === 'tables' ? (
-          <TablesView
-            tables={data.tables || []}
-            tableBookings={tableBookings}
-            getTableStatus={getTableStatus}
-            onSelectBooking={setSelectedBooking}
-            covers={data.covers || {}}
-          />
-        ) : (
-          <ListView
-            bookings={filteredBookings}
-            onSelectBooking={setSelectedBooking}
-          />
-        )}
-      </div>
-
-      {/* ── Booking Detail Panel ── */}
-      {selectedBooking && (
-        <>
-          <div onClick={() => setSelectedBooking(null)} className="fixed inset-0 bg-black/20 z-40" />
-          <div className="fixed top-0 right-0 bottom-0 w-[380px] max-w-[90vw] bg-white shadow-[-8px_0_40px_rgba(0,0,0,.12)] z-50 flex flex-col" style={{ animation: 'slideInRight .25s ease forwards' }}>
-            <div className="bg-gradient-to-br from-[#1B4332] to-[#2D6A4F] px-5 py-4 flex-shrink-0">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center text-white font-bold text-sm">
-                    {selectedBooking.customerName?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
-                  </div>
-                  <div>
-                    <div className="text-white font-semibold">{selectedBooking.customerName}</div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase`}
-                        style={{ background: getStatus(selectedBooking.status).bg, color: getStatus(selectedBooking.status).text }}>
-                        {getStatus(selectedBooking.status).label}
-                      </span>
-                      {selectedBooking.isVip && <span className="px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-200 text-[10px] font-bold">VIP</span>}
+            {rows.map((row, idx) => {
+              if (row.type === 'zone') {
+                return (
+                  <div key={`z-${row.zone}`} onClick={() => setCollapsedZones(prev => ({ ...prev, [row.zone]: !prev[row.zone] }))}
+                    style={{ height: ZONE_H, background: '#FAFAFA', padding: '0 12px', borderBottom: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ width: 3, height: 12, borderRadius: 2, background: ZONE_COLORS[row.zone] || T.forest }} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#374151', textTransform: 'uppercase' }}>{row.zone}</span>
                     </div>
+                    {collapsedZones[row.zone] ? <ChevronRight size={12} color="#9CA3AF" /> : <ChevronDown size={12} color="#9CA3AF" />}
+                  </div>
+                )
+              }
+              const t = row.table
+              const shortName = t.name.replace('Table ', 'T')
+              return (
+                <div key={`t-${t.id}`} style={{ height: ROW_H, borderBottom: '1px solid #F9FAFB', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#1F2937' }}>{shortName}</span>
+                    <span style={{ fontSize: 12, color: '#9CA3AF' }}>{t.capacity}-top</span>
                   </div>
                 </div>
-                <button onClick={() => setSelectedBooking(null)} className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white hover:bg-white/20">
-                  <span className="text-lg">×</span>
-                </button>
-              </div>
+              )
+            })}
+          </div>
+
+          {/* RIGHT COLUMN — Timeline grid */}
+          <div style={{ flex: 1, minWidth: Math.max(timeRange.slots.length * 120, 800), position: 'relative' }}>
+
+            {/* Time header (sticky) */}
+            <div style={{ height: 40, background: T.white, borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, zIndex: 20, display: 'flex' }}>
+              {timeRange.slots.map((s, i) => (
+                <div key={i} style={{ flex: 1, borderRight: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', paddingLeft: 8, fontSize: 12, color: '#9CA3AF' }}>
+                  {s.label}
+                </div>
+              ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5 space-y-5">
-              {/* Booking details */}
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { icon: Clock, label: 'Time', value: formatTime12(selectedBooking.time) },
-                  { icon: Users, label: 'Party', value: `${selectedBooking.partySize} guests` },
-                  { icon: MapPin, label: 'Table', value: selectedBooking.tableName },
-                  { icon: Clock, label: 'Duration', value: `${selectedBooking.duration || 75} min` },
-                ].map((item, i) => (
-                  <div key={i} className="bg-gray-50 rounded-xl p-3">
-                    <div className="flex items-center gap-1.5 text-gray-400 text-[11px] font-medium mb-1">
-                      <item.icon className="w-3 h-3" />
-                      {item.label}
-                    </div>
-                    <div className="text-sm font-semibold text-[#1B4332]">{item.value}</div>
-                  </div>
+            {/* Current time red line */}
+            {nowPercent != null && (
+              <div style={{ position: 'absolute', top: 0, bottom: 0, left: `${nowPercent}%`, width: 1.5, background: T.status.late, zIndex: 15, pointerEvents: 'none' }}>
+                <div style={{ width: 8, height: 8, background: T.status.late, borderRadius: '50%', position: 'absolute', top: 36, left: -3.5 }} />
+              </div>
+            )}
+
+            {/* Grid rows */}
+            <div style={{ position: 'relative' }}>
+
+              {/* Vertical grid lines */}
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', pointerEvents: 'none', zIndex: 0 }}>
+                {timeRange.slots.map((_, i) => (
+                  <div key={i} style={{ flex: 1, borderRight: '1px dashed #F3F4F6' }} />
                 ))}
               </div>
 
-              {selectedBooking.occasion && (
-                <div className="bg-amber-50 rounded-xl px-4 py-2.5 text-sm">
-                  <span className="text-amber-600">🎉 {selectedBooking.occasion}</span>
-                </div>
-              )}
+              {/* Rows */}
+              {rows.map((row) => {
+                if (row.type === 'zone') {
+                  return <div key={`zr-${row.zone}`} style={{ height: ZONE_H, background: 'rgba(249,250,251,0.3)', borderBottom: '1px solid #F9FAFB' }} />
+                }
 
-              {selectedBooking.notes && (
-                <div>
-                  <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Notes</h4>
-                  <div className="bg-gray-50 rounded-xl p-3 text-sm text-gray-600 italic">"{selectedBooking.notes}"</div>
-                </div>
-              )}
-            </div>
+                const t = row.table
+                const tableBookings = bookingsByTable[t.id] || []
 
-            {/* Actions */}
-            <div className="flex-shrink-0 p-4 border-t border-gray-100 flex gap-2">
-              <button className="flex-1 py-2.5 rounded-xl bg-[#1B4332] text-white text-xs font-semibold hover:bg-[#1B4332]/90 transition-colors flex items-center justify-center gap-1.5">
-                ✓ Check In
-              </button>
-              <button className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50 transition-colors">
-                Edit
-              </button>
-              <button className="py-2.5 px-3 rounded-xl border border-red-200 text-red-500 text-xs font-semibold hover:bg-red-50 transition-colors">
-                No Show
-              </button>
+                return (
+                  <div key={`tr-${t.id}`} style={{ height: ROW_H, borderBottom: '1px solid #F9FAFB', position: 'relative' }}>
+                    {tableBookings.map(b => {
+                      const pos = bookingStyle(b)
+                      const color = statusColor(b.status, b.isVip)
+                      const isVip = b.isVip
+                      const isSelected = selectedBooking?.id === b.id
+                      return (
+                        <div key={b.id}
+                          onClick={() => setSelectedBooking(isSelected ? null : b)}
+                          style={{
+                            position: 'absolute', top: 4, bottom: 4,
+                            left: pos.left, width: pos.width,
+                            background: T.white,
+                            border: isVip ? '1px solid rgba(59,130,246,0.25)' : '1px solid #E5E7EB',
+                            borderRadius: 6,
+                            boxShadow: isSelected ? '0 0 0 2px rgba(27,67,50,0.3)' : '0 1px 3px rgba(0,0,0,0.04)',
+                            display: 'flex', alignItems: 'center', padding: '0 8px',
+                            cursor: 'pointer', zIndex: 5,
+                            transition: 'all 0.15s',
+                            overflow: 'hidden',
+                          }}
+                          onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)'; e.currentTarget.style.zIndex = '10' }}
+                          onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = isSelected ? '0 0 0 2px rgba(27,67,50,0.3)' : '0 1px 3px rgba(0,0,0,0.04)'; e.currentTarget.style.zIndex = '5' }}
+                        >
+                          {/* Left color bar */}
+                          <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: color, borderRadius: '6px 0 0 6px' }} />
+
+                          {/* Content */}
+                          <div style={{ marginLeft: 6, display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', minWidth: 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
+                              <span style={{ fontSize: 11, fontWeight: 700, color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {b.partySize} · {b.customerName?.split(' ').pop() || 'Guest'}
+                                {isVip && <span style={{ marginLeft: 3 }}><Crown size={8} style={{ display: 'inline', color: '#3B82F6', verticalAlign: 'middle' }} /></span>}
+                              </span>
+                              {b.status === 'late' && <AlertTriangle size={10} color={T.status.late} />}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
+                              {isVip && <span style={{ fontSize: 9, background: '#EFF6FF', color: '#2563EB', padding: '0 4px', borderRadius: 3 }}>VIP</span>}
+                              {b.occasion && <OccasionBadge occasion={b.occasion} />}
+                              {b.notes && !b.occasion && <span style={{ fontSize: 8, color: '#9CA3AF' }}>📝</span>}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })}
             </div>
           </div>
-        </>
+        </div>
+      )}
+
+      {/* ══════ TABLE STATUS VIEW ══════ */}
+      {view === 'tables' && <TableStatusView data={data} filteredBookings={filteredBookings} onSelectBooking={setSelectedBooking} />}
+
+      {/* ══════ LIST VIEW ══════ */}
+      {view === 'list' && <ReservationListView bookings={filteredBookings} onSelectBooking={setSelectedBooking} />}
+
+      {/* ══════ BOTTOM STATUS BAR ══════ */}
+      <div style={{ height: 32, background: T.white, borderTop: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', fontSize: 12, color: '#6B7280', flexShrink: 0, zIndex: 50 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <span><strong style={{ color: '#374151' }}>Lunch:</strong> {(data.bookings || []).filter(b => timeToMin(b.time) < 900).length} bookings · {(data.bookings || []).filter(b => timeToMin(b.time) < 900).reduce((s, b) => s + (b.partySize || 0), 0)} covers</span>
+          <span style={{ width: 1, height: 12, background: '#D1D5DB', display: 'inline-block' }} />
+          <span><strong style={{ color: '#374151' }}>Dinner:</strong> {(data.bookings || []).filter(b => timeToMin(b.time) >= 1080).length} bookings · {(data.bookings || []).filter(b => timeToMin(b.time) >= 1080).reduce((s, b) => s + (b.partySize || 0), 0)} covers</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={12} /> Avg turn: <strong style={{ color: '#374151' }}>1h 15m</strong></span>
+          <span style={{ width: 1, height: 12, background: '#D1D5DB', display: 'inline-block' }} />
+          <span>{filteredBookings.length} total bookings</span>
+        </div>
+      </div>
+
+      {/* ══════ BOOKING DETAIL PANEL ══════ */}
+      {selectedBooking && (
+        <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 320, background: T.white, boxShadow: '-4px 0 20px rgba(0,0,0,0.1)', zIndex: 60, borderLeft: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', fontFamily: "'Figtree', sans-serif" }}>
+          <div style={{ padding: '20px 20px 16px', borderBottom: `1px solid ${T.border}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+              <div>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: '#111', margin: 0 }}>{selectedBooking.customerName}</h3>
+                <p style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{fmt12(selectedBooking.time)} · {selectedBooking.tableName}</p>
+              </div>
+              <button onClick={() => setSelectedBooking(null)} style={{ width: 28, height: 28, borderRadius: 8, border: 'none', background: '#F5F5F5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#999' }}>✕</button>
+            </div>
+            <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '3px 8px', borderRadius: 999, background: statusColor(selectedBooking.status, selectedBooking.isVip) + '15', color: statusColor(selectedBooking.status, selectedBooking.isVip) }}>{selectedBooking.status}</span>
+              {selectedBooking.isVip && <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '3px 8px', borderRadius: 999, background: '#EFF6FF', color: '#2563EB' }}>VIP</span>}
+            </div>
+          </div>
+
+          <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+              <DetailCard label="Party" value={`${selectedBooking.partySize} Guests`} />
+              <DetailCard label="Table" value={selectedBooking.tableName} />
+              <DetailCard label="Time" value={fmt12(selectedBooking.time)} />
+              <DetailCard label="Duration" value={`${selectedBooking.duration || 75}m`} />
+            </div>
+
+            {selectedBooking.occasion && (
+              <div style={{ padding: '10px 12px', background: '#FFFBEB', borderRadius: 8, marginBottom: 12, fontSize: 12, color: '#92400E', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Cake size={14} /> {selectedBooking.occasion.replace('_', ' ')}
+              </div>
+            )}
+
+            {selectedBooking.notes && (
+              <div style={{ padding: '10px 12px', background: '#F9FAFB', borderRadius: 8, marginBottom: 12, fontSize: 12, color: '#4B5563' }}>
+                <span style={{ fontWeight: 600 }}>Notes:</span> {selectedBooking.notes}
+              </div>
+            )}
+          </div>
+
+          <div style={{ padding: '16px 20px', borderTop: `1px solid ${T.border}`, display: 'flex', gap: 8 }}>
+            <button style={{ flex: 1, padding: '10px 0', fontSize: 12, fontWeight: 700, color: '#374151', background: '#F3F4F6', border: 'none', borderRadius: 8, cursor: 'pointer' }}>Edit</button>
+            <button style={{ flex: 1, padding: '10px 0', fontSize: 12, fontWeight: 700, color: '#fff', background: T.forest, border: 'none', borderRadius: 8, cursor: 'pointer' }}>Check In</button>
+          </div>
+        </div>
       )}
 
       <style>{`
-        @keyframes slideInRight {
-          from { transform: translateX(100%); }
-          to { transform: translateX(0); }
-        }
+        .timeline-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
+        .timeline-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .timeline-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        .timeline-scroll::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
       `}</style>
     </div>
   )
 }
 
-/* ══════════════════════════════════════════════════
-   TIMELINE VIEW — Tables as columns, time as rows
-   ══════════════════════════════════════════════════ */
+/* ── Shared style objects ── */
+const pillBtn = { width: 34, height: 34, borderRadius: '50%', border: 'none', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1B4332', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }
+const divider = { width: 1, height: 24, background: '#EBEBEB' }
+const toggleWrap = { display: 'flex', background: '#F5F5F5', borderRadius: 20, padding: 3 }
+const toggleActive = { padding: '7px 16px', borderRadius: 18, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, background: '#1B4332', color: '#fff', boxShadow: '0 2px 8px rgba(27,67,50,0.2)', transition: 'all 0.15s', fontFamily: "'Figtree', sans-serif" }
+const toggleInactive = { padding: '7px 16px', borderRadius: 18, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 500, background: 'transparent', color: '#999', transition: 'all 0.15s', fontFamily: "'Figtree', sans-serif" }
+const iconBtn = { width: 38, height: 38, borderRadius: '50%', border: 'none', background: '#F5F5F5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }
 
-const TimelineView = ({ timelineRef, tables, bookings, tableBookings, isToday, timeIndicatorTop, onSelectBooking, selectedBooking }) => {
-  const colWidth = Math.max(120, tables.length <= 6 ? 160 : tables.length <= 10 ? 130 : 110)
-
+function StatChip({ color, value, label }) {
   return (
-    <div ref={timelineRef} className="h-full overflow-auto">
-      <div className="relative" style={{ minWidth: tables.length * colWidth + 70 }}>
-        {/* Table headers */}
-        <div className="sticky top-0 z-20 bg-white border-b border-gray-200 flex">
-          <div className="w-[70px] flex-shrink-0 bg-white border-r border-gray-100" />
-          {tables.map(table => (
-            <div key={table.id} className="flex-shrink-0 border-r border-gray-100 px-2 py-2.5 text-center" style={{ width: colWidth }}>
-              <div className="text-xs font-semibold text-[#1B4332]">{table.name}</div>
-              <div className="text-[10px] text-gray-400 mt-0.5">{table.capacity} seats · {table.zone || 'Main'}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Time grid */}
-        <div className="relative">
-          {HOURS.map(hour => (
-            <div key={hour} className="flex border-b border-gray-50" style={{ height: SLOT_HEIGHT }}>
-              {/* Time label */}
-              <div className="w-[70px] flex-shrink-0 border-r border-gray-100 pr-2 pt-1 text-right">
-                <span className="text-[11px] text-gray-400 font-medium">
-                  {hour === 0 ? '12am' : hour < 12 ? `${hour}am` : hour === 12 ? '12pm' : `${hour - 12}pm`}
-                </span>
-              </div>
-
-              {/* Table columns */}
-              {tables.map(table => (
-                <div key={table.id} className="flex-shrink-0 border-r border-gray-50 relative" style={{ width: colWidth }} />
-              ))}
-            </div>
-          ))}
-
-          {/* Booking blocks */}
-          {tables.map((table, tIdx) => {
-            const tBookings = tableBookings[table.id] || []
-            return tBookings.map(booking => {
-              const [h, m] = booking.time.split(':').map(Number)
-              const top = (h - 8 + m / 60) * SLOT_HEIGHT
-              const height = Math.max(((booking.duration || 75) / 60) * SLOT_HEIGHT, 30)
-              const left = 70 + tIdx * colWidth + 4
-              const width = colWidth - 8
-              const status = getBookingStatus(booking.status)
-              const isSelected = selectedBooking?.id === booking.id
-
-              return (
-                <div
-                  key={booking.id}
-                  onClick={() => onSelectBooking(booking)}
-                  className="absolute cursor-pointer rounded-lg transition-all hover:shadow-md"
-                  style={{
-                    top, left, width, height,
-                    background: status.bg,
-                    borderLeft: `3px solid ${status.border}`,
-                    boxShadow: isSelected ? `0 0 0 2px ${status.border}` : '0 1px 3px rgba(0,0,0,.06)',
-                    padding: '4px 8px',
-                    overflow: 'hidden',
-                    zIndex: isSelected ? 10 : 1,
-                  }}
-                >
-                  <div className="text-[11px] font-semibold truncate" style={{ color: status.text }}>{booking.customerName}</div>
-                  {height > 35 && (
-                    <div className="text-[10px] mt-0.5 truncate" style={{ color: status.text, opacity: 0.7 }}>
-                      {formatTime12(booking.time)} · {booking.partySize}p
-                    </div>
-                  )}
-                  {height > 55 && booking.occasion && (
-                    <div className="text-[9px] mt-0.5 truncate" style={{ color: status.text, opacity: 0.5 }}>
-                      🎉 {booking.occasion}
-                    </div>
-                  )}
-                </div>
-              )
-            })
-          })}
-
-          {/* Current time indicator */}
-          {isToday && timeIndicatorTop > 0 && timeIndicatorTop < HOURS.length * SLOT_HEIGHT && (
-            <div className="absolute left-0 right-0 z-30 pointer-events-none" style={{ top: timeIndicatorTop }}>
-              <div className="flex items-center">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-500 -ml-1" />
-                <div className="flex-1 h-[1.5px] bg-red-500" />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+      <span style={{ width: 7, height: 7, borderRadius: '50%', background: color }} />
+      <span style={{ fontSize: 12, color: '#888', fontWeight: 500 }}>
+        <strong style={{ color: '#1B4332', fontWeight: 800 }}>{value}</strong> {label}
+      </span>
     </div>
   )
 }
 
-function getBookingStatus(s) {
-  return STATUS_COLORS[s] || STATUS_COLORS.confirmed
+function DetailCard({ label, value }) {
+  return (
+    <div style={{ background: '#F9FAFB', padding: '8px 12px', borderRadius: 8 }}>
+      <div style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 700, textTransform: 'uppercase' }}>{label}</div>
+      <div style={{ fontSize: 14, fontWeight: 600, color: '#1F2937', marginTop: 2 }}>{value}</div>
+    </div>
+  )
 }
 
-/* ══════════════════════════════════════════════════
-   TABLES VIEW — Grid of table cards with status
-   ══════════════════════════════════════════════════ */
+/* ══════ TABLE STATUS VIEW ══════ */
+function TableStatusView({ data, filteredBookings, onSelectBooking }) {
+  const tablesByZone = useMemo(() => {
+    const zones = {}; const order = []
+    for (const t of data.tables || []) {
+      const z = t.zone || 'Main'
+      if (!zones[z]) { zones[z] = []; order.push(z) }
+      zones[z].push(t)
+    }
+    return { zones, order }
+  }, [data.tables])
 
-function TablesView({ tables, tableBookings, getTableStatus, onSelectBooking, covers }) {
-  // Group by zone
-  const zones = useMemo(() => {
-    const z = {}
-    tables.forEach(t => {
-      const zone = t.zone || 'Main'
-      if (!z[zone]) z[zone] = []
-      z[zone].push(t)
-    })
-    return z
-  }, [tables])
+  const bookingsByTable = useMemo(() => {
+    const map = {}
+    for (const b of filteredBookings) {
+      if (!map[b.tableId]) map[b.tableId] = []
+      map[b.tableId].push(b)
+    }
+    return map
+  }, [filteredBookings])
 
-  const statusStyles = {
-    available: { bg: 'bg-emerald-50', border: 'border-emerald-200', dot: 'bg-emerald-500', label: 'Available', text: 'text-emerald-700' },
-    confirmed: { bg: 'bg-blue-50', border: 'border-blue-200', dot: 'bg-blue-500', label: 'Reserved', text: 'text-blue-700' },
-    seated:    { bg: 'bg-indigo-50', border: 'border-indigo-200', dot: 'bg-indigo-500', label: 'Seated', text: 'text-indigo-700' },
-    upcoming:  { bg: 'bg-amber-50', border: 'border-amber-200', dot: 'bg-amber-500', label: 'Next booking', text: 'text-amber-700' },
-    pending:   { bg: 'bg-yellow-50', border: 'border-yellow-200', dot: 'bg-yellow-500', label: 'Pending', text: 'text-yellow-700' },
-  }
+  const now = new Date()
+  const nowMin = now.getHours() * 60 + now.getMinutes()
 
   return (
-    <div className="h-full overflow-y-auto p-4 lg:p-6">
-      {/* Capacity bar */}
-      <div className="flex items-center gap-4 mb-6 bg-white rounded-xl border border-gray-200 p-4">
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-500">Today's Capacity</span>
-            <span className="text-sm font-bold text-[#1B4332]">{covers.total || 0} / {covers.capacity || 0} covers</span>
+    <div style={{ flex: 1, overflow: 'auto', padding: 20, background: '#FAFAFA' }}>
+      {tablesByZone.order.map(zone => (
+        <div key={zone} style={{ marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ width: 3, height: 14, borderRadius: 2, background: ZONE_COLORS[zone] || '#1B4332' }} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#374151', textTransform: 'uppercase' }}>{zone}</span>
           </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-[#1B4332] to-[#52B788] rounded-full transition-all" style={{ width: `${Math.min(100, ((covers.total || 0) / (covers.capacity || 1)) * 100)}%` }} />
-          </div>
-        </div>
-        <div className="text-center px-4 border-l border-gray-200">
-          <div className="text-lg font-bold text-[#1B4332]">{covers.lunch || 0}</div>
-          <div className="text-[10px] text-gray-400 font-medium">Lunch</div>
-        </div>
-        <div className="text-center px-4 border-l border-gray-200">
-          <div className="text-lg font-bold text-[#1B4332]">{covers.dinner || 0}</div>
-          <div className="text-[10px] text-gray-400 font-medium">Dinner</div>
-        </div>
-      </div>
-
-      {/* Tables by zone */}
-      {Object.entries(zones).map(([zone, zoneTables]) => (
-        <div key={zone} className="mb-6">
-          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{zone}</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            {zoneTables.map(table => {
-              const { status, booking } = getTableStatus(table.id)
-              const allBookings = tableBookings[table.id] || []
-              const s = statusStyles[status] || statusStyles.available
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
+            {(tablesByZone.zones[zone] || []).map(t => {
+              const tbs = bookingsByTable[t.id] || []
+              const current = tbs.find(b => {
+                const start = timeToMin(b.time)
+                const end = start + (b.duration || 75)
+                return nowMin >= start && nowMin < end
+              })
+              const next = tbs.find(b => timeToMin(b.time) > nowMin)
+              const booking = current || next
+              const status = current ? 'seated' : next ? 'upcoming' : 'available'
+              const sColors = { seated: T.sage, upcoming: T.amber, available: '#D1D5DB' }
 
               return (
-                <div
-                  key={table.id}
-                  onClick={() => booking && onSelectBooking(booking)}
-                  className={`${s.bg} border ${s.border} rounded-xl p-4 cursor-pointer hover:shadow-md transition-all`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-bold text-[#1B4332]">{table.name}</span>
-                    <span className={`w-2 h-2 rounded-full ${s.dot}`} />
+                <div key={t.id} onClick={() => booking && onSelectBooking(booking)}
+                  style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: 14, cursor: booking ? 'pointer' : 'default', borderLeft: `4px solid ${sColors[status]}`, transition: 'all 0.15s' }}
+                  onMouseOver={e => { if (booking) e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)' }}
+                  onMouseOut={e => { e.currentTarget.style.boxShadow = 'none' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <span style={{ fontSize: 15, fontWeight: 700, color: '#111' }}>{t.name.replace('Table ', 'T')}</span>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: sColors[status], textTransform: 'uppercase' }}>{status}</span>
                   </div>
-                  <div className="text-[10px] text-gray-400 mb-2">{table.capacity} seats</div>
-
-                  {booking ? (
-                    <>
-                      <div className="text-xs font-semibold text-[#1B4332] truncate">{booking.customerName}</div>
-                      <div className="text-[11px] text-gray-500 mt-0.5">
-                        {formatTime12(booking.time)} · {booking.partySize}p
-                      </div>
-                    </>
-                  ) : (
-                    <div className={`text-xs font-medium ${s.text}`}>{s.label}</div>
-                  )}
-
-                  {allBookings.length > 1 && (
-                    <div className="mt-2 pt-2 border-t border-gray-200/50 text-[10px] text-gray-400">
-                      {allBookings.length} bookings today
+                  <span style={{ fontSize: 11, color: '#9CA3AF' }}>{t.capacity} seats · {zone}</span>
+                  {booking && (
+                    <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #F3F4F6' }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#111' }}>{booking.partySize} · {booking.customerName?.split(' ').pop()}</div>
+                      <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{fmt12(booking.time)}{booking.occasion ? ` · ${booking.occasion}` : ''}</div>
                     </div>
                   )}
                 </div>
@@ -511,81 +642,32 @@ function TablesView({ tables, tableBookings, getTableStatus, onSelectBooking, co
   )
 }
 
-/* ══════════════════════════════════════════════════
-   LIST VIEW — Sortable table of reservations
-   ══════════════════════════════════════════════════ */
-
-function ListView({ bookings, onSelectBooking }) {
-  const sorted = useMemo(() => [...bookings].sort((a, b) => a.time.localeCompare(b.time)), [bookings])
-
-  if (sorted.length === 0) {
-    return (
-      <div className="h-full flex flex-col items-center justify-center text-gray-400">
-        <AlertCircle className="w-8 h-8 mb-2" />
-        <p className="text-sm">No reservations found</p>
-      </div>
-    )
-  }
+/* ══════ RESERVATION LIST VIEW ══════ */
+function ReservationListView({ bookings, onSelectBooking }) {
+  const sorted = useMemo(() => [...bookings].sort((a, b) => timeToMin(a.time) - timeToMin(b.time)), [bookings])
 
   return (
-    <div className="h-full overflow-y-auto">
-      <table className="w-full">
-        <thead className="sticky top-0 z-10">
-          <tr className="bg-gray-50 border-b border-gray-200">
-            <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Time</th>
-            <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Guest</th>
-            <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Party</th>
-            <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Table</th>
-            <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Status</th>
-            <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Occasion</th>
-            <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Duration</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((booking, i) => {
-            const status = getBookingStatus(booking.status)
-            return (
-              <tr
-                key={booking.id}
-                onClick={() => onSelectBooking(booking)}
-                className="border-b border-gray-50 hover:bg-gray-50/50 cursor-pointer transition-colors"
-              >
-                <td className="px-4 py-3">
-                  <span className="text-sm font-semibold text-[#1B4332]">{formatTime12(booking.time)}</span>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-[11px] font-bold" style={{ background: status.border }}>
-                      {booking.customerName?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{booking.customerName}</div>
-                      {booking.isVip && <span className="text-[10px] text-amber-600 font-semibold">⭐ VIP</span>}
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-sm text-gray-600">{booking.partySize}</span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-sm text-gray-600">{booking.tableName}</span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold" style={{ background: status.bg, color: status.text }}>
-                    {status.label}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-xs text-gray-400">{booking.occasion || '—'}</span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-xs text-gray-400">{booking.duration || 75}m</span>
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+    <div style={{ flex: 1, overflow: 'auto', background: '#fff' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '60px 1.5fr 80px 100px 80px 100px 1fr', padding: '10px 20px', background: '#FAFAFA', borderBottom: '1px solid #E5E7EB', fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', position: 'sticky', top: 0, zIndex: 5 }}>
+        <span>Time</span><span>Guest</span><span>Party</span><span>Table</span><span>Status</span><span>Occasion</span><span>Notes</span>
+      </div>
+      {sorted.map(b => (
+        <div key={b.id} onClick={() => onSelectBooking(b)}
+          style={{ display: 'grid', gridTemplateColumns: '60px 1.5fr 80px 100px 80px 100px 1fr', padding: '12px 20px', borderBottom: '1px solid #F9FAFB', cursor: 'pointer', alignItems: 'center', transition: 'background 0.1s' }}
+          onMouseOver={e => e.currentTarget.style.background = '#FAFAFA'}
+          onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#111' }}>{fmt12(b.time)}</span>
+          <div>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#111' }}>{b.customerName}</span>
+            {b.isVip && <Crown size={10} style={{ marginLeft: 4, color: '#3B82F6', display: 'inline', verticalAlign: 'middle' }} />}
+          </div>
+          <span style={{ fontSize: 13, color: '#374151' }}>{b.partySize}</span>
+          <span style={{ fontSize: 13, color: '#374151' }}>{b.tableName}</span>
+          <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: statusColor(b.status, b.isVip), background: statusColor(b.status, b.isVip) + '15', padding: '2px 8px', borderRadius: 999, display: 'inline-block' }}>{b.status}</span>
+          <span style={{ fontSize: 12, color: '#6B7280' }}>{b.occasion ? b.occasion.replace('_', ' ') : '—'}</span>
+          <span style={{ fontSize: 12, color: '#9CA3AF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.notes || '—'}</span>
+        </div>
+      ))}
     </div>
   )
 }

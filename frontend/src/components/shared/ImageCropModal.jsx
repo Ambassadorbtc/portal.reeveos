@@ -96,9 +96,9 @@ const ImageCropModal = ({
             aspect={aspect}
             cropShape={cropShape}
             showGrid={cropShape === 'rect'}
-            minZoom={0.3}
+            minZoom={0.5}
             maxZoom={5}
-            objectFit="contain"
+            objectFit="horizontal-cover"
             restrictPosition={false}
             onCropChange={setCrop}
             onZoomChange={setZoom}
@@ -113,7 +113,7 @@ const ImageCropModal = ({
             <ZoomOut className="w-4 h-4 text-gray-400 shrink-0" />
             <input
               type="range"
-              min={0.3}
+              min={0.5}
               max={5}
               step={0.05}
               value={zoom}

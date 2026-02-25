@@ -155,14 +155,13 @@ const Calendar = () => {
   const isToday = selectedDate === new Date().toISOString().slice(0, 10)
 
   /* ── Fetch API data ── */
-  useEffect(() => {
+  const fetchCalendarData = useCallback((showLoading = true) => {
     if (!bid || isDemo) {
       setLoading(false)
       setData({ staff: DEMO_STAFF, bookings: DEMO_BOOKINGS, blocks: DEMO_BLOCKS })
       return
     }
-    setLoading(true)
-    setError(null)
+    if (showLoading) { setLoading(true); setError(null) }
     const endpoint = isRestaurant
       ? `/calendar/business/${bid}/restaurant?date=${selectedDate}&view=${viewMode.toLowerCase()}`
       : `/calendar/business/${bid}?date=${selectedDate}&view=${viewMode.toLowerCase()}`
@@ -185,8 +184,6 @@ const Calendar = () => {
         }
         const bookings = (d.bookings || []).map(b => {
           const [h, m] = (b.time || '9:00').split(':').map(Number)
-          // For restaurants: map tableId → staffId so the grid can place them
-          // If no tableId, use first available column
           const mappedStaffId = b.staffId || b.tableId || (staff[0]?.id)
           return {
             ...b,
@@ -205,6 +202,17 @@ const Calendar = () => {
       })
       .finally(() => setLoading(false))
   }, [bid, selectedDate, viewMode, isRestaurant, isDemo])
+
+  useEffect(() => {
+    fetchCalendarData(true)
+  }, [fetchCalendarData])
+
+  // Live polling — refresh every 30 seconds without showing loading spinner
+  useEffect(() => {
+    if (!bid || isDemo) return
+    const interval = setInterval(() => fetchCalendarData(false), 30000)
+    return () => clearInterval(interval)
+  }, [fetchCalendarData, bid, isDemo])
 
   /* ── Time updater ── */
   useEffect(() => { const iv = setInterval(() => { setTp(gtp()); setTs(gts()) }, 30000); return () => clearInterval(iv) }, [])

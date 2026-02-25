@@ -32,6 +32,158 @@ const formatDate = () => {
   return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
+/* ═══ Floor Status Widget — reads LIVE from localStorage ═══ */
+const STATUS_STYLES = {
+  seated:    { border: '#059669', bg: '#ECFDF5', text: '#065F46', label: 'Seated', dot: '#059669' },
+  mains:     { border: '#EA580C', bg: '#FFF7ED', text: '#9A3412', label: 'Mains', dot: '#EA580C' },
+  dessert:   { border: '#8B5CF6', bg: '#FAF5FF', text: '#5B21B6', label: 'Dessert', dot: '#8B5CF6' },
+  reserved:  { border: '#D4A373', bg: '#FFF8F0', text: '#92400E', label: 'Reserved', dot: '#D4A373' },
+  confirmed: { border: '#1B4332', bg: '#EFF6FF', text: '#1B4332', label: 'Confirmed', dot: '#1B4332' },
+  pending:   { border: '#F59E0B', bg: '#FFFBEB', text: '#92400E', label: 'Pending', dot: '#F59E0B' },
+  dirty:     { border: '#EF4444', bg: '#FEF2F2', text: '#991B1B', label: 'Dirty', dot: '#EF4444' },
+  paying:    { border: '#6B7280', bg: '#F3F4F6', text: '#374151', label: 'Paying', dot: '#6B7280' },
+  available: { border: '#D1D5DB', bg: '#F9FAFB', text: '#9CA3AF', label: 'Available', dot: '#9CA3AF' },
+}
+
+const FloorStatusWidget = ({ navigate }) => {
+  const { business } = useBusiness()
+  const bid = business?.id ?? business?._id
+
+  // Read tables from localStorage (same source as FloorPlan page)
+  const [liveTables, setLiveTables] = useState(() => {
+    try {
+      if (bid) { const s = localStorage.getItem(`rezvo_fp_${bid}`); if (s) { const p = JSON.parse(s); if (Array.isArray(p) && p.length) return p } }
+      const d = localStorage.getItem('rezvo_fp_demo'); if (d) { const p = JSON.parse(d); if (Array.isArray(p) && p.length) return p }
+    } catch {}
+    return []
+  })
+
+  // Re-read on focus (user may have edited floor plan in another tab)
+  useEffect(() => {
+    const reload = () => {
+      try {
+        const key = bid ? `rezvo_fp_${bid}` : 'rezvo_fp_demo'
+        const s = localStorage.getItem(key) || localStorage.getItem('rezvo_fp_demo')
+        if (s) { const p = JSON.parse(s); if (Array.isArray(p) && p.length) setLiveTables(p) }
+      } catch {}
+    }
+    window.addEventListener('focus', reload)
+    // Also poll every 10s for real-time feel
+    const iv = setInterval(reload, 10000)
+    return () => { window.removeEventListener('focus', reload); clearInterval(iv) }
+  }, [bid])
+
+  // Show first 6 tables from main zone, or just first 6
+  const display = liveTables.length > 0
+    ? (liveTables.filter(t => t.zone === 'main').length >= 3
+        ? liveTables.filter(t => t.zone === 'main').slice(0, 6)
+        : liveTables.slice(0, 6))
+    : []
+
+  const seated = liveTables.filter(t => ['seated', 'mains', 'dessert'].includes(t.status)).length
+  const total = liveTables.length
+  const occupancy = total > 0 ? Math.round((seated / total) * 100) : 0
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] overflow-hidden">
+      <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">Floor Status</h2>
+          <p className="text-sm text-gray-500">
+            {total > 0 ? `${total} tables · ${occupancy}% Capacity` : 'No tables configured'}
+          </p>
+        </div>
+        <button onClick={() => navigate('/dashboard/floor-plan')} className="text-sm font-semibold text-primary hover:text-emerald-700 flex items-center gap-1">
+          Full View <ArrowRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      <div className="relative h-[260px] p-6 overflow-hidden" style={{ background: '#FAFAF8' }}>
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(#D1D5DB 0.8px, transparent 0.8px)', backgroundSize: '20px 20px' }} />
+        {display.length > 0 ? (
+          <div className="relative z-10 h-full" style={{ position: 'relative' }}>
+            {display.map((tbl, idx) => {
+              const st = STATUS_STYLES[tbl.status] || STATUS_STYLES.available
+              const seats = tbl.seats || 4
+              const size = seats <= 2 ? 75 : seats <= 4 ? 85 : seats <= 6 ? 100 : 115
+              const isRound = tbl.shape === 'round' || !tbl.shape
+              const isLong = tbl.shape === 'long' || tbl.shape === 'booth'
+              const w = isLong ? size * 1.5 : size
+              const h = isLong ? size * 0.65 : size
+              const isDirty = tbl.status === 'dirty'
+
+              // Scale positions proportionally into the 260px widget
+              const scale = 0.38
+              const px = (tbl.x || 80 + idx * 140) * scale + 10
+              const py = (tbl.y || 40 + Math.floor(idx / 3) * 120) * scale + 10
+
+              return (
+                <div key={tbl.id || idx} style={{
+                  position: 'absolute', left: px, top: py,
+                  width: w, height: h,
+                  borderRadius: isRound ? '50%' : 12,
+                  background: st.bg,
+                  border: isDirty ? `2px dashed ${st.border}` : `2px solid ${st.border}`,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', transition: 'all 0.2s',
+                  boxShadow: '0 2px 8px rgba(0,0,0,.04)',
+                  transform: `rotate(${tbl.rotation || 0}deg)`,
+                  fontFamily: "'Figtree', sans-serif",
+                }}
+                  onClick={() => navigate('/dashboard/floor-plan')}
+                >
+                  {tbl.vip && (
+                    <div style={{ position: 'absolute', top: -6, right: -6, background: '#F59E0B', color: '#fff', fontSize: 7, fontWeight: 800, padding: '1px 4px', borderRadius: 4 }}>VIP</div>
+                  )}
+                  <span style={{ fontSize: 12, fontWeight: 800, color: st.text }}>{tbl.name}</span>
+                  {tbl.status === 'seated' && tbl.timer && (
+                    <>
+                      <div style={{ display: 'flex', gap: 2, marginTop: 2 }}>
+                        {Array.from({ length: Math.min(seats, 4) }).map((_, i) => (
+                          <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: st.text }} />
+                        ))}
+                      </div>
+                      <span style={{ fontSize: 9, fontWeight: 700, color: st.text, opacity: 0.8 }}>{tbl.timer}</span>
+                    </>
+                  )}
+                  {tbl.status === 'reserved' && tbl.nextTime && (
+                    <span style={{ fontSize: 9, fontWeight: 600, color: st.border }}>{tbl.nextTime}</span>
+                  )}
+                  {tbl.status === 'available' && (
+                    <span style={{ fontSize: 8, fontWeight: 600, color: '#9CA3AF' }}>Available</span>
+                  )}
+                  {tbl.status === 'dirty' && (
+                    <span style={{ fontSize: 8, fontWeight: 800, color: st.text, textTransform: 'uppercase' }}>DIRTY</span>
+                  )}
+                  {tbl.status === 'mains' && (
+                    <span style={{ fontSize: 8, fontWeight: 700, color: st.text }}>{tbl.guest || 'Mains'}</span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full text-gray-400 text-sm font-medium">
+            <div className="text-center">
+              <p className="font-bold">No floor plan configured</p>
+              <button onClick={() => navigate('/dashboard/floor-plan')} className="mt-2 text-primary font-bold text-xs hover:underline">Set up Floor Plan →</button>
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="bg-gray-50/50 px-6 py-3 border-t border-gray-100 flex gap-4 text-xs text-gray-500 font-medium">
+        {[
+          { c: '#059669', l: 'Seated' }, { c: '#D4A373', l: 'Reserved' },
+          { c: '#D1D5DB', l: 'Available' }, { c: '#EF4444', l: 'Dirty' },
+        ].map(s => (
+          <div key={s.l} className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: s.c }} />{s.l}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const Dashboard = () => {
   const navigate = useNavigate()
   const { business } = useBusiness()
@@ -278,79 +430,8 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Floor Status */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] overflow-hidden">
-              <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900">Floor Status</h2>
-                  <p className="text-sm text-gray-500">
-                    {tables.length > 0
-                      ? `${tables.length} tables · ${tables.filter(t => t.status === 'seated' || t.status === 'occupied').length} seated`
-                      : 'Main Dining Room · 78% Capacity'}
-                  </p>
-                </div>
-                <button onClick={() => navigate('/dashboard/floor-plan')} className="text-sm font-semibold text-primary hover:text-emerald-700 flex items-center gap-1">
-                  Full View <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-              <div className="relative bg-gray-50 h-[260px] p-6 overflow-hidden">
-                <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-                {tables.length > 0 ? (
-                  <div className="relative z-10 flex flex-wrap gap-4 justify-center items-center h-full">
-                    {tables.slice(0, 8).map((tbl, idx) => {
-                      const isSeated = tbl.status === 'seated' || tbl.status === 'occupied'
-                      const isReserved = tbl.status === 'reserved'
-                      const isDirty = tbl.status === 'dirty'
-                      const isAvailable = !isSeated && !isReserved && !isDirty
-                      const borderColor = isSeated ? 'border-emerald-500' : isReserved ? 'border-[#D4A373]' : isDirty ? 'border-red-300 border-dashed' : 'border-gray-200'
-                      const bg = isDirty ? 'bg-gray-100' : 'bg-white'
-                      const shape = tbl.shape === 'circle' || (idx % 3 === 0) ? 'rounded-full' : 'rounded-lg'
-                      return (
-                        <div key={tbl.id || idx} className={`w-20 h-20 ${shape} ${bg} border-2 ${borderColor} shadow-sm flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition-shadow ${isAvailable ? 'opacity-70 hover:opacity-100' : ''}`}>
-                          <span className={`font-bold text-sm ${isAvailable ? 'text-gray-400' : 'text-primary'}`}>{tbl.label || tbl.name || `T-${String(idx+1).padStart(2,'0')}`}</span>
-                          {isSeated && <span className="text-[10px] text-emerald-600 font-medium mt-0.5">Seated</span>}
-                          {isReserved && <span className="text-[10px] text-[#D4A373] font-bold mt-0.5">Reserved</span>}
-                          {isDirty && <span className="text-[10px] text-red-500 font-bold mt-0.5">Dirty</span>}
-                          {isAvailable && <span className="text-[10px] text-green-600 font-medium mt-0.5">Available</span>}
-                        </div>
-                      )
-                    })}
-                  </div>
-                ) : (
-                  <>
-                    <div className="absolute top-8 left-8 w-24 h-24 rounded-full bg-white border-2 border-emerald-500 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition-shadow">
-                      <span className="font-bold text-primary text-sm">T-01</span>
-                      <div className="flex gap-0.5 mt-1">{[1,2,3].map(i=><span key={i} className="w-2 h-2 rounded-full bg-emerald-500"/>)}<span className="w-2 h-2 rounded-full bg-gray-200"/></div>
-                      <span className="text-[10px] text-emerald-600 font-medium mt-1">45m</span>
-                    </div>
-                    <div className="absolute top-8 left-40 w-24 h-24 rounded-lg bg-white border-2 border-[#D4A373] shadow-sm flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition-shadow">
-                      <span className="font-bold text-primary text-sm">T-02</span>
-                      <span className="text-[10px] text-[#D4A373] font-bold mt-1">6:30 PM</span>
-                      <span className="text-[10px] text-gray-400">Smith (4)</span>
-                    </div>
-                    <div className="absolute top-40 left-8 w-32 h-24 rounded-lg bg-white border-2 border-gray-200 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition-shadow opacity-70 hover:opacity-100">
-                      <span className="font-bold text-gray-400 text-sm">T-03</span>
-                      <span className="text-[10px] text-green-600 font-medium mt-1">Available</span>
-                    </div>
-                    <div className="absolute top-40 left-52 w-24 h-24 rounded-full bg-white border-2 border-primary shadow-md flex flex-col items-center justify-center cursor-pointer ring-2 ring-[#D4A373]/30 relative">
-                      <div className="absolute -top-2 -right-2 bg-[#D4A373] text-white text-[10px] font-bold px-1.5 rounded-full shadow-sm">VIP</div>
-                      <span className="font-bold text-primary text-sm">T-04</span>
-                      <div className="flex gap-0.5 mt-1">{[1,2].map(i=><span key={i} className="w-2 h-2 rounded-full bg-primary"/>)}</div>
-                      <span className="text-[10px] text-primary font-medium mt-1">12m</span>
-                    </div>
-                    <div className="absolute top-8 right-16 w-24 h-24 rounded-full bg-gray-100 border-2 border-dashed border-red-300 flex flex-col items-center justify-center cursor-pointer">
-                      <span className="font-bold text-gray-500 text-sm">T-05</span>
-                      <span className="text-[10px] text-red-500 font-bold mt-1">DIRTY</span>
-                    </div>
-                  </>
-                )}
-              </div>
-              <div className="bg-gray-50 px-6 py-3 border-t border-gray-100 flex gap-4 text-xs text-gray-500 font-medium">
-                {[{c:'bg-emerald-500',l:'Seated'},{c:'bg-[#D4A373]',l:'Reserved'},{c:'bg-gray-300',l:'Available'},{c:'bg-red-400',l:'Dirty'}].map(s=>(
-                  <div key={s.l} className="flex items-center gap-2"><span className={`w-2.5 h-2.5 rounded-full ${s.c}`}/>{s.l}</div>
-                ))}
-              </div>
-            </div>
+            {/* Floor Status — LIVE from localStorage */}
+            <FloorStatusWidget tables={tables} navigate={navigate} />
           </div>
 
           {/* Right Column */}

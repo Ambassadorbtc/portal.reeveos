@@ -101,6 +101,7 @@ export default function RestaurantCalendar() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearch, setShowSearch] = useState(false)
+  const [editMode, setEditMode] = useState(false)
   const scrollRef = useRef(null)
 
   const dateObj = new Date(selectedDate + 'T00:00:00')
@@ -272,6 +273,17 @@ export default function RestaurantCalendar() {
     return () => { document.body.style.overflow = '' }
   }, [isFullscreen])
 
+  /* ── FAB shift when panel open ── */
+  useEffect(() => {
+    if (selectedBooking) {
+      document.body.classList.add('rezvo-fab-shifted')
+      setEditMode(false)
+    } else {
+      document.body.classList.remove('rezvo-fab-shifted')
+    }
+    return () => document.body.classList.remove('rezvo-fab-shifted')
+  }, [selectedBooking])
+
   const ROW_H = 54
   const ZONE_H = 34
   const LEFT_W = 180
@@ -344,26 +356,28 @@ export default function RestaurantCalendar() {
 
           <div style={{ width: 1, height: 24, background: '#EBEBEB' }} />
 
-          {/* Search */}
-          {showSearch ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#F5F5F5', borderRadius: 20, padding: '3px 12px', minWidth: 180 }}>
-              <Search size={13} color="#666" />
-              <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} autoFocus
-                placeholder="Search guests, tables..."
-                style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 13, fontWeight: 500, color: '#111', width: '100%', fontFamily: "'Figtree', sans-serif" }} />
-              <button onClick={() => { setShowSearch(false); setSearchQuery('') }} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 2 }}><X size={12} color="#666" /></button>
-            </div>
-          ) : (
-            <button onClick={() => setShowSearch(true)} style={iconBtn} title="Search"><Search size={15} /></button>
-          )}
+          {/* Search Pill — always visible */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#F5F5F5', borderRadius: 999, padding: '6px 14px', minWidth: showSearch ? 200 : 38, transition: 'all 0.3s ease', cursor: 'pointer' }}
+            onClick={() => !showSearch && setShowSearch(true)}>
+            <Search size={14} color="#555" />
+            {showSearch ? (
+              <>
+                <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} autoFocus
+                  placeholder="Search guests, tables..."
+                  style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 13, fontWeight: 500, color: '#111', width: 150, fontFamily: "'Figtree', sans-serif" }} />
+                <button onClick={(e) => { e.stopPropagation(); setShowSearch(false); setSearchQuery('') }} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0 }}><X size={13} color="#666" /></button>
+              </>
+            ) : null}
+          </div>
 
-          {/* Tablet Fullscreen Toggle */}
-          <button onClick={() => setIsFullscreen(!isFullscreen)} style={iconBtn} title={isFullscreen ? 'Exit tablet mode' : 'Tablet mode'}>
-            {isFullscreen ? <Minimize2 size={15} /> : (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="4" y="2" width="16" height="20" rx="2" /><line x1="4" y1="6" x2="20" y2="6" />
-              </svg>
-            )}
+          {/* Tablet Fullscreen Toggle — animated icon */}
+          <button onClick={() => setIsFullscreen(!isFullscreen)} 
+            style={{ ...iconBtn, transition: 'all 0.3s ease', transform: isFullscreen ? 'rotate(180deg)' : 'rotate(0deg)' }} 
+            title={isFullscreen ? 'Exit tablet mode' : 'Tablet mode'}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'all 0.3s ease' }}>
+              <rect x="5" y="2" width="14" height="20" rx="2" />
+              <line x1="12" y1="18" x2="12" y2="18" strokeWidth="3" strokeLinecap="round" />
+            </svg>
           </button>
         </div>
       </header>
@@ -542,34 +556,47 @@ export default function RestaurantCalendar() {
         </div>
       </div>
 
-      {/* ══════ CRM GUEST DETAIL PANEL ══════ */}
+      {/* ══════ CRM GUEST DETAIL PANEL (matches 3-Guest CRM design) ══════ */}
       {selectedBooking && <>
         {/* Glass overlay */}
-        <div onClick={() => setSelectedBooking(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(4px)', zIndex: 55 }} />
+        <div onClick={() => setSelectedBooking(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(8px)', zIndex: 55 }} />
+
+        {/* FAB shift style — push FAB left when panel is open */}
+        <style>{`
+          .rezvo-chat-bubble { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important; }
+          .rezvo-fab-shifted .rezvo-chat-bubble { transform: translateX(-440px) !important; }
+          @keyframes panelSlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        `}</style>
 
         {/* Panel */}
-        <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 420, maxWidth: '100vw', background: T.white, boxShadow: '0 8px 40px rgba(0,0,0,0.12)', zIndex: 60, display: 'flex', flexDirection: 'column', fontFamily: "'Figtree', sans-serif" }}>
+        <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 420, maxWidth: '100vw', background: T.white, boxShadow: '0 8px 40px rgba(0,0,0,0.12)', zIndex: 60, display: 'flex', flexDirection: 'column', fontFamily: "'Figtree', sans-serif", animation: 'panelSlideIn 0.3s ease-out' }}>
 
-          {/* Header */}
-          <div style={{ padding: '16px 24px 12px', flexShrink: 0, background: T.white, zIndex: 10 }}>
-            {/* Top actions */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-              <button style={panelIconBtn} title="Edit"><Edit3 size={14} /></button>
-              <button style={{ ...panelIconBtn, color: '#666' }} title="Close" onClick={() => setSelectedBooking(null)}><X size={16} /></button>
-            </div>
+          {/* ─ Top bar: edit, delete, close ─ */}
+          <div style={{ padding: '16px 24px 0', flexShrink: 0, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <button onClick={() => setEditMode(!editMode)} style={{ ...panelIconBtn, background: editMode ? '#F0F7F4' : 'transparent', color: editMode ? T.forest : '#666' }} title="Edit"><Edit3 size={14} /></button>
+            <button style={{ ...panelIconBtn, color: '#EF4444' }} title="Delete">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+            <button onClick={() => setSelectedBooking(null)} style={{ ...panelIconBtn, color: '#666' }} title="Close"><X size={16} /></button>
+          </div>
 
-            {/* Avatar + Name */}
-            <div style={{ display: 'flex', alignItems: 'start', gap: 16, marginBottom: 20 }}>
-              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1B4332, #2D6A4F)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20, fontWeight: 700, flexShrink: 0, border: '2px solid #fff', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+          {/* ─ Avatar + Name + Badges ─ */}
+          <div style={{ padding: '12px 24px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'start', gap: 16, marginBottom: 16 }}>
+              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1B4332, #2D6A4F)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20, fontWeight: 700, flexShrink: 0, border: '2px solid #fff', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
                 {(selectedBooking.customerName || 'G').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h2 style={{ fontSize: 22, fontWeight: 700, color: T.forest, margin: 0, lineHeight: 1.2 }}>{selectedBooking.customerName}</h2>
+                {editMode ? (
+                  <input defaultValue={selectedBooking.customerName} style={{ fontSize: 22, fontWeight: 700, color: T.forest, border: 'none', borderBottom: `2px solid ${T.sage}`, outline: 'none', width: '100%', background: 'transparent', fontFamily: "'Figtree', sans-serif", padding: '0 0 4px' }} />
+                ) : (
+                  <h2 style={{ fontSize: 22, fontWeight: 700, color: T.forest, margin: 0, lineHeight: 1.2 }}>{selectedBooking.customerName}</h2>
+                )}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
-                  <span style={{ padding: '3px 12px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: T.forest, color: '#fff' }}>
-                    {selectedBooking.status?.charAt(0).toUpperCase() + selectedBooking.status?.slice(1)}
-                  </span>
-                  {selectedBooking.isVip && <span style={{ padding: '3px 12px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: '#D4A373' + '25', color: '#D4A373' }}>VIP</span>}
+                  <span style={{ padding: '3px 12px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: T.forest, color: '#fff' }}>Regular</span>
+                  <span style={{ padding: '3px 12px', borderRadius: 999, fontSize: 11, fontWeight: 600, border: `1px solid ${T.sage}60`, color: `${T.sage}80` }}>New</span>
+                  {selectedBooking.isVip && <span style={{ padding: '3px 12px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: '#D4A37330', color: '#D4A373' }}>VIP</span>}
+                  <span style={{ padding: '3px 12px', borderRadius: 999, fontSize: 11, fontWeight: 600, border: '1px solid #EF444440', color: '#EF444460' }}>At Risk</span>
                 </div>
               </div>
             </div>
@@ -577,79 +604,178 @@ export default function RestaurantCalendar() {
             {/* 4-stat grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
               {[
-                { icon: '🕐', value: fmt12(selectedBooking.time), label: 'time' },
-                { icon: '👥', value: selectedBooking.partySize, label: 'guests' },
-                { icon: '🪑', value: selectedBooking.tableName?.replace('Table ', 'T'), label: 'table' },
-                { icon: '⏱️', value: `${selectedBooking.duration || 75}m`, label: 'duration' },
+                { icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>, value: '12', label: 'visits', color: T.forest },
+                { icon: <AlertTriangle size={14} />, value: '1', label: 'no-show', color: T.amber },
+                { icon: <span style={{ fontSize: 13, fontWeight: 700 }}>£</span>, value: '847', label: 'spent', color: T.forest },
+                { icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={T.sage} strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>, value: '70.58', label: 'avg', color: T.sage },
               ].map((s, i) => (
                 <div key={i} style={{ background: '#F5F5F5', borderRadius: 16, padding: '12px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                  <span style={{ fontSize: 14, marginBottom: 4 }}>{s.icon}</span>
+                  <div style={{ marginBottom: 4, color: s.color, opacity: 0.8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{s.icon}</div>
                   <span style={{ fontSize: 14, fontWeight: 700, color: T.forest, lineHeight: 1 }}>{s.value}</span>
-                  <span style={{ fontSize: 11, color: '#555', marginTop: 4 }}>{s.label}</span>
+                  <span style={{ fontSize: 10, color: '#666', marginTop: 4 }}>{s.label}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Scrollable content */}
-          <div style={{ flex: 1, overflow: 'auto', padding: '8px 24px 16px' }}>
+          {/* ─ Scrollable Content ─ */}
+          <div style={{ flex: 1, overflow: 'auto', padding: '0 24px 16px' }} className="timeline-scroll">
 
-            {/* Occasion */}
-            {selectedBooking.occasion && (
-              <div style={{ marginBottom: 20 }}>
-                <h3 style={{ fontSize: 13, fontWeight: 600, color: '#666', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Occasion</h3>
-                <div style={{ padding: '10px 14px', background: '#FFF8F0', borderRadius: 12, fontSize: 13, color: '#92400E', display: 'flex', alignItems: 'center', gap: 8, border: '1px solid #FDE68A30' }}>
-                  <Cake size={15} /> {selectedBooking.occasion.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+            {/* CONTACT */}
+            <section style={{ marginBottom: 24 }}>
+              <h3 style={sectionTitle}>Contact</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>🇬🇧</div>
+                    {editMode ? (
+                      <input defaultValue={selectedBooking.phone || '+44 7886 483772'} style={editInput} />
+                    ) : (
+                      <span style={{ fontSize: 14, fontWeight: 500, color: T.forest }}>{selectedBooking.phone || '+44 7886 483772'}</span>
+                    )}
+                  </div>
+                  <button style={{ width: 32, height: 32, borderRadius: '50%', border: `1px solid ${T.border}`, background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.sage }}>
+                    <Phone size={13} />
+                  </button>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}><Mail size={13} /></div>
+                    {editMode ? (
+                      <input defaultValue={selectedBooking.email || 'guest@email.com'} style={editInput} />
+                    ) : (
+                      <span style={{ fontSize: 14, fontWeight: 500, color: T.forest }}>{selectedBooking.email || 'guest@email.com'}</span>
+                    )}
+                  </div>
+                  <button style={{ width: 32, height: 32, borderRadius: '50%', border: `1px solid ${T.border}`, background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.sage }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  </button>
+                </div>
+                <div style={{ paddingLeft: 44 }}>
+                  <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 10px', borderRadius: 999, border: `1px solid ${T.sage}`, color: T.sage }}>SMS preferred</span>
                 </div>
               </div>
-            )}
+            </section>
 
-            {/* Notes */}
-            {selectedBooking.notes && (
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <h3 style={{ fontSize: 13, fontWeight: 600, color: '#666', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Notes</h3>
-                  <button style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#666' }}><Edit3 size={12} /></button>
-                </div>
-                <div style={{ background: '#FAFAF8', border: '1px solid #EBEBEB', borderRadius: 12, padding: 16 }}>
-                  <p style={{ fontSize: 13, color: '#1B4332', lineHeight: 1.5, fontStyle: 'italic', margin: 0 }}>"{selectedBooking.notes}"</p>
-                </div>
+            {/* TAGS */}
+            <section style={{ marginBottom: 24 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <h3 style={sectionTitle}>Tags</h3>
+                <button style={{ fontSize: 12, fontWeight: 700, color: T.sage, border: 'none', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Plus size={12} /> Add
+                </button>
               </div>
-            )}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {[
+                  { label: 'Friday Regular', bg: '#F0F7F4', dot: T.sage },
+                  ...(selectedBooking.occasion ? [{ label: selectedBooking.occasion.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()), bg: '#FFF8F0', dot: T.amber }] : []),
+                  { label: 'Wine Lover', bg: '#fff', dot: T.sage, border: true },
+                ].map((tag, i) => (
+                  <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999, fontSize: 11, fontWeight: 500, color: T.forest, background: tag.bg, border: tag.border ? `1px solid ${T.border}` : '1px solid transparent', cursor: 'pointer' }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: tag.dot }} />
+                    {tag.label}
+                  </span>
+                ))}
+              </div>
+            </section>
 
-            {/* Booking Details */}
-            <div style={{ marginBottom: 20 }}>
-              <h3 style={{ fontSize: 13, fontWeight: 600, color: '#666', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Details</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                  <span style={{ color: '#666' }}>Date</span>
-                  <span style={{ fontWeight: 600, color: '#111' }}>{dateLabel}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                  <span style={{ color: '#666' }}>Time</span>
-                  <span style={{ fontWeight: 600, color: '#111' }}>{fmt12(selectedBooking.time)}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                  <span style={{ color: '#666' }}>Table</span>
-                  <span style={{ fontWeight: 600, color: '#111' }}>{selectedBooking.tableName}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                  <span style={{ color: '#666' }}>Party Size</span>
-                  <span style={{ fontWeight: 600, color: '#111' }}>{selectedBooking.partySize} guests</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                  <span style={{ color: '#666' }}>Duration</span>
-                  <span style={{ fontWeight: 600, color: '#111' }}>{selectedBooking.duration || 75} minutes</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                  <span style={{ color: '#666' }}>Status</span>
-                  <span style={{ fontWeight: 700, color: statusColor(selectedBooking.status, selectedBooking.isVip), textTransform: 'uppercase', fontSize: 11 }}>{selectedBooking.status}</span>
-                </div>
+            {/* NOTES */}
+            <section style={{ marginBottom: 24 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <h3 style={sectionTitle}>Notes</h3>
+                <button onClick={() => setEditMode(!editMode)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#666' }}><Edit3 size={13} /></button>
               </div>
-            </div>
+              <div style={{ background: '#FAFAF8', border: `1px solid ${T.border}`, borderRadius: 12, padding: 16, position: 'relative', marginBottom: 12 }}>
+                {editMode ? (
+                  <textarea defaultValue={selectedBooking.notes || ''} rows={3} style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', fontSize: 13, color: T.forest, lineHeight: 1.5, fontFamily: "'Figtree', sans-serif", resize: 'vertical' }} />
+                ) : (
+                  <p style={{ fontSize: 13, color: `${T.forest}CC`, fontStyle: 'italic', lineHeight: 1.6, margin: 0 }}>
+                    "{selectedBooking.notes || 'No notes yet'}"
+                  </p>
+                )}
+              </div>
+              {/* Preference pills */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {selectedBooking.notes?.toLowerCase().includes('window') && (
+                  <span style={prefPill}>🪑 Window seat</span>
+                )}
+                {selectedBooking.notes?.toLowerCase().includes('highchair') && (
+                  <span style={prefPill}>👶 Highchair needed</span>
+                )}
+                {selectedBooking.notes?.toLowerCase().includes('allerg') && (
+                  <span style={{ ...prefPill, color: '#EF4444', background: '#FFF0F0', border: '1px solid #EF444420' }}>⚠️ Allergy noted</span>
+                )}
+                {selectedBooking.occasion && (
+                  <span style={prefPill}>🎉 {selectedBooking.occasion.replace('_', ' ')}</span>
+                )}
+              </div>
+            </section>
+
+            {/* BOOKING DETAILS */}
+            <section style={{ marginBottom: 24 }}>
+              <h3 style={sectionTitle}>Booking Details</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[
+                  { label: 'Date', value: dateLabel },
+                  { label: 'Time', value: fmt12(selectedBooking.time), editable: true },
+                  { label: 'Table', value: selectedBooking.tableName, editable: true },
+                  { label: 'Party Size', value: `${selectedBooking.partySize} guests`, editable: true },
+                  { label: 'Duration', value: `${selectedBooking.duration || 75} minutes`, editable: true },
+                  { label: 'Status', value: selectedBooking.status?.toUpperCase(), isStatus: true },
+                ].map((row, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, padding: '4px 0', borderBottom: i < 5 ? '1px solid #F5F5F5' : 'none' }}>
+                    <span style={{ color: '#555' }}>{row.label}</span>
+                    {row.isStatus ? (
+                      <span style={{ fontWeight: 700, color: statusColor(selectedBooking.status, selectedBooking.isVip), fontSize: 11 }}>{row.value}</span>
+                    ) : editMode && row.editable ? (
+                      <input defaultValue={row.value} style={{ ...editInput, textAlign: 'right', width: 120 }} />
+                    ) : (
+                      <span style={{ fontWeight: 600, color: '#111' }}>{row.value}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* HISTORY */}
+            <section style={{ marginBottom: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <h3 style={sectionTitle}>History</h3>
+                <span style={{ fontSize: 11, fontWeight: 500, background: '#F5F5F5', padding: '3px 10px', borderRadius: 999, color: '#555' }}>All ▾</span>
+              </div>
+              <div style={{ position: 'relative', paddingLeft: 20 }}>
+                {/* Timeline line */}
+                <div style={{ position: 'absolute', left: 7, top: 0, bottom: 0, width: 2, background: T.border }} />
+                {[
+                  { date: dateLabel, amount: '—', table: selectedBooking.tableName, party: selectedBooking.partySize, current: true },
+                  { date: 'Previous visit', amount: '£89.50', table: 'Table 1', party: 2 },
+                ].map((h, i) => (
+                  <div key={i} style={{ position: 'relative', marginBottom: 16, paddingLeft: 16 }}>
+                    <div style={{ position: 'absolute', left: -13, top: 4, width: 12, height: 12, borderRadius: '50%', background: h.current ? T.sage : T.sage, border: '2px solid #fff', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', zIndex: 1 }} />
+                    {h.current ? (
+                      <div style={{ background: '#fff', border: `1px solid ${T.border}`, borderRadius: 12, padding: 12, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                          <span style={{ fontSize: 13, fontWeight: 600, color: T.forest }}>{h.date}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: T.forest }}>{h.amount}</span>
+                        </div>
+                        <span style={{ fontSize: 12, color: '#555' }}>{h.table} · Party of {h.party}</span>
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                          <span style={{ fontSize: 13, fontWeight: 500, color: '#555' }}>{h.date}</span>
+                          <span style={{ fontSize: 11, fontWeight: 500, color: '#555' }}>{h.amount}</span>
+                        </div>
+                        <span style={{ fontSize: 12, color: '#888' }}>{h.table} · Party of {h.party}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
 
-          {/* CRM Action Bar */}
+          {/* ─ Action Bar ─ */}
           <div style={{ padding: 16, background: T.white, borderTop: `1px solid ${T.border}`, flexShrink: 0, zIndex: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, overflowX: 'auto' }}>
               <button style={{ flex: 1, minWidth: 110, background: T.forest, color: '#fff', fontWeight: 600, padding: '12px 16px', borderRadius: 999, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 12px rgba(27,67,50,0.3)' }}>
@@ -690,6 +816,9 @@ const toggleActive = { padding: '7px 16px', borderRadius: 18, border: 'none', cu
 const toggleInactive = { padding: '7px 16px', borderRadius: 18, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 500, background: 'transparent', color: '#555', transition: 'all 0.15s', fontFamily: "'Figtree', sans-serif" }
 const iconBtn = { width: 38, height: 38, borderRadius: '50%', border: 'none', background: '#F5F5F5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555' }
 const panelIconBtn = { width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }
+const sectionTitle = { fontSize: 13, fontWeight: 600, color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0, marginBottom: 12 }
+const editInput = { fontSize: 14, fontWeight: 500, color: '#1B4332', border: 'none', borderBottom: '2px solid #52B788', outline: 'none', background: 'transparent', fontFamily: "'Figtree', sans-serif", padding: '2px 0' }
+const prefPill = { display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#555', background: '#F5F5F5', padding: '4px 10px', borderRadius: 6, border: '1px solid #F0F0F0' }
 
 function StatChip({ color, value, label }) {
   return (

@@ -44,6 +44,14 @@ jobs:
             # Update if already exists
             sed -i "s|^ANTHROPIC_API_KEY=.*|ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}|" /opt/rezvo-app/backend/.env
 
+            # xAI / Grok (floor plan AI)
+            if [ -n "${{ secrets.XAI_API_KEY }}" ]; then
+              grep -q 'XAI_API_KEY' /opt/rezvo-app/backend/.env && sed -i "s|^XAI_API_KEY=.*|XAI_API_KEY=${{ secrets.XAI_API_KEY }}|" /opt/rezvo-app/backend/.env || echo 'XAI_API_KEY=${{ secrets.XAI_API_KEY }}' >> /opt/rezvo-app/backend/.env
+            fi
+
+            # Floor plan LLM provider (anthropic, xai, or openai)
+            grep -q 'FLOOR_PLAN_LLM_PROVIDER' /opt/rezvo-app/backend/.env && sed -i "s|^FLOOR_PLAN_LLM_PROVIDER=.*|FLOOR_PLAN_LLM_PROVIDER=xai|" /opt/rezvo-app/backend/.env || echo 'FLOOR_PLAN_LLM_PROVIDER=xai' >> /opt/rezvo-app/backend/.env
+
             # Resend (email)
             if [ -n "${{ secrets.RESEND_API_KEY }}" ]; then
               grep -q 'RESEND_API_KEY' /opt/rezvo-app/backend/.env && sed -i "s|^RESEND_API_KEY=.*|RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}|" /opt/rezvo-app/backend/.env || echo 'RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}' >> /opt/rezvo-app/backend/.env

@@ -38,6 +38,12 @@ jobs:
             VITE_API_URL=/api npm run build
 
             # ── Backend service ──
+            # Ensure backend .env has required keys
+            touch /opt/rezvo-app/backend/.env
+            grep -q 'ANTHROPIC_API_KEY' /opt/rezvo-app/backend/.env || echo 'ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}' >> /opt/rezvo-app/backend/.env
+            # Update if already exists
+            sed -i "s|^ANTHROPIC_API_KEY=.*|ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}|" /opt/rezvo-app/backend/.env
+
             cat > /etc/systemd/system/rezvo-backend.service << 'EOF'
             [Unit]
             Description=Rezvo Backend API

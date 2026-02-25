@@ -547,7 +547,7 @@ export default function RestaurantCalendar() {
               {/* Vertical grid lines */}
               <div style={{ position: 'absolute', inset: 0, display: 'flex', pointerEvents: 'none', zIndex: 0 }}>
                 {timeRange.slots.map((_, i) => (
-                  <div key={i} style={{ flex: 1, borderRight: '1px dashed #D1D5DB' }} />
+                  <div key={i} style={{ flex: 1, borderRight: '1px dashed #EBEBEB' }} />
                 ))}
               </div>
 
@@ -589,8 +589,17 @@ export default function RestaurantCalendar() {
                           style={{
                             position: 'absolute', top: 4, bottom: 4,
                             left: pos.left, width: pos.width,
-                            background: color + '15',
-                            border: `1px solid ${color}30`,
+                            background: (() => {
+                              // Convert hex color to solid light tint (no transparency)
+                              const hex = color.replace('#', '');
+                              const r = parseInt(hex.substring(0, 2), 16);
+                              const g = parseInt(hex.substring(2, 4), 16);
+                              const b2 = parseInt(hex.substring(4, 6), 16);
+                              // Mix with white at ~90% white
+                              const mix = (c) => Math.round(c * 0.12 + 255 * 0.88);
+                              return `rgb(${mix(r)}, ${mix(g)}, ${mix(b2)})`;
+                            })(),
+                            border: `1px solid ${color}40`,
                             borderRadius: 6,
                             boxShadow: isSelected ? `0 0 0 2px ${color}50` : '0 1px 3px rgba(0,0,0,0.04)',
                             display: 'flex', alignItems: 'center', padding: '0 8px',

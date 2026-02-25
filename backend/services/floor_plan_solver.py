@@ -61,6 +61,7 @@ def get_table_size(el: Dict) -> Tuple[float, float]:
 def get_element_size(el: Dict) -> Tuple[float, float]:
     """Returns (width, height) for any element type."""
     if el.get("type") == "fixture":
+        # Frontend uses fixtureKind, handle both
         return (el.get("w", 100), el.get("h", 50))
     return get_table_size(el)
 
@@ -154,14 +155,14 @@ def validate_layout(
                 issues.append({
                     "type": "overlap",
                     "elements": [tables[i]["id"], fix["id"]],
-                    "message": f"Table overlaps with {fix.get('fixtureType', 'fixture')}",
+                    "message": f"Table overlaps with {fix.get('fixtureKind', fix.get('fixtureType', 'fixture'))}",
                     "severity": "error"
                 })
             elif dist < FIXTURE_CLEARANCE:
                 issues.append({
                     "type": "too_close",
                     "elements": [tables[i]["id"], fix["id"]],
-                    "message": f"Table too close to {fix.get('fixtureType', 'fixture')}: {dist:.0f}px",
+                    "message": f"Table too close to {fix.get('fixtureKind', fix.get('fixtureType', 'fixture'))}: {dist:.0f}px",
                     "severity": "warning"
                 })
 

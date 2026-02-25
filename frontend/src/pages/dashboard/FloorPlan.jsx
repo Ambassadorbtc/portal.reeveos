@@ -10,7 +10,8 @@ import {
   LayoutGrid, Copy, Move, Save, Check, RotateCw,
   Circle, Square, RectangleHorizontal, Sofa,
   Home, UtensilsCrossed, Wine, Sun, ArrowUp, TreePine, ArrowDown,
-  Users, Clock, PanelTop, Bath, CookingPot, Minus, Eye
+  Users, Clock, PanelTop, Bath, CookingPot, Minus, Eye,
+  Sparkles, AlertTriangle, Wand2
 } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
@@ -102,7 +103,7 @@ const SeatDots = ({ seats, w, h, color, active }) => {
 
 /* ═══════════════ TABLE NODE (unchanged styling) ═══════════════ */
 
-const TableNode = ({ table, status, isSelected, locked, isDragging, onMouseDown, onTouchStart, onClick, onEdit, onDelete, onRotate, scale = 1 }) => {
+const TableNode = ({ table, status, isSelected, locked, isDragging, onMouseDown, onTouchStart, onClick, onEdit, onDelete, onRotate, scale = 1, hasIssue = false }) => {
   const [hovered, setHovered] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const st = STATUS[status] || STATUS.available
@@ -227,7 +228,8 @@ const TableNode = ({ table, status, isSelected, locked, isDragging, onMouseDown,
           width: w, height: h, borderRadius: radius,
           background: st.bg,
           border: isDirty ? `2.5px dashed ${st.border}` : `2.5px solid ${st.border}`,
-          boxShadow: isSelected ? `0 0 0 3px ${st.border}30, 0 8px 30px rgba(0,0,0,.12)`
+          boxShadow: hasIssue ? `0 0 0 3px #EF444480, 0 0 12px rgba(239,68,68,0.3)`
+            : isSelected ? `0 0 0 3px ${st.border}30, 0 8px 30px rgba(0,0,0,.12)`
             : hovered ? `0 0 0 2px ${st.border}20, 0 8px 24px rgba(0,0,0,.1)`
             : isDragging ? '0 12px 40px rgba(0,0,0,.2)' : '0 2px 12px rgba(0,0,0,.04)',
           cursor: locked ? 'pointer' : isDragging ? 'grabbing' : 'grab',
@@ -387,7 +389,77 @@ const FloorPlan = ({ embedded = false }) => {
   const [editTable, setEditTable] = useState(null)
   const [hasChanges, setHasChanges] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [arranging, setArranging] = useState(false)
+  const [validationIssues, setValidationIssues] = useState([])
+  const [validationStats, setValidationStats] = useState(null)
   const savedRef = useRef(null)
+
+  /* ── AI Auto-Arrange ── */
+  const autoArrange = async () => {
+    if (!bid || arranging) return
+    setArranging(true)
+    try {
+      const zoneEls = activeZone === 'all' ? elements : elements.filter(e => e.zone === activeZone)
+      const otherEls = activeZone === 'all' ? [] : elements.filter(e => e.zone !== activeZone)
+      const data = await api.post(`/tables/business/${bid}/auto-arrange`, {
+        elements: zoneEls,
+        width: 1000, height: 800,
+        zone: activeZone === 'all' ? null : activeZone,
+        style: 'balanced'
+      })
+      setElements([...otherEls, ...data.elements])
+      setHasChanges(true)
+      if (data.validation) {
+        setValidationIssues(data.validation.issues || [])
+        setValidationStats(data.validation.stats || null)
+      }
+      const tables = data.elements.filter(e => e.type !== 'fixture').length
+      showToast(`✨ ${tables} tables arranged — ${data.validation?.stats?.errors || 0} issues`)
+    } catch (err) {
+      console.error('Auto-arrange failed:', err)
+      showToast('Auto-arrange failed')
+    }
+    setArranging(false)
+  }
+
+  /* ── Validate Layout ── */
+  const validateLayout = async () => {
+    if (!bid) return
+    try {
+      const zoneEls = activeZone === 'all' ? elements : elements.filter(e => e.zone === activeZone)
+      const data = await api.post(`/tables/business/${bid}/validate-layout`, {
+        elements: zoneEls,
+        width: 1000, height: 800,
+        min_gap: 60
+      })
+      setValidationIssues(data.issues || [])
+      setValidationStats(data.stats || null)
+      if (data.valid) {
+        showToast('✅ Layout is valid — no issues found')
+      } else {
+        showToast(`⚠️ ${data.stats?.errors || 0} errors, ${data.stats?.warnings || 0} warnings`)
+      }
+    } catch (err) {
+      console.error('Validation failed:', err)
+    }
+  }
+
+  /* Clear validation when elements change */
+  const problemElements = useMemo(() => {
+    const ids = new Set()
+    validationIssues.forEach(issue => {
+      (issue.elements || []).forEach(id => ids.add(id))
+    })
+    return ids
+  }, [validationIssues])
+
+  // Auto-clear validation after 8 seconds or when user drags
+  useEffect(() => {
+    if (validationIssues.length > 0) {
+      const t = setTimeout(() => setValidationIssues([]), 8000)
+      return () => clearTimeout(t)
+    }
+  }, [validationIssues])
 
   /* ── Load from API, fallback to defaults ── */
   useEffect(() => {
@@ -617,6 +689,26 @@ const FloorPlan = ({ embedded = false }) => {
                   <Plus className="w-4 h-4" /> Add
                 </button>
               )}
+              {/* AI Auto-Arrange */}
+              {!locked && elements.filter(e => e.type !== 'fixture').length >= 2 && (
+                <button onClick={autoArrange} disabled={arranging}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all"
+                  style={{
+                    background: arranging ? '#D1D5DB' : 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                    color: '#fff',
+                    boxShadow: arranging ? 'none' : '0 4px 14px rgba(99,102,241,0.3)',
+                  }}>
+                  {arranging ? <Clock className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  {arranging ? 'Arranging...' : 'Auto-arrange'}
+                </button>
+              )}
+              {/* Validate */}
+              {!locked && elements.filter(e => e.type !== 'fixture').length >= 2 && (
+                <button onClick={validateLayout}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold transition-all bg-gray-100 text-gray-600 hover:bg-amber-50 hover:text-amber-700">
+                  <AlertTriangle className="w-4 h-4" /> Check
+                </button>
+              )}
               {/* Lock = Done / Unlock = Edit */}
               <button onClick={() => {
                   if (!locked) {
@@ -671,6 +763,26 @@ const FloorPlan = ({ embedded = false }) => {
               </div>
             ))}
           </div>
+
+          {/* Validation results banner */}
+          {validationIssues.length > 0 && (
+            <div className="flex items-center gap-3 mt-2 px-3 py-2 rounded-xl text-xs font-bold" style={{
+              background: validationStats?.errors > 0 ? '#FEF2F2' : '#FFFBEB',
+              color: validationStats?.errors > 0 ? '#DC2626' : '#D97706',
+              border: `1px solid ${validationStats?.errors > 0 ? '#FCA5A520' : '#FCD34D20'}`
+            }}>
+              <AlertTriangle size={14} />
+              <span>
+                {validationStats?.errors > 0 && `${validationStats.errors} error${validationStats.errors > 1 ? 's' : ''}`}
+                {validationStats?.errors > 0 && validationStats?.warnings > 0 && ', '}
+                {validationStats?.warnings > 0 && `${validationStats.warnings} warning${validationStats.warnings > 1 ? 's' : ''}`}
+              </span>
+              <span className="text-gray-400 font-medium ml-1">
+                Min spacing: {validationStats?.min_spacing?.toFixed(0) || '?'}px · Avg: {validationStats?.avg_spacing?.toFixed(0) || '?'}px
+              </span>
+              <button onClick={() => setValidationIssues([])} className="ml-auto text-gray-400 hover:text-gray-600"><X size={12} /></button>
+            </div>
+          )}
         </div>
       )}
 
@@ -868,6 +980,7 @@ const FloorPlan = ({ embedded = false }) => {
               {/* Render tables */}
               {visibleElements.filter(e => e.type !== 'fixture').map(table => (
                 <TableNode key={table.id} table={table} status={table.status || 'available'} isSelected={selectedTable === table.id} locked={locked} isDragging={dragging === table.id}
+                  hasIssue={problemElements.has(table.id)}
                   onMouseDown={(e) => handleMouseDown(e, table.id)} onTouchStart={(e) => handleTouchStart(e, table.id)}
                   onClick={() => locked && setSelectedTable(table.id === selectedTable ? null : table.id)}
                   onEdit={() => setEditTable(table)} onDelete={() => deleteElement(table.id)}

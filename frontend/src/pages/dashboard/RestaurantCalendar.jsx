@@ -748,7 +748,18 @@ export default function RestaurantCalendar() {
               </p>
               <div style={{ display: 'flex', gap: 12 }}>
                 <button onClick={() => setShowDeleteConfirm(false)} style={{ padding: '12px 28px', borderRadius: 999, border: `1px solid ${T.border}`, background: '#fff', color: '#555', fontWeight: 600, fontSize: 14, cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>Cancel</button>
-                <button onClick={() => { setShowDeleteConfirm(false); setSelectedBooking(null) }} style={{ padding: '12px 28px', borderRadius: 999, border: 'none', background: '#EF4444', color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer', fontFamily: "'Figtree', sans-serif", boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }}>Delete Booking</button>
+                <button onClick={async () => {
+                  try {
+                    await api.patch(`/bookings/business/${bid}/detail/${selectedBooking.id}/status`, { status: 'cancelled' })
+                    setShowDeleteConfirm(false)
+                    setSelectedBooking(null)
+                    fetchCalendar(false)
+                  } catch (err) {
+                    console.error('Delete failed:', err)
+                    alert('Failed to delete booking. Please try again.')
+                    setShowDeleteConfirm(false)
+                  }
+                }} style={{ padding: '12px 28px', borderRadius: 999, border: 'none', background: '#EF4444', color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer', fontFamily: "'Figtree', sans-serif", boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }}>Delete Booking</button>
               </div>
             </div>
           )}

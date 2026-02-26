@@ -136,6 +136,25 @@ def _client_id():
 def _booking_id(date_str, idx):
     return f"bkg_{date_str.replace('-', '')}_{BIZ_ID[:8]}_{idx:03d}"
 
+def _time_to_mins(t):
+    """Convert 'HH:MM' to minutes since midnight."""
+    h, m = map(int, t.split(":"))
+    return h * 60 + m
+
+def _mins_to_time(m):
+    """Convert minutes since midnight to 'HH:MM'."""
+    return f"{(m // 60) % 24:02d}:{m % 60:02d}"
+
+def _get_occupied_slots(time_slot, duration):
+    """Return all 30-min slot strings a booking covers."""
+    start = _time_to_mins(time_slot)
+    slots = []
+    t = start
+    while t < start + duration:
+        slots.append(_mins_to_time(t))
+        t += 30
+    return slots
+
 def pick_table_for_party(party_size, occupied_tables):
     """Pick the best available table for a party size."""
     available = [t for t in TABLES if t["id"] not in occupied_tables]
@@ -148,6 +167,13 @@ def pick_table_for_party(party_size, occupied_tables):
     if available:
         return max(available, key=lambda t: t["seats"])
     return None
+
+def mark_table_occupied(day_occupied_tables, table_id, time_slot, duration):
+    """Mark a table as occupied across ALL 30-min slots it covers."""
+    for slot in _get_occupied_slots(time_slot, duration):
+        if slot not in day_occupied_tables:
+            day_occupied_tables[slot] = set()
+        day_occupied_tables[slot].add(table_id)
 
 def get_booking_status(booking_date, booking_time_str, day_offset_from_today):
     """Determine realistic status based on when the booking is relative to now."""
@@ -269,11 +295,14 @@ for day_offset in range(7):
         guest = random.choice(GUESTS)
         time_slot = random.choice(LUNCH_SLOTS)
         party_size = random.choice([2, 2, 2, 3, 4, 4, 5, 6])
-        occupied = day_occupied_tables.get(time_slot, set())
+        duration = random.choice([60, 75, 90])
+        # Build set of tables occupied during ANY slot this booking would cover
+        occupied = set()
+        for slot in _get_occupied_slots(time_slot, duration):
+            occupied |= day_occupied_tables.get(slot, set())
         table = pick_table_for_party(party_size, occupied)
         if table:
-            occupied.add(table["id"])
-            day_occupied_tables[time_slot] = occupied
+            mark_table_occupied(day_occupied_tables, table["id"], time_slot, duration)
 
         status = get_booking_status(booking_date, time_slot, day_offset_from_today)
 
@@ -287,7 +316,7 @@ for day_offset in range(7):
             "partySize": party_size,
             "date": date_str,
             "time": time_slot,
-            "duration": random.choice([60, 75, 90]),
+            "duration": duration,
             "customer": {
                 "name": guest["name"],
                 "phone": guest["phone"],
@@ -341,11 +370,14 @@ for day_offset in range(7):
         guest = random.choice(GUESTS)
         time_slot = random.choice(DINNER_SLOTS)
         party_size = random.choice([2, 2, 2, 2, 3, 4, 4, 4, 5, 6, 6, 8])
-        occupied = day_occupied_tables.get(time_slot, set())
+        duration = random.choice([75, 90, 90, 105, 120])
+        # Build set of tables occupied during ANY slot this booking would cover
+        occupied = set()
+        for slot in _get_occupied_slots(time_slot, duration):
+            occupied |= day_occupied_tables.get(slot, set())
         table = pick_table_for_party(party_size, occupied)
         if table:
-            occupied.add(table["id"])
-            day_occupied_tables[time_slot] = occupied
+            mark_table_occupied(day_occupied_tables, table["id"], time_slot, duration)
 
         status = get_booking_status(booking_date, time_slot, day_offset_from_today)
 
@@ -359,7 +391,7 @@ for day_offset in range(7):
             "partySize": party_size,
             "date": date_str,
             "time": time_slot,
-            "duration": random.choice([75, 90, 90, 105, 120]),
+            "duration": duration,
             "customer": {
                 "name": guest["name"],
                 "phone": guest["phone"],

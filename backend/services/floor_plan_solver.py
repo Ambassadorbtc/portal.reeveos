@@ -115,7 +115,76 @@ def align_rows_and_columns(elements: List[Dict], canvas_w: float, canvas_h: floa
                     for t in row:
                         t["y"] = new_y
     
-    # ── Step 4: Final boundary clamp ──
+    # ── Step 4: Centre the entire layout on the canvas ──
+    # Calculate bounding box of all tables
+    if tables:
+        min_x = min(t.get("x", 0) for t in tables)
+        max_x = max(t.get("x", 0) + get_element_size(t)[0] for t in tables)
+        min_y = min(t.get("y", 0) for t in tables)
+        max_y = max(t.get("y", 0) + get_element_size(t)[1] for t in tables)
+        
+        group_w = max_x - min_x
+        group_h = max_y - min_y
+        
+        # Calculate centering offsets
+        target_x = (canvas_w - group_w) / 2
+        target_y = (canvas_h - group_h) / 2
+        
+        offset_x = target_x - min_x
+        offset_y = target_y - min_y
+        
+        # Snap offsets to grid
+        offset_x = round(offset_x / GRID_SNAP) * GRID_SNAP
+        offset_y = round(offset_y / GRID_SNAP) * GRID_SNAP
+        
+        for t in tables:
+            t["x"] = t.get("x", 0) + offset_x
+            t["y"] = t.get("y", 0) + offset_y
+    
+    # ── Step 5: Spread tables when few on large canvas ──
+    # With only 2-4 tables, they should fill more of the canvas, not huddle together
+    if 2 <= len(tables) <= 4:
+        min_x = min(t.get("x", 0) for t in tables)
+        max_x = max(t.get("x", 0) + get_element_size(t)[0] for t in tables)
+        min_y = min(t.get("y", 0) for t in tables)
+        max_y = max(t.get("y", 0) + get_element_size(t)[1] for t in tables)
+        
+        group_w = max_x - min_x
+        group_h = max_y - min_y
+        
+        usable_w = canvas_w - 2 * WALL_CLEARANCE
+        usable_h = canvas_h - 2 * WALL_CLEARANCE
+        
+        # If group uses less than 50% of canvas, scale it up
+        usage_ratio = max(group_w / usable_w, group_h / usable_h) if usable_w > 0 and usable_h > 0 else 1
+        if usage_ratio < 0.5 and group_w > 0 and group_h > 0:
+            # Scale factor: aim for 60-70% canvas usage
+            scale = min(0.65 / usage_ratio, 2.5)  # Cap at 2.5x
+            
+            # Scale from centre of group
+            cx = (min_x + max_x) / 2
+            cy = (min_y + max_y) / 2
+            
+            for t in tables:
+                t["x"] = cx + (t.get("x", 0) - cx) * scale
+                t["y"] = cy + (t.get("y", 0) - cy) * scale
+            
+            # Re-centre after scaling
+            min_x2 = min(t.get("x", 0) for t in tables)
+            max_x2 = max(t.get("x", 0) + get_element_size(t)[0] for t in tables)
+            min_y2 = min(t.get("y", 0) for t in tables)
+            max_y2 = max(t.get("y", 0) + get_element_size(t)[1] for t in tables)
+            
+            offset_x = ((canvas_w - (max_x2 - min_x2)) / 2) - min_x2
+            offset_y = ((canvas_h - (max_y2 - min_y2)) / 2) - min_y2
+            offset_x = round(offset_x / GRID_SNAP) * GRID_SNAP
+            offset_y = round(offset_y / GRID_SNAP) * GRID_SNAP
+            
+            for t in tables:
+                t["x"] = t.get("x", 0) + offset_x
+                t["y"] = t.get("y", 0) + offset_y
+    
+    # ── Step 6: Final boundary clamp ──
     for t in tables:
         tw, th = get_element_size(t)
         t["x"] = max(WALL_CLEARANCE, min(canvas_w - tw - WALL_CLEARANCE, t["x"]))

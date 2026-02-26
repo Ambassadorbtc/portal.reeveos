@@ -11,11 +11,12 @@ import {
   Circle, Square, RectangleHorizontal, Sofa,
   Home, UtensilsCrossed, Wine, Sun, ArrowUp, TreePine, ArrowDown,
   Users, Clock, PanelTop, Bath, CookingPot, Minus, Eye,
-  Sparkles, AlertTriangle, Wand2
+  Sparkles, AlertTriangle, Wand2, Ruler
 } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
 import RezvoLoader from '../../components/shared/RezvoLoader'
+import RoomSetupModal from '../../components/dashboard/RoomSetupModal'
 
 /* ═══════════════ CONSTANTS ═══════════════ */
 
@@ -392,7 +393,13 @@ const FloorPlan = ({ embedded = false }) => {
   const [arranging, setArranging] = useState(false)
   const [validationIssues, setValidationIssues] = useState([])
   const [validationStats, setValidationStats] = useState(null)
+  const [roomConfig, setRoomConfig] = useState(null)        // {width_m, height_m, preset}
+  const [showRoomSetup, setShowRoomSetup] = useState(false)
   const savedRef = useRef(null)
+
+  // Canvas dimensions: from room config (1m = 100px) or default 1000×800
+  const canvasW = roomConfig ? Math.min(roomConfig.width_m * 100, 2000) : 1000
+  const canvasH = roomConfig ? Math.min(roomConfig.height_m * 100, 2000) : 800
 
   /* ── AI Auto-Arrange ── */
   const autoArrange = async () => {
@@ -403,7 +410,7 @@ const FloorPlan = ({ embedded = false }) => {
       const otherEls = activeZone === 'all' ? [] : elements.filter(e => e.zone !== activeZone)
       const data = await api.post(`/tables/business/${bid}/auto-arrange`, {
         elements: zoneEls,
-        width: 1000, height: 800,
+        width: canvasW, height: canvasH,
         zone: activeZone === 'all' ? null : activeZone,
         style: 'balanced'
       })
@@ -431,7 +438,7 @@ const FloorPlan = ({ embedded = false }) => {
       const zoneEls = activeZone === 'all' ? elements : elements.filter(e => e.zone === activeZone)
       const data = await api.post(`/tables/business/${bid}/validate-layout`, {
         elements: zoneEls,
-        width: 1000, height: 800,
+        width: canvasW, height: canvasH,
         min_gap: 60
       })
       setValidationIssues(data.issues || [])
@@ -469,6 +476,10 @@ const FloorPlan = ({ embedded = false }) => {
     setLoading(true)
     api.get(`/tables/business/${bid}/floor-plan`)
       .then(data => {
+        // Load room config if available
+        if (data.room_config) {
+          setRoomConfig(data.room_config)
+        }
         // Support both legacy {tables:[]} and new {elements:[]} formats
         const els = data.elements || data.tables || []
         if (els.length > 0) {
@@ -477,10 +488,17 @@ const FloorPlan = ({ embedded = false }) => {
           setElements(migrated)
           savedRef.current = JSON.stringify(migrated)
         } else {
+          // No elements saved — show room setup if no room config either
+          if (!data.room_config) {
+            setShowRoomSetup(true)
+          }
           savedRef.current = JSON.stringify(DEFAULT_ELEMENTS)
         }
       })
-      .catch(() => { savedRef.current = JSON.stringify(DEFAULT_ELEMENTS) })
+      .catch(() => {
+        setShowRoomSetup(true)
+        savedRef.current = JSON.stringify(DEFAULT_ELEMENTS)
+      })
       .finally(() => setLoading(false))
   }, [bid])
 
@@ -524,7 +542,7 @@ const FloorPlan = ({ embedded = false }) => {
       return { ...base, seats: e.seats, shape: e.shape, status: e.status, vip: e.vip || false, guest: e.guest || '', timer: e.timer || '', nextTime: e.nextTime || '' }
     })
     try {
-      if (bid) await api.put(`/tables/business/${bid}/floor-plan`, { elements: payload, width: 1000, height: 800 })
+      if (bid) await api.put(`/tables/business/${bid}/floor-plan`, { elements: payload, width: canvasW, height: canvasH })
     } catch {}
     savedRef.current = JSON.stringify(elements)
     setHasChanges(false)
@@ -642,6 +660,21 @@ const FloorPlan = ({ embedded = false }) => {
 
   const occupancy = stats.total > 0 ? Math.round((stats.seated / stats.total) * 100) : 0
 
+  /* ── Room Setup Handler ── */
+  const handleRoomSetup = async (config) => {
+    setRoomConfig(config)
+    setShowRoomSetup(false)
+    // Save to backend
+    if (bid) {
+      try {
+        await api.put(`/tables/business/${bid}/room-config`, config)
+      } catch (err) {
+        console.error('Failed to save room config:', err)
+      }
+    }
+    showToast(`Room set: ${config.width_m}m × ${config.height_m}m ✓`)
+  }
+
   if (loading) return <RezvoLoader message="Loading floor plan..." />
   if (!isFood) return <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center shadow-sm"><h2 className="font-bold text-xl text-gray-900 mb-2">Floor Plan</h2><p className="text-gray-500">Floor plans are available for restaurant businesses.</p></div>
 
@@ -651,6 +684,14 @@ const FloorPlan = ({ embedded = false }) => {
         @keyframes fpPopIn { from { opacity: 0; transform: scale(0.7) translateY(4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes fpPulse { 0%, 100% { box-shadow: 0 4px 14px rgba(27,67,50,0.3); } 50% { box-shadow: 0 4px 20px rgba(27,67,50,0.5); } }
       `}</style>
+
+      {/* Room Setup Modal */}
+      {showRoomSetup && (
+        <RoomSetupModal
+          onComplete={handleRoomSetup}
+          onSkip={() => setShowRoomSetup(false)}
+        />
+      )}
 
       {/* ═══ CONTROLS BAR ═══ */}
       {!embedded && (
@@ -702,6 +743,16 @@ const FloorPlan = ({ embedded = false }) => {
                   }}>
                   {arranging ? <Clock className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                   {arranging ? 'AI thinking...' : 'AI Arrange'}
+                </button>
+              )}
+              {/* Room Size */}
+              {!locked && (
+                <button onClick={() => setShowRoomSetup(true)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all"
+                  style={{ background: '#F3F4F6', color: '#6B7280' }}
+                  title="Change room dimensions">
+                  <Ruler className="w-3.5 h-3.5" />
+                  {roomConfig ? `${roomConfig.width_m}m×${roomConfig.height_m}m` : 'Room Size'}
                 </button>
               )}
               {/* Lock = Done / Unlock = Edit */}
@@ -933,7 +984,9 @@ const FloorPlan = ({ embedded = false }) => {
           ) : (
             /* SINGLE FLOOR CANVAS */
             <div ref={canvasRef} className="relative"
-              style={{ minWidth: 700, minHeight: 500, height: '100%',
+              style={{ minWidth: Math.max(500, canvasW * 0.7), minHeight: Math.max(400, canvasH * 0.7),
+                width: canvasW, maxWidth: '100%',
+                aspectRatio: `${canvasW} / ${canvasH}`,
                 backgroundImage: locked ? 'radial-gradient(circle, #E5E5E0 0.8px, transparent 0.8px)' : 'radial-gradient(circle, #93C5FD 0.8px, transparent 0.8px)',
                 backgroundSize: '24px 24px', transition: 'background-image 0.3s',
                 padding: 20,
@@ -942,11 +995,18 @@ const FloorPlan = ({ embedded = false }) => {
 
               {/* Floor label watermark */}
               {(() => { const zf = FLOORS.find(z => z.id === activeZone); if (!zf || zf.id === 'all') return null; const ZI = zf.Icon; return (
-                <div style={{ position: 'absolute', right: 30, bottom: 20, display: 'flex', alignItems: 'center', gap: 8, opacity: 0.08, pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', right: 30, bottom: roomConfig ? 40 : 20, display: 'flex', alignItems: 'center', gap: 8, opacity: 0.08, pointerEvents: 'none' }}>
                   {ZI && <ZI size={48} strokeWidth={1.2} color={zf.color} />}
                   <span style={{ fontSize: 36, fontWeight: 900, color: zf.color, letterSpacing: '0.05em', textTransform: 'uppercase' }}>{zf.label}</span>
                 </div>
               )})()}
+
+              {/* Room dimensions indicator */}
+              {roomConfig && (
+                <div style={{ position: 'absolute', bottom: 8, right: 12, fontSize: 10, color: '#B0B0A8', fontWeight: 600, pointerEvents: 'none', letterSpacing: '0.02em' }}>
+                  {roomConfig.width_m}m × {roomConfig.height_m}m
+                </div>
+              )}
 
               {/* Edit mode banner */}
               {!locked && (

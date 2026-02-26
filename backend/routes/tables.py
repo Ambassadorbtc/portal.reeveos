@@ -24,12 +24,19 @@ async def find_business(db, business_id: str, owner_id: str):
 router = APIRouter(prefix="/tables", tags=["tables"])
 
 
+class RoomConfig(BaseModel):
+    width_m: float = 10.0       # Room width in metres
+    height_m: float = 15.0      # Room depth in metres
+    preset: Optional[str] = None  # e.g. 'bistro', 'mid_restaurant', etc.
+
+
 class FloorPlanUpdate(BaseModel):
     elements: Optional[List[Dict[str, Any]]] = None
     tables: Optional[List[Dict[str, Any]]] = None
     floors: Optional[List[Dict[str, Any]]] = None
     width: Optional[float] = 1000
     height: Optional[float] = 800
+    room_config: Optional[Dict[str, Any]] = None
 
 
 class AutoArrangeRequest(BaseModel):
@@ -70,14 +77,15 @@ async def get_floor_plan(
     business = await find_business(db, business_id, str(current_user["_id"]))
 
     fp = business.get("floor_plan") or {}
+    room_config = fp.get("room_config")
 
     # Already has elements? Return as-is
     if "elements" in fp and fp["elements"]:
-        return {"elements": fp["elements"], "width": fp.get("width", 1000), "height": fp.get("height", 800)}
+        return {"elements": fp["elements"], "width": fp.get("width", 1000), "height": fp.get("height", 800), "room_config": room_config}
 
     # Migrate from legacy 'tables' format
     if "tables" in fp and fp["tables"]:
-        return {"elements": [{**t, "type": "table"} for t in fp["tables"]], "width": fp.get("width", 1000), "height": fp.get("height", 800)}
+        return {"elements": [{**t, "type": "table"} for t in fp["tables"]], "width": fp.get("width", 1000), "height": fp.get("height", 800), "room_config": room_config}
 
     # Migrate from 'floors' format (from the reverted rebuild)
     if "floors" in fp and fp["floors"]:
@@ -86,10 +94,10 @@ async def get_floor_plan(
             zone_id = floor.get("id", "main")
             for el in floor.get("elements", []):
                 all_elements.append({**el, "zone": zone_id, "type": el.get("type", "table")})
-        return {"elements": all_elements, "width": fp.get("width", 1000), "height": fp.get("height", 800)}
+        return {"elements": all_elements, "width": fp.get("width", 1000), "height": fp.get("height", 800), "room_config": room_config}
 
     # Empty
-    return {"elements": [], "width": 1000, "height": 800}
+    return {"elements": [], "width": 1000, "height": 800, "room_config": room_config}
 
 
 @router.put("/business/{business_id}/floor-plan")
@@ -112,6 +120,13 @@ async def update_floor_plan(
         del data["floors"]
 
     store = {"elements": data.get("elements", []), "width": data.get("width", 1000), "height": data.get("height", 800)}
+    if "room_config" in data:
+        store["room_config"] = data["room_config"]
+    else:
+        # Preserve existing room_config if not provided in this update
+        existing_fp = business.get("floor_plan") or {}
+        if "room_config" in existing_fp:
+            store["room_config"] = existing_fp["room_config"]
 
     await db.businesses.update_one(
         {"_id": business_id},
@@ -127,6 +142,34 @@ async def save_floor_plan(
     current_user: dict = Depends(get_current_owner)
 ):
     return await update_floor_plan(business_id, floor_plan_data, current_user)
+
+
+@router.put("/business/{business_id}/room-config")
+async def update_room_config(
+    business_id: str,
+    room_config: RoomConfig,
+    current_user: dict = Depends(get_current_owner)
+):
+    """Save room dimensions without touching the layout elements."""
+    db = get_database()
+    business = await find_business(db, business_id, str(current_user["_id"]))
+
+    rc = room_config.model_dump()
+    # Compute canvas pixels (1m = 100px, capped at 2000px)
+    px_per_m = 100
+    canvas_w = min(rc["width_m"] * px_per_m, 2000)
+    canvas_h = min(rc["height_m"] * px_per_m, 2000)
+
+    fp = business.get("floor_plan") or {}
+    fp["room_config"] = rc
+    fp["width"] = canvas_w
+    fp["height"] = canvas_h
+
+    await db.businesses.update_one(
+        {"_id": business["_id"]},
+        {"$set": {"floor_plan": fp, "updated_at": datetime.utcnow()}}
+    )
+    return {"room_config": rc, "width": canvas_w, "height": canvas_h}
 
 
 @router.delete("/business/{business_id}/tables/{table_id}")
@@ -170,6 +213,10 @@ async def auto_arrange_floor_plan(
     db = get_database()
     business = await find_business(db, business_id, str(current_user["_id"]))
 
+    # Load room config if available (real-world dimensions help AI reason spatially)
+    fp = business.get("floor_plan") or {}
+    room_config = fp.get("room_config")
+
     try:
         # Try AI-powered arrange first
         from services.ai_floor_plan import ai_auto_arrange, has_ai_key
@@ -180,6 +227,7 @@ async def auto_arrange_floor_plan(
                 canvas_h=request.height,
                 zone=request.zone,
                 style=request.style,
+                room_config=room_config,
             )
             return {
                 "elements": result["elements"],

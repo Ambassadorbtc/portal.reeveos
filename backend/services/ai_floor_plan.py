@@ -113,7 +113,7 @@ def _describe_element(el: Dict) -> str:
         return f"  - {name}: {seats} seats, {shape} shape, size {w:.0f}×{h:.0f}px{vip}"
 
 
-def _build_user_prompt(elements: List[Dict], canvas_w: float, canvas_h: float, zone: Optional[str]) -> str:
+def _build_user_prompt(elements: List[Dict], canvas_w: float, canvas_h: float, zone: Optional[str], room_config: Optional[Dict] = None) -> str:
     """Build the user prompt describing the room."""
     fixtures = [e for e in elements if e.get("type") == "fixture"]
     tables = [e for e in elements if e.get("type") != "fixture"]
@@ -124,6 +124,17 @@ def _build_user_prompt(elements: List[Dict], canvas_w: float, canvas_h: float, z
 
     fixtures_desc = "\n".join(_describe_element(f) for f in fixtures) if fixtures else "  (none)"
     tables_desc = "\n".join(_describe_element(t) for t in tables) if tables else "  (none)"
+
+    # Real-world dimensions if known
+    room_desc = f"Room: {canvas_w:.0f}px wide × {canvas_h:.0f}px tall"
+    if room_config:
+        w_m = room_config.get("width_m", canvas_w / 100)
+        h_m = room_config.get("height_m", canvas_h / 100)
+        preset = room_config.get("preset", "")
+        px_per_m = canvas_w / w_m if w_m > 0 else 100
+        room_desc = f"""Room: {w_m:.1f}m wide × {h_m:.1f}m deep ({canvas_w:.0f}px × {canvas_h:.0f}px, {px_per_m:.0f}px per metre)
+Type: {preset.replace('_', ' ').title() if preset else 'Custom'}
+Scale: table gaps of 30px ≈ {30/px_per_m*100:.0f}cm real-world. Keep minimum 60cm (≈{0.6*px_per_m:.0f}px) between tables, 90cm (≈{0.9*px_per_m:.0f}px) for service aisles."""
 
     # Zone-specific context
     zone_hint = ""
@@ -145,7 +156,7 @@ def _build_user_prompt(elements: List[Dict], canvas_w: float, canvas_h: float, z
     elif len(tables) <= 6:
         density_hint = "\n\nModerate number of tables — balance spacing across the full canvas area. Centre the arrangement."
 
-    return f"""Room: {canvas_w:.0f}px wide × {canvas_h:.0f}px tall
+    return f"""{room_desc}
 {zone_hint}
 Fixtures (FIXED — do NOT move these):
 {fixtures_desc}
@@ -269,6 +280,7 @@ async def ai_auto_arrange(
     canvas_h: float = 800,
     zone: Optional[str] = None,
     style: str = "balanced",
+    room_config: Optional[Dict] = None,
 ) -> Dict:
     """
     AI-powered auto-arrange. Two-phase:
@@ -280,7 +292,7 @@ async def ai_auto_arrange(
     result = copy.deepcopy(elements)
 
     # Build prompt
-    user_prompt = _build_user_prompt(result, canvas_w, canvas_h, zone)
+    user_prompt = _build_user_prompt(result, canvas_w, canvas_h, zone, room_config)
 
     # Phase 1: Ask the LLM
     config = PROVIDER_CONFIG.get(PROVIDER, PROVIDER_CONFIG["anthropic"])

@@ -150,7 +150,7 @@ async def update_room_config(
     room_config: RoomConfig,
     current_user: dict = Depends(get_current_owner)
 ):
-    """Save room dimensions without touching the layout elements."""
+    """Save room dimensions and rescale existing elements to fit."""
     db = get_database()
     business = await find_business(db, business_id, str(current_user["_id"]))
 
@@ -161,6 +161,17 @@ async def update_room_config(
     canvas_h = min(rc["height_m"] * px_per_m, 2000)
 
     fp = business.get("floor_plan") or {}
+    old_w = fp.get("width", 1000)
+    old_h = fp.get("height", 800)
+
+    # Rescale existing elements if canvas size changed
+    if "elements" in fp and fp["elements"] and (abs(old_w - canvas_w) > 10 or abs(old_h - canvas_h) > 10):
+        scale_x = canvas_w / old_w
+        scale_y = canvas_h / old_h
+        for el in fp["elements"]:
+            el["x"] = max(10, min(canvas_w - 60, round(el.get("x", 0) * scale_x)))
+            el["y"] = max(10, min(canvas_h - 60, round(el.get("y", 0) * scale_y)))
+
     fp["room_config"] = rc
     fp["width"] = canvas_w
     fp["height"] = canvas_h
@@ -169,7 +180,7 @@ async def update_room_config(
         {"_id": business["_id"]},
         {"$set": {"floor_plan": fp, "updated_at": datetime.utcnow()}}
     )
-    return {"room_config": rc, "width": canvas_w, "height": canvas_h}
+    return {"room_config": rc, "width": canvas_w, "height": canvas_h, "elements": fp.get("elements", [])}
 
 
 @router.delete("/business/{business_id}/tables/{table_id}")

@@ -483,8 +483,27 @@ const FloorPlan = ({ embedded = false }) => {
         // Support both legacy {tables:[]} and new {elements:[]} formats
         const els = data.elements || data.tables || []
         if (els.length > 0) {
-          // Ensure all items have type field (legacy migration)
-          const migrated = els.map(e => ({ ...e, type: e.type || 'table' }))
+          let migrated = els.map(e => ({ ...e, type: e.type || 'table' }))
+
+          // Rescale if room config exists and elements were saved for a different canvas size
+          if (data.room_config) {
+            const targetW = Math.min(data.room_config.width_m * 100, 2000)
+            const targetH = Math.min(data.room_config.height_m * 100, 2000)
+            const savedW = data.width || 1000
+            const savedH = data.height || 800
+            // Check if any elements are out of bounds for the target canvas
+            const anyOutOfBounds = migrated.some(e => e.x > targetW - 20 || e.y > targetH - 20)
+            if (anyOutOfBounds || (Math.abs(savedW - targetW) > 10 || Math.abs(savedH - targetH) > 10)) {
+              const scaleX = targetW / savedW
+              const scaleY = targetH / savedH
+              migrated = migrated.map(el => ({
+                ...el,
+                x: Math.max(10, Math.min(targetW - 60, Math.round(el.x * scaleX))),
+                y: Math.max(10, Math.min(targetH - 60, Math.round(el.y * scaleY))),
+              }))
+            }
+          }
+
           setElements(migrated)
           savedRef.current = JSON.stringify(migrated)
         } else {
@@ -662,35 +681,41 @@ const FloorPlan = ({ embedded = false }) => {
 
   /* ── Room Setup Handler ── */
   const handleRoomSetup = async (config) => {
-    const newW = Math.min(config.width_m * 100, 2000)
-    const newH = Math.min(config.height_m * 100, 2000)
-    const oldW = canvasW
-    const oldH = canvasH
-
     setRoomConfig(config)
     setShowRoomSetup(false)
 
-    // Rescale all element positions to fit the new canvas
-    if (oldW !== newW || oldH !== newH) {
-      const scaleX = newW / oldW
-      const scaleY = newH / oldH
-      setElements(prev => prev.map(el => ({
-        ...el,
-        x: Math.max(10, Math.min(newW - 60, Math.round(el.x * scaleX))),
-        y: Math.max(10, Math.min(newH - 60, Math.round(el.y * scaleY))),
-      })))
-      setHasChanges(true)
-    }
-
-    // Save to backend
+    // Save to backend (backend rescales elements too)
     if (bid) {
       try {
-        await api.put(`/tables/business/${bid}/room-config`, config)
+        const resp = await api.put(`/tables/business/${bid}/room-config`, config)
+        // Backend returns rescaled elements
+        if (resp.elements && resp.elements.length > 0) {
+          const migrated = resp.elements.map(e => ({ ...e, type: e.type || 'table' }))
+          setElements(migrated)
+          savedRef.current = JSON.stringify(migrated)
+          setHasChanges(false)
+        } else {
+          // No elements in DB — rescale local elements
+          const newW = Math.min(config.width_m * 100, 2000)
+          const newH = Math.min(config.height_m * 100, 2000)
+          const oldW = canvasW
+          const oldH = canvasH
+          if (oldW !== newW || oldH !== newH) {
+            const scaleX = newW / oldW
+            const scaleY = newH / oldH
+            setElements(prev => prev.map(el => ({
+              ...el,
+              x: Math.max(10, Math.min(newW - 60, Math.round(el.x * scaleX))),
+              y: Math.max(10, Math.min(newH - 60, Math.round(el.y * scaleY))),
+            })))
+            setHasChanges(true)
+          }
+        }
       } catch (err) {
         console.error('Failed to save room config:', err)
       }
     }
-    showToast(`Room set: ${config.width_m}m × ${config.height_m}m — elements rescaled ✓`)
+    showToast(`Room set: ${config.width_m}m × ${config.height_m}m ✓`)
   }
 
   if (loading) return <RezvoLoader message="Loading floor plan..." />

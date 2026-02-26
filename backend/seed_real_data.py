@@ -608,9 +608,9 @@ print(f"   Created {len(activity_entries)} activity log entries")
 
 print("\n👨‍🍳 Adding staff members...")
 staff = [
-    {"id": "staff_owner", "name": "Sadkine Krizilkaya", "role": "Owner", "email": "sadkine@micho.co.uk", "active": True, "pin": "1234"},
-    {"id": "staff_mgr", "name": "Serhat", "role": "Floor Manager", "email": "serhat@micho.co.uk", "active": True, "pin": "5678"},
-    {"id": "staff_wait1", "name": "Yaren Krizilkaya", "role": "Waitress", "email": "yaren@micho.co.uk", "active": True, "pin": "3456"},
+    {"id": "staff_owner", "name": "Sadkine Krizilkaya", "role": "Owner", "email": "sadkine@michoturkishbarandgrill.co.uk", "active": True, "pin": "1234"},
+    {"id": "staff_mgr", "name": "Serhat", "role": "Floor Manager", "email": "serhat@michoturkishbarandgrill.co.uk", "active": True, "pin": "5678"},
+    {"id": "staff_wait1", "name": "Yaren Krizilkaya", "role": "Waitress", "email": "yaren@michoturkishbarandgrill.co.uk", "active": True, "pin": "3456"},
 ]
 db.businesses.update_one(
     {"_id": micho["_id"]},

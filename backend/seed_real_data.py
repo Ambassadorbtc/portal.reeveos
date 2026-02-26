@@ -608,11 +608,9 @@ print(f"   Created {len(activity_entries)} activity log entries")
 
 print("\n👨‍🍳 Adding staff members...")
 staff = [
-    {"id": "staff_owner", "name": "Micho", "role": "Owner", "email": "micho@rezvo.app", "active": True, "pin": "1234"},
-    {"id": "staff_mgr", "name": "Ayse Demir", "role": "Manager", "email": "ayse@micho.co.uk", "active": True, "pin": "5678"},
-    {"id": "staff_chef", "name": "Kemal Yilmaz", "role": "Head Chef", "email": "kemal@micho.co.uk", "active": True, "pin": "9012"},
-    {"id": "staff_wait1", "name": "Sophie Turner", "role": "Waitress", "email": "sophie@micho.co.uk", "active": True, "pin": "3456"},
-    {"id": "staff_wait2", "name": "Jake Mitchell", "role": "Waiter", "email": "jake@micho.co.uk", "active": True, "pin": "7890"},
+    {"id": "staff_owner", "name": "Sadkine Krizilkaya", "role": "Owner", "email": "sadkine@micho.co.uk", "active": True, "pin": "1234"},
+    {"id": "staff_mgr", "name": "Serhat", "role": "Floor Manager", "email": "serhat@micho.co.uk", "active": True, "pin": "5678"},
+    {"id": "staff_wait1", "name": "Yaren Krizilkaya", "role": "Waitress", "email": "yaren@micho.co.uk", "active": True, "pin": "3456"},
 ]
 db.businesses.update_one(
     {"_id": micho["_id"]},

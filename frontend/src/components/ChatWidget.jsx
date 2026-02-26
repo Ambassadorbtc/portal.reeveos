@@ -1,49 +1,16 @@
 /**
- * Rezvo AI Support Chat Widget — React Component
- * Floating chat bubble with knowledge-base powered responses
+ * Rezvo AI Dashboard Chat — wired to real database
+ * Calls /api/chatbot/chat with business_id so Claude can query MongoDB
  */
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useBusiness } from '../contexts/BusinessContext'
+import { API_BASE_URL } from '../utils/api'
 
 const FOREST = '#1B4332'
 const MINT = '#52B788'
+const GOLD = '#D4A373'
 
-/* ─── Knowledge Base ─── */
-const KB = {
-  greeting: "Hi! 👋 I'm Rezvo's AI assistant. I can help with pricing, features, getting started, or any questions about our platform. What would you like to know?",
-  fallback: "Great question! I want to make sure you get the best answer. You can reach our team directly at hello@rezvo.app or use our contact page. Is there anything else I can help with?",
-  topics: [
-    { keys: ['price','pricing','cost','how much','plan','plans','subscription','free','tier'], answer: "**Rezvo Pricing:**\n\n• **Free** — £0/mo · 1 staff, 100 bookings\n• **Starter** — £8.99/mo · 3 staff, reminders\n• **Growth** — £29/mo · 5 staff, deposits, CRM\n• **Scale** — £59/mo · Unlimited, floor plans, white-label\n• **Enterprise** — Custom pricing\n\nAll plans include zero commission. 30-day free trial!" },
-    { keys: ['commission','zero commission','no commission','fees','percentage'], answer: "**Zero commission, always.** Unlike platforms that take 15-30% of every booking, Rezvo charges a flat monthly rate. 100% of your revenue stays yours. Payments go directly to your bank via Stripe Connect." },
-    { keys: ['restaurant','table','floor plan','covers','seating','dining'], answer: "**Rezvo for Restaurants:**\n\n• Floor Plan View with real-time table status\n• Covers tracking by party size\n• Service period management (lunch/dinner)\n• Online booking widget\n• Orders board for kitchen\n• Analytics & revenue tracking" },
-    { keys: ['delivery','uber','uber direct','deliveroo','just eat','takeaway','ordering'], answer: "**Zero-Commission Delivery via Uber Direct:**\n\n• Customers order from YOUR branded page\n• Payments go directly to YOUR Stripe account\n• Uber Direct handles drivers — you pay only the delivery fee\n• No 25-30% commission like Deliveroo or JustEat" },
-    { keys: ['booking','book','appointment','reserve','calendar'], answer: "**Smart Booking System:**\n\n• Online booking 24/7\n• Drag-and-drop calendar with staff columns\n• Deposit collection to reduce no-shows\n• SMS and email reminders\n• Walk-in management\n• Multi-staff support" },
-    { keys: ['salon','barber','spa','hair','beauty','service business'], answer: "**Rezvo works for all service businesses:** Salons, Barbers, Personal Trainers, Physiotherapists, Tattoo Studios, Music Teachers, Dog Groomers and more. Each gets a tailored booking flow." },
-    { keys: ['opentable','resdiary','thefork','competitor','compare','alternative','switch'], answer: "**vs OpenTable:** They charge £1-3 per seated diner. Rezvo is flat-rate, zero commission.\n**vs ResDiary:** Similar features but Rezvo includes online ordering + delivery.\n**vs TheFork:** They take commission and promote discounting. Rezvo protects your margins." },
-    { keys: ['payment','stripe','pay','card','deposit','money'], answer: "**Stripe Connect Payments:**\n\n• Each business connects their own Stripe account\n• Payments go directly to you\n• Supports Apple Pay, Google Pay\n• Automatic deposit collection\n• Full refund management" },
-    { keys: ['start','get started','sign up','signup','trial','begin','join'], answer: "**Getting started:**\n\n1. Sign up free — no credit card needed\n2. Set up your profile, services, and staff\n3. Start accepting bookings immediately\n\n30-day free trial on any plan!" },
-    { keys: ['contact','support','help','email','speak','human','team'], answer: "**Get in touch:**\n\n• Email: hello@rezvo.app\n• Contact page: rezvo.app/contact.html\n• We typically reply within a few hours" },
-    { keys: ['feature','what do','what can','include','offer'], answer: "**Key features:** Online booking, drag-and-drop calendar, floor plans, Stripe payments, CRM & analytics, SMS reminders, staff management, online ordering, Uber Direct delivery, white-label branding, directory listing." },
-    { keys: ['hello','hi','hey','good morning','good afternoon'], answer: "Hey there! 👋 Welcome to Rezvo. I can help with pricing, features, getting started, or any questions. What can I help with?" },
-    { keys: ['thank','thanks','cheers','appreciate'], answer: "You're welcome! 😊 If you have more questions, I'm here. Have a great day!" },
-    { keys: ['bye','goodbye','see you','later'], answer: "Thanks for chatting! If you need anything, I'm always here. 👋" },
-    { keys: ['dashboard','how to','setting','manage','staff','schedule'], answer: "**Dashboard Help:**\n\nFrom your dashboard you can manage bookings, staff, services, and settings. Use the sidebar to navigate between Calendar, Bookings, Staff, Services, Customers, and Analytics. Need help with something specific? Just ask!" },
-    { keys: ['no show','no-show','cancel','cancellation'], answer: "**No-show Protection:**\n\n• Collect card-on-file deposits\n• Automatic reminders reduce no-shows by up to 70%\n• Easy cancellation policy management\n• Charge no-show fees automatically\n\nAvailable on Growth plan and above." },
-  ]
-}
-
-function findAnswer(msg) {
-  const lower = msg.toLowerCase().trim()
-  if (lower.length < 2) return KB.greeting
-  let best = null, bestScore = 0
-  for (const topic of KB.topics) {
-    let score = 0
-    for (const key of topic.keys) {
-      if (lower.includes(key)) score += key.split(' ').length
-    }
-    if (score > bestScore) { bestScore = score; best = topic }
-  }
-  return best ? best.answer : KB.fallback
-}
+const GREETING = "Hey! 👋 I'm your Rezvo AI assistant. I can see your live booking data — ask me about today's covers, upcoming reservations, customer stats, or anything about the platform."
 
 function formatMsg(text) {
   return text
@@ -55,16 +22,16 @@ function formatMsg(text) {
 }
 
 const quickButtons = [
-  { label: '💰 Pricing', q: 'What are your pricing plans?' },
-  { label: '🍽️ Restaurants', q: 'Tell me about restaurant features' },
-  { label: '🚫 Zero Commission', q: 'How does zero commission work?' },
-  { label: '🚀 Get Started', q: 'How do I get started?' },
-  { label: '✨ Features', q: 'What features do you offer?' },
-  { label: '📧 Contact', q: 'How can I contact your team?' },
+  { label: '📊 Today\'s covers', q: 'How many covers have I got today?' },
+  { label: '👥 Total customers', q: 'How many customers do I have altogether?' },
+  { label: '📅 This week', q: 'What does this week look like for bookings?' },
+  { label: '🚫 No-shows', q: 'What is my no-show rate?' },
+  { label: '⏰ Next up', q: 'What are the next bookings coming up today?' },
+  { label: '💡 Help', q: 'What can you help me with?' },
 ]
 
-/* ─── Icons ─── */
-const ChatBubbleIcon = () => (
+/* Icons */
+const ChatIcon = () => (
   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
   </svg>
@@ -81,8 +48,10 @@ const SendIcon = () => (
 )
 
 const ChatWidget = () => {
+  const { business } = useBusiness()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([])
+  const [chatHistory, setChatHistory] = useState([]) // API message format
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [showQuick, setShowQuick] = useState(true)
@@ -102,28 +71,59 @@ const ChatWidget = () => {
       if (next && !hasOpened) {
         setHasOpened(true)
         setTimeout(() => {
-          setMessages([{ text: KB.greeting, sender: 'bot' }])
-        }, 400)
+          setMessages([{ text: GREETING, sender: 'bot' }])
+        }, 300)
       }
       setShowBadge(false)
       return next
     })
   }, [hasOpened])
 
-  const sendMessage = useCallback((text) => {
+  const sendMessage = useCallback(async (text) => {
     if (!text.trim()) return
-    setMessages(prev => [...prev, { text, sender: 'user' }])
+    const userText = text.trim()
     setInput('')
     setShowQuick(false)
     setIsTyping(true)
 
-    const delay = 300 + Math.random() * 600
-    setTimeout(() => {
+    // Add user message to display
+    setMessages(prev => [...prev, { text: userText, sender: 'user' }])
+
+    // Build API history
+    const newHistory = [...chatHistory, { role: 'user', content: userText }]
+    setChatHistory(newHistory)
+
+    try {
+      const token = localStorage.getItem('token')
+      const res = await fetch(`${API_BASE_URL}/chatbot/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          messages: newHistory.slice(-20),
+          business_id: business?.id || null,
+        }),
+      })
+
+      if (!res.ok) throw new Error(`API ${res.status}`)
+
+      const data = await res.json()
+      const reply = data.reply || "Hmm, couldn't get a response. Try again!"
+
+      setMessages(prev => [...prev, { text: reply, sender: 'bot' }])
+      setChatHistory(prev => [...prev, { role: 'assistant', content: reply }])
+    } catch (err) {
+      console.error('Chat API error:', err)
+      setMessages(prev => [...prev, {
+        text: "I'm having trouble connecting right now. Check your dashboard directly or try again in a moment.",
+        sender: 'bot'
+      }])
+    } finally {
       setIsTyping(false)
-      const answer = findAnswer(text)
-      setMessages(prev => [...prev, { text: answer, sender: 'bot' }])
-    }, delay)
-  }, [])
+    }
+  }, [chatHistory, business?.id])
 
   useEffect(() => {
     const handler = (e) => {
@@ -138,7 +138,7 @@ const ChatWidget = () => {
       {/* Panel */}
       <div style={{
         position: 'fixed', bottom: 96, right: 24, zIndex: 9998,
-        width: 380, maxWidth: 'calc(100vw - 32px)', height: 520, maxHeight: 'calc(100vh - 140px)',
+        width: 400, maxWidth: 'calc(100vw - 32px)', height: 540, maxHeight: 'calc(100vh - 140px)',
         borderRadius: 20, background: '#fff',
         boxShadow: '0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05)',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
@@ -149,12 +149,23 @@ const ChatWidget = () => {
         fontFamily: "'Figtree', system-ui, sans-serif",
       }}>
         {/* Header */}
-        <div style={{ background: FOREST, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 12, background: '#D4A373', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16, color: '#1B4332', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>R.</div>
-          <div>
-            <div style={{ color: '#fff', fontSize: 15, fontWeight: 700 }}>Rezvo Support</div>
-            <div style={{ color: MINT, fontSize: 11, fontWeight: 600, marginTop: 2, opacity: 0.9 }}>● Online — replies instantly</div>
+        <div style={{ background: FOREST, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: 12, background: GOLD,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 700, fontSize: 16, color: FOREST, boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+          }}>R.</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ color: '#fff', fontSize: 15, fontWeight: 700 }}>Rezvo AI</div>
+            <div style={{ color: MINT, fontSize: 11, fontWeight: 600, marginTop: 2, opacity: 0.9 }}>
+              ● Live — connected to your data
+            </div>
           </div>
+          {business?.name && (
+            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: 500, textAlign: 'right', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {business.name}
+            </div>
+          )}
         </div>
 
         {/* Messages */}
@@ -171,7 +182,11 @@ const ChatWidget = () => {
                 background: FOREST, color: '#fff',
                 borderBottomRightRadius: 4, alignSelf: 'flex-end',
               })
-            }} dangerouslySetInnerHTML={msg.sender === 'bot' ? { __html: formatMsg(msg.text) } : { __html: msg.text.replace(/</g, '&lt;') }} />
+            }} dangerouslySetInnerHTML={
+              msg.sender === 'bot'
+                ? { __html: formatMsg(msg.text) }
+                : { __html: msg.text.replace(/</g, '&lt;') }
+            } />
           ))}
           {isTyping && (
             <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 16, borderBottomLeftRadius: 4, alignSelf: 'flex-start', padding: '14px 20px' }}>
@@ -207,7 +222,7 @@ const ChatWidget = () => {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input) } }}
-            placeholder="Ask anything about Rezvo..."
+            placeholder="Ask about your bookings, covers, customers..."
             disabled={isTyping}
             style={{
               flex: 1, border: '1.5px solid #e5e7eb', borderRadius: 12, padding: '10px 14px',
@@ -222,7 +237,7 @@ const ChatWidget = () => {
         </div>
 
         <div style={{ textAlign: 'center', padding: 6, fontSize: 9, color: '#bbb', background: '#fff', borderTop: '1px solid #f0f0f0' }}>
-          Powered by Rezvo AI
+          Powered by Rezvo AI · Live data
         </div>
       </div>
 
@@ -233,9 +248,8 @@ const ChatWidget = () => {
         border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
         boxShadow: '0 6px 24px rgba(27,67,50,0.4)',
         transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
-        transform: isOpen ? 'scale(1)' : 'scale(1)',
       }}>
-        {isOpen ? <CloseIcon /> : <ChatBubbleIcon />}
+        {isOpen ? <CloseIcon /> : <ChatIcon />}
         {showBadge && !isOpen && (
           <div style={{
             position: 'absolute', top: -2, right: -2, width: 18, height: 18, borderRadius: '50%',

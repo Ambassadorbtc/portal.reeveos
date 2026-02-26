@@ -333,6 +333,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
         body: JSON.stringify({
           messages: apiMessages,
           session_id: convId,
+          business_id: bid || undefined,
           context: restaurantContext || undefined,
         }),
       });

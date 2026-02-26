@@ -471,7 +471,7 @@ today_str = TODAY.strftime("%Y-%m-%d")
 today_bookings = [b for b in all_bookings if b["date"] == today_str]
 now_minutes = datetime.utcnow().hour * 60 + datetime.utcnow().minute
 
-# Determine each table's current status
+# Determine each table's current status from live bookings
 table_status_map = {}
 for b in today_bookings:
     tid = b.get("tableId")
@@ -491,7 +491,6 @@ for b in today_bookings:
             "vip": b.get("occasion") in ["Birthday", "Anniversary"] or random.random() < 0.1,
         }
     elif b["status"] == "confirmed" and bk_minutes > now_minutes and bk_minutes < now_minutes + 120:
-        # Upcoming booking — show as reserved
         if tid not in table_status_map or table_status_map[tid]["status"] == "available":
             table_status_map[tid] = {
                 "status": "reserved",
@@ -499,9 +498,23 @@ for b in today_bookings:
                 "nextTime": b["time"],
             }
     elif b["status"] == "completed" and bk_minutes > now_minutes - 30:
-        # Just finished — might be dirty
         if tid not in table_status_map:
             table_status_map[tid] = {"status": "dirty"}
+
+# DEMO FALLBACK: if no active bookings (e.g. 1 AM), use realistic demo statuses
+# so the floor plan always looks alive for demos and screenshots
+if len(table_status_map) < 2:
+    print("   No active service right now — applying demo statuses for showcase")
+    # Pick guests from today's confirmed bookings for realism
+    upcoming = [b for b in today_bookings if b["status"] == "confirmed"]
+    table_status_map = {
+        "t1": {"status": "seated", "guest": upcoming[0]["customer"]["name"] if len(upcoming) > 0 else "Sarah Mitchell", "timer": "45m", "vip": False},
+        "t2": {"status": "reserved", "guest": f"{upcoming[1]['customer']['name'].split()[0]} ({upcoming[1]['partySize']})" if len(upcoming) > 1 else "Smith (4)", "nextTime": "19:00"},
+        "t3": {"status": "available"},
+        "t4": {"status": "seated", "guest": upcoming[2]["customer"]["name"] if len(upcoming) > 2 else "Mohammed Ali", "timer": "12m", "vip": True},
+        "t5": {"status": "dirty"},
+        "t6": {"status": "mains", "guest": upcoming[3]["customer"]["name"] if len(upcoming) > 3 else "Williams"},
+    }
 
 # Apply to floor plan elements
 fp = micho.get("floor_plan", {})
@@ -514,17 +527,12 @@ if elements:
         tid = el.get("id")
         if tid in table_status_map:
             s = table_status_map[tid]
-            el["status"] = s["status"]
+            el["status"] = s.get("status", "available")
             el["guest"] = s.get("guest", "")
             el["timer"] = s.get("timer", "")
             el["nextTime"] = s.get("nextTime", "")
             el["vip"] = s.get("vip", False)
-        else:
-            el["status"] = "available"
-            el["guest"] = ""
-            el["timer"] = ""
-            el["nextTime"] = ""
-            el["vip"] = False
+        # DON'T overwrite tables not in the map — leave their existing status alone
 
     db.businesses.update_one(
         {"_id": micho["_id"]},
@@ -537,7 +545,7 @@ if elements:
     print(f"   Updated {len(table_status_map)} table statuses")
     for tid, s in table_status_map.items():
         tname = next((t["name"] for t in TABLES if t["id"] == tid), tid)
-        print(f"     {tname}: {s['status']}" + (f" — {s.get('guest', '')}" if s.get("guest") else ""))
+        print(f"     {tname}: {s.get('status', '?')}" + (f" — {s.get('guest', '')}" if s.get("guest") else ""))
 else:
     print("   ⚠️  No floor plan elements found — run reset_floor_plan.py first")
 

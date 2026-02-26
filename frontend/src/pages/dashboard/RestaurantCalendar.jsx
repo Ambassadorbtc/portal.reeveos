@@ -299,14 +299,14 @@ export default function RestaurantCalendar() {
   /* ── Current time line position (updates every 60s) ── */
   const [clockTick, setClockTick] = useState(0)
   useEffect(() => {
-    const interval = setInterval(() => setClockTick(t => t + 1), 60000)
+    const interval = setInterval(() => setClockTick(t => t + 1), 1000)
     return () => clearInterval(interval)
   }, [])
 
   const nowPercent = useMemo(() => {
     if (!isToday) return null
     const now = new Date()
-    let nowMin = now.getHours() * 60 + now.getMinutes()
+    let nowMin = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60
     // If outside service hours, show demo line at a visible position
     if (nowMin < timeRange.start || nowMin > timeRange.end) {
       // Place demo line 40% into the visible range
@@ -576,9 +576,9 @@ export default function RestaurantCalendar() {
 
             {/* Current time red line — design: red line + diamond top */}
             {nowPercent != null && (
-              <div style={{ position: 'absolute', top: 0, bottom: 0, left: `${nowPercent}%`, width: 2, background: '#EF4444', zIndex: 25, pointerEvents: 'none' }}>
+              <div style={{ position: 'absolute', top: 0, bottom: 0, left: `${nowPercent}%`, width: 2, background: '#EF4444', zIndex: 25, pointerEvents: 'none', transition: 'left 1s linear' }}>
                 {/* Diamond indicator at top */}
-                <div style={{ width: 10, height: 10, background: '#EF4444', transform: 'rotate(45deg)', position: 'absolute', top: 35, left: -4, borderRadius: 1 }} />
+                <div style={{ width: 10, height: 10, background: '#EF4444', transform: 'rotate(45deg)', position: 'absolute', top: 35, left: -4, borderRadius: 1, boxShadow: '0 0 8px rgba(239,68,68,0.6)', animation: 'redPulse 2s ease-in-out infinite' }} />
                 {/* Time label */}
                 <div style={{ position: 'absolute', top: 22, left: 8, background: '#EF4444', color: '#fff', fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 3, whiteSpace: 'nowrap' }}>
                   {nowTimeLabel}
@@ -1016,6 +1016,10 @@ export default function RestaurantCalendar() {
         .timeline-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
         .timeline-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
         .timeline-scroll::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        @keyframes redPulse {
+          0%, 100% { box-shadow: 0 0 6px rgba(239,68,68,0.4); }
+          50% { box-shadow: 0 0 14px rgba(239,68,68,0.8); }
+        }
       `}</style>
     </div>
   )

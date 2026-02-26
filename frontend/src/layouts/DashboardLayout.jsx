@@ -12,6 +12,7 @@ import Sidebar from '../components/layout/Sidebar'
 import TopBar from '../components/layout/TopBar'
 import UpgradeModal from '../components/layout/UpgradeModal'
 import RezvoSupportBot from '../components/RezvoSupportBot'
+import WelcomeBanner from '../components/shared/WelcomeBanner'
 import RezvoLoader from '../components/shared/RezvoLoader'
 import { TIERS } from '../config/tiers'
 import { useEffect } from 'react'
@@ -76,6 +77,7 @@ const DashboardLayout = () => {
         />
       )}
       <RezvoSupportBot />
+      <WelcomeBanner />
     </div>
   )
 }

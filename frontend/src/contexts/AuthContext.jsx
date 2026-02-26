@@ -53,9 +53,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await api.post('/auth/login', { email, password })
-      const { access_token, user: userData } = response
+      const { access_token, refresh_token, user: userData } = response
       
       localStorage.setItem('token', access_token)
+      if (refresh_token) localStorage.setItem('refresh_token', refresh_token)
       localStorage.setItem('user', JSON.stringify(userData))
       setToken(access_token)
       setUser(userData)
@@ -72,9 +73,10 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await api.post('/auth/register', userData)
-      const { access_token, user: newUser } = response
+      const { access_token, refresh_token, user: newUser } = response
       
       localStorage.setItem('token', access_token)
+      if (refresh_token) localStorage.setItem('refresh_token', refresh_token)
       localStorage.setItem('user', JSON.stringify(newUser))
       setToken(access_token)
       setUser(newUser)
@@ -90,6 +92,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token')
+    localStorage.removeItem('refresh_token')
     localStorage.removeItem('user')
     setToken(null)
     setUser(null)

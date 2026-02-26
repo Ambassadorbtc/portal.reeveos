@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     
     jwt_secret_key: str
     jwt_algorithm: str = "HS256"
-    jwt_access_token_expire_minutes: int = 30
+    jwt_access_token_expire_minutes: int = 60 * 24  # 24 hours — increase once frontend refresh is wired
     jwt_refresh_token_expire_days: int = 7
     
     google_places_api_key: str

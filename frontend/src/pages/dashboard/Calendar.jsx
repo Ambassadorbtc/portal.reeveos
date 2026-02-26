@@ -114,9 +114,24 @@ const Calendar = () => {
     return <RestaurantCalendar />
   }
 
-  /* ── Still loading business context — don't flash salon calendar ── */
-  if (bizLoading || (!business && isDemo)) {
+  /* ── Still loading business context ── */
+  if (bizLoading) {
     return <RezvoLoader message="Loading..." size="md" />
+  }
+
+  /* ── SAFEGUARD: If user is logged in but got demo fallback, something failed.
+       NEVER show salon demo to an authenticated user — show error instead. ── */
+  if (isDemo && localStorage.getItem('token')) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', fontFamily: "'Figtree', sans-serif", color: '#1B4332' }}>
+        <p style={{ fontSize: 18, fontWeight: 600 }}>Could not load your business</p>
+        <p style={{ fontSize: 14, color: '#666', marginTop: 8 }}>Your session may have expired. Try refreshing or logging in again.</p>
+        <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+          <button onClick={() => window.location.reload()} style={{ padding: '10px 24px', background: '#1B4332', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontFamily: "'Figtree', sans-serif" }}>Refresh</button>
+          <button onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('refresh_token'); window.location.href = '/login' }} style={{ padding: '10px 24px', background: '#fff', color: '#1B4332', border: '2px solid #1B4332', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontFamily: "'Figtree', sans-serif" }}>Log in again</button>
+        </div>
+      </div>
+    )
   }
 
   /* ── State ── */

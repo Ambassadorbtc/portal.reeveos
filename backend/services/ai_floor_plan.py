@@ -1,33 +1,30 @@
 """
-AI Floor Plan Designer
-======================
-Uses an LLM to reason about restaurant layout like a real designer,
-then feeds positions through the constraint solver for physics.
+AI Floor Plan Designer v2
+=========================
+Production-grade AI layout engine based on LayoutGPT research.
 
-Two-phase approach (LayoutGPT / NeurIPS 2023):
-  Phase 1: LLM spatial reasoning — reads the room, decides placement
-  Phase 2: Constraint solver — enforces no-overlaps, spacing, bounds
+Four-layer reliability:
+  Layer 1: Few-shot examples (biggest accuracy boost — 55% to 81%)
+  Layer 2: CSS-style integer pixel coordinates
+  Layer 3: Programmatic validation + auto-fix after generation
+  Layer 4: Constraint solver fallback
 
-Supports multiple LLM providers:
-  - Anthropic Claude (default)
-  - xAI Grok
-  - OpenAI GPT-4o
-
-Set FLOOR_PLAN_LLM_PROVIDER env var: "anthropic" | "xai" | "openai"
+Supports: Gemini (default), Claude, Grok, GPT-4o
 """
 
 import json
 import os
 import httpx
 import copy
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional
 from services.floor_plan_solver import (
     resolve_overlaps, validate_layout, get_table_size,
-    get_element_size, GRID_SNAP, WALL_CLEARANCE, FIXTURE_CLEARANCE
+    get_element_size, GRID_SNAP
 )
+from services.floor_plan_presets import get_few_shot_example
 
 
-# ── LLM Provider Config ──
+# -- LLM Provider Config --
 
 PROVIDER = os.environ.get("FLOOR_PLAN_LLM_PROVIDER", "gemini")
 
@@ -55,45 +52,51 @@ PROVIDER_CONFIG = {
 }
 
 
-# ── The Prompt (model-agnostic) ──
+# -- System Prompt (upgraded with design intelligence) --
 
-SYSTEM_PROMPT = """You are a world-class restaurant interior designer. You arrange floor plans.
+SYSTEM_PROMPT = """You are a world-class restaurant interior designer. You arrange floor plans by placing tables at optimal (x, y) positions.
 
-You receive JSON describing a restaurant room — dimensions, fixtures, and tables. Return the optimal (x, y) position for each table.
+## COORDINATE SYSTEM
+- Canvas is (0,0) top-left to (canvas_w, canvas_h) bottom-right
+- All values are INTEGER PIXELS. No decimals.
+- Top of canvas = front of restaurant (entrance, windows)
+- Bottom of canvas = back (kitchen, toilets)
 
-## HOW TO THINK:
+## DESIGN RULES
 
-1. **READ THE ROOM** — Where are walls (canvas edges)? Windows (natural light)? Kitchen (service flow origin)? Bar (social hub)?
+1. ZONE THE ROOM (think before placing)
+   - Front 20%: Premium window seats (2-tops for couples)
+   - Middle 50%: Main dining (4-tops, versatile)
+   - Back 30%: Larger groups (6-8 tops), near kitchen for fast service
 
-2. **PREMIUM POSITIONS FIRST**
-   - Window seats = GOLD. Put small intimate 2-tops near windows.
-   - Wall-adjacent = cosy. Guests prefer their back to a wall.
-   - Corners = premium for couples.
+2. WALL-HUGGING: Guests prefer backs to walls
+   - Place 2-tops along left and right walls (x near 40-60 or near canvas_w - 130)
+   - Place 4-tops in centre column(s)
+   - Larger tables towards back
 
-3. **SIZE MATCHING**
-   - 2-seat tables → windows, corners, perimeter
-   - 4-seat tables → versatile, fill gaps
-   - 6-8+ seat tables → centre of room or long walls, need space
-   - Booths/long shapes → against walls
+3. SERVICE AISLES: Clear paths for waiters
+   - Minimum 90px (90cm) aisle between table columns
+   - Straight path from kitchen (bottom) to front (top)
 
-4. **SERVICE FLOW**
-   - Clear path from kitchen to all areas — waiters carry hot plates
-   - Main aisle through centre, at least 90px wide
-   - Don't block kitchen entrance
+4. SPACING: Absolute minimum between table EDGES
+   - Casual: 60px (60cm) minimum
+   - From fixtures: 80px clearance
+   - From walls (canvas edge): 30px minimum
 
-5. **AVOID**
-   - Don't seat anyone right next to toilets
-   - Don't block stairs or entrances
-   - Don't crowd kitchen doorway
-   - Keep 25-35px minimum gap between all table edges
-   - Keep 40px clearance from all fixtures
+5. TABLE SIZES (pixels):
+   - 2-seat square: 85x85px
+   - 4-seat round/square: 100x100px
+   - 6-seat round: 120x120px
+   - 8-seat round: 140x140px
+   - Long table: width*1.7, height*0.65
+   - Booth: width*1.4, height*0.8
 
-6. **BOUNDARIES**
-   - Canvas is (0,0) top-left to (canvas_w, canvas_h) bottom-right
-   - Keep tables at least 30px from canvas edges
-   - Tables must NOT overlap each other or fixtures
+6. CRITICAL BOUNDARIES (every table MUST satisfy):
+   - x >= 30 AND y >= 30
+   - x + table_width <= canvas_w - 30
+   - y + table_height <= canvas_h - 30
 
-## RESPONSE FORMAT:
+## RESPONSE FORMAT
 Return ONLY a JSON array. No explanation, no markdown, no backticks:
 [{"id": "t1", "x": 100, "y": 200}, {"id": "t2", "x": 300, "y": 150}]"""
 
@@ -103,18 +106,18 @@ def _describe_element(el: Dict) -> str:
     if el.get("type") == "fixture":
         fk = el.get("fixtureKind") or el.get("fixtureType", "unknown")
         w, h = get_element_size(el)
-        return f"  - {fk.upper()} at ({el.get('x',0)}, {el.get('y',0)}), size {w:.0f}×{h:.0f}px"
+        return f"  - {fk.upper()} at ({el.get('x',0)}, {el.get('y',0)}), size {w:.0f}x{h:.0f}px [FIXED]"
     else:
         seats = el.get("seats", 4)
         shape = el.get("shape", "round")
         w, h = get_table_size(el)
         name = el.get("name") or el.get("label") or el["id"]
         vip = " [VIP]" if el.get("vip") else ""
-        return f"  - {name}: {seats} seats, {shape} shape, size {w:.0f}×{h:.0f}px{vip}"
+        return f"  - {name} (id:{el['id']}): {seats} seats, {shape}, {w:.0f}x{h:.0f}px{vip}"
 
 
 def _build_user_prompt(elements: List[Dict], canvas_w: float, canvas_h: float, zone: Optional[str], room_config: Optional[Dict] = None) -> str:
-    """Build the user prompt describing the room."""
+    """Build the user prompt with few-shot examples and room description."""
     fixtures = [e for e in elements if e.get("type") == "fixture"]
     tables = [e for e in elements if e.get("type") != "fixture"]
 
@@ -125,154 +128,213 @@ def _build_user_prompt(elements: List[Dict], canvas_w: float, canvas_h: float, z
     fixtures_desc = "\n".join(_describe_element(f) for f in fixtures) if fixtures else "  (none)"
     tables_desc = "\n".join(_describe_element(t) for t in tables) if tables else "  (none)"
 
-    # Real-world dimensions if known
-    room_desc = f"Room: {canvas_w:.0f}px wide × {canvas_h:.0f}px tall"
+    # Room dimensions
+    room_line = f"Canvas: {canvas_w:.0f}px wide x {canvas_h:.0f}px tall"
+    preset = ""
     if room_config:
         w_m = room_config.get("width_m", canvas_w / 100)
         h_m = room_config.get("height_m", canvas_h / 100)
         preset = room_config.get("preset", "")
-        px_per_m = canvas_w / w_m if w_m > 0 else 100
-        room_desc = f"""Room: {w_m:.1f}m wide × {h_m:.1f}m deep ({canvas_w:.0f}px × {canvas_h:.0f}px, {px_per_m:.0f}px per metre)
-Type: {preset.replace('_', ' ').title() if preset else 'Custom'}
-Scale: table gaps of 30px ≈ {30/px_per_m*100:.0f}cm real-world. Keep minimum 60cm (≈{0.6*px_per_m:.0f}px) between tables, 90cm (≈{0.9*px_per_m:.0f}px) for service aisles."""
+        room_line = f"Room: {w_m:.1f}m wide x {h_m:.1f}m deep (canvas {canvas_w:.0f}x{canvas_h:.0f}px)\nType: {preset.replace('_', ' ').title() if preset else 'Custom'}"
 
-    # Zone-specific context
+    # FEW-SHOT EXAMPLE -- the single biggest accuracy boost
+    few_shot = ""
+    if room_config and preset:
+        w_m = room_config.get("width_m", canvas_w / 100)
+        h_m = room_config.get("height_m", canvas_h / 100)
+        example = get_few_shot_example(preset, w_m, h_m)
+        few_shot = f"\n\n## REFERENCE LAYOUT (follow this spatial pattern):\n{example}\n"
+
+    # Explicit boundary values
+    max_x_2 = canvas_w - 30 - 85
+    max_x_4 = canvas_w - 30 - 100
+    max_y = canvas_h - 30 - 100
+    boundary = f"""
+## BOUNDARY LIMITS:
+- 2-seat tables: x must be 30..{max_x_2:.0f}, y must be 30..{max_y:.0f}
+- 4-seat tables: x must be 30..{max_x_4:.0f}, y must be 30..{max_y:.0f}
+- 6-seat tables: x must be 30..{canvas_w - 30 - 120:.0f}
+- All tables: y must be 30..{canvas_h - 30 - 140:.0f} (for largest)"""
+
     zone_hint = ""
     if zone:
-        zone_lower = zone.lower()
-        if "terrace" in zone_lower or "outside" in zone_lower or "outdoor" in zone_lower or "patio" in zone_lower or "garden" in zone_lower:
-            zone_hint = f"\n\nThis is the {zone.upper()} — an outdoor dining area. Spread tables generously with relaxed spacing. Use the FULL canvas area, not just one corner."
-        elif "upstairs" in zone_lower:
-            zone_hint = f"\n\nThis is the {zone.upper()} zone. A separate floor."
-        elif "basement" in zone_lower or "downstairs" in zone_lower:
-            zone_hint = f"\n\nThis is the {zone.upper()} zone. A lower floor, may be cosier."
-        else:
-            zone_hint = f"\n\nThis is the {zone.upper()} zone."
+        z = zone.lower()
+        if any(k in z for k in ["terrace", "outside", "outdoor", "patio", "garden"]):
+            zone_hint = f"\n\nThis is the {zone.upper()} -- outdoor dining. Spread tables generously."
 
-    # If few tables relative to canvas, tell LLM to spread them out
     density_hint = ""
     if len(tables) <= 3:
-        density_hint = "\n\nIMPORTANT: Only a few tables — distribute them across the space with generous gaps. Centre the cluster in the room. Do NOT bunch them in one corner."
-    elif len(tables) <= 6:
-        density_hint = "\n\nModerate number of tables — balance spacing across the full canvas area. Centre the arrangement."
+        density_hint = "\n\nOnly a few tables -- spread across the full space, do NOT cluster."
 
-    return f"""{room_desc}
-{zone_hint}
-Fixtures (FIXED — do NOT move these):
+    return f"""{room_line}
+{few_shot}
+Fixtures (FIXED -- do NOT move):
 {fixtures_desc}
 
-Tables to position (MOVE these — decide their x, y):
+Tables to position (set x, y for each):
 {tables_desc}
-{density_hint}
-Return a JSON array with each table's id, x, y. Place them intelligently."""
+{boundary}
+{zone_hint}{density_hint}
+Return ONLY the JSON array with each table's id, x, y."""
 
 
-# ── LLM Call (multi-provider) ──
+# -- LLM Call (multi-provider) --
 
 async def _call_llm(system: str, user: str) -> str:
-    """Call whichever LLM provider is configured. Returns raw response text."""
     config = PROVIDER_CONFIG.get(PROVIDER, PROVIDER_CONFIG["anthropic"])
-
-    # Try to get API key from env or from settings
     api_key = os.environ.get(config["key_env"])
     if not api_key:
         try:
             from config import settings
-            if PROVIDER == "anthropic":
-                api_key = settings.anthropic_api_key
-            elif PROVIDER == "xai":
-                api_key = getattr(settings, "xai_api_key", None)
-            elif PROVIDER == "openai":
-                api_key = getattr(settings, "openai_api_key", None)
-            elif PROVIDER == "gemini":
-                api_key = getattr(settings, "gemini_api_key", None)
-        except Exception:
-            pass
-
+            if PROVIDER == "anthropic": api_key = settings.anthropic_api_key
+            elif PROVIDER == "xai": api_key = getattr(settings, "xai_api_key", None)
+            elif PROVIDER == "openai": api_key = getattr(settings, "openai_api_key", None)
+            elif PROVIDER == "gemini": api_key = getattr(settings, "gemini_api_key", None)
+        except Exception: pass
     if not api_key:
-        raise RuntimeError(f"No API key found for provider '{PROVIDER}'. Set {config['key_env']} env var.")
+        raise RuntimeError(f"No API key for '{PROVIDER}'. Set {config['key_env']}.")
 
     async with httpx.AsyncClient(timeout=30.0) as client:
         if PROVIDER == "gemini":
-            # Google Gemini API format
             url = config["url"].format(model=config["model"]) + f"?key={api_key}"
-            resp = await client.post(
-                url,
-                headers={"Content-Type": "application/json"},
-                json={
-                    "systemInstruction": {"parts": [{"text": system}]},
-                    "contents": [{"parts": [{"text": user}]}],
-                    "generationConfig": {
-                        "temperature": 0.3,
-                        "maxOutputTokens": 2000,
-                    },
-                },
-            )
+            resp = await client.post(url, headers={"Content-Type": "application/json"}, json={
+                "systemInstruction": {"parts": [{"text": system}]},
+                "contents": [{"parts": [{"text": user}]}],
+                "generationConfig": {"temperature": 0.2, "maxOutputTokens": 2000},
+            })
             resp.raise_for_status()
-            data = resp.json()
-            return data["candidates"][0]["content"]["parts"][0]["text"]
-
+            return resp.json()["candidates"][0]["content"]["parts"][0]["text"]
         elif PROVIDER == "anthropic":
-            # Anthropic Messages API format
-            resp = await client.post(
-                config["url"],
-                headers={
-                    "x-api-key": api_key,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
-                },
-                json={
-                    "model": config["model"],
-                    "max_tokens": 2000,
-                    "system": system,
-                    "messages": [{"role": "user", "content": user}],
-                },
-            )
+            resp = await client.post(config["url"], headers={
+                "x-api-key": api_key, "anthropic-version": "2023-06-01", "content-type": "application/json",
+            }, json={
+                "model": config["model"], "max_tokens": 2000, "system": system,
+                "messages": [{"role": "user", "content": user}],
+            })
             resp.raise_for_status()
-            data = resp.json()
-            return data["content"][0]["text"]
-
+            return resp.json()["content"][0]["text"]
         else:
-            # OpenAI-compatible format (works for xAI Grok and OpenAI)
-            headers = {
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            }
-            resp = await client.post(
-                config["url"],
-                headers=headers,
-                json={
-                    "model": config["model"],
-                    "messages": [
-                        {"role": "system", "content": system},
-                        {"role": "user", "content": user},
-                    ],
-                    "max_tokens": 2000,
-                    "temperature": 0.3,
-                },
-            )
+            resp = await client.post(config["url"], headers={
+                "Authorization": f"Bearer {api_key}", "Content-Type": "application/json",
+            }, json={
+                "model": config["model"],
+                "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+                "max_tokens": 2000, "temperature": 0.2,
+            })
             resp.raise_for_status()
-            data = resp.json()
-            return data["choices"][0]["message"]["content"]
+            return resp.json()["choices"][0]["message"]["content"]
 
 
 def _parse_positions(raw: str) -> List[Dict]:
-    """Extract the JSON array from LLM response, handling markdown fences."""
     text = raw.strip()
-    # Strip markdown code fences if present
     if text.startswith("```"):
         lines = text.split("\n")
         lines = [l for l in lines if not l.strip().startswith("```")]
         text = "\n".join(lines).strip()
-    # Find the JSON array
     start = text.find("[")
     end = text.rfind("]")
     if start == -1 or end == -1:
-        raise ValueError(f"No JSON array found in LLM response: {text[:200]}")
+        raise ValueError(f"No JSON array in response: {text[:200]}")
     return json.loads(text[start:end + 1])
 
 
-# ── Main Entry Point ──
+# -- Layer 3: Post-generation validation + auto-fix --
+
+def _validate_and_fix(elements: List[Dict], canvas_w: float, canvas_h: float) -> List[Dict]:
+    """Catch and fix boundary violations and overlaps the LLM missed."""
+    result = copy.deepcopy(elements)
+
+    # Boundary clamp all tables
+    for el in result:
+        if el.get("type") == "fixture":
+            continue
+        w, h = get_table_size(el)
+        el["x"] = max(30, min(canvas_w - w - 30, el.get("x", 0)))
+        el["y"] = max(30, min(canvas_h - h - 30, el.get("y", 0)))
+
+    # Pairwise overlap resolution
+    tables = [e for e in result if e.get("type") != "fixture"]
+    min_gap = 50
+
+    for i in range(len(tables)):
+        t1 = tables[i]
+        w1, h1 = get_table_size(t1)
+        for j in range(i + 1, len(tables)):
+            t2 = tables[j]
+            w2, h2 = get_table_size(t2)
+
+            # Centre-to-centre distance needed
+            need_dx = (w1 + w2) / 2 + min_gap
+            need_dy = (h1 + h2) / 2 + min_gap
+
+            cx1 = t1["x"] + w1 / 2
+            cy1 = t1["y"] + h1 / 2
+            cx2 = t2["x"] + w2 / 2
+            cy2 = t2["y"] + h2 / 2
+
+            dx = abs(cx1 - cx2)
+            dy = abs(cy1 - cy2)
+
+            if dx < need_dx and dy < need_dy:
+                # Overlap! Push apart along the axis with less overlap
+                if dx / need_dx > dy / need_dy:
+                    # Less overlap horizontally, push vertically
+                    push = (need_dy - dy) / 2 + 5
+                    if cy1 < cy2:
+                        t1["y"] = max(30, t1["y"] - push)
+                        t2["y"] = min(canvas_h - h2 - 30, t2["y"] + push)
+                    else:
+                        t2["y"] = max(30, t2["y"] - push)
+                        t1["y"] = min(canvas_h - h1 - 30, t1["y"] + push)
+                else:
+                    push = (need_dx - dx) / 2 + 5
+                    if cx1 < cx2:
+                        t1["x"] = max(30, t1["x"] - push)
+                        t2["x"] = min(canvas_w - w2 - 30, t2["x"] + push)
+                    else:
+                        t2["x"] = max(30, t2["x"] - push)
+                        t1["x"] = min(canvas_w - w1 - 30, t1["x"] + push)
+
+    # Fixture collision check
+    fixtures = [e for e in result if e.get("type") == "fixture"]
+    clearance = 60
+    for table in tables:
+        tw, th = get_table_size(table)
+        for fix in fixtures:
+            fw, fh = get_element_size(fix)
+            fx, fy = fix.get("x", 0), fix.get("y", 0)
+            # Check overlap with clearance
+            if (table["x"] < fx + fw + clearance and
+                table["x"] + tw > fx - clearance and
+                table["y"] < fy + fh + clearance and
+                table["y"] + th > fy - clearance):
+                # Push away from fixture
+                # Try each direction, pick the one that needs least movement
+                moves = []
+                new_x = fx - clearance - tw
+                if new_x >= 30: moves.append(("x", new_x, abs(table["x"] - new_x)))
+                new_x = fx + fw + clearance
+                if new_x + tw <= canvas_w - 30: moves.append(("x", new_x, abs(table["x"] - new_x)))
+                new_y = fy - clearance - th
+                if new_y >= 30: moves.append(("y", new_y, abs(table["y"] - new_y)))
+                new_y = fy + fh + clearance
+                if new_y + th <= canvas_h - 30: moves.append(("y", new_y, abs(table["y"] - new_y)))
+                if moves:
+                    best = min(moves, key=lambda m: m[2])
+                    if best[0] == "x": table["x"] = best[1]
+                    else: table["y"] = best[1]
+
+    # Final safety clamp
+    for el in result:
+        if el.get("type") == "fixture": continue
+        w, h = get_table_size(el)
+        el["x"] = max(30, min(canvas_w - w - 30, el["x"]))
+        el["y"] = max(30, min(canvas_h - h - 30, el["y"]))
+
+    return result
+
+
+# -- Main Entry Point --
 
 async def ai_auto_arrange(
     elements: List[Dict],
@@ -283,70 +345,49 @@ async def ai_auto_arrange(
     room_config: Optional[Dict] = None,
 ) -> Dict:
     """
-    AI-powered auto-arrange. Two-phase:
-      Phase 1: LLM reads the room and decides table placement
-      Phase 2: Constraint solver enforces physics (no overlaps, spacing, bounds)
-
-    Returns: {elements, validation, provider, model}
+    AI-powered auto-arrange with 4-layer reliability.
     """
     result = copy.deepcopy(elements)
 
-    # Build prompt
     user_prompt = _build_user_prompt(result, canvas_w, canvas_h, zone, room_config)
-
-    # Phase 1: Ask the LLM
     config = PROVIDER_CONFIG.get(PROVIDER, PROVIDER_CONFIG["anthropic"])
     raw_response = await _call_llm(SYSTEM_PROMPT, user_prompt)
 
-    # Parse LLM positions
     positions = _parse_positions(raw_response)
     pos_map = {p["id"]: (p["x"], p["y"]) for p in positions}
 
-    # Apply LLM positions to elements
     for el in result:
-        if el.get("type") == "fixture":
-            continue
-        if zone and el.get("zone") != zone:
-            continue
+        if el.get("type") == "fixture": continue
+        if zone and el.get("zone") != zone: continue
         if el["id"] in pos_map:
-            el["x"] = pos_map[el["id"]]["x"] if isinstance(pos_map[el["id"]], dict) else pos_map[el["id"]][0]
-            el["y"] = pos_map[el["id"]]["y"] if isinstance(pos_map[el["id"]], dict) else pos_map[el["id"]][1]
+            pos = pos_map[el["id"]]
+            el["x"] = int(pos[0])
+            el["y"] = int(pos[1])
 
-    # Phase 2: Constraint solver — enforce physics
-    # Gentle overlap resolution (LLM positions are usually pretty good)
+    # Layer 3: Validate + auto-fix
+    result = _validate_and_fix(result, canvas_w, canvas_h)
+
+    # Layer 4: Constraint solver
     min_gap = {"dense": 20, "balanced": 28, "spacious": 40}.get(style, 28)
     result = resolve_overlaps(result, canvas_w, canvas_h, min_gap)
 
-    # Grid snap for clean look
+    # Grid snap
     for el in result:
         if el.get("type") != "fixture" and (not zone or el.get("zone") == zone):
             el["x"] = round(el["x"] / GRID_SNAP) * GRID_SNAP
             el["y"] = round(el["y"] / GRID_SNAP) * GRID_SNAP
 
-    # Validate final result
     validation = validate_layout(result, canvas_w, canvas_h)
+    return {"elements": result, "validation": validation, "provider": PROVIDER, "model": config["model"]}
 
-    return {
-        "elements": result,
-        "validation": validation,
-        "provider": PROVIDER,
-        "model": config["model"],
-    }
-
-
-# ── Fallback: rule-based if no API key ──
 
 def has_ai_key() -> bool:
-    """Check if an LLM API key is available for AI arrange."""
     config = PROVIDER_CONFIG.get(PROVIDER, PROVIDER_CONFIG["gemini"])
     key = os.environ.get(config["key_env"])
-    if key:
-        return True
+    if key: return True
     try:
         from config import settings
-        attr = config["key_env"].lower()  # e.g. GEMINI_API_KEY -> gemini_api_key
-        if getattr(settings, attr, None):
-            return True
-    except Exception:
-        pass
+        attr = config["key_env"].lower()
+        if getattr(settings, attr, None): return True
+    except Exception: pass
     return False

@@ -144,6 +144,42 @@ async def save_floor_plan(
     return await update_floor_plan(business_id, floor_plan_data, current_user)
 
 
+@router.post("/business/{business_id}/generate-preset")
+async def generate_preset_layout(
+    business_id: str,
+    room_config: RoomConfig,
+    current_user: dict = Depends(get_current_owner)
+):
+    """Generate a fresh layout from a room preset. Wipes old data and starts clean."""
+    db = get_database()
+    business = await find_business(db, business_id, str(current_user["_id"]))
+
+    from services.floor_plan_presets import get_preset_layout
+
+    rc = room_config.model_dump()
+    px_per_m = 100
+    canvas_w = min(rc["width_m"] * px_per_m, 2000)
+    canvas_h = min(rc["height_m"] * px_per_m, 2000)
+
+    # Generate fresh elements for this preset
+    preset = rc.get("preset", "")
+    elements = get_preset_layout(preset, rc["width_m"], rc["height_m"])
+
+    # Save to DB
+    fp = {
+        "elements": elements,
+        "width": canvas_w,
+        "height": canvas_h,
+        "room_config": rc,
+    }
+    await db.businesses.update_one(
+        {"_id": business["_id"]},
+        {"$set": {"floor_plan": fp, "updated_at": datetime.utcnow()}}
+    )
+
+    return {"elements": elements, "width": canvas_w, "height": canvas_h, "room_config": rc}
+
+
 @router.put("/business/{business_id}/room-config")
 async def update_room_config(
     business_id: str,

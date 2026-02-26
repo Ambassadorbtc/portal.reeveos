@@ -684,33 +684,26 @@ const FloorPlan = ({ embedded = false }) => {
     setRoomConfig(config)
     setShowRoomSetup(false)
 
-    // Save to backend (backend rescales elements too)
     if (bid) {
       try {
-        const resp = await api.put(`/tables/business/${bid}/room-config`, config)
-        // Backend returns rescaled elements
+        // Generate a FRESH layout for this preset — no rescaling old data
+        const resp = await api.post(`/tables/business/${bid}/generate-preset`, config)
         if (resp.elements && resp.elements.length > 0) {
           const migrated = resp.elements.map(e => ({ ...e, type: e.type || 'table' }))
           setElements(migrated)
           savedRef.current = JSON.stringify(migrated)
           setHasChanges(false)
-        } else {
-          // No elements in DB — rescale local elements
-          const newW = Math.min(config.width_m * 100, 2000)
-          const newH = Math.min(config.height_m * 100, 2000)
-          const oldW = canvasW
-          const oldH = canvasH
-          if (oldW !== newW || oldH !== newH) {
-            const scaleX = newW / oldW
-            const scaleY = newH / oldH
-            setElements(prev => prev.map(el => ({
-              ...el,
-              x: Math.max(10, Math.min(newW - 60, Math.round(el.x * scaleX))),
-              y: Math.max(10, Math.min(newH - 60, Math.round(el.y * scaleY))),
-            })))
-            setHasChanges(true)
-          }
+          const tableCount = migrated.filter(e => e.type !== 'fixture').length
+          showToast(`✨ ${config.preset?.replace('_',' ') || 'Custom'} layout created — ${tableCount} tables placed`)
+          return
         }
+      } catch (err) {
+        console.error('Failed to generate preset layout:', err)
+      }
+
+      // Fallback: just save room config
+      try {
+        await api.put(`/tables/business/${bid}/room-config`, config)
       } catch (err) {
         console.error('Failed to save room config:', err)
       }
@@ -755,17 +748,18 @@ const FloorPlan = ({ embedded = false }) => {
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Save (just saves, stays in edit mode) */}
-              {!locked && hasChanges && (
-                <button onClick={saveLayout} disabled={saving}
+              {/* Save (always visible in edit mode) */}
+              {!locked && (
+                <button onClick={saveLayout} disabled={saving || !hasChanges}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all"
                   style={{
-                    background: saving ? '#D1D5DB' : '#1B4332', color: '#fff',
-                    boxShadow: saving ? 'none' : '0 4px 14px rgba(27,67,50,0.3)',
-                    animation: saving ? 'none' : 'fpPulse 2s ease-in-out infinite',
+                    background: saving ? '#D1D5DB' : hasChanges ? '#1B4332' : '#9CA3AF', color: '#fff',
+                    boxShadow: hasChanges && !saving ? '0 4px 14px rgba(27,67,50,0.3)' : 'none',
+                    animation: hasChanges && !saving ? 'fpPulse 2s ease-in-out infinite' : 'none',
+                    opacity: hasChanges ? 1 : 0.6,
                   }}>
                   {saving ? <Clock className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  {saving ? 'Saving...' : 'Save'}
+                  {saving ? 'Saving...' : hasChanges ? 'Save' : 'Saved ✓'}
                 </button>
               )}
               {/* Add Element */}

@@ -19,7 +19,7 @@ import copy
 from typing import List, Dict, Optional
 from services.floor_plan_solver import (
     resolve_overlaps, validate_layout, get_table_size,
-    get_element_size, GRID_SNAP, align_rows_and_columns
+    get_element_size, GRID_SNAP, WALL_CLEARANCE, align_rows_and_columns
 )
 from services.floor_plan_presets import get_few_shot_example
 
@@ -107,6 +107,90 @@ Tables MUST be in neat rows and columns — like a real restaurant, not scattere
 ## RESPONSE FORMAT
 Return ONLY a JSON array. No explanation, no markdown, no backticks:
 [{"id": "t1", "x": 100, "y": 200}, {"id": "t2", "x": 300, "y": 150}]"""
+
+
+def _deterministic_layout(elements: List[Dict], tables: List[Dict], canvas_w: float, canvas_h: float) -> List[Dict]:
+    """
+    Place 1-4 tables in a clean, centred layout. No AI needed.
+    
+    1 table  → dead centre
+    2 tables → side by side, centred
+    3 tables → row of 3, centred  
+    4 tables → 2×2 grid, centred
+    """
+    n = len(tables)
+    if n == 0:
+        return elements
+    
+    GAP = 120  # Space between tables
+    
+    if n == 1:
+        # Single table: dead centre
+        tw, th = get_element_size(tables[0])
+        tables[0]["x"] = round((canvas_w - tw) / 2 / GRID_SNAP) * GRID_SNAP
+        tables[0]["y"] = round((canvas_h - th) / 2 / GRID_SNAP) * GRID_SNAP
+    
+    elif n == 2:
+        # Two tables: side by side, centred
+        sizes = [get_element_size(t) for t in tables]
+        total_w = sizes[0][0] + GAP + sizes[1][0]
+        max_h = max(s[1] for s in sizes)
+        
+        start_x = (canvas_w - total_w) / 2
+        center_y = (canvas_h - max_h) / 2
+        
+        tables[0]["x"] = round(start_x / GRID_SNAP) * GRID_SNAP
+        tables[0]["y"] = round(center_y / GRID_SNAP) * GRID_SNAP
+        tables[1]["x"] = round((start_x + sizes[0][0] + GAP) / GRID_SNAP) * GRID_SNAP
+        tables[1]["y"] = round(center_y / GRID_SNAP) * GRID_SNAP
+    
+    elif n == 3:
+        # Three tables: row of 3, centred
+        sizes = [get_element_size(t) for t in tables]
+        total_w = sum(s[0] for s in sizes) + GAP * 2
+        max_h = max(s[1] for s in sizes)
+        
+        start_x = (canvas_w - total_w) / 2
+        center_y = (canvas_h - max_h) / 2
+        
+        x_cursor = start_x
+        for i, t in enumerate(tables):
+            t["x"] = round(x_cursor / GRID_SNAP) * GRID_SNAP
+            t["y"] = round(center_y / GRID_SNAP) * GRID_SNAP
+            x_cursor += sizes[i][0] + GAP
+    
+    elif n == 4:
+        # Four tables: 2×2 grid, centred
+        sizes = [get_element_size(t) for t in tables]
+        max_w = max(s[0] for s in sizes)
+        max_h = max(s[1] for s in sizes)
+        
+        grid_w = max_w * 2 + GAP
+        grid_h = max_h * 2 + GAP
+        
+        start_x = (canvas_w - grid_w) / 2
+        start_y = (canvas_h - grid_h) / 2
+        
+        positions = [
+            (start_x, start_y),
+            (start_x + max_w + GAP, start_y),
+            (start_x, start_y + max_h + GAP),
+            (start_x + max_w + GAP, start_y + max_h + GAP),
+        ]
+        
+        for i, t in enumerate(tables):
+            t["x"] = round(positions[i][0] / GRID_SNAP) * GRID_SNAP
+            t["y"] = round(positions[i][1] / GRID_SNAP) * GRID_SNAP
+    
+    # Boundary clamp
+    for t in tables:
+        tw, th = get_element_size(t)
+        t["x"] = max(WALL_CLEARANCE, min(canvas_w - tw - WALL_CLEARANCE, t["x"]))
+        t["y"] = max(WALL_CLEARANCE, min(canvas_h - th - WALL_CLEARANCE, t["y"]))
+        t["x"] = round(t["x"] / GRID_SNAP) * GRID_SNAP
+        t["y"] = round(t["y"] / GRID_SNAP) * GRID_SNAP
+    
+    return elements
 
 
 def _describe_element(el: Dict) -> str:
@@ -356,6 +440,15 @@ async def ai_auto_arrange(
     AI-powered auto-arrange with 4-layer reliability.
     """
     result = copy.deepcopy(elements)
+
+    # ── Fast path: small table counts don't need AI ──
+    # With 1-4 tables, place them in a clean centred layout deterministically
+    target_tables = [e for e in result if e.get("type") != "fixture" and (not zone or e.get("zone") == zone)]
+    
+    if len(target_tables) <= 4:
+        result = _deterministic_layout(result, target_tables, canvas_w, canvas_h)
+        validation = validate_layout(result, canvas_w, canvas_h)
+        return {"elements": result, "validation": validation, "provider": "deterministic", "model": "grid"}
 
     user_prompt = _build_user_prompt(result, canvas_w, canvas_h, zone, room_config)
     config = PROVIDER_CONFIG.get(PROVIDER, PROVIDER_CONFIG["anthropic"])

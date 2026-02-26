@@ -66,18 +66,18 @@ const FIXTURE_TYPES = [
 const DEFAULT_ELEMENTS = [
   // Main Floor — Tables
   { id: 't1',  type: 'table', name: 'T-01', seats: 4, zone: 'main', shape: 'round',  x: 200, y: 80,  status: 'seated',   timer: '45m', vip: false },
-  { id: 't2',  type: 'table', name: 'T-02', seats: 4, zone: 'main', shape: 'square', x: 390, y: 80,  status: 'reserved', nextTime: '6:30 PM', guest: 'Smith (4)' },
-  { id: 't3',  type: 'table', name: 'T-03', seats: 2, zone: 'main', shape: 'square', x: 560, y: 80,  status: 'available' },
-  { id: 't4',  type: 'table', name: 'T-04', seats: 6, zone: 'main', shape: 'round',  x: 200, y: 260, status: 'seated',   timer: '12m', vip: true },
-  { id: 't5',  type: 'table', name: 'T-05', seats: 4, zone: 'main', shape: 'round',  x: 390, y: 260, status: 'dirty' },
-  { id: 't6',  type: 'table', name: 'T-06', seats: 8, zone: 'main', shape: 'long',   x: 520, y: 260, status: 'mains', guest: 'Williams' },
+  { id: 't2',  type: 'table', name: 'T-02', seats: 4, zone: 'main', shape: 'square', x: 440, y: 80,  status: 'reserved', nextTime: '6:30 PM', guest: 'Smith (4)' },
+  { id: 't3',  type: 'table', name: 'T-03', seats: 2, zone: 'main', shape: 'square', x: 680, y: 80,  status: 'available' },
+  { id: 't4',  type: 'table', name: 'T-04', seats: 6, zone: 'main', shape: 'round',  x: 200, y: 320, status: 'seated',   timer: '12m', vip: true },
+  { id: 't5',  type: 'table', name: 'T-05', seats: 4, zone: 'main', shape: 'round',  x: 440, y: 320, status: 'dirty' },
+  { id: 't6',  type: 'table', name: 'T-06', seats: 8, zone: 'main', shape: 'long',   x: 600, y: 320, status: 'mains', guest: 'Williams' },
   // Main Floor — Fixtures
   { id: 'f1', type: 'fixture', fixtureKind: 'window',  name: 'Window',  zone: 'main', x: 20,  y: 20,  rotation: 0 },
-  { id: 'f2', type: 'fixture', fixtureKind: 'window',  name: 'Window',  zone: 'main', x: 20,  y: 160, rotation: 0 },
-  { id: 'f3', type: 'fixture', fixtureKind: 'bar',     name: 'Bar',     zone: 'main', x: 20,  y: 340, rotation: 0 },
-  { id: 'f4', type: 'fixture', fixtureKind: 'stairs',  name: 'Stairs',  zone: 'main', x: 680, y: 20,  rotation: 0 },
-  { id: 'f5', type: 'fixture', fixtureKind: 'toilets', name: 'Toilets', zone: 'main', x: 680, y: 340, rotation: 0 },
-  { id: 'f6', type: 'fixture', fixtureKind: 'kitchen', name: 'Kitchen', zone: 'main', x: 680, y: 160, rotation: 0 },
+  { id: 'f2', type: 'fixture', fixtureKind: 'window',  name: 'Window',  zone: 'main', x: 20,  y: 200, rotation: 0 },
+  { id: 'f3', type: 'fixture', fixtureKind: 'bar',     name: 'Bar',     zone: 'main', x: 20,  y: 400, rotation: 0 },
+  { id: 'f4', type: 'fixture', fixtureKind: 'stairs',  name: 'Stairs',  zone: 'main', x: 920, y: 20,  rotation: 0 },
+  { id: 'f5', type: 'fixture', fixtureKind: 'toilets', name: 'Toilets', zone: 'main', x: 910, y: 400, rotation: 0 },
+  { id: 'f6', type: 'fixture', fixtureKind: 'kitchen', name: 'Kitchen', zone: 'main', x: 840, y: 200, rotation: 0 },
   // Terrace
   { id: 't7',  type: 'table', name: 'T-07', seats: 4, zone: 'terrace', shape: 'round',  x: 60,  y: 50,  status: 'available' },
   { id: 't8',  type: 'table', name: 'T-08', seats: 6, zone: 'terrace', shape: 'long',   x: 250, y: 50,  status: 'seated', timer: '35m', guest: 'Park' },

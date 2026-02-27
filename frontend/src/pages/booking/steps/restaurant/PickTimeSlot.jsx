@@ -10,6 +10,7 @@ import RezvoLoader from '../../../../components/shared/RezvoLoader'
 import BookingHeader from '../../components/BookingHeader'
 import StepIndicator from '../../components/StepIndicator'
 import StickyFooter from '../../components/StickyFooter'
+import { getAvailability } from '../../../../utils/bookingApi'
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
@@ -65,10 +66,11 @@ const generateSlots = (settings, date) => {
 const groupSlots = (slots) => {
   const groups = {}
   slots.forEach(s => {
-    const h = parseInt(s)
+    const timeStr = typeof s === 'string' ? s : s.time
+    const h = parseInt(timeStr)
     const label = h < 15 ? 'Lunch' : h < 17 ? 'Afternoon' : 'Evening'
     if (!groups[label]) groups[label] = []
-    groups[label].push(s)
+    groups[label].push(typeof s === 'string' ? { time: s, available: true, tablesLeft: 1 } : s)
   })
   return groups
 }
@@ -88,9 +90,24 @@ const PickTimeSlot = ({ data, onContinue, onBack }) => {
   useEffect(() => {
     setLoading(true)
     setSelectedTime(null)
-    const t = setTimeout(() => { setSlots(generateSlots(settings, date)); setLoading(false) }, 300)
-    return () => clearTimeout(t)
-  }, [date, settings])
+    
+    // Fetch REAL availability from backend (checks actual table conflicts)
+    getAvailability(data.slug, { date, partySize: guests || 2 })
+      .then(res => {
+        // Backend returns { slots: [{time, available, tablesLeft}], turnTime }
+        if (res.slots && res.slots.length > 0) {
+          setSlots(res.slots)
+        } else {
+          // Fallback: generate from settings if API returns nothing
+          setSlots(generateSlots(settings, date).map(t => ({ time: t, available: true, tablesLeft: 1 })))
+        }
+      })
+      .catch(() => {
+        // Fallback to client-side generation on API error
+        setSlots(generateSlots(settings, date).map(t => ({ time: t, available: true, tablesLeft: 1 })))
+      })
+      .finally(() => setLoading(false))
+  }, [date, settings, data.slug, guests])
 
   const grouped = groupSlots(slots)
   const canContinue = !!selectedTime
@@ -147,12 +164,14 @@ const PickTimeSlot = ({ data, onContinue, onBack }) => {
               <div key={period}>
                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{period}</p>
                 <div className="grid grid-cols-4 gap-1.5">
-                  {times.map(time => (
-                    <button key={time} onClick={() => setSelectedTime(time)}
+                  {times.map(slot => (
+                    <button key={slot.time} onClick={() => slot.available && setSelectedTime(slot.time)}
+                      disabled={!slot.available}
                       className={`py-2 rounded-lg text-xs font-medium transition-all ${
-                        selectedTime === time ? 'bg-[#1B4332] text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:border-[#1B4332]/30'
+                        !slot.available ? 'bg-gray-50 text-gray-300 cursor-not-allowed line-through' :
+                        selectedTime === slot.time ? 'bg-[#1B4332] text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:border-[#1B4332]/30'
                       }`}
-                    >{fmt(time)}</button>
+                    >{fmt(slot.time)}</button>
                   ))}
                 </div>
               </div>

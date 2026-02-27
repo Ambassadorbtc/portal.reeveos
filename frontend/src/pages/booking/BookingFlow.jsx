@@ -57,7 +57,9 @@ const BookingFlow = () => {
       merged.service = data.services?.find((s) => s.id === next.serviceId)
     }
     setFlowData(merged)
-    setStep((s) => Math.min(s + 1, SERVICES_STEPS.length - 1))
+    const bizType = data?.business?.type || 'services'
+    const maxStep = (bizType === 'restaurant' ? RESTAURANT_STEPS : SERVICES_STEPS).length - 1
+    setStep((s) => Math.min(s + 1, maxStep))
     // Scroll to top on step change
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }

@@ -19,6 +19,8 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
   const [form, setForm] = useState({ firstName:'', lastName:'', email:'', phone:'', occasion:'', notes:'' })
   const [submitting, setSubmitting] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
+  const [bookingResult, setBookingResult] = useState(null)
+  const [submitError, setSubmitError] = useState('')
   const [errors, setErrors] = useState({})
 
   const dateObj = new Date(date + 'T00:00:00')
@@ -37,16 +39,21 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
   const handleSubmit = async () => {
     if (!validate()) return
     setSubmitting(true)
+    setSubmitError('')
     try {
-      await onCreate({ type:'restaurant', partySize:guests, date, time, customer:{ name:`${form.firstName} ${form.lastName}`.trim(), email:form.email.trim(), phone:form.phone.trim() }, occasion:form.occasion||undefined, notes:form.notes.trim()||undefined })
+      const result = await onCreate({ type:'restaurant', partySize:guests, date, time, customer:{ name:`${form.firstName} ${form.lastName}`.trim(), email:form.email.trim(), phone:form.phone.trim() }, occasion:form.occasion||undefined, notes:form.notes.trim()||undefined })
+      setBookingResult(result?.booking || result)
       setConfirmed(true)
-    } catch { setConfirmed(true) }
+    } catch (err) {
+      setSubmitError(err.message || 'Booking failed. Please try again.')
+    }
     finally { setSubmitting(false) }
   }
 
   const update = (f, v) => { setForm(p=>({...p,[f]:v})); if(errors[f]) setErrors(e=>({...e,[f]:undefined})) }
 
   if (confirmed) {
+    const ref = bookingResult?.reference || ''
     return (
       <div className="px-4 pt-3 overflow-hidden">
         <div className="text-center pt-6 pb-4">
@@ -54,6 +61,7 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
             <CheckCircle className="w-6 h-6 text-emerald-600" />
           </div>
           <h1 className="text-lg font-bold text-[#1B4332] mb-1">Booking Confirmed!</h1>
+          {ref && <p className="text-sm font-mono font-bold text-[#D4A373] mb-1">{ref}</p>}
           <p className="text-xs text-gray-500">Confirmation sent to {form.email}</p>
         </div>
 
@@ -133,6 +141,12 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
       </div>
 
       <h2 className="text-sm font-semibold text-[#1B4332] mb-2">Your details</h2>
+
+      {submitError && (
+        <div className="mb-3 px-3 py-2.5 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs font-medium">
+          {submitError}
+        </div>
+      )}
 
       <div className="space-y-2.5 mb-3">
         <div className="grid grid-cols-2 gap-2">

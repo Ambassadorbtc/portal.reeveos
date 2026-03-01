@@ -43,7 +43,7 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(user_data: UserCreate):
     db = get_database()
     
@@ -71,33 +71,31 @@ async def register(user_data: UserCreate):
     }
     
     result = await db.users.insert_one(user_dict)
-    user_dict["_id"] = str(result.inserted_id)
+    user_id = str(result.inserted_id)
     
-    access_token = create_access_token(data={"sub": user_dict["_id"]})
-    refresh_token = create_refresh_token(data={"sub": user_dict["_id"]})
+    access_token = create_access_token(data={"sub": user_id})
+    refresh_token = create_refresh_token(data={"sub": user_id})
     
-    user_response = UserResponse(
-        id=user_dict["_id"],
-        email=user_dict["email"],
-        name=user_dict["name"],
-        phone=user_dict["phone"],
-        role=UserRole(user_dict["role"]),
-        avatar=user_dict["avatar"],
-        saved_businesses=user_dict["saved_businesses"],
-        business_ids=user_dict["business_ids"],
-        stripe_connected=user_dict["stripe_connected"],
-        created_at=user_dict["created_at"]
-    )
-    
-    return TokenResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        token_type="bearer",
-        user=user_response
-    )
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user_id,
+            "email": user_dict["email"],
+            "name": user_dict["name"],
+            "phone": user_dict.get("phone"),
+            "role": user_dict["role"],
+            "avatar": user_dict.get("avatar"),
+            "saved_businesses": user_dict.get("saved_businesses", []),
+            "business_ids": user_dict.get("business_ids", []),
+            "stripe_connected": user_dict.get("stripe_connected", False),
+            "created_at": user_dict["created_at"].isoformat(),
+        },
+    }
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login")
 @limiter.limit("5/minute")
 async def login(request: Request, login_data: LoginRequest):
     db = get_database()
@@ -112,25 +110,26 @@ async def login(request: Request, login_data: LoginRequest):
     access_token = create_access_token(data={"sub": str(user["_id"])})
     refresh_token = create_refresh_token(data={"sub": str(user["_id"])})
     
-    user_response = UserResponse(
-        id=str(user["_id"]),
-        email=user["email"],
-        name=user["name"],
-        phone=user.get("phone"),
-        role=UserRole(user["role"]),
-        avatar=user.get("avatar"),
-        saved_businesses=user.get("saved_businesses", []),
-        business_ids=user.get("business_ids", []),
-        stripe_connected=user.get("stripe_connected", False),
-        created_at=user["created_at"]
-    )
+    # Build user response dict directly (avoids Pydantic model → dict coercion issues)
+    user_dict = {
+        "id": str(user["_id"]),
+        "email": user.get("email", ""),
+        "name": user.get("name", ""),
+        "phone": user.get("phone"),
+        "role": user.get("role", "owner"),
+        "avatar": user.get("avatar"),
+        "saved_businesses": user.get("saved_businesses", []),
+        "business_ids": [str(bid) for bid in user.get("business_ids", [])],
+        "stripe_connected": user.get("stripe_connected", False),
+        "created_at": user.get("created_at", datetime.utcnow()).isoformat() if user.get("created_at") else datetime.utcnow().isoformat(),
+    }
     
-    return TokenResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        token_type="bearer",
-        user=user_response
-    )
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "user": user_dict,
+    }
 
 
 class RefreshRequest(BaseModel):

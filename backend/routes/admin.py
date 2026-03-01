@@ -2,7 +2,8 @@
 Admin API routes — platform-wide data for the /admin panel.
 Protected by admin role authentication.
 """
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, Query, Depends, HTTPException
+from pydantic import BaseModel
 from database import get_database as get_db, safe_object_id
 from datetime import datetime, timedelta
 from bson import ObjectId
@@ -298,3 +299,37 @@ async def admin_subscriptions(_user=Depends(get_current_admin)):
         "tier_distribution": tiers,
         "businesses": businesses,
     }
+
+
+# ═══════════════ MANAGEMENT: Password Reset ═══════════════
+
+class AdminPasswordReset(BaseModel):
+    email: str
+    new_password: str
+    management_key: str
+
+
+@router.post("/management/reset-password")
+async def admin_reset_password(payload: AdminPasswordReset):
+    """Reset any user's password. Requires ADMIN_PASSWORD env var as management_key."""
+    import os
+    from passlib.context import CryptContext
+    
+    admin_pw = os.getenv("ADMIN_PASSWORD", "")
+    if not admin_pw or payload.management_key != admin_pw:
+        raise HTTPException(status_code=403, detail="Invalid management key")
+    
+    db = get_db()
+    user = await db.users.find_one({"email": payload.email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    new_hash = pwd_ctx.hash(payload.new_password)
+    
+    await db.users.update_one(
+        {"_id": user["_id"]},
+        {"$set": {"password_hash": new_hash, "updated_at": datetime.utcnow()}}
+    )
+    
+    return {"detail": f"Password reset for {payload.email}", "user_id": str(user["_id"])}

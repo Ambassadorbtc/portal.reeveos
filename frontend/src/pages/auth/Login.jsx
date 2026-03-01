@@ -22,14 +22,16 @@ const Login = () => {
     e.preventDefault()
     setError('')
     setLoading(true)
-    try {
-      await login(email, password)
+    
+    const result = await login(email, password)
+    
+    if (result.success) {
       navigate('/dashboard')
-    } catch (err) {
-      setError(err.message || 'Invalid email or password')
-    } finally {
-      setLoading(false)
+    } else {
+      setError(result.error || 'Invalid email or password')
     }
+    
+    setLoading(false)
   }
 
   return (

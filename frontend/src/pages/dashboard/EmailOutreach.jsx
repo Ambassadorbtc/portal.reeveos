@@ -219,7 +219,7 @@ export default function EmailOutreach() {
 
   // ─── Sub-Components ─── //
 
-  const MetricCard = ({ label, value, icon, color = '#1B4332', subtitle }) => (
+  const MetricCard = ({ label, value, icon, color = '#111111', subtitle }) => (
     <div className="bg-white rounded-2xl border border-gray-100 p-5">
       <div className="flex justify-between items-start mb-3">
         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{label}</span>
@@ -312,7 +312,7 @@ export default function EmailOutreach() {
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
-              tab === t.id ? 'bg-[#1B4332] text-white shadow-lg shadow-[#1B4332]/20' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+              tab === t.id ? 'bg-[#111111] text-white shadow-lg shadow-[#111111]/20' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
             }`}
           >
             <i className={`fas ${t.icon} text-xs`} /> {t.label}
@@ -754,7 +754,7 @@ export default function EmailOutreach() {
                 {funnel.map((f, i) => {
                   const maxCount = Math.max(...funnel.map(x => x.count), 1)
                   const pct = (f.count / maxCount) * 100
-                  const colors = ['#e5e7eb', '#e5e7eb', '#e5e7eb', '#9ca3af', '#6b7280', '#1B4332', '#22c55e', '#22c55e']
+                  const colors = ['#e5e7eb', '#e5e7eb', '#e5e7eb', '#9ca3af', '#6b7280', '#111111', '#22c55e', '#22c55e']
                   return (
                     <div key={i} className="flex items-center gap-3">
                       <span className="text-xs text-gray-500 w-28 text-right shrink-0">{f.stage}</span>

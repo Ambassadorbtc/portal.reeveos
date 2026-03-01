@@ -30,7 +30,7 @@ const STATUS_MAP = {
   checked_in: { color: '#3B82F6', label: 'Checked In' },
   completed: { color: '#9CA3AF', label: 'Completed' },
   no_show: { color: '#EF4444', label: 'No-show' },
-  walkin: { color: '#1B4332', label: 'Walk-in' },
+  walkin: { color: '#111111', label: 'Walk-in' },
 }
 
 /* ───────────────────── Helpers ───────────────────── */
@@ -123,12 +123,12 @@ const Calendar = () => {
        NEVER show salon demo to an authenticated user — show error instead. ── */
   if (isDemo && localStorage.getItem('token')) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', fontFamily: "'Figtree', sans-serif", color: '#1B4332' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', fontFamily: "'Figtree', sans-serif", color: '#111111' }}>
         <p style={{ fontSize: 18, fontWeight: 600 }}>Could not load your business</p>
         <p style={{ fontSize: 14, color: '#666', marginTop: 8 }}>Your session may have expired. Try refreshing or logging in again.</p>
         <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-          <button onClick={() => window.location.reload()} style={{ padding: '10px 24px', background: '#1B4332', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontFamily: "'Figtree', sans-serif" }}>Refresh</button>
-          <button onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('refresh_token'); window.location.href = '/login' }} style={{ padding: '10px 24px', background: '#fff', color: '#1B4332', border: '2px solid #1B4332', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontFamily: "'Figtree', sans-serif" }}>Log in again</button>
+          <button onClick={() => window.location.reload()} style={{ padding: '10px 24px', background: '#111111', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontFamily: "'Figtree', sans-serif" }}>Refresh</button>
+          <button onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('refresh_token'); window.location.href = '/login' }} style={{ padding: '10px 24px', background: '#fff', color: '#111111', border: '2px solid #111111', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontFamily: "'Figtree', sans-serif" }}>Log in again</button>
         </div>
       </div>
     )
@@ -476,7 +476,7 @@ const Calendar = () => {
               {a.customerName?.split(' ').map(w => w[0]).join('').slice(0, 2)}
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#1B4332' }}>{a.customerName}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#111111' }}>{a.customerName}</div>
               <div style={{ fontSize: 11, color: '#999' }}>{a.service}</div>
             </div>
             <div style={{ padding: '4px 10px', borderRadius: 20, background: st.color + '12', fontSize: 10, fontWeight: 700, color: st.color }}>{st.label}</div>
@@ -485,10 +485,10 @@ const Calendar = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#888' }}><ClockIcon />{fmt(a.start)} - {fmt(a.start + a.dur)}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#888' }}><UserIcon />{staff?.full || staff?.name}</div>
           </div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: '#1B4332', marginBottom: 12 }}>£{a.price || 0}</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: '#111111', marginBottom: 12 }}>£{a.price || 0}</div>
           <div style={{ display: 'flex', gap: 8, borderTop: '1px solid #F0F0F0', paddingTop: 12 }}>
-            <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '10px 0', borderRadius: 10, border: '1px solid #EBEBEB', background: '#fff', fontSize: 12, fontWeight: 600, color: '#1B4332', cursor: 'pointer' }}><EditIcon /> Edit</button>
-            <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '10px 0', borderRadius: 10, border: 'none', background: '#1B4332', fontSize: 12, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(27,67,50,0.2)' }}><CheckIcon /> Check In</button>
+            <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '10px 0', borderRadius: 10, border: '1px solid #EBEBEB', background: '#fff', fontSize: 12, fontWeight: 600, color: '#111111', cursor: 'pointer' }}><EditIcon /> Edit</button>
+            <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '10px 0', borderRadius: 10, border: 'none', background: '#111111', fontSize: 12, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(17,17,17,0.2)' }}><CheckIcon /> Check In</button>
             <button style={{ width: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, border: '1px solid #EF444420', background: '#FEF2F2', color: '#EF4444', cursor: 'pointer' }}><TrashIcon /></button>
           </div>
         </div>
@@ -564,7 +564,7 @@ const Calendar = () => {
                 <div style={{ fontSize: 9, opacity: 0.85, fontWeight: 700, letterSpacing: 0.3, marginBottom: 2 }}>{fmt(isDragging ? pxToTime(drag.ghostTop) : a.start)} - {fmt((isDragging ? pxToTime(drag.ghostTop) : a.start) + (isDragging ? drag.ghostH / HH : a.dur))}</div>
                 <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.2, marginBottom: 2 }}>{a.customerName}</div>
                 <div style={{ fontSize: 11, opacity: 0.85, fontWeight: 500 }}>{a.service}</div>
-                {a.isNewClient && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 6, fontSize: 9, fontWeight: 800, letterSpacing: 1, background: 'linear-gradient(110deg, #1B4332 30%, #2D6A4F 50%, #1B4332 70%)', backgroundSize: '200% 100%', borderRadius: 20, padding: '4px 12px 4px 9px', textTransform: 'uppercase', width: 'fit-content', color: '#fff', animation: 'newPulse 2s ease-in-out infinite, shimmer 3s linear infinite', boxShadow: '0 2px 12px rgba(27,67,50,0.4)' }}><StarIcon /> New Client</span>}
+                {a.isNewClient && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 6, fontSize: 9, fontWeight: 800, letterSpacing: 1, background: 'linear-gradient(110deg, #111111 30%, #1a1a1a 50%, #111111 70%)', backgroundSize: '200% 100%', borderRadius: 20, padding: '4px 12px 4px 9px', textTransform: 'uppercase', width: 'fit-content', color: '#fff', animation: 'newPulse 2s ease-in-out infinite, shimmer 3s linear infinite', boxShadow: '0 2px 12px rgba(17,17,17,0.4)' }}><StarIcon /> New Client</span>}
                 {a.status === 'completed' && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 6, fontSize: 9, fontWeight: 800, letterSpacing: 1, background: '#22C55E', borderRadius: 20, padding: '4px 12px 4px 9px', textTransform: 'uppercase', width: 'fit-content', color: '#fff', boxShadow: '0 2px 8px rgba(34,197,94,0.3)' }}>✓ Completed</span>}
                 {(a.price || 0) > 0 && <div style={{ marginTop: 'auto', fontSize: 13, fontWeight: 700, opacity: 0.9, textAlign: 'right' }}>£{a.price}</div>}
               </>
@@ -614,7 +614,7 @@ const Calendar = () => {
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#FFFFFF', fontFamily: "'Figtree', system-ui, sans-serif", overflow: 'hidden' }}>
       <style>{`
-        @keyframes newPulse{0%,100%{box-shadow:0 0 0 0 rgba(27,67,50,0.6)}50%{box-shadow:0 0 0 8px rgba(27,67,50,0)}}
+        @keyframes newPulse{0%,100%{box-shadow:0 0 0 0 rgba(17,17,17,0.6)}50%{box-shadow:0 0 0 8px rgba(17,17,17,0)}}
         @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
         @keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
       `}</style>
@@ -625,26 +625,26 @@ const Calendar = () => {
         background: '#fff', borderBottom: '1px solid #EBEBEB', flexShrink: 0, zIndex: 35, flexWrap: 'wrap',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 2, background: '#F5F5F5', borderRadius: 24, padding: '3px 4px' }}>
-          <button onClick={goPrev} style={{ width: 34, height: 34, borderRadius: '50%', border: 'none', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1B4332', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}><ChevL /></button>
-          <span style={{ fontSize: 14, fontWeight: 700, color: '#1B4332', padding: '0 8px', whiteSpace: 'nowrap' }}>{dateLabel}</span>
-          <button onClick={goNext} style={{ width: 34, height: 34, borderRadius: '50%', border: 'none', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1B4332', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}><ChevR /></button>
+          <button onClick={goPrev} style={{ width: 34, height: 34, borderRadius: '50%', border: 'none', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#111111', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}><ChevL /></button>
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#111111', padding: '0 8px', whiteSpace: 'nowrap' }}>{dateLabel}</span>
+          <button onClick={goNext} style={{ width: 34, height: 34, borderRadius: '50%', border: 'none', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#111111', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}><ChevR /></button>
         </div>
-        <button onClick={goToday} style={{ padding: '8px 18px', borderRadius: 20, border: 'none', background: isToday ? '#1B4332' : '#F5F5F5', color: isToday ? '#fff' : '#1B4332', fontSize: 12, fontWeight: 700, cursor: 'pointer', boxShadow: isToday ? '0 2px 8px rgba(27,67,50,0.2)' : 'none' }}>Today</button>
+        <button onClick={goToday} style={{ padding: '8px 18px', borderRadius: 20, border: 'none', background: isToday ? '#111111' : '#F5F5F5', color: isToday ? '#fff' : '#111111', fontSize: 12, fontWeight: 700, cursor: 'pointer', boxShadow: isToday ? '0 2px 8px rgba(17,17,17,0.2)' : 'none' }}>Today</button>
         <div style={{ width: 1, height: 24, background: '#EBEBEB' }} />
         <div style={{ display: 'flex', background: '#F5F5F5', borderRadius: 20, padding: 3 }}>
           {['Day', 'Week', 'Month'].map(v => (
-            <button key={v} onClick={() => setViewMode(v)} style={{ padding: '7px 18px', borderRadius: 18, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: viewMode === v ? 700 : 500, background: viewMode === v ? '#fff' : 'transparent', color: viewMode === v ? '#1B4332' : '#999', boxShadow: viewMode === v ? '0 2px 6px rgba(0,0,0,0.06)' : 'none', transition: 'all 0.15s' }}>{v}</button>
+            <button key={v} onClick={() => setViewMode(v)} style={{ padding: '7px 18px', borderRadius: 18, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: viewMode === v ? 700 : 500, background: viewMode === v ? '#fff' : 'transparent', color: viewMode === v ? '#111111' : '#999', boxShadow: viewMode === v ? '0 2px 6px rgba(0,0,0,0.06)' : 'none', transition: 'all 0.15s' }}>{v}</button>
           ))}
         </div>
         <div style={{ width: 1, height: 24, background: '#EBEBEB' }} />
         <div data-filter-dd style={{ position: 'relative' }}>
-          <button onClick={() => { setShowStatusDD(!showStatusDD); setShowStaffDD(false) }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 20, border: 'none', background: statusFilter !== 'all' ? '#1B433212' : '#F5F5F5', fontSize: 12, fontWeight: statusFilter !== 'all' ? 600 : 500, color: statusFilter !== 'all' ? '#1B4332' : '#777', cursor: 'pointer' }}>
+          <button onClick={() => { setShowStatusDD(!showStatusDD); setShowStaffDD(false) }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 20, border: 'none', background: statusFilter !== 'all' ? '#11111112' : '#F5F5F5', fontSize: 12, fontWeight: statusFilter !== 'all' ? 600 : 500, color: statusFilter !== 'all' ? '#111111' : '#777', cursor: 'pointer' }}>
             <FilterIcon /> {statusFilter === 'all' ? 'All status' : statusFilter} <ChevD />
           </button>
           {showStatusDD && (
             <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #E8E4DD', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 100, minWidth: 140, padding: '4px 0' }}>
               {['all', 'confirmed', 'pending', 'completed', 'no_show', 'cancelled'].map(s => (
-                <button key={s} onClick={() => { setStatusFilter(s); setShowStatusDD(false) }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', border: 'none', background: statusFilter === s ? '#1B433212' : 'transparent', fontSize: 12, fontWeight: statusFilter === s ? 600 : 400, color: statusFilter === s ? '#1B4332' : '#555', cursor: 'pointer' }}>
+                <button key={s} onClick={() => { setStatusFilter(s); setShowStatusDD(false) }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', border: 'none', background: statusFilter === s ? '#11111112' : 'transparent', fontSize: 12, fontWeight: statusFilter === s ? 600 : 400, color: statusFilter === s ? '#111111' : '#555', cursor: 'pointer' }}>
                   {s === 'all' ? 'All status' : s === 'no_show' ? 'No-show' : s.charAt(0).toUpperCase() + s.slice(1)}
                 </button>
               ))}
@@ -652,14 +652,14 @@ const Calendar = () => {
           )}
         </div>
         <div data-filter-dd style={{ position: 'relative' }}>
-          <button onClick={() => { setShowStaffDD(!showStaffDD); setShowStatusDD(false) }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 20, border: 'none', background: staffFilter !== 'all' ? '#1B433212' : '#F5F5F5', fontSize: 12, fontWeight: staffFilter !== 'all' ? 600 : 500, color: staffFilter !== 'all' ? '#1B4332' : '#777', cursor: 'pointer' }}>
+          <button onClick={() => { setShowStaffDD(!showStaffDD); setShowStatusDD(false) }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 20, border: 'none', background: staffFilter !== 'all' ? '#11111112' : '#F5F5F5', fontSize: 12, fontWeight: staffFilter !== 'all' ? 600 : 500, color: staffFilter !== 'all' ? '#111111' : '#777', cursor: 'pointer' }}>
             <UsersIcon /> {staffFilter === 'all' ? 'All staff' : staffColumns.find(s => s.id === staffFilter)?.name || 'Staff'} <ChevD />
           </button>
           {showStaffDD && (
             <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #E8E4DD', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 100, minWidth: 160, padding: '4px 0' }}>
-              <button onClick={() => { setStaffFilter('all'); setShowStaffDD(false) }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', border: 'none', background: staffFilter === 'all' ? '#1B433212' : 'transparent', fontSize: 12, fontWeight: staffFilter === 'all' ? 600 : 400, color: staffFilter === 'all' ? '#1B4332' : '#555', cursor: 'pointer' }}>All staff</button>
+              <button onClick={() => { setStaffFilter('all'); setShowStaffDD(false) }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', border: 'none', background: staffFilter === 'all' ? '#11111112' : 'transparent', fontSize: 12, fontWeight: staffFilter === 'all' ? 600 : 400, color: staffFilter === 'all' ? '#111111' : '#555', cursor: 'pointer' }}>All staff</button>
               {staffColumns.map(s => (
-                <button key={s.id} onClick={() => { setStaffFilter(s.id); setShowStaffDD(false) }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', border: 'none', background: staffFilter === s.id ? '#1B433212' : 'transparent', fontSize: 12, fontWeight: staffFilter === s.id ? 600 : 400, color: staffFilter === s.id ? '#1B4332' : '#555', cursor: 'pointer' }}>{s.name}</button>
+                <button key={s.id} onClick={() => { setStaffFilter(s.id); setShowStaffDD(false) }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 14px', border: 'none', background: staffFilter === s.id ? '#11111112' : 'transparent', fontSize: 12, fontWeight: staffFilter === s.id ? 600 : 400, color: staffFilter === s.id ? '#111111' : '#555', cursor: 'pointer' }}>{s.name}</button>
               ))}
             </div>
           )}
@@ -669,9 +669,9 @@ const Calendar = () => {
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 16px', borderRadius: 20, background: '#F5F5F5', height: 38, flex: 1, minWidth: 160 }}>
           <SearchIcon />
-          <input value={calSearch} onChange={e => setCalSearch(e.target.value)} placeholder="Search clients, services..." style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 12, color: '#1B4332', width: '100%', fontWeight: 500, fontFamily: "'Figtree', system-ui, sans-serif" }} />
+          <input value={calSearch} onChange={e => setCalSearch(e.target.value)} placeholder="Search clients, services..." style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 12, color: '#111111', width: '100%', fontWeight: 500, fontFamily: "'Figtree', system-ui, sans-serif" }} />
         </div>
-        <button onClick={() => setShowKPI(!showKPI)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 20, border: 'none', background: showKPI ? '#1B433212' : '#F5F5F5', fontSize: 12, fontWeight: 600, color: showKPI ? '#1B4332' : '#999', cursor: 'pointer' }}>
+        <button onClick={() => setShowKPI(!showKPI)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 20, border: 'none', background: showKPI ? '#11111112' : '#F5F5F5', fontSize: 12, fontWeight: 600, color: showKPI ? '#111111' : '#999', cursor: 'pointer' }}>
           <BarChartIcon /> Insights {showKPI ? <ChevU /> : <ChevD />}
         </button>
         <button style={{ width: 38, height: 38, borderRadius: '50%', border: 'none', background: '#F5F5F5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', color: '#888' }}>
@@ -684,7 +684,7 @@ const Calendar = () => {
       <div style={{ maxHeight: showKPI ? 100 : 0, overflow: 'hidden', transition: 'max-height 0.3s cubic-bezier(0.22,1,0.36,1)', background: '#fff', borderBottom: showKPI ? '1px solid #EBEBEB' : 'none' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, padding: '10px 16px' }}>
           {[
-            { label: 'Total Appointments', value: String(bookings.length), change: '+12%', up: true, spark: [12,15,13,18,14,20,bookings.length || 22], color: '#1B4332' },
+            { label: 'Total Appointments', value: String(bookings.length), change: '+12%', up: true, spark: [12,15,13,18,14,20,bookings.length || 22], color: '#111111' },
             { label: 'Completed', value: `${bookings.length ? Math.round(bookings.filter(b=>b.status==='completed').length/bookings.length*100) : 0}%`, change: '+8%', up: true, spark: [70,75,72,80,78,82,85], color: '#22C55E' },
             { label: 'No-show Rate', value: `${bookings.length ? Math.round(bookings.filter(b=>b.status==='no_show').length/bookings.length*100) : 0}%`, change: '+2%', up: false, spark: [5,4,6,5,8,6,7], color: '#EF4444' },
             { label: 'Revenue Today', value: `£${revenue}`, change: '+15%', up: true, spark: [800,950,870,1100,980,1050,revenue||1145], color: '#D4A574' },
@@ -693,7 +693,7 @@ const Calendar = () => {
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 10, color: '#888', fontWeight: 500, marginBottom: 2 }}>{k.label}</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                  <span style={{ fontSize: 20, fontWeight: 800, color: '#1B4332', lineHeight: 1 }}>{k.value}</span>
+                  <span style={{ fontSize: 20, fontWeight: 800, color: '#111111', lineHeight: 1 }}>{k.value}</span>
                   <span style={{ fontSize: 10, fontWeight: 700, color: k.up ? '#22C55E' : '#EF4444', display: 'flex', alignItems: 'center', gap: 2 }}>{k.up ? '↑' : '↓'}{k.change}</span>
                 </div>
               </div>
@@ -707,7 +707,7 @@ const Calendar = () => {
       {loading ? (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ width: 40, height: 40, border: '3px solid #E5E5E5', borderTopColor: '#1B4332', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+            <div style={{ width: 40, height: 40, border: '3px solid #E5E5E5', borderTopColor: '#111111', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
             <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
             <p style={{ marginTop: 16, fontSize: 14, color: '#888' }}>Loading calendar...</p>
           </div>
@@ -723,13 +723,13 @@ const Calendar = () => {
                   borderLeft: '1px solid #EBEBEB',
                   background: (hoverCol === s.id || drag?.ghostStaffId === s.id) ? '#F0FAF4' : '#fff',
                   transition: 'background 0.15s ease',
-                  borderBottom: (hoverCol === s.id || drag?.ghostStaffId === s.id) ? '2px solid #1B4332' : '2px solid transparent',
+                  borderBottom: (hoverCol === s.id || drag?.ghostStaffId === s.id) ? '2px solid #111111' : '2px solid transparent',
                 }}>
                   <div style={{ width: 40, height: 40, borderRadius: '50%', border: `2px solid ${s.color}`, padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: `linear-gradient(135deg,${s.color},${s.color}BB)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: '#fff' }}>{s.initials}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1B4332', lineHeight: 1.2 }}>{s.name}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#111111', lineHeight: 1.2 }}>{s.name}</div>
                     <div style={{ fontSize: 10, color: '#666', fontWeight: 600 }}>{filteredBookings.filter(b => b.staffId === s.id).length} bookings</div>
                   </div>
                 </div>
@@ -741,7 +741,7 @@ const Calendar = () => {
                 <div style={{ width: TCW, flexShrink: 0, position: 'sticky', left: 0, zIndex: 5, background: '#FFFFFF' }}>
                   {Array.from({ length: totHrs }, (_, i) => (
                     <div key={i} style={{ height: HH, position: 'relative', background: hoverRow === i ? '#F0FAF4' : 'transparent', transition: 'background 0.15s ease' }}>
-                      <span style={{ position: 'absolute', top: -6, right: 6, fontSize: 11, fontWeight: hoverRow === i ? 700 : 600, color: hoverRow === i ? '#1B4332' : '#888', transition: 'all 0.15s ease' }}>{fmtAP(SH + i)}</span>
+                      <span style={{ position: 'absolute', top: -6, right: 6, fontSize: 11, fontWeight: hoverRow === i ? 700 : 600, color: hoverRow === i ? '#111111' : '#888', transition: 'all 0.15s ease' }}>{fmtAP(SH + i)}</span>
                     </div>
                   ))}
                   {isToday && tp > 0 && tp < totHrs * HH && (
@@ -763,13 +763,13 @@ const Calendar = () => {
                     }}
                     style={{
                       flex: 1, position: 'relative', borderLeft: '1px solid #EBEBEB',
-                      background: drag?.ghostStaffId === staff.id ? 'rgba(27,67,50,0.03)' : hoverCol === staff.id ? 'rgba(27,67,50,0.015)' : 'transparent',
+                      background: drag?.ghostStaffId === staff.id ? 'rgba(17,17,17,0.03)' : hoverCol === staff.id ? 'rgba(17,17,17,0.015)' : 'transparent',
                       cursor: drag ? (drag.type === 'resize' ? 'ns-resize' : 'grabbing') : hovA ? 'pointer' : 'cell',
                       transition: 'background 0.15s ease',
                     }}>
                     {Array.from({ length: totHrs }, (_, i) => (
                       <div key={i}>
-                        <div style={{ position: 'absolute', top: i * HH, left: 0, right: 0, height: HH, background: hoverRow === i && hoverCol === staff.id ? 'rgba(27,67,50,0.04)' : hoverRow === i ? 'rgba(27,67,50,0.015)' : 'transparent', transition: 'background 0.15s ease', pointerEvents: 'none' }} />
+                        <div style={{ position: 'absolute', top: i * HH, left: 0, right: 0, height: HH, background: hoverRow === i && hoverCol === staff.id ? 'rgba(17,17,17,0.04)' : hoverRow === i ? 'rgba(17,17,17,0.015)' : 'transparent', transition: 'background 0.15s ease', pointerEvents: 'none' }} />
                         <div style={{ position: 'absolute', top: i * HH, left: 0, right: 0, height: 1, background: '#E5E5E5' }} />
                         <div style={{ position: 'absolute', top: i * HH + HH / 2, left: 0, right: 0, borderTop: '1px dashed #F0F0F0' }} />
                       </div>
@@ -822,8 +822,8 @@ const Calendar = () => {
         <div style={{
           position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
           display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px',
-          background: '#1B4332', color: '#fff', borderRadius: 14,
-          boxShadow: '0 12px 40px rgba(27,67,50,0.35)', zIndex: 100,
+          background: '#111111', color: '#fff', borderRadius: 14,
+          boxShadow: '0 12px 40px rgba(17,17,17,0.35)', zIndex: 100,
           animation: 'toastIn 0.25s ease-out', fontSize: 13, fontWeight: 600,
         }}>
           <span>{undoToast.msg}</span>
@@ -848,12 +848,12 @@ const Calendar = () => {
         {fabOpen && (
           <div style={{ position: 'absolute', bottom: 64, right: 0, width: 220, background: '#fff', borderRadius: 16, border: '1px solid #EBEBEB', boxShadow: '0 16px 48px rgba(0,0,0,0.16)', padding: 6 }}>
             {[
-              { icon: <CalIcon />, label: 'New Appointment', color: '#1B4332' },
+              { icon: <CalIcon />, label: 'New Appointment', color: '#111111' },
               { icon: <ClockIcon />, label: 'Add Time Reservation', color: '#6BA3C7' },
               { icon: <XIcon />, label: 'Add Time Off', color: '#EF4444' },
             ].map((item, i) => (
               <button key={i} onClick={() => { setShowBook(true); setFabOpen(false) }} style={{
-                display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '12px 14px', borderRadius: 10, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#1B4332', textAlign: 'left',
+                display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '12px 14px', borderRadius: 10, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#111111', textAlign: 'left',
               }}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: item.color + '12', display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color }}>{item.icon}</div>
                 {item.label}
@@ -862,9 +862,9 @@ const Calendar = () => {
           </div>
         )}
         <button onClick={e => { e.stopPropagation(); setFabOpen(!fabOpen) }} style={{
-          width: 56, height: 56, borderRadius: '50%', border: 'none', background: '#1B4332', color: '#fff', cursor: 'pointer',
+          width: 56, height: 56, borderRadius: '50%', border: 'none', background: '#111111', color: '#fff', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 6px 20px rgba(27,67,50,0.35)', transition: 'all 0.2s', transform: fabOpen ? 'rotate(45deg)' : 'none',
+          boxShadow: '0 6px 20px rgba(17,17,17,0.35)', transition: 'all 0.2s', transform: fabOpen ? 'rotate(45deg)' : 'none',
         }}><PlusIcon /></button>
       </div>
     </div>

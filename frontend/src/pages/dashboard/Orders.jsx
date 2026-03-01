@@ -34,7 +34,7 @@ const Orders = () => {
           <button key={f} onClick={() => setFilter(f)}
             className={`px-4 py-1.5 text-xs font-bold rounded-full whitespace-nowrap transition-all ${
               filter === f
-                ? 'bg-[#1B4332] text-white shadow-lg shadow-[#1B4332]/20'
+                ? 'bg-[#111111] text-white shadow-lg shadow-[#111111]/20'
                 : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
             }`}>
             {f === 'all' ? 'All Orders' : STATUS_MAP[f]?.label}
@@ -48,7 +48,7 @@ const Orders = () => {
           const s = STATUS_MAP[o.status] || STATUS_MAP.new
           const StatusIcon = s.Icon
           return (
-            <div key={o.id} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_-5px_rgba(27,67,50,0.08)] transition-all">
+            <div key={o.id} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_-5px_rgba(17,17,17,0.08)] transition-all">
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <div className="flex items-center gap-2">
@@ -77,7 +77,7 @@ const Orders = () => {
               <div className="flex items-center justify-between">
                 <span className="text-lg font-extrabold text-gray-900">£{o.total.toFixed(2)}</span>
                 {o.status === 'new' && (
-                  <button className="px-4 py-1.5 text-xs font-bold text-white bg-[#1B4332] rounded-full hover:bg-[#2D6A4F] shadow-lg shadow-[#1B4332]/20 transition-all">Accept</button>
+                  <button className="px-4 py-1.5 text-xs font-bold text-white bg-[#111111] rounded-full hover:bg-[#1a1a1a] shadow-lg shadow-[#111111]/20 transition-all">Accept</button>
                 )}
                 {o.status === 'preparing' && (
                   <button className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-500 rounded-full hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 transition-all">Mark Ready</button>

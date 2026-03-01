@@ -66,10 +66,10 @@ const BookingManage = () => {
         <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
           <XCircle className="w-6 h-6 text-gray-400" />
         </div>
-        <h1 className="text-lg font-semibold text-[#1B4332]">Booking Cancelled</h1>
+        <h1 className="text-lg font-semibold text-[#111111]">Booking Cancelled</h1>
         <p className="text-xs text-gray-500 mt-1.5">Your booking has been cancelled successfully.</p>
         <Link to={`/book/${businessSlug}`}
-          className="inline-flex items-center gap-2 mt-4 px-5 py-2 rounded-xl bg-[#1B4332] text-white font-medium text-xs hover:bg-[#143326] transition-colors">
+          className="inline-flex items-center gap-2 mt-4 px-5 py-2 rounded-xl bg-[#111111] text-white font-medium text-xs hover:bg-[#0a0a0a] transition-colors">
           <RotateCcw className="w-3.5 h-3.5" /> Book again
         </Link>
       </div>
@@ -83,16 +83,16 @@ const BookingManage = () => {
     <div className="min-h-screen bg-[#FEFBF4] flex items-start justify-center" style={{ fontFamily: "'Figtree', sans-serif" }}>
     <div className="w-full sm:max-w-[400px] sm:my-6 sm:rounded-2xl sm:border sm:border-gray-200 sm:shadow-xl sm:bg-[#FEFBF4] sm:overflow-hidden px-4 pt-4 pb-8">
       <Link to={`/book/${businessSlug}/confirm/${bookingId}`}
-        className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#1B4332] mb-4 transition-colors">
+        className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#111111] mb-4 transition-colors">
         <ArrowLeft className="w-3.5 h-3.5" /> Back to confirmation
       </Link>
 
-      <h1 className="text-base font-semibold text-[#1B4332] mb-3">Manage Booking</h1>
+      <h1 className="text-base font-semibold text-[#111111] mb-3">Manage Booking</h1>
 
       {/* Booking details card */}
       <div className="bg-white rounded-xl border border-gray-200 p-3 mb-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-sm text-[#1B4332]">{biz.name}</h3>
+          <h3 className="font-semibold text-sm text-[#111111]">{biz.name}</h3>
           <span className="font-mono text-xs text-gray-500">{booking.reference}</span>
         </div>
         <div className="space-y-1.5 text-xs">
@@ -118,7 +118,7 @@ const BookingManage = () => {
       {/* Actions */}
       <div className="space-y-2">
         <Link to={`/book/${businessSlug}`}
-          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[#1B4332] text-[#1B4332] font-medium text-xs hover:bg-[#1B4332] hover:text-white transition-all">
+          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[#111111] text-[#111111] font-medium text-xs hover:bg-[#111111] hover:text-white transition-all">
           <RotateCcw className="w-3.5 h-3.5" /> Reschedule Booking
         </Link>
 
@@ -144,7 +144,7 @@ const BookingManage = () => {
         )}
       </div>
 
-      <p className="text-center text-xs text-gray-400 mt-4 pb-2">Powered by <a href="https://rezvo.app" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#1B4332] hover:underline">Rezvo</a></p>
+      <p className="text-center text-xs text-gray-400 mt-4 pb-2">Powered by <a href="https://rezvo.app" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#111111] hover:underline">Rezvo</a></p>
     </div>
     </div>
   )

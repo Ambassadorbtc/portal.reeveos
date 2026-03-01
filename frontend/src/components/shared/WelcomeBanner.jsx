@@ -63,8 +63,8 @@ const WelcomeBanner = () => {
         maxWidth: 'calc(100vw - 48px)',
         padding: '20px 24px',
         borderRadius: 16,
-        background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)',
-        boxShadow: '0 20px 60px rgba(27, 67, 50, 0.4), 0 0 0 1px rgba(255,255,255,0.1) inset',
+        background: 'linear-gradient(135deg, #111111 0%, #1a1a1a 100%)',
+        boxShadow: '0 20px 60px rgba(17, 17, 17, 0.4), 0 0 0 1px rgba(255,255,255,0.1) inset',
         cursor: 'pointer',
         transform: isVisible
           ? 'translateX(0)'
@@ -97,7 +97,7 @@ const WelcomeBanner = () => {
           width: 44, height: 44, borderRadius: 12,
           background: '#D4A373',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontWeight: 800, fontSize: 20, color: '#1B4332',
+          fontWeight: 800, fontSize: 20, color: '#111111',
           fontFamily: "'Georgia', serif",
           flexShrink: 0,
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',

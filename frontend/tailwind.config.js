@@ -6,8 +6,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#1B4332',
-        'primary-hover': '#143326',
+        primary: '#111111',
+        'primary-hover': '#0a0a0a',
         background: '#FEFBF4',
         card: '#FFFFFF',
         border: '#E8E0D4',
@@ -16,20 +16,20 @@ export default {
         error: '#EF4444',
         info: '#3B82F6',
         text: {
-          main: '#1B4332',
+          main: '#111111',
           muted: '#6B7280',
           light: '#9CA3AF',
         },
         forest: {
-          DEFAULT: '#1B4332',
-          dark: '#0A1F14',
-          darker: '#061209'
+          DEFAULT: '#111111',
+          dark: '#0a0a0a',
+          darker: '#050505'
         },
-        sage: '#2D6A4F',
-        green: '#40916C',
-        mint: '#52B788',
-        'light-green': '#74C69D',
-        'pale-green': '#D8F3DC',
+        sage: '#1a1a1a',
+        green: '#333333',
+        mint: '#555555',
+        'light-green': '#666666',
+        'pale-green': '#F0F0F0',
         cream: '#FAFAF7',
         warm: '#F4F0E8',
         sand: '#E8E0D0',
@@ -58,8 +58,8 @@ export default {
         pill: '100px'
       },
       boxShadow: {
-        card: '0 4px 20px -2px rgba(27, 67, 50, 0.08)',
-        'card-hover': '0 12px 40px -4px rgba(27, 67, 50, 0.15)'
+        card: '0 4px 20px -2px rgba(17, 17, 17, 0.08)',
+        'card-hover': '0 12px 40px -4px rgba(17, 17, 17, 0.15)'
       },
       transitionDuration: {
         fast: '120ms',

@@ -38,7 +38,7 @@ const STATUS_STYLES = {
   mains:     { border: '#EA580C', bg: '#FFF7ED', text: '#9A3412', label: 'Mains', dot: '#EA580C' },
   dessert:   { border: '#8B5CF6', bg: '#FAF5FF', text: '#5B21B6', label: 'Dessert', dot: '#8B5CF6' },
   reserved:  { border: '#D4A373', bg: '#FFF8F0', text: '#92400E', label: 'Reserved', dot: '#D4A373' },
-  confirmed: { border: '#1B4332', bg: '#EFF6FF', text: '#1B4332', label: 'Confirmed', dot: '#1B4332' },
+  confirmed: { border: '#111111', bg: '#EFF6FF', text: '#111111', label: 'Confirmed', dot: '#111111' },
   pending:   { border: '#F59E0B', bg: '#FFFBEB', text: '#92400E', label: 'Pending', dot: '#F59E0B' },
   dirty:     { border: '#EF4444', bg: '#FEF2F2', text: '#991B1B', label: 'Dirty', dot: '#EF4444' },
   paying:    { border: '#6B7280', bg: '#F3F4F6', text: '#374151', label: 'Paying', dot: '#6B7280' },
@@ -397,7 +397,7 @@ const Dashboard = () => {
         {/* Header */}
         <div className="flex items-center justify-between gap-4">
           {/* Left: Booking Link CTA */}
-          <button onClick={() => navigate('/dashboard/booking-link')} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-full text-sm font-bold hover:bg-[#2D6A4F] shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]">
+          <button onClick={() => navigate('/dashboard/booking-link')} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-full text-sm font-bold hover:bg-[#1a1a1a] shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
             Booking Link
           </button>
@@ -423,7 +423,7 @@ const Dashboard = () => {
         {/* Stat Cards */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {statCards.map((c,i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_-5px_rgba(27,67,50,0.1)] transition-all duration-300 group">
+            <div key={i} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_-5px_rgba(17,17,17,0.1)] transition-all duration-300 group">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <p className="text-sm font-medium text-gray-500 mb-1">{c.label}</p>
@@ -470,12 +470,12 @@ const Dashboard = () => {
                 <svg viewBox="0 0 600 200" className="w-full h-full" preserveAspectRatio="none">
                   <defs>
                     <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#2D6A4F" stopOpacity="0.25" />
-                      <stop offset="100%" stopColor="#2D6A4F" stopOpacity="0.02" />
+                      <stop offset="0%" stopColor="#1a1a1a" stopOpacity="0.25" />
+                      <stop offset="100%" stopColor="#1a1a1a" stopOpacity="0.02" />
                     </linearGradient>
                   </defs>
                   <path d="M0,160 C50,135 100,100 150,110 C200,120 250,140 300,60 C350,20 400,30 450,50 C500,70 550,100 600,130 L600,200 L0,200 Z" fill="url(#chartFill)" />
-                  <path d="M0,160 C50,135 100,100 150,110 C200,120 250,140 300,60 C350,20 400,30 450,50 C500,70 550,100 600,130" fill="none" stroke="#1B4332" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M0,160 C50,135 100,100 150,110 C200,120 250,140 300,60 C350,20 400,30 450,50 C500,70 550,100 600,130" fill="none" stroke="#111111" strokeWidth="2.5" strokeLinecap="round" />
                 </svg>
                 <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[9px] text-gray-400 font-medium px-2">
                   {['12PM','1PM','2PM','3PM','4PM','5PM','6PM','7PM','8PM','9PM','10PM'].map(t => <span key={t}>{t}</span>)}
@@ -548,7 +548,7 @@ const Dashboard = () => {
             <div className="flex items-center gap-3">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-                <input type="text" placeholder="Filter guests..." value={searchFilter} onChange={e => setSearchFilter(e.target.value)} className="pl-8 pr-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#1B4332]/15 focus:border-[#1B4332]/30 shadow-sm w-48 transition-all" style={{ fontFamily: "'Figtree', sans-serif" }} />
+                <input type="text" placeholder="Filter guests..." value={searchFilter} onChange={e => setSearchFilter(e.target.value)} className="pl-8 pr-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#111111]/15 focus:border-[#111111]/30 shadow-sm w-48 transition-all" style={{ fontFamily: "'Figtree', sans-serif" }} />
               </div>
               <button className="bg-gray-50 hover:bg-gray-100 text-gray-600 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium transition-colors flex items-center gap-1">
                 <Download className="w-3.5 h-3.5" /> Export

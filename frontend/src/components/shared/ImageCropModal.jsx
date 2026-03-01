@@ -118,7 +118,7 @@ const ImageCropModal = ({
               step={0.05}
               value={zoom}
               onChange={e => setZoom(Number(e.target.value))}
-              className="flex-1 h-1.5 bg-gray-200 rounded-full appearance-none cursor-pointer accent-[#1B4332]"
+              className="flex-1 h-1.5 bg-gray-200 rounded-full appearance-none cursor-pointer accent-[#111111]"
             />
             <ZoomIn className="w-4 h-4 text-gray-400 shrink-0" />
             <button
@@ -144,7 +144,7 @@ const ImageCropModal = ({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-5 py-2.5 text-sm font-bold text-white bg-[#1B4332] rounded-lg hover:bg-[#2D6A4F] transition-colors shadow-lg disabled:opacity-50 flex items-center gap-2"
+            className="px-5 py-2.5 text-sm font-bold text-white bg-[#111111] rounded-lg hover:bg-[#1a1a1a] transition-colors shadow-lg disabled:opacity-50 flex items-center gap-2"
           >
             {saving ? (
               <>

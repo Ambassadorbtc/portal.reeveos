@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from 'react'
 import api from '../../utils/api'
 
 const PILLARS = {
-  growth: { label: 'Growth', color: '#1B4332', bg: '#d1fae5', desc: 'Rezvo-specific stories' },
+  growth: { label: 'Growth', color: '#111111', bg: '#d1fae5', desc: 'Rezvo-specific stories' },
   tam: { label: 'TAM', color: '#1e40af', bg: '#dbeafe', desc: 'Broad industry content' },
   sales: { label: 'Sales', color: '#9333ea', bg: '#f3e8ff', desc: 'Direct pitch / CTA' },
 }
@@ -465,7 +465,7 @@ const LinkedIn = () => {
                     key={k}
                     onClick={() => setGenFramework(k)}
                     className={`p-3 rounded-xl border-2 text-left transition-all ${
-                      genFramework === k ? 'border-[#1B4332] bg-green-50' : 'border-gray-100 hover:border-gray-200'
+                      genFramework === k ? 'border-[#111111] bg-green-50' : 'border-gray-100 hover:border-gray-200'
                     }`}
                   >
                     <div className="font-semibold text-sm">{v.label}</div>
@@ -482,7 +482,7 @@ const LinkedIn = () => {
                     key={t.value}
                     onClick={() => setGenTone(t.value)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      genTone === t.value ? 'bg-[#1B4332] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      genTone === t.value ? 'bg-[#111111] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
                     {t.icon} {t.label}
@@ -587,7 +587,7 @@ const LinkedIn = () => {
                 {/* LinkedIn preview mockup */}
                 <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-full bg-[#1B4332] flex items-center justify-center text-white font-bold text-lg">R</div>
+                    <div className="w-12 h-12 rounded-full bg-[#111111] flex items-center justify-center text-white font-bold text-lg">R</div>
                     <div>
                       <div className="font-semibold text-gray-900 text-sm">Rezvo Founder</div>
                       <div className="text-xs text-gray-500">Save the High Street • Building @Rezvo</div>
@@ -696,7 +696,7 @@ const LinkedIn = () => {
                       </div>
                       <h4 className="font-bold text-gray-900">{trend.topic}</h4>
                       <p className="text-sm text-gray-600 mt-1">{trend.why_trending}</p>
-                      <p className="text-sm text-[#1B4332] mt-1 font-medium">{trend.rezvo_angle}</p>
+                      <p className="text-sm text-[#111111] mt-1 font-medium">{trend.rezvo_angle}</p>
                       {trend.suggested_hook && (
                         <div className="mt-2 p-2 bg-gray-50 rounded-lg text-sm font-medium text-gray-800">
                           Hook: "{trend.suggested_hook}"
@@ -892,7 +892,7 @@ const LinkedIn = () => {
             {/* LinkedIn mockup */}
             <div className="border border-gray-200 rounded-xl p-5 bg-white shadow-sm">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-14 h-14 rounded-full bg-[#1B4332] flex items-center justify-center text-white font-bold text-xl">R</div>
+                <div className="w-14 h-14 rounded-full bg-[#111111] flex items-center justify-center text-white font-bold text-xl">R</div>
                 <div>
                   <div className="font-semibold text-gray-900">Rezvo Founder</div>
                   <div className="text-xs text-gray-500">Save the High Street • Building @Rezvo • Nottingham, UK</div>

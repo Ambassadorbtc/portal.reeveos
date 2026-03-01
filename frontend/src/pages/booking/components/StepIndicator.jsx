@@ -8,7 +8,7 @@ const StepIndicator = ({ step, total }) => (
       <div
         key={i}
         className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
-          i + 1 <= step ? 'bg-[#1B4332]' : i + 1 === step + 1 ? 'bg-[#D4A373]' : 'bg-gray-200'
+          i + 1 <= step ? 'bg-[#111111]' : i + 1 === step + 1 ? 'bg-[#D4A373]' : 'bg-gray-200'
         }`}
       />
     ))}

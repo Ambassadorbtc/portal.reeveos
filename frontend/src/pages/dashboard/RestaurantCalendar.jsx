@@ -13,7 +13,7 @@ import FloorPlanEmbed from './FloorPlan'
 
 /* ── Design Tokens (from UXPilot polished HTML) ── */
 const T = {
-  forest: '#1B4332',
+  forest: '#111111',
   sage: '#52B788',
   amber: '#D4A373',
   white: '#FFFFFF',
@@ -23,7 +23,7 @@ const T = {
   text: '#111111',
   muted: '#374151',
   status: {
-    confirmed: '#1B4332',
+    confirmed: '#111111',
     seated: '#52B788',
     walkin: '#D4A373',
     vip: '#3B82F6',
@@ -62,7 +62,7 @@ const statusColor = (status, isVip) => {
 const ZONE_COLORS = {
   // Capitalized (from seed data)
   Window: '#2563EB',
-  Main: '#1B4332',
+  Main: '#111111',
   Bar: '#D97706',
   Patio: '#059669',
   Private: '#7C3AED',
@@ -72,7 +72,7 @@ const ZONE_COLORS = {
   Upstairs: '#7C3AED',
   // Lowercase (from floor plan editor)
   window: '#2563EB',
-  main: '#1B4332',
+  main: '#111111',
   bar: '#D97706',
   patio: '#059669',
   private: '#7C3AED',
@@ -436,7 +436,7 @@ export default function RestaurantCalendar() {
         </div>
 
         {/* Today */}
-        <button onClick={goToday} style={{ padding: '6px 14px', borderRadius: 20, border: 'none', background: T.forest, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(27,67,50,0.2)', whiteSpace: 'nowrap' }}>Today</button>
+        <button onClick={goToday} style={{ padding: '6px 14px', borderRadius: 20, border: 'none', background: T.forest, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(17,17,17,0.2)', whiteSpace: 'nowrap' }}>Today</button>
 
         <div style={divider} />
 
@@ -729,7 +729,7 @@ export default function RestaurantCalendar() {
 
           {/* ─ Top bar: edit, delete, close ─ */}
           <div style={{ padding: '16px 24px 0', flexShrink: 0, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-            <button onClick={() => setEditMode(!editMode)} style={{ ...panelIconBtn, background: editMode ? '#F0F7F4' : 'transparent', color: editMode ? T.forest : '#666' }} title="Edit"><Edit3 size={14} /></button>
+            <button onClick={() => setEditMode(!editMode)} style={{ ...panelIconBtn, background: editMode ? '#F5F5F5' : 'transparent', color: editMode ? T.forest : '#666' }} title="Edit"><Edit3 size={14} /></button>
             <button onClick={() => setShowDeleteConfirm(true)} style={{ ...panelIconBtn, color: '#EF4444' }} title="Delete">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
@@ -767,7 +767,7 @@ export default function RestaurantCalendar() {
           {/* ─ Avatar + Name + Badges ─ */}
           <div style={{ padding: '12px 24px 16px' }}>
             <div style={{ display: 'flex', alignItems: 'start', gap: 16, marginBottom: 16 }}>
-              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1B4332, #2D6A4F)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20, fontWeight: 700, flexShrink: 0, border: '2px solid #fff', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #111111, #1a1a1a)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20, fontWeight: 700, flexShrink: 0, border: '2px solid #fff', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
                 {(selectedBooking.customerName || 'G').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -859,7 +859,7 @@ export default function RestaurantCalendar() {
               )}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {[
-                  { label: 'Friday Regular', bg: '#F0F7F4', dot: T.sage },
+                  { label: 'Friday Regular', bg: '#F5F5F5', dot: T.sage },
                   ...(selectedBooking.occasion ? [{ label: selectedBooking.occasion.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()), bg: '#FFF8F0', dot: T.amber }] : []),
                   { label: 'Wine Lover', bg: '#fff', dot: T.sage, border: true },
                   ...(customTags[selectedBooking.id] || []).map(t => ({ label: t, bg: '#F0F0FF', dot: '#7C3AED', border: false })),
@@ -995,13 +995,13 @@ export default function RestaurantCalendar() {
             {editMode ? (
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => setEditMode(false)} style={{ flex: 1, padding: '12px 16px', borderRadius: 999, border: `1px solid ${T.border}`, background: '#fff', color: '#555', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>Cancel</button>
-                <button onClick={() => { setEditMode(false); /* TODO: save to API */ }} style={{ flex: 2, padding: '12px 16px', borderRadius: 999, border: 'none', background: T.forest, color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Figtree', sans-serif", boxShadow: '0 4px 12px rgba(27,67,50,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <button onClick={() => { setEditMode(false); /* TODO: save to API */ }} style={{ flex: 2, padding: '12px 16px', borderRadius: 999, border: 'none', background: T.forest, color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Figtree', sans-serif", boxShadow: '0 4px 12px rgba(17,17,17,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   ✓ Save Changes
                 </button>
               </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, overflowX: 'auto' }}>
-              <button onClick={handleCheckIn} style={{ flex: 1, minWidth: 110, background: selectedBooking?.status === 'seated' ? T.sage : T.forest, color: '#fff', fontWeight: 600, padding: '12px 16px', borderRadius: 999, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 12px rgba(27,67,50,0.3)', transition: 'all 0.2s' }}>
+              <button onClick={handleCheckIn} style={{ flex: 1, minWidth: 110, background: selectedBooking?.status === 'seated' ? T.sage : T.forest, color: '#fff', fontWeight: 600, padding: '12px 16px', borderRadius: 999, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 12px rgba(17,17,17,0.3)', transition: 'all 0.2s' }}>
                 {selectedBooking?.status === 'seated' ? '✓ Seated' : '✓ Check In'}
               </button>
               <button onClick={() => setEditMode(true)} style={{ flexShrink: 0, background: '#fff', border: `1px solid ${T.forest}`, color: T.forest, fontWeight: 500, padding: '12px 20px', borderRadius: 999, cursor: 'pointer', fontSize: 13 }}>
@@ -1037,15 +1037,15 @@ export default function RestaurantCalendar() {
 }
 
 /* ── Shared style objects ── */
-const pillBtn = { width: 30, height: 30, borderRadius: '50%', border: 'none', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1B4332', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }
+const pillBtn = { width: 30, height: 30, borderRadius: '50%', border: 'none', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#111111', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }
 const divider = { width: 1, height: 20, background: '#EBEBEB' }
 const toggleWrap = { display: 'flex', background: '#F5F5F5', borderRadius: 20, padding: 2 }
-const toggleActive = { padding: '5px 12px', borderRadius: 18, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 700, background: '#1B4332', color: '#fff', boxShadow: '0 2px 8px rgba(27,67,50,0.2)', transition: 'all 0.15s', fontFamily: "'Figtree', sans-serif", whiteSpace: 'nowrap' }
+const toggleActive = { padding: '5px 12px', borderRadius: 18, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 700, background: '#111111', color: '#fff', boxShadow: '0 2px 8px rgba(17,17,17,0.2)', transition: 'all 0.15s', fontFamily: "'Figtree', sans-serif", whiteSpace: 'nowrap' }
 const toggleInactive = { padding: '5px 12px', borderRadius: 18, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500, background: 'transparent', color: '#555', transition: 'all 0.15s', fontFamily: "'Figtree', sans-serif", whiteSpace: 'nowrap' }
 const iconBtn = { width: 34, height: 34, borderRadius: '50%', border: 'none', background: '#F5F5F5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555' }
 const panelIconBtn = { width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }
 const sectionTitle = { fontSize: 13, fontWeight: 600, color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0, marginBottom: 12 }
-const editInput = { fontSize: 14, fontWeight: 500, color: '#1B4332', border: 'none', borderBottom: '2px solid #52B788', outline: 'none', background: 'transparent', fontFamily: "'Figtree', sans-serif", padding: '2px 0' }
+const editInput = { fontSize: 14, fontWeight: 500, color: '#111111', border: 'none', borderBottom: '2px solid #52B788', outline: 'none', background: 'transparent', fontFamily: "'Figtree', sans-serif", padding: '2px 0' }
 const prefPill = { display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#555', background: '#F5F5F5', padding: '4px 10px', borderRadius: 6, border: '1px solid #F0F0F0' }
 
 function StatChip({ color, value, label }) {
@@ -1053,7 +1053,7 @@ function StatChip({ color, value, label }) {
     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
       <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, flexShrink: 0 }} />
       <span style={{ fontSize: 12, color: '#374151', fontWeight: 500, whiteSpace: 'nowrap' }}>
-        <strong style={{ color: '#1B4332', fontWeight: 800 }}>{value}</strong> {label}
+        <strong style={{ color: '#111111', fontWeight: 800 }}>{value}</strong> {label}
       </span>
     </div>
   )
@@ -1097,7 +1097,7 @@ function TableStatusView({ data, filteredBookings, onSelectBooking }) {
       {tablesByZone.order.map(zone => (
         <div key={zone} style={{ marginBottom: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <div style={{ width: 3, height: 14, borderRadius: 2, background: ZONE_COLORS[zone] || '#1B4332' }} />
+            <div style={{ width: 3, height: 14, borderRadius: 2, background: ZONE_COLORS[zone] || '#111111' }} />
             <span style={{ fontSize: 13, fontWeight: 700, color: '#374151', textTransform: 'uppercase' }}>{zone}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
@@ -1157,19 +1157,19 @@ function ReservationListView({ bookings, onSelectBooking }) {
         return (
           <div key={b.id} onClick={() => onSelectBooking(b)}
             style={{ display: 'grid', gridTemplateColumns: '100px 1.8fr 80px 100px 90px 110px 1fr', padding: '0 20px', background: idx % 2 === 0 ? '#fff' : '#FAFAF8', borderBottom: '1px solid #F0F0F0', cursor: 'pointer', alignItems: 'center', transition: 'all 0.15s', minHeight: 52 }}
-            onMouseOver={e => { e.currentTarget.style.background = '#F0F7F4'; e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(82,183,136,0.15)' }}
+            onMouseOver={e => { e.currentTarget.style.background = '#F5F5F5'; e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(82,183,136,0.15)' }}
             onMouseOut={e => { e.currentTarget.style.background = idx % 2 === 0 ? '#fff' : '#FAFAF8'; e.currentTarget.style.boxShadow = 'none' }}>
 
             {/* TIME — green bar with white text */}
             <div style={{ display: 'flex', alignItems: 'center', height: '100%', marginLeft: -20, paddingLeft: 20 }}>
-              <div style={{ background: '#1B4332', color: '#fff', padding: '6px 14px', borderRadius: 6, fontSize: 13, fontWeight: 700, letterSpacing: '0.02em', whiteSpace: 'nowrap', boxShadow: '0 1px 3px rgba(27,67,50,0.2)' }}>
+              <div style={{ background: '#111111', color: '#fff', padding: '6px 14px', borderRadius: 6, fontSize: 13, fontWeight: 700, letterSpacing: '0.02em', whiteSpace: 'nowrap', boxShadow: '0 1px 3px rgba(17,17,17,0.2)' }}>
                 {fmt12(b.time)}
               </div>
             </div>
 
             {/* GUEST */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: '#1B4332' }}>{b.customerName}</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: '#111111' }}>{b.customerName}</span>
               {b.isVip && <Crown size={12} style={{ color: '#3B82F6' }} />}
             </div>
 

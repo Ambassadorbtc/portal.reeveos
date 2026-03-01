@@ -509,7 +509,7 @@ const Settings = () => {
             </div>
             <div className="mt-6">
               <button onClick={saveBusiness}
-              className="bg-[#1B4332] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#1B4332]/20 hover:bg-[#2D6A4F] transition-colors">
+              className="bg-[#111111] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#111111]/20 hover:bg-[#1a1a1a] transition-colors">
               Save
             </button>
             </div>
@@ -632,7 +632,7 @@ const Settings = () => {
             </ul>
             <div className="mt-6">
               <button onClick={saveHours}
-              className="bg-[#1B4332] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#1B4332]/20 hover:bg-[#2D6A4F] transition-colors">
+              className="bg-[#111111] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#111111]/20 hover:bg-[#1a1a1a] transition-colors">
               Save Hours
             </button>
             </div>
@@ -692,7 +692,7 @@ const Settings = () => {
             </div>
             <div className="mt-6">
               <button onClick={saveNotifications}
-              className="bg-[#1B4332] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#1B4332]/20 hover:bg-[#2D6A4F] transition-colors">
+              className="bg-[#111111] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#111111]/20 hover:bg-[#1a1a1a] transition-colors">
               Save Notifications
             </button>
             </div>
@@ -819,7 +819,7 @@ const Settings = () => {
             <div className="mt-4">
               <button
               onClick={() => navigate('/dashboard/staff')}
-              className="bg-[#1B4332] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#1B4332]/20 hover:bg-[#2D6A4F] transition-colors">
+              className="bg-[#111111] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#111111]/20 hover:bg-[#1a1a1a] transition-colors">
               Manage Team
             </button>
             </div>
@@ -837,7 +837,7 @@ const Settings = () => {
               <p className="text-sm text-gray-500">Download a ZIP of clients, bookings, services</p>
             </div>
             <button onClick={exportData}
-              className="bg-[#1B4332] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#1B4332]/20 hover:bg-[#2D6A4F] transition-colors">
+              className="bg-[#111111] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#111111]/20 hover:bg-[#1a1a1a] transition-colors">
               Export
             </button>
           </div>

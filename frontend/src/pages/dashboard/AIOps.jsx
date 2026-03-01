@@ -127,7 +127,7 @@ export default function AIOps() {
   }
 
   // ─── Stat Card ─── //
-  const StatCard = ({ label, value, icon, color = '#1B4332' }) => (
+  const StatCard = ({ label, value, icon, color = '#111111' }) => (
     <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4">
       <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white" style={{ background: color }}>
         <i className={`fas ${icon} text-sm`} />
@@ -166,7 +166,7 @@ export default function AIOps() {
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
-              tab === t.id ? 'bg-[#1B4332] text-white shadow-lg shadow-[#1B4332]/20' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+              tab === t.id ? 'bg-[#111111] text-white shadow-lg shadow-[#111111]/20' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
             }`}
           >
             <i className={`fas ${t.icon} text-xs`} /> {t.label}
@@ -181,8 +181,8 @@ export default function AIOps() {
       {tab === 'overview' && (
         <div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <StatCard label="Tasks (24h)" value={stats?.runs_24h || 0} icon="fa-bolt" color="#1B4332" />
-            <StatCard label="Tasks (7d)" value={stats?.runs_7d || 0} icon="fa-chart-bar" color="#2D6A4F" />
+            <StatCard label="Tasks (24h)" value={stats?.runs_24h || 0} icon="fa-bolt" color="#111111" />
+            <StatCard label="Tasks (7d)" value={stats?.runs_7d || 0} icon="fa-chart-bar" color="#1a1a1a" />
             <StatCard label="Tokens (7d)" value={(stats?.tokens_7d || 0).toLocaleString()} icon="fa-microchip" color="#40916C" />
             <StatCard label="Cost (7d)" value={`$${(stats?.estimated_cost_7d_usd || 0).toFixed(2)}`} icon="fa-sterling-sign" color="#52B788" />
           </div>

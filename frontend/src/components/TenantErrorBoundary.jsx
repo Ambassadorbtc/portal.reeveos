@@ -81,7 +81,7 @@ class TenantErrorBoundary extends Component {
               width: '48px',
               height: '48px',
               borderRadius: '12px',
-              background: '#1B4332',
+              background: '#111111',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -91,7 +91,7 @@ class TenantErrorBoundary extends Component {
             </div>
 
             <h2 style={{ 
-              color: '#1B4332', 
+              color: '#111111', 
               fontSize: '1.25rem', 
               fontWeight: 600, 
               margin: '0 0 0.75rem' 
@@ -113,7 +113,7 @@ class TenantErrorBoundary extends Component {
               <button
                 onClick={this.handleReset}
                 style={{
-                  background: '#1B4332',
+                  background: '#111111',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',

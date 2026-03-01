@@ -107,7 +107,7 @@ const TopBar = ({ onMenuClick, sidebarOpen }) => {
             {initials}
           </div>
           <div id="profile-dropdown" style={{ display: 'none', position: 'absolute', top: '100%', right: 0, marginTop: 8, background: '#fff', border: '1px solid #EBEBEB', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 200, width: 200, padding: 8, fontFamily: "'Figtree', sans-serif" }}>
-            <div style={{ padding: '8px 12px', fontSize: 14, fontWeight: 600, color: '#1B4332', borderBottom: '1px solid #F5F5F5', marginBottom: 4 }}>
+            <div style={{ padding: '8px 12px', fontSize: 14, fontWeight: 600, color: '#111111', borderBottom: '1px solid #F5F5F5', marginBottom: 4 }}>
               {user?.name || 'User'}
               <div style={{ fontSize: 11, fontWeight: 400, color: '#666', marginTop: 2 }}>{user?.email || ''}</div>
             </div>

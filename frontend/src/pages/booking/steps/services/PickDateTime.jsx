@@ -65,7 +65,7 @@ const PickDateTime = ({ data, onContinue, onBack }) => {
       {/* Back button */}
       <button
         onClick={onBack}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1B4332] mb-4 transition-colors"
+        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#111111] mb-4 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back
@@ -85,7 +85,7 @@ const PickDateTime = ({ data, onContinue, onBack }) => {
         </div>
       )}
 
-      <h2 className="text-sm font-semibold text-[#1B4332] mb-3">Pick a date</h2>
+      <h2 className="text-sm font-semibold text-[#111111] mb-3">Pick a date</h2>
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
@@ -113,9 +113,9 @@ const PickDateTime = ({ data, onContinue, onBack }) => {
                   disabled={!isAvailable}
                   className={`shrink-0 w-[52px] py-2.5 rounded-xl text-center transition-all ${
                     isSelected
-                      ? 'bg-[#1B4332] text-white shadow-sm'
+                      ? 'bg-[#111111] text-white shadow-sm'
                       : isAvailable
-                        ? 'bg-white border border-gray-200 hover:border-[#1B4332]/40 text-gray-700'
+                        ? 'bg-white border border-gray-200 hover:border-[#111111]/40 text-gray-700'
                         : 'bg-gray-100 text-gray-300 cursor-not-allowed'
                   }`}
                 >
@@ -138,7 +138,7 @@ const PickDateTime = ({ data, onContinue, onBack }) => {
             <div className="mt-2 pb-6">
               {slotsLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-5 h-5 text-[#1B4332] animate-spin" />
+                  <Loader2 className="w-5 h-5 text-[#111111] animate-spin" />
                 </div>
               ) : slots.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-8">No available times for this date</p>
@@ -159,9 +159,9 @@ const PickDateTime = ({ data, onContinue, onBack }) => {
                               disabled={!s.available}
                               className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${
                                 selectedTime === s.time
-                                  ? 'bg-[#1B4332] text-white shadow-sm'
+                                  ? 'bg-[#111111] text-white shadow-sm'
                                   : s.available
-                                    ? 'bg-white border border-gray-200 text-gray-700 hover:border-[#1B4332]/40'
+                                    ? 'bg-white border border-gray-200 text-gray-700 hover:border-[#111111]/40'
                                     : 'bg-gray-100 text-gray-300 cursor-not-allowed'
                               }`}
                             >
@@ -186,7 +186,7 @@ const PickDateTime = ({ data, onContinue, onBack }) => {
           disabled={!selectedDate || !selectedTime}
           className={`w-full py-3 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 ${
             selectedDate && selectedTime
-              ? 'bg-[#1B4332] text-white hover:bg-[#143326] shadow-sm'
+              ? 'bg-[#111111] text-white hover:bg-[#0a0a0a] shadow-sm'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >

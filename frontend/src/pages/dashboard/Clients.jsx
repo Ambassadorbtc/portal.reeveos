@@ -14,7 +14,7 @@ import api from '../../utils/api'
 import RezvoLoader from '../../components/shared/RezvoLoader'
 
 const AVATAR_COLORS = [
-  'from-[#1B4332] to-[#2D6A4F]', 'from-purple-600 to-purple-800',
+  'from-[#111111] to-[#1a1a1a]', 'from-purple-600 to-purple-800',
   'from-blue-600 to-blue-800', 'from-amber-500 to-amber-700',
   'from-pink-500 to-pink-700', 'from-emerald-500 to-emerald-700',
 ]
@@ -415,7 +415,7 @@ const Clients = () => {
               <h1 className="text-2xl font-extrabold text-primary">Guest CRM</h1>
               <p className="text-sm text-gray-500">{filteredGuests.length} guest{filteredGuests.length !== 1 ? 's' : ''} in your database</p>
             </div>
-            <button onClick={() => setAddGuestModal(true)} className="bg-[#1B4332] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#1B4332]/20 hover:bg-[#2D6A4F] transition-all flex items-center gap-2" style={{ fontFamily: "'Figtree', sans-serif" }}>
+            <button onClick={() => setAddGuestModal(true)} className="bg-[#111111] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#111111]/20 hover:bg-[#1a1a1a] transition-all flex items-center gap-2" style={{ fontFamily: "'Figtree', sans-serif" }}>
               <UserPlus className="w-4 h-4" /> Add Guest
             </button>
           </div>
@@ -423,12 +423,12 @@ const Clients = () => {
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex items-center gap-1.5 flex-wrap">
               {FILTER_TABS.map(t => (
-                <button key={t.id} onClick={() => setActiveFilter(t.id)} className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${activeFilter === t.id ? 'bg-[#1B4332] text-white shadow-lg shadow-[#1B4332]/20' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`} style={{ fontFamily: "'Figtree', sans-serif" }}>{t.label}</button>
+                <button key={t.id} onClick={() => setActiveFilter(t.id)} className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${activeFilter === t.id ? 'bg-[#111111] text-white shadow-lg shadow-[#111111]/20' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`} style={{ fontFamily: "'Figtree', sans-serif" }}>{t.label}</button>
               ))}
             </div>
             <div className="relative flex-1 max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search guests..." className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1B4332]/15 focus:border-[#1B4332]/30 shadow-sm transition-all" style={{ fontFamily: "'Figtree', sans-serif" }} />
+              <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search guests..." className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#111111]/15 focus:border-[#111111]/30 shadow-sm transition-all" style={{ fontFamily: "'Figtree', sans-serif" }} />
             </div>
           </div>
 
@@ -511,7 +511,7 @@ const AddGuestModal = ({ onClose, onAdd }) => {
         </div>
         <div className="flex gap-3 mt-6">
           <button onClick={onClose} className="flex-1 px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-bold text-gray-600 hover:bg-gray-50">Cancel</button>
-          <button onClick={() => { if (!form.name.trim()) return; onAdd({ id: `new-${Date.now()}`, name: form.name, email: form.email, phone: form.phone, location: '', since: new Date().toISOString(), tags: ['New'], stats: { visits: 0, spend: 0, avgSpend: 0, noShows: 0 }, riskLevel: 'New Guest', riskTag: 'bg-blue-50 text-blue-700', preferences: [], notes: form.notes, lastVisit: '', activity: [], upcoming: [], marketing: { emailOptIn: false, smsOptIn: false } }) }} className="flex-1 px-4 py-2 bg-[#1B4332] text-white rounded-full text-xs font-bold hover:bg-[#2D6A4F] shadow-lg shadow-[#1B4332]/20">Add Guest</button>
+          <button onClick={() => { if (!form.name.trim()) return; onAdd({ id: `new-${Date.now()}`, name: form.name, email: form.email, phone: form.phone, location: '', since: new Date().toISOString(), tags: ['New'], stats: { visits: 0, spend: 0, avgSpend: 0, noShows: 0 }, riskLevel: 'New Guest', riskTag: 'bg-blue-50 text-blue-700', preferences: [], notes: form.notes, lastVisit: '', activity: [], upcoming: [], marketing: { emailOptIn: false, smsOptIn: false } }) }} className="flex-1 px-4 py-2 bg-[#111111] text-white rounded-full text-xs font-bold hover:bg-[#1a1a1a] shadow-lg shadow-[#111111]/20">Add Guest</button>
         </div>
       </div>
     </div>

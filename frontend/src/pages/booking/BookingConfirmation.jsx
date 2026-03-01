@@ -64,17 +64,17 @@ const BookingConfirmation = () => {
         <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-3">
           <CheckCircle className="w-6 h-6 text-emerald-600" />
         </div>
-        <h1 className="text-lg font-semibold text-[#1B4332]">Booking Confirmed</h1>
+        <h1 className="text-lg font-semibold text-[#111111]">Booking Confirmed</h1>
         <p className="text-xs text-gray-500 mt-1">
           Confirmation sent to {booking.customer?.email}
         </p>
 
         {/* Reference code */}
         <div className="mt-3 inline-flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-1.5">
-          <span className="font-mono text-base font-bold text-[#1B4332] tracking-wider">{booking.reference}</span>
+          <span className="font-mono text-base font-bold text-[#111111] tracking-wider">{booking.reference}</span>
           <button
             onClick={handleCopy}
-            className="p-1 text-gray-400 hover:text-[#1B4332] transition-colors"
+            className="p-1 text-gray-400 hover:text-[#111111] transition-colors"
             aria-label="Copy reference"
           >
             <Copy className="w-3.5 h-3.5" />
@@ -85,7 +85,7 @@ const BookingConfirmation = () => {
 
       {/* Details card */}
       <div className="bg-white rounded-xl border border-gray-200 p-3 mb-4">
-        <h3 className="font-semibold text-sm text-[#1B4332] mb-2">{biz.name}</h3>
+        <h3 className="font-semibold text-sm text-[#111111] mb-2">{biz.name}</h3>
         <div className="space-y-1.5 text-xs">
           {booking.service?.name && (
             <div className="flex items-center gap-2 text-gray-600">
@@ -116,7 +116,7 @@ const BookingConfirmation = () => {
       <div className="space-y-2">
         {booking.calendarLinks?.google && (
           <a href={booking.calendarLinks.google} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[#1B4332] text-[#1B4332] font-medium text-xs hover:bg-[#1B4332] hover:text-white transition-all">
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[#111111] text-[#111111] font-medium text-xs hover:bg-[#111111] hover:text-white transition-all">
             <Calendar className="w-3.5 h-3.5" /> Add to Calendar
           </a>
         )}
@@ -127,12 +127,12 @@ const BookingConfirmation = () => {
           </a>
         )}
         <Link to={`/book/${businessSlug}/manage/${bookingId}`}
-          className="block w-full py-2.5 text-center text-xs text-gray-500 hover:text-[#1B4332] transition-colors">
+          className="block w-full py-2.5 text-center text-xs text-gray-500 hover:text-[#111111] transition-colors">
           Modify or Cancel Booking
         </Link>
       </div>
 
-      <p className="text-center text-xs text-gray-400 mt-6">Powered by <a href="https://rezvo.app" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#1B4332] hover:underline">Rezvo</a></p>
+      <p className="text-center text-xs text-gray-400 mt-6">Powered by <a href="https://rezvo.app" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#111111] hover:underline">Rezvo</a></p>
     </div>
     </div>
   )

@@ -15,11 +15,11 @@ const BusinessTypeSelector = () => {
       <div className="p-6 flex items-center justify-between">
         <a href="https://rezvo.app" className="flex items-center gap-3 no-underline">
           <div className="w-10 h-10 bg-[#D4A373] rounded-xl flex items-center justify-center shadow-md">
-            <span className="text-[#1B4332] font-bold text-lg">R.</span>
+            <span className="text-[#111111] font-bold text-lg">R.</span>
           </div>
-          <span className="font-extrabold text-xl tracking-tight text-[#1B4332]">Rezvo</span>
+          <span className="font-extrabold text-xl tracking-tight text-[#111111]">Rezvo</span>
         </a>
-        <a href="https://rezvo.app" className="text-sm text-gray-500 hover:text-[#1B4332] flex items-center gap-2 transition-colors">
+        <a href="https://rezvo.app" className="text-sm text-gray-500 hover:text-[#111111] flex items-center gap-2 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to website
         </a>
       </div>
@@ -29,7 +29,7 @@ const BusinessTypeSelector = () => {
         <div className="w-full max-w-xl text-center space-y-10">
           {/* Heading */}
           <div className="space-y-3">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1B4332]">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-[#111111]">
               What type of business are you?
             </h1>
             <p className="text-gray-500 text-lg">
@@ -42,18 +42,18 @@ const BusinessTypeSelector = () => {
             {/* Restaurants */}
             <button
               onClick={() => navigate('/login/restaurant')}
-              className="group bg-white rounded-2xl border-2 border-gray-100 hover:border-[#1B4332] p-8 flex flex-col items-center gap-4 transition-all duration-300 shadow-sm hover:shadow-[0_10px_30px_-5px_rgba(27,67,50,0.15)] text-left"
+              className="group bg-white rounded-2xl border-2 border-gray-100 hover:border-[#111111] p-8 flex flex-col items-center gap-4 transition-all duration-300 shadow-sm hover:shadow-[0_10px_30px_-5px_rgba(17,17,17,0.15)] text-left"
             >
-              <div className="w-16 h-16 rounded-2xl bg-[#1B4332]/10 text-[#1B4332] flex items-center justify-center group-hover:bg-[#1B4332] group-hover:text-white transition-all duration-300">
+              <div className="w-16 h-16 rounded-2xl bg-[#111111]/10 text-[#111111] flex items-center justify-center group-hover:bg-[#111111] group-hover:text-white transition-all duration-300">
                 <UtensilsCrossed className="w-7 h-7" />
               </div>
               <div className="text-center">
-                <h3 className="text-lg font-bold text-[#1B4332] mb-1">Restaurants</h3>
+                <h3 className="text-lg font-bold text-[#111111] mb-1">Restaurants</h3>
                 <p className="text-sm text-gray-500">
                   Table bookings, floor plans, reservations & delivery
                 </p>
               </div>
-              <div className="mt-2 px-4 py-2 rounded-lg bg-[#1B4332]/5 text-[#1B4332] text-xs font-bold group-hover:bg-[#1B4332] group-hover:text-white transition-all">
+              <div className="mt-2 px-4 py-2 rounded-lg bg-[#111111]/5 text-[#111111] text-xs font-bold group-hover:bg-[#111111] group-hover:text-white transition-all">
                 Get Started →
               </div>
             </button>
@@ -84,7 +84,7 @@ const BusinessTypeSelector = () => {
           {/* Bottom link */}
           <p className="text-sm text-gray-500">
             Already have an account?{' '}
-            <button onClick={() => navigate('/login')} className="font-bold text-[#1B4332] hover:underline">
+            <button onClick={() => navigate('/login')} className="font-bold text-[#111111] hover:underline">
               Sign in directly
             </button>
           </p>

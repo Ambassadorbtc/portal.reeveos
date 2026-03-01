@@ -32,7 +32,7 @@ export const PillTabs = ({ tabs, active, onChange, size = 'md' }) => {
               flex items-center gap-1.5 rounded-full font-bold transition-all whitespace-nowrap
               ${sizes[size]}
               ${isActive
-                ? 'bg-[#1B4332] text-white shadow-lg shadow-[#1B4332]/20'
+                ? 'bg-[#111111] text-white shadow-lg shadow-[#111111]/20'
                 : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
               }
             `}
@@ -58,7 +58,7 @@ export const SearchBar = ({ value, onChange, placeholder = 'Search...', classNam
       value={value}
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/15 focus:border-[#1B4332]/30 shadow-sm transition-all"
+      className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#111111]/15 focus:border-[#111111]/30 shadow-sm transition-all"
       style={{ fontFamily: "'Figtree', sans-serif" }}
     />
   </div>
@@ -71,7 +71,7 @@ export const ActionButton = ({
   children, onClick, variant = 'primary', size = 'md', icon: Icon, disabled = false, className = '', ...props
 }) => {
   const variants = {
-    primary: 'bg-[#1B4332] text-white hover:bg-[#2D6A4F] shadow-lg shadow-[#1B4332]/20 active:shadow-md',
+    primary: 'bg-[#111111] text-white hover:bg-[#1a1a1a] shadow-lg shadow-[#111111]/20 active:shadow-md',
     secondary: 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm',
     danger: 'bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20',
     ghost: 'text-gray-500 hover:text-gray-700 hover:bg-gray-100',
@@ -123,7 +123,7 @@ export const Select = ({ value, onChange, options, placeholder = 'Select...', cl
         onClick={() => setOpen(!open)}
         className={`
           w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-sm font-medium transition-all text-left
-          ${open ? 'border-[#1B4332]/30 ring-2 ring-[#1B4332]/10' : 'border-gray-200 hover:border-gray-300'}
+          ${open ? 'border-[#111111]/30 ring-2 ring-[#111111]/10' : 'border-gray-200 hover:border-gray-300'}
           ${value ? 'text-gray-900' : 'text-gray-400'}
           bg-white shadow-sm
         `}
@@ -145,11 +145,11 @@ export const Select = ({ value, onChange, options, placeholder = 'Select...', cl
                 onClick={() => { onChange(optVal); setOpen(false) }}
                 className={`
                   w-full text-left px-3.5 py-2.5 text-sm font-medium flex items-center justify-between transition-colors
-                  ${isSelected ? 'bg-[#1B4332]/5 text-[#1B4332] font-bold' : 'text-gray-700 hover:bg-gray-50'}
+                  ${isSelected ? 'bg-[#111111]/5 text-[#111111] font-bold' : 'text-gray-700 hover:bg-gray-50'}
                 `}
               >
                 <span>{optLabel}</span>
-                {isSelected && <Check className="w-3.5 h-3.5 text-[#1B4332]" />}
+                {isSelected && <Check className="w-3.5 h-3.5 text-[#111111]" />}
               </button>
             )
           })}
@@ -169,7 +169,7 @@ export const Badge = ({ children, variant = 'default', dot = false }) => {
     warning: 'bg-amber-50 text-amber-700',
     danger: 'bg-red-50 text-red-600',
     info: 'bg-blue-50 text-blue-700',
-    primary: 'bg-[#1B4332]/10 text-[#1B4332]',
+    primary: 'bg-[#111111]/10 text-[#111111]',
     live: 'bg-emerald-50 text-emerald-700',
   }
   return (
@@ -180,7 +180,7 @@ export const Badge = ({ children, variant = 'default', dot = false }) => {
         variant === 'warning' ? 'bg-amber-500' :
         variant === 'danger' ? 'bg-red-500' :
         variant === 'info' ? 'bg-blue-500' :
-        variant === 'primary' ? 'bg-[#1B4332]' : 'bg-gray-400'
+        variant === 'primary' ? 'bg-[#111111]' : 'bg-gray-400'
       }`} />}
       {children}
     </span>
@@ -193,7 +193,7 @@ export const Badge = ({ children, variant = 'default', dot = false }) => {
 export const Card = ({ children, className = '', hover = false, ...props }) => (
   <div
     className={`bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] ${
-      hover ? 'hover:shadow-[0_10px_30px_-5px_rgba(27,67,50,0.08)] transition-all' : ''
+      hover ? 'hover:shadow-[0_10px_30px_-5px_rgba(17,17,17,0.08)] transition-all' : ''
     } ${className}`}
     style={{ fontFamily: "'Figtree', sans-serif" }}
     {...props}
@@ -226,7 +226,7 @@ export const IconButton = ({ icon: Icon, onClick, variant = 'ghost', size = 'md'
   }
   const variants = {
     ghost: 'text-gray-400 hover:text-gray-600 hover:bg-gray-100',
-    primary: 'text-[#1B4332] hover:bg-[#1B4332]/10',
+    primary: 'text-[#111111] hover:bg-[#111111]/10',
     danger: 'text-gray-400 hover:text-red-500 hover:bg-red-50',
   }
   return (

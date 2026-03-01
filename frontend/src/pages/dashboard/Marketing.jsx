@@ -118,13 +118,13 @@ const TEMPLATES = [
 ]
 
 const mkBlocks = (subject, body) => [
-  { id: 'b1', type: 'heading', content: subject || 'Hi {client_name}! 👋', styles: { fontSize: '22px', fontWeight: '700', color: '#1B4332' } },
+  { id: 'b1', type: 'heading', content: subject || 'Hi {client_name}! 👋', styles: { fontSize: '22px', fontWeight: '700', color: '#111111' } },
   { id: 'b2', type: 'text', content: body || 'We have something special for you at {business_name}.', styles: {} },
-  { id: 'b3', type: 'button', content: 'Book Now', url: '{booking_link}', styles: { bg: '#1B4332', fg: '#fff', radius: '8px' } },
+  { id: 'b3', type: 'button', content: 'Book Now', url: '{booking_link}', styles: { bg: '#111111', fg: '#fff', radius: '8px' } },
 ]
 
 /* ─── Mini Bar Chart ─── */
-const MiniChart = ({ data, height = 48, color = '#1B4332' }) => {
+const MiniChart = ({ data, height = 48, color = '#111111' }) => {
   if (!data || data.length === 0) return null
   const max = Math.max(...data, 1)
   const w = 100 / data.length
@@ -154,7 +154,7 @@ const Stat = ({ label, value, sub, icon, color = 'primary', chart }) => {
       <div><p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{label}</p><h3 className="text-2xl font-bold text-primary mt-1.5">{value}</h3>{sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}</div>
       <div className={`p-2.5 rounded-xl ${c[color]}`}><I name={icon} size={18} /></div>
     </div>
-    {chart && <div className="mt-3 -mx-1"><MiniChart data={chart} height={32} color={color === 'green' ? '#22C55E' : color === 'blue' ? '#3B82F6' : '#1B4332'} /></div>}
+    {chart && <div className="mt-3 -mx-1"><MiniChart data={chart} height={32} color={color === 'green' ? '#22C55E' : color === 'blue' ? '#3B82F6' : '#111111'} /></div>}
   </div>
 }
 
@@ -172,7 +172,7 @@ const Editor = ({ blocks, onChange }) => {
   const upd = (i, u) => { const n = [...blocks]; n[i] = { ...n[i], ...u }; onChange(n) }
   const del = (i) => onChange(blocks.filter((_, j) => j !== i))
   const add = (type) => {
-    const defs = { heading: { content: 'Your heading', styles: { fontSize: '22px', fontWeight: '700', color: '#1B4332' } }, text: { content: 'Write your message. Use {client_name} and {business_name}.', styles: {} }, button: { content: 'Book Now', url: '{booking_link}', styles: { bg: '#1B4332', fg: '#fff', radius: '8px' } }, image: { content: '', url: '', styles: {} }, divider: { content: '', styles: { color: '#e5e7eb' } }, spacer: { content: '', styles: { height: '24px' } } }
+    const defs = { heading: { content: 'Your heading', styles: { fontSize: '22px', fontWeight: '700', color: '#111111' } }, text: { content: 'Write your message. Use {client_name} and {business_name}.', styles: {} }, button: { content: 'Book Now', url: '{booking_link}', styles: { bg: '#111111', fg: '#fff', radius: '8px' } }, image: { content: '', url: '', styles: {} }, divider: { content: '', styles: { color: '#e5e7eb' } }, spacer: { content: '', styles: { height: '24px' } } }
     onChange([...blocks, { id: `b${Date.now()}`, type, ...(defs[type] || {}) }])
   }
   return <div className="space-y-3">
@@ -216,9 +216,9 @@ const Preview = ({ blocks, subject, biz }) => {
         <div className="px-5 py-5 space-y-4">
           {blocks.length === 0 && <p className="text-gray-300 text-sm text-center py-8 italic">Add blocks to preview</p>}
           {blocks.map(b => <div key={b.id}>
-            {b.type === 'heading' && <h2 style={{ fontSize: b.styles?.fontSize || '22px', fontWeight: b.styles?.fontWeight || '700', color: b.styles?.color || '#1B4332', margin: 0, lineHeight: 1.3 }}>{rv(b.content)}</h2>}
+            {b.type === 'heading' && <h2 style={{ fontSize: b.styles?.fontSize || '22px', fontWeight: b.styles?.fontWeight || '700', color: b.styles?.color || '#111111', margin: 0, lineHeight: 1.3 }}>{rv(b.content)}</h2>}
             {b.type === 'text' && <p style={{ fontSize: '14px', lineHeight: '1.6', color: '#374151', margin: 0, whiteSpace: 'pre-line' }}>{rv(b.content)}</p>}
-            {b.type === 'button' && <div style={{ textAlign: 'center', padding: '4px 0' }}><span style={{ display: 'inline-block', padding: '10px 24px', borderRadius: b.styles?.radius || '8px', backgroundColor: b.styles?.bg || '#1B4332', color: b.styles?.fg || '#fff', fontWeight: 600, fontSize: '14px' }}>{rv(b.content)}</span></div>}
+            {b.type === 'button' && <div style={{ textAlign: 'center', padding: '4px 0' }}><span style={{ display: 'inline-block', padding: '10px 24px', borderRadius: b.styles?.radius || '8px', backgroundColor: b.styles?.bg || '#111111', color: b.styles?.fg || '#fff', fontWeight: 600, fontSize: '14px' }}>{rv(b.content)}</span></div>}
             {b.type === 'image' && !b.url && <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center"><I name="image" size={24} className="text-gray-300" /></div>}
             {b.type === 'divider' && <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '8px 0' }} />}
             {b.type === 'spacer' && <div style={{ height: b.styles?.height || '24px' }} />}
@@ -469,7 +469,7 @@ const Marketing = () => {
         <div><h2 className="text-lg font-bold text-primary">{editId ? 'Edit' : 'New'} Campaign</h2><p className="text-xs text-gray-400">Design your email and send it</p></div>
       </div>
       <div className="flex items-center gap-2">
-        <button onClick={() => setAiOpen(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-[#1B4332] to-[#2D6A4F] text-white text-xs font-bold hover:opacity-90 transition-all shadow-lg shadow-[#1B4332]/20"><I name="sparkle" size={14} /> AI Generate</button>
+        <button onClick={() => setAiOpen(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-[#111111] to-[#1a1a1a] text-white text-xs font-bold hover:opacity-90 transition-all shadow-lg shadow-[#111111]/20"><I name="sparkle" size={14} /> AI Generate</button>
         <button onClick={save} className="px-5 py-2.5 rounded-full bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-all shadow-sm">Save Draft</button>
       </div>
     </div>
@@ -505,7 +505,7 @@ const Marketing = () => {
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Send Test Email</p>
           <div className="flex gap-2">
             <input value={testEmail} onChange={e => setTestEmail(e.target.value)} placeholder="your@email.com" className="flex-1 px-3 py-2 border border-border rounded-lg text-sm outline-none focus:border-primary/30" />
-            <button onClick={() => editId && testSend(editId)} disabled={testing || !testEmail || !editId} className="px-4 py-1.5 bg-[#1B4332] text-white rounded-full text-xs font-bold disabled:opacity-40 hover:bg-[#2D6A4F] shadow-lg shadow-[#1B4332]/20">{testing ? '...' : 'Send Test'}</button>
+            <button onClick={() => editId && testSend(editId)} disabled={testing || !testEmail || !editId} className="px-4 py-1.5 bg-[#111111] text-white rounded-full text-xs font-bold disabled:opacity-40 hover:bg-[#1a1a1a] shadow-lg shadow-[#111111]/20">{testing ? '...' : 'Send Test'}</button>
           </div>
           {!editId && <p className="text-[10px] text-gray-400 mt-1.5">Save first to send a test</p>}
           {testRes && <p className={`text-xs mt-2 font-semibold ${testRes.ok ? 'text-green-600' : 'text-red-500'}`}>{testRes.msg}</p>}
@@ -518,7 +518,7 @@ const Marketing = () => {
   if (creatingSeq) return <div className="space-y-6">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3"><button onClick={() => setCreatingSeq(false)} className="p-2 hover:bg-gray-100 rounded-lg"><I name="x" size={18} className="text-gray-500" /></button><div><h2 className="text-lg font-bold text-primary">New Sequence</h2><p className="text-xs text-gray-400">Automated emails on autopilot</p></div></div>
-      <button onClick={saveSeq} className="px-5 py-2.5 rounded-full bg-[#1B4332] text-white text-xs font-bold shadow-lg shadow-[#1B4332]/20 hover:bg-primary-hover shadow-sm">Save Sequence</button>
+      <button onClick={saveSeq} className="px-5 py-2.5 rounded-full bg-[#111111] text-white text-xs font-bold shadow-lg shadow-[#111111]/20 hover:bg-primary-hover shadow-sm">Save Sequence</button>
     </div>
     <div className="bg-white rounded-xl border border-border p-5 shadow-sm space-y-4">
       <div><label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Name</label><input value={seq.name} onChange={e => setSeq(s => ({ ...s, name: e.target.value }))} placeholder="e.g. Post-Booking Follow Up" className="w-full px-4 py-2.5 border border-border rounded-xl text-sm outline-none focus:border-primary/30" /></div>
@@ -553,8 +553,8 @@ const Marketing = () => {
     <div className="flex items-center justify-between flex-wrap gap-3">
       <div><h1 className="text-xl font-bold text-primary">Email Marketing</h1><p className="text-sm text-gray-400 mt-0.5">Your fully automated marketing engine</p></div>
       <div className="flex items-center gap-2">
-        <button onClick={() => setAiOpen(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-[#1B4332] to-[#2D6A4F] text-white text-xs font-bold hover:opacity-90 transition-all shadow-lg shadow-[#1B4332]/20"><I name="sparkle" size={14} /> AI Generate</button>
-        <button onClick={() => { setComposing(true); setEditId(null); setComp({ name: '', subject: '', audience: 'all', blocks: mkBlocks(), abEnabled: false, subjectB: '' }) }} className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1B4332] text-white text-xs font-bold shadow-lg shadow-[#1B4332]/20 hover:bg-primary-hover shadow-sm"><I name="plus" size={16} /> New Campaign</button>
+        <button onClick={() => setAiOpen(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-[#111111] to-[#1a1a1a] text-white text-xs font-bold hover:opacity-90 transition-all shadow-lg shadow-[#111111]/20"><I name="sparkle" size={14} /> AI Generate</button>
+        <button onClick={() => { setComposing(true); setEditId(null); setComp({ name: '', subject: '', audience: 'all', blocks: mkBlocks(), abEnabled: false, subjectB: '' }) }} className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#111111] text-white text-xs font-bold shadow-lg shadow-[#111111]/20 hover:bg-primary-hover shadow-sm"><I name="plus" size={16} /> New Campaign</button>
       </div>
     </div>
 
@@ -613,7 +613,7 @@ const Marketing = () => {
 
     {/* ─── CAMPAIGNS ─── */}
     {tab === 'campaigns' && <div>
-      {camps.length === 0 ? <div className="bg-white rounded-xl border border-border p-12 shadow-sm text-center"><I name="inbox" size={40} className="text-gray-200 mx-auto mb-4" /><h3 className="font-bold text-lg text-primary mb-2">No campaigns</h3><p className="text-sm text-gray-400 mb-4">Create your first campaign or let AI do it for you</p><div className="flex gap-3 justify-center"><button onClick={() => setAiOpen(true)} className="px-5 py-2.5 rounded-full bg-[#1B4332] text-white text-xs font-bold shadow-lg shadow-[#1B4332]/20"><I name="sparkle" size={14} className="inline mr-1" />AI Generate</button><button onClick={() => { setComposing(true); setEditId(null) }} className="px-5 py-2.5 rounded-full bg-[#1B4332] text-white text-xs font-bold shadow-lg shadow-[#1B4332]/20">Manual</button></div></div>
+      {camps.length === 0 ? <div className="bg-white rounded-xl border border-border p-12 shadow-sm text-center"><I name="inbox" size={40} className="text-gray-200 mx-auto mb-4" /><h3 className="font-bold text-lg text-primary mb-2">No campaigns</h3><p className="text-sm text-gray-400 mb-4">Create your first campaign or let AI do it for you</p><div className="flex gap-3 justify-center"><button onClick={() => setAiOpen(true)} className="px-5 py-2.5 rounded-full bg-[#111111] text-white text-xs font-bold shadow-lg shadow-[#111111]/20"><I name="sparkle" size={14} className="inline mr-1" />AI Generate</button><button onClick={() => { setComposing(true); setEditId(null) }} className="px-5 py-2.5 rounded-full bg-[#111111] text-white text-xs font-bold shadow-lg shadow-[#111111]/20">Manual</button></div></div>
       : <div className="bg-white rounded-xl border border-border shadow-sm overflow-hidden"><div className="overflow-x-auto"><table className="w-full text-left min-w-[800px]">
         <thead><tr className="bg-gray-50/80 border-b border-border">
           {['Campaign','Audience','Status','Sent','Opened','Clicked',''].map((h,i) => <th key={i} className={`px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-gray-400 ${i === 6 ? 'text-right' : ''}`}>{h}</th>)}
@@ -698,9 +698,9 @@ const Marketing = () => {
     {tab === 'sequences' && <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-400">Custom drip sequences</p>
-        <button onClick={() => { setCreatingSeq(true); setSeq({ name: '', trigger: 'post_booking', steps: [{ delay_days: 0, subject: 'Thanks for booking!', body: 'Hi {client_name},\n\nThanks for your booking at {business_name}!' }, { delay_days: 7, subject: 'How was your visit?', body: "Hi {client_name},\n\nWe'd love your feedback!" }] }) }} className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1B4332] text-white text-xs font-bold shadow-lg shadow-[#1B4332]/20 hover:bg-primary-hover"><I name="plus" size={14} /> New Sequence</button>
+        <button onClick={() => { setCreatingSeq(true); setSeq({ name: '', trigger: 'post_booking', steps: [{ delay_days: 0, subject: 'Thanks for booking!', body: 'Hi {client_name},\n\nThanks for your booking at {business_name}!' }, { delay_days: 7, subject: 'How was your visit?', body: "Hi {client_name},\n\nWe'd love your feedback!" }] }) }} className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#111111] text-white text-xs font-bold shadow-lg shadow-[#111111]/20 hover:bg-primary-hover"><I name="plus" size={14} /> New Sequence</button>
       </div>
-      {seqs.length === 0 ? <div className="bg-white rounded-xl border border-border p-12 text-center"><I name="refresh" size={40} className="text-gray-200 mx-auto mb-4" /><h3 className="font-bold text-lg text-primary mb-2">No custom sequences</h3><p className="text-sm text-gray-400 mb-4">Use Automations for pre-built sequences, or create custom ones here.</p><button onClick={() => setCreatingSeq(true)} className="px-6 py-2.5 rounded-full bg-[#1B4332] text-white text-xs font-bold shadow-lg shadow-[#1B4332]/20">Create Sequence</button></div>
+      {seqs.length === 0 ? <div className="bg-white rounded-xl border border-border p-12 text-center"><I name="refresh" size={40} className="text-gray-200 mx-auto mb-4" /><h3 className="font-bold text-lg text-primary mb-2">No custom sequences</h3><p className="text-sm text-gray-400 mb-4">Use Automations for pre-built sequences, or create custom ones here.</p><button onClick={() => setCreatingSeq(true)} className="px-6 py-2.5 rounded-full bg-[#111111] text-white text-xs font-bold shadow-lg shadow-[#111111]/20">Create Sequence</button></div>
       : <div className="space-y-3">{seqs.map(s => <div key={s.id} className="bg-white rounded-xl border border-border p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4"><div className={`p-2.5 rounded-xl ${s.is_active ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-400'}`}><I name="refresh" size={18} /></div><div><h4 className="font-bold text-sm text-primary">{s.name}</h4><div className="flex items-center gap-3 mt-1 text-[11px] text-gray-400"><span>{TRIGGERS.find(t => t.id === s.trigger)?.label || s.trigger}</span><span>·</span><span>{s.steps?.length || 0} steps</span></div></div></div>
@@ -747,7 +747,7 @@ const Marketing = () => {
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500" /> Opened</span>
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500" /> Clicked</span>
             </div>
-            <div className="h-32"><MiniChart data={timelineData} height={128} color="#1B4332" /></div>
+            <div className="h-32"><MiniChart data={timelineData} height={128} color="#111111" /></div>
             <div className="grid grid-cols-2 gap-4 mt-2">
               <div className="h-16"><p className="text-[10px] text-gray-400 mb-1">Opens</p><MiniChart data={openData} height={48} color="#22C55E" /></div>
               <div className="h-16"><p className="text-[10px] text-gray-400 mb-1">Clicks</p><MiniChart data={clickData} height={48} color="#3B82F6" /></div>
@@ -774,7 +774,7 @@ const Marketing = () => {
                   const count = Object.entries(heatmap.heatmap || {}).filter(([k]) => k.startsWith(`${dayNum}-`)).reduce((sum, [, v]) => sum + v, 0)
                   const maxCount = Math.max(...[1,2,3,4,5,6,7].map(d => Object.entries(heatmap.heatmap || {}).filter(([k]) => k.startsWith(`${d}-`)).reduce((s, [, v]) => s + v, 0)), 1)
                   return <div key={day} className="flex flex-col items-center gap-1 flex-1">
-                    <div className="w-full rounded" style={{ height: '40px', backgroundColor: count > 0 ? `rgba(27,67,50,${0.15 + (count / maxCount) * 0.85})` : '#f3f4f6' }} />
+                    <div className="w-full rounded" style={{ height: '40px', backgroundColor: count > 0 ? `rgba(17,17,17,${0.15 + (count / maxCount) * 0.85})` : '#f3f4f6' }} />
                     <span className="text-[9px] text-gray-400">{day}</span>
                   </div>
                 })}

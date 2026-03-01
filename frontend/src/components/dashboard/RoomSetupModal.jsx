@@ -35,7 +35,7 @@ const PRESETS = [
     width_m: 10,
     height_m: 15,
     Icon: ChefHat,
-    color: '#1B4332',
+    color: '#111111',
   },
   {
     id: 'large_restaurant',
@@ -121,7 +121,7 @@ export default function RoomSetupModal({ onComplete, onSkip }) {
           justifyContent: 'space-between', alignItems: 'flex-start',
         }}>
           <div>
-            <h2 style={{ fontSize: 22, fontWeight: 700, color: '#1B4332', margin: 0 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: '#111111', margin: 0 }}>
               Set Up Your Dining Room
             </h2>
             <p style={{ fontSize: 14, color: '#6B7280', marginTop: 6, lineHeight: 1.5 }}>
@@ -148,7 +148,7 @@ export default function RoomSetupModal({ onComplete, onSkip }) {
             style={{
               padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600,
               border: 'none', cursor: 'pointer',
-              background: mode === 'presets' ? '#1B4332' : '#F3F4F6',
+              background: mode === 'presets' ? '#111111' : '#F3F4F6',
               color: mode === 'presets' ? '#fff' : '#6B7280',
               transition: 'all 0.15s',
             }}
@@ -160,7 +160,7 @@ export default function RoomSetupModal({ onComplete, onSkip }) {
             style={{
               padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600,
               border: 'none', cursor: 'pointer',
-              background: mode === 'custom' ? '#1B4332' : '#F3F4F6',
+              background: mode === 'custom' ? '#111111' : '#F3F4F6',
               color: mode === 'custom' ? '#fff' : '#6B7280',
               transition: 'all 0.15s',
             }}
@@ -237,7 +237,7 @@ export default function RoomSetupModal({ onComplete, onSkip }) {
                       border: '2px solid #E5E7EB', fontSize: 15, fontWeight: 600,
                       fontFamily: 'Figtree, system-ui', outline: 'none',
                     }}
-                    onFocus={e => e.target.style.borderColor = '#1B4332'}
+                    onFocus={e => e.target.style.borderColor = '#111111'}
                     onBlur={e => e.target.style.borderColor = '#E5E7EB'}
                   />
                 </div>
@@ -260,7 +260,7 @@ export default function RoomSetupModal({ onComplete, onSkip }) {
                       border: '2px solid #E5E7EB', fontSize: 15, fontWeight: 600,
                       fontFamily: 'Figtree, system-ui', outline: 'none',
                     }}
-                    onFocus={e => e.target.style.borderColor = '#1B4332'}
+                    onFocus={e => e.target.style.borderColor = '#111111'}
                     onBlur={e => e.target.style.borderColor = '#E5E7EB'}
                   />
                 </div>
@@ -279,7 +279,7 @@ export default function RoomSetupModal({ onComplete, onSkip }) {
                 style={{
                   marginTop: 16, width: '100%', padding: '12px 20px',
                   borderRadius: 12, border: 'none', cursor: 'pointer',
-                  background: '#1B4332', color: '#fff',
+                  background: '#111111', color: '#fff',
                   fontSize: 14, fontWeight: 700,
                   opacity: (!customW || !customH || parseFloat(customW) < 2 || parseFloat(customH) < 2) ? 0.4 : 1,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,

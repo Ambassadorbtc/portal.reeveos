@@ -472,14 +472,14 @@ export default function Onboarding() {
           border-radius: 12px;
           font-size: 14px;
           font-family: 'Figtree', sans-serif;
-          color: #1B4332;
+          color: #111111;
           background: white;
           outline: none;
           transition: all 200ms;
         }
         .input-field:focus {
-          border-color: #1B4332;
-          box-shadow: 0 0 0 3px rgba(27,67,50,0.08);
+          border-color: #111111;
+          box-shadow: 0 0 0 3px rgba(17,17,17,0.08);
         }
         .input-field::placeholder {
           color: #9CA3AF;

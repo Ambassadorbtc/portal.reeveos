@@ -203,7 +203,7 @@ const OnlineBooking = () => {
     logo: toImageUrl(b.logo),
     coverPhoto: toImageUrl(b.coverPhoto),
     description: b.description,
-    accentColour: b.accentColour || '#1B4332',
+    accentColour: b.accentColour || '#111111',
   }
 
   return (
@@ -215,7 +215,7 @@ const OnlineBooking = () => {
           <div className="flex items-center gap-2">
             {toast && <span className="text-xs text-gray-400 font-medium">{toast}</span>}
             <button onClick={handleSave} disabled={saving}
-              className="bg-[#1B4332] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#1B4332]/20 hover:bg-[#2D6A4F] transition-all disabled:opacity-50"
+              className="bg-[#111111] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#111111]/20 hover:bg-[#1a1a1a] transition-all disabled:opacity-50"
               style={{ fontFamily: "'Figtree', sans-serif" }}>
               {saving ? 'Saving...' : 'Save'}
             </button>
@@ -278,14 +278,14 @@ const OnlineBooking = () => {
               <div className="flex gap-2 items-center">
                 <input
                   type="color"
-                  value={b.accentColour || '#1B4332'}
+                  value={b.accentColour || '#111111'}
                   onChange={(e) => updateDraft('branding', 'accentColour', e.target.value)}
                   onBlur={handleBlur}
                   className="w-10 h-10 rounded cursor-pointer"
                 />
                 <input
                   type="text"
-                  value={b.accentColour || '#1B4332'}
+                  value={b.accentColour || '#111111'}
                   onChange={(e) => updateDraft('branding', 'accentColour', e.target.value)}
                   onBlur={handleBlur}
                   className="flex-1 max-w-[120px] px-3 py-2.5 border border-border rounded-lg text-sm font-mono text-primary focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white"
@@ -417,14 +417,14 @@ const OnlineBooking = () => {
                   value={bookingUrl}
                   className="flex-1 px-4 py-2.5 border border-gray-200 rounded-full text-sm text-gray-700 font-medium bg-gray-50 outline-none"
                 />
-                <button onClick={handleCopyUrl} className="px-4 py-2 bg-[#1B4332] text-white rounded-full text-xs font-bold hover:bg-[#2D6A4F] shadow-lg shadow-[#1B4332]/20 transition-all" style={{ fontFamily: "'Figtree', sans-serif" }}>Copy</button>
+                <button onClick={handleCopyUrl} className="px-4 py-2 bg-[#111111] text-white rounded-full text-xs font-bold hover:bg-[#1a1a1a] shadow-lg shadow-[#111111]/20 transition-all" style={{ fontFamily: "'Figtree', sans-serif" }}>Copy</button>
               </div>
             </div>
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">QR Code</p>
               <div className="flex flex-col items-start gap-2">
                 <QrPreview businessId={business?.id} />
-                <button type="button" onClick={handleDownloadQr} className="text-xs font-bold text-[#1B4332] hover:text-[#2D6A4F] transition-colors">
+                <button type="button" onClick={handleDownloadQr} className="text-xs font-bold text-[#111111] hover:text-[#1a1a1a] transition-colors">
                   Download QR
                 </button>
               </div>
@@ -489,7 +489,7 @@ const OnlineBooking = () => {
               <button
                 type="button"
                 onClick={() => setUpgradeModal('scale')}
-                className="text-xs font-bold text-[#1B4332] hover:text-[#2D6A4F] flex items-center gap-1 transition-colors"
+                className="text-xs font-bold text-[#111111] hover:text-[#1a1a1a] flex items-center gap-1 transition-colors"
               >
                 <Lock className="w-3 h-3" /> Upgrade
               </button>
@@ -536,7 +536,7 @@ const OnlineBooking = () => {
             onClick={() => setPreviewMode('mobile')}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
               previewMode === 'mobile'
-                ? 'bg-[#1B4332] text-white shadow-lg shadow-[#1B4332]/20'
+                ? 'bg-[#111111] text-white shadow-lg shadow-[#111111]/20'
                 : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
             }`}
             style={{ fontFamily: "'Figtree', sans-serif" }}
@@ -548,7 +548,7 @@ const OnlineBooking = () => {
             onClick={() => setPreviewMode('desktop')}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
               previewMode === 'desktop'
-                ? 'bg-[#1B4332] text-white shadow-lg shadow-[#1B4332]/20'
+                ? 'bg-[#111111] text-white shadow-lg shadow-[#111111]/20'
                 : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
             }`}
             style={{ fontFamily: "'Figtree', sans-serif" }}
@@ -678,7 +678,7 @@ const EmbedModal = ({ businessId, accentColour, onClose, onCopy }) => {
 
 const BookingPreview = ({ business, services, accentColour }) => {
   return (
-    <div className="min-h-[400px]" style={{ '--accent': accentColour || '#1B4332' }}>
+    <div className="min-h-[400px]" style={{ '--accent': accentColour || '#111111' }}>
       {business.coverPhoto ? (
         <div className="h-24 bg-cover bg-center" style={{ backgroundImage: `url(${business.coverPhoto})` }} />
       ) : (

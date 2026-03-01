@@ -122,22 +122,22 @@ const PickTimeSlot = ({ data, onContinue, onBack }) => {
       <BookingHeader business={business} />
       <StepIndicator step={2} total={3} />
 
-      <button onClick={onBack} className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#1B4332] mb-2 transition-colors">
+      <button onClick={onBack} className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#111111] mb-2 transition-colors">
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      <div className="flex items-center gap-3 px-2.5 py-1.5 bg-[#1B4332]/[0.03] rounded-lg border border-[#1B4332]/10 mb-3">
-        <div className="flex items-center gap-1 text-xs text-[#1B4332]">
+      <div className="flex items-center gap-3 px-2.5 py-1.5 bg-[#111111]/[0.03] rounded-lg border border-[#111111]/10 mb-3">
+        <div className="flex items-center gap-1 text-xs text-[#111111]">
           <Users className="w-3.5 h-3.5" />
           <span className="font-medium">{guests}</span>
         </div>
-        <div className="flex items-center gap-1 text-xs text-[#1B4332]">
+        <div className="flex items-center gap-1 text-xs text-[#111111]">
           <Calendar className="w-3.5 h-3.5" />
           <span className="font-medium">{dateLabel}</span>
         </div>
       </div>
 
-      <h2 className="text-sm font-semibold text-[#1B4332] mb-2">Choose a time</h2>
+      <h2 className="text-sm font-semibold text-[#111111] mb-2">Choose a time</h2>
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
@@ -154,7 +154,7 @@ const PickTimeSlot = ({ data, onContinue, onBack }) => {
           <p className="text-xs text-gray-400 mb-3">
             {isClosed ? 'Please choose a different day' : 'No slots available on this date'}
           </p>
-          <button onClick={onBack} className="text-xs text-[#1B4332] font-medium underline">Pick a different date</button>
+          <button onClick={onBack} className="text-xs text-[#111111] font-medium underline">Pick a different date</button>
         </div>
       ) : (
         <div className="space-y-4 pb-4">
@@ -169,7 +169,7 @@ const PickTimeSlot = ({ data, onContinue, onBack }) => {
                       disabled={!slot.available}
                       className={`py-2 rounded-lg text-xs font-medium transition-all ${
                         !slot.available ? 'bg-gray-50 text-gray-300 cursor-not-allowed line-through' :
-                        selectedTime === slot.time ? 'bg-[#1B4332] text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:border-[#1B4332]/30'
+                        selectedTime === slot.time ? 'bg-[#111111] text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:border-[#111111]/30'
                       }`}
                     >{fmt(slot.time)}</button>
                   ))}
@@ -182,7 +182,7 @@ const PickTimeSlot = ({ data, onContinue, onBack }) => {
 
       <StickyFooter>
         <button onClick={() => canContinue && onContinue({ time: selectedTime })} disabled={!canContinue}
-          className={`w-full py-3 rounded-xl text-sm font-semibold transition-all ${canContinue ? 'bg-[#1B4332] text-white hover:bg-[#1B4332]/90 shadow-sm' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+          className={`w-full py-3 rounded-xl text-sm font-semibold transition-all ${canContinue ? 'bg-[#111111] text-white hover:bg-[#111111]/90 shadow-sm' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
         >Continue</button>
       </StickyFooter>
     </div>

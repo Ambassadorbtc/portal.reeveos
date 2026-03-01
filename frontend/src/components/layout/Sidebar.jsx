@@ -1,5 +1,5 @@
 /**
- * Green Rail + White Panel sidebar with dripping edge animation
+ * Black Rail + White Panel sidebar with dripping edge animation
  * Adapted from approved sidebar-v7 prototype
  */
 import { useState, useEffect, useRef } from 'react'
@@ -18,7 +18,7 @@ import {
 
 /* ── Color tokens ── */
 const T = {
-  forest: '#1B4332', fern: '#2D6A4F', sage: '#40916C', mint: '#D8F3DC',
+  forest: '#111111', fern: '#1a1a1a', sage: '#333333', mint: '#E0E0E0',
   cream: '#FAF7F2', ink: '#141413', text: '#2C2C2A',
   muted: '#7A776F', border: '#E8E4DD', borderLight: '#F0EDE7', white: '#FFFFFF',
 }
@@ -138,8 +138,8 @@ function TreeBranch({ index, total }) {
   const isLast = index === total - 1
   return (
     <svg width="20" height="36" viewBox="0 0 20 36" style={{ flexShrink: 0, marginLeft: 2 }}>
-      <path d="M 10 0 L 10 18 Q 10 24 16 24 L 20 24" fill="none" stroke="rgba(27,67,50,0.15)" strokeWidth="1.5" />
-      {!isLast && <line x1="10" y1="18" x2="10" y2="36" stroke="rgba(27,67,50,0.15)" strokeWidth="1.5" />}
+      <path d="M 10 0 L 10 18 Q 10 24 16 24 L 20 24" fill="none" stroke="rgba(17,17,17,0.15)" strokeWidth="1.5" />
+      {!isLast && <line x1="10" y1="18" x2="10" y2="36" stroke="rgba(17,17,17,0.15)" strokeWidth="1.5" />}
     </svg>
   )
 }
@@ -170,10 +170,10 @@ function WaterfallChild({ child, index, total, isActive, onClick, baseDelay, pan
         fontSize: 13, fontFamily: 'Figtree,system-ui,sans-serif',
         fontWeight: isActive ? 600 : 500,
         color: isActive ? T.forest : child.locked ? '#C5C2BC' : T.muted,
-        background: isActive ? 'rgba(27,67,50,0.06)' : 'transparent',
+        background: isActive ? 'rgba(17,17,17,0.06)' : 'transparent',
         transition: 'background 150ms, color 150ms',
       }}
-        onMouseOver={e => { if (!child.locked && !isActive) { e.currentTarget.style.background = 'rgba(27,67,50,0.04)'; e.currentTarget.style.color = T.text; }}}
+        onMouseOver={e => { if (!child.locked && !isActive) { e.currentTarget.style.background = 'rgba(17,17,17,0.04)'; e.currentTarget.style.color = T.text; }}}
         onMouseOut={e => { if (!child.locked && !isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = child.locked ? '#C5C2BC' : T.muted; }}}
       >{child.label}{child.badge && <span style={{ marginLeft: 6, background: '#D4A373', color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 10, lineHeight: '14px', display: 'inline-block', minWidth: 18, textAlign: 'center' }}>{child.badge}</span>}</button>
       {child.locked && <Lock size={11} style={{ color: '#D5D2CC', marginRight: 8 }} />}
@@ -228,7 +228,7 @@ function CollapsedPopover({ item, activePath, onNavigate }) {
               fontSize: 13, fontFamily: 'Figtree,system-ui,sans-serif',
               fontWeight: isActive ? 600 : 500,
               color: isActive ? T.forest : child.locked ? '#C5C2BC' : T.muted,
-              background: isActive ? 'rgba(27,67,50,0.06)' : 'transparent',
+              background: isActive ? 'rgba(17,17,17,0.06)' : 'transparent',
               transition: 'all 150ms',
               opacity: 0, animation: `sidebarFadeSlideIn 280ms cubic-bezier(0.16,1,0.3,1) ${60 + i * 55}ms forwards`,
             }}
@@ -398,7 +398,7 @@ const Sidebar = ({ open, onNavigate: closeMobile }) => {
           {/* Logo */}
           <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
             <div style={{ width: 34, height: 34, borderRadius: 10, background: '#D4A373', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
-              <span style={{ color: '#1B4332', fontWeight: 700, fontSize: 15, fontFamily: 'Figtree,sans-serif' }}>R.</span>
+              <span style={{ color: '#111111', fontWeight: 700, fontSize: 15, fontFamily: 'Figtree,sans-serif' }}>R.</span>
             </div>
           </div>
 
@@ -506,7 +506,7 @@ const Sidebar = ({ open, onNavigate: closeMobile }) => {
                               padding: '9px 10px', borderRadius: 10, border: 'none', cursor: 'pointer',
                               fontSize: 13.5, fontFamily: 'Figtree,system-ui,sans-serif',
                               fontWeight: hasActive ? 600 : 500, color: hasActive ? T.forest : T.muted,
-                              background: hasActive ? 'rgba(27,67,50,0.06)' : 'transparent',
+                              background: hasActive ? 'rgba(17,17,17,0.06)' : 'transparent',
                               transition: 'all 180ms', whiteSpace: 'nowrap',
                             }}
                               onMouseOver={e => { if (!hasActive) { e.currentTarget.style.background = 'rgba(232,228,221,0.5)'; e.currentTarget.style.color = T.text }}}

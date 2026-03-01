@@ -64,7 +64,7 @@ export const SMSIcon = ({ size = 20, className = '' }) => (
 
 export const EmailIcon = ({ size = 20, className = '' }) => (
   <svg width={size} height={size} viewBox="0 0 48 48" className={className} fill="none">
-    <rect x="2" y="8" width="44" height="32" rx="6" fill="#1B4332"/>
+    <rect x="2" y="8" width="44" height="32" rx="6" fill="#111111"/>
     <path d="M4 12l18.4 13.2a3 3 0 003.2 0L44 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 )

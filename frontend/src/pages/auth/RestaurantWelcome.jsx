@@ -19,7 +19,7 @@ const RestaurantWelcome = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row overflow-hidden" style={{ fontFamily: "'Figtree', sans-serif" }}>
       {/* Left: Brand Hero */}
-      <section className="hidden lg:flex lg:w-1/2 xl:w-7/12 bg-[#1B4332] relative overflow-hidden flex-col justify-between p-12 text-white h-screen">
+      <section className="hidden lg:flex lg:w-1/2 xl:w-7/12 bg-[#111111] relative overflow-hidden flex-col justify-between p-12 text-white h-screen">
         {/* Background pattern */}
         <div className="absolute inset-0 z-0 opacity-10">
           <div className="absolute top-20 right-20 w-64 h-64 rounded-full border border-white/20" />
@@ -30,7 +30,7 @@ const RestaurantWelcome = () => {
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
           <div className="w-11 h-11 bg-[#D4A373] rounded-xl flex items-center justify-center shadow-md">
-            <span className="text-[#1B4332] font-bold text-xl">R.</span>
+            <span className="text-[#111111] font-bold text-xl">R.</span>
           </div>
           <span className="font-extrabold text-2xl tracking-tight text-white">Rezvo</span>
         </div>
@@ -78,18 +78,18 @@ const RestaurantWelcome = () => {
           <div className="lg:hidden flex justify-center mb-4">
             <div className="flex items-center gap-2">
               <div className="w-10 h-10 bg-[#D4A373] rounded-xl flex items-center justify-center shadow-md">
-                <span className="text-[#1B4332] font-bold text-lg">R.</span>
+                <span className="text-[#111111] font-bold text-lg">R.</span>
               </div>
-              <span className="font-extrabold text-2xl tracking-tight text-[#1B4332]">Rezvo</span>
+              <span className="font-extrabold text-2xl tracking-tight text-[#111111]">Rezvo</span>
             </div>
           </div>
 
           {/* Welcome text */}
           <div className="text-center lg:text-left space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#1B4332]/10 rounded-full text-[#1B4332] text-sm font-bold lg:hidden">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#111111]/10 rounded-full text-[#111111] text-sm font-bold lg:hidden">
               <UtensilsCrossed className="w-4 h-4" /> For Restaurants
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1B4332]">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-[#111111]">
               Welcome to Rezvo
             </h1>
             <p className="text-gray-500 text-lg">
@@ -102,7 +102,7 @@ const RestaurantWelcome = () => {
             {/* Create Account */}
             <button
               onClick={() => navigate('/register')}
-              className="w-full bg-[#1B4332] text-white rounded-2xl p-6 flex items-center gap-4 hover:bg-[#2D6A4F] transition-all shadow-lg group text-left"
+              className="w-full bg-[#111111] text-white rounded-2xl p-6 flex items-center gap-4 hover:bg-[#1a1a1a] transition-all shadow-lg group text-left"
             >
               <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-white/20 transition-colors">
                 <UtensilsCrossed className="w-5 h-5" />
@@ -117,16 +117,16 @@ const RestaurantWelcome = () => {
             {/* Sign In */}
             <button
               onClick={() => navigate('/login')}
-              className="w-full bg-white text-[#1B4332] rounded-2xl p-6 flex items-center gap-4 border-2 border-gray-100 hover:border-[#1B4332]/30 transition-all shadow-sm group text-left"
+              className="w-full bg-white text-[#111111] rounded-2xl p-6 flex items-center gap-4 border-2 border-gray-100 hover:border-[#111111]/30 transition-all shadow-sm group text-left"
             >
-              <div className="w-12 h-12 rounded-xl bg-[#1B4332]/10 flex items-center justify-center shrink-0 group-hover:bg-[#1B4332]/20 transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-[#111111]/10 flex items-center justify-center shrink-0 group-hover:bg-[#111111]/20 transition-colors">
                 <ArrowRight className="w-5 h-5" />
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-lg">Sign In</h3>
                 <p className="text-gray-500 text-sm">Already have an account? Welcome back!</p>
               </div>
-              <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-[#1B4332] group-hover:translate-x-1 transition-all shrink-0" />
+              <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-[#111111] group-hover:translate-x-1 transition-all shrink-0" />
             </button>
           </div>
 

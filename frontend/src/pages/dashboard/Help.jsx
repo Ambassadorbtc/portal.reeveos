@@ -18,7 +18,7 @@ const FAQS = [
 ]
 
 const GUIDES = [
-  { Icon: Rocket, title: 'Getting Started', desc: 'Set up your business in 5 minutes', color: 'bg-emerald-50 text-[#1B4332]' },
+  { Icon: Rocket, title: 'Getting Started', desc: 'Set up your business in 5 minutes', color: 'bg-emerald-50 text-[#111111]' },
   { Icon: CreditCard, title: 'Payment Setup', desc: 'Connect Stripe and configure deposits', color: 'bg-purple-50 text-purple-600' },
   { Icon: CalendarCheck, title: 'Booking Rules', desc: 'Configure availability and policies', color: 'bg-blue-50 text-blue-600' },
   { Icon: Users2, title: 'Team Management', desc: 'Add staff and set permissions', color: 'bg-amber-50 text-amber-600' },
@@ -121,7 +121,7 @@ const Help = () => {
                 className="w-full px-3 py-2.5 border border-border rounded-lg text-sm font-medium text-primary focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none"
               />
             </div>
-            <button className="bg-[#1B4332] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#1B4332]/20 hover:bg-[#2D6A4F] transition-all flex items-center gap-2" style={{ fontFamily: "'Figtree', sans-serif" }}>
+            <button className="bg-[#111111] text-white font-bold text-xs px-5 py-2 rounded-full shadow-lg shadow-[#111111]/20 hover:bg-[#1a1a1a] transition-all flex items-center gap-2" style={{ fontFamily: "'Figtree', sans-serif" }}>
               <Send className="w-3.5 h-3.5" /> Send Message
             </button>
           </div>

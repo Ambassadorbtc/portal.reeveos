@@ -1,6 +1,6 @@
 /**
  * RezvoLoader — Branded loading animation
- * Four forest-green squares that bounce in sequence
+ * Four black squares that bounce in sequence
  * Used globally across all loading states
  */
 
@@ -18,7 +18,7 @@ export default function RezvoLoader({ message = 'Loading...', size = 'md', inlin
         <div key={i} style={{
           width: s.sq, height: s.sq,
           borderRadius: s.sq * 0.2,
-          background: '#1B4332',
+          background: '#111111',
           animation: `rezvo-bounce 1.2s ease-in-out ${i * 0.15}s infinite`,
         }} />
       ))}

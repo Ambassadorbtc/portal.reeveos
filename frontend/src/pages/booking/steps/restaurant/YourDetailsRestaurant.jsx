@@ -60,18 +60,18 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
           <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-2">
             <CheckCircle className="w-6 h-6 text-emerald-600" />
           </div>
-          <h1 className="text-lg font-bold text-[#1B4332] mb-1">Booking Confirmed!</h1>
+          <h1 className="text-lg font-bold text-[#111111] mb-1">Booking Confirmed!</h1>
           {ref && <p className="text-sm font-mono font-bold text-[#D4A373] mb-1">{ref}</p>}
           <p className="text-xs text-gray-500">Confirmation sent to {form.email}</p>
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-3 mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#1B4332]/10 flex items-center justify-center">
-              <MapPin className="w-4 h-4 text-[#1B4332]" />
+            <div className="w-8 h-8 rounded-lg bg-[#111111]/10 flex items-center justify-center">
+              <MapPin className="w-4 h-4 text-[#111111]" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-[#1B4332]">{business.name}</p>
+              <p className="text-xs font-semibold text-[#111111]">{business.name}</p>
               <p className="text-[10px] text-gray-500">{business.address}</p>
             </div>
           </div>
@@ -79,17 +79,17 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
           <div className="grid grid-cols-3 gap-2 text-center">
             <div>
               <Users className="w-3.5 h-3.5 text-gray-400 mx-auto mb-0.5" />
-              <p className="text-xs font-semibold text-[#1B4332]">{guests}</p>
+              <p className="text-xs font-semibold text-[#111111]">{guests}</p>
               <p className="text-[10px] text-gray-400">{guests===1?'Guest':'Guests'}</p>
             </div>
             <div>
               <Calendar className="w-3.5 h-3.5 text-gray-400 mx-auto mb-0.5" />
-              <p className="text-xs font-semibold text-[#1B4332]">{dateObj.getDate()} {MONTH_NAMES[dateObj.getMonth()].slice(0,3)}</p>
+              <p className="text-xs font-semibold text-[#111111]">{dateObj.getDate()} {MONTH_NAMES[dateObj.getMonth()].slice(0,3)}</p>
               <p className="text-[10px] text-gray-400">{DAY_NAMES[dateObj.getDay()].slice(0,3)}</p>
             </div>
             <div>
               <Clock className="w-3.5 h-3.5 text-gray-400 mx-auto mb-0.5" />
-              <p className="text-xs font-semibold text-[#1B4332]">{fmt(time)}</p>
+              <p className="text-xs font-semibold text-[#111111]">{fmt(time)}</p>
               <p className="text-[10px] text-gray-400">Time</p>
             </div>
           </div>
@@ -108,7 +108,7 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
               href={business.website.startsWith('http') ? business.website : `https://${business.website}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="group mt-3 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#1B4332] text-white text-xs font-semibold hover:bg-[#2D6A4F] transition-all duration-300 shadow-lg shadow-[#1B4332]/20 hover:shadow-[#1B4332]/30 hover:scale-[1.02] active:scale-[0.98]"
+              className="group mt-3 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#111111] text-white text-xs font-semibold hover:bg-[#1a1a1a] transition-all duration-300 shadow-lg shadow-[#111111]/20 hover:shadow-[#111111]/30 hover:scale-[1.02] active:scale-[0.98]"
             >
               Visit {business.name}
               <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
@@ -121,26 +121,26 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
     )
   }
 
-  const inputCls = (field) => `w-full px-3 py-2 rounded-lg border text-[13px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] ${errors[field] ? 'border-red-300 bg-red-50/30' : 'border-gray-200 bg-white'}`
+  const inputCls = (field) => `w-full px-3 py-2 rounded-lg border text-[13px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#111111]/20 focus:border-[#111111] ${errors[field] ? 'border-red-300 bg-red-50/30' : 'border-gray-200 bg-white'}`
 
   return (
     <div className="px-4 pt-3 overflow-hidden">
       <BookingHeader business={business} />
       <StepIndicator step={3} total={3} />
 
-      <button onClick={onBack} className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#1B4332] mb-2 transition-colors">
+      <button onClick={onBack} className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#111111] mb-2 transition-colors">
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      <div className="flex items-center gap-3 px-2.5 py-1.5 bg-[#1B4332]/[0.03] rounded-lg border border-[#1B4332]/10 mb-3">
-        <div className="flex items-center gap-3 flex-wrap text-xs text-[#1B4332]">
+      <div className="flex items-center gap-3 px-2.5 py-1.5 bg-[#111111]/[0.03] rounded-lg border border-[#111111]/10 mb-3">
+        <div className="flex items-center gap-3 flex-wrap text-xs text-[#111111]">
           <div className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /><span className="font-medium">{guests}</span></div>
           <div className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /><span className="font-medium">{dateLabel}</span></div>
           <div className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /><span className="font-medium">{fmt(time)}</span></div>
         </div>
       </div>
 
-      <h2 className="text-sm font-semibold text-[#1B4332] mb-2">Your details</h2>
+      <h2 className="text-sm font-semibold text-[#111111] mb-2">Your details</h2>
 
       {submitError && (
         <div className="mb-3 px-3 py-2.5 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs font-medium">
@@ -157,7 +157,7 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
           </div>
           <div>
             <label className="block text-[10px] font-medium text-gray-500 mb-0.5">Last name</label>
-            <input type="text" value={form.lastName} onChange={e=>update('lastName',e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-[13px] focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332]" placeholder="Smith" />
+            <input type="text" value={form.lastName} onChange={e=>update('lastName',e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-[13px] focus:outline-none focus:ring-2 focus:ring-[#111111]/20 focus:border-[#111111]" placeholder="Smith" />
           </div>
         </div>
         <div>
@@ -172,7 +172,7 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
         </div>
       </div>
 
-      <h2 className="text-sm font-semibold text-[#1B4332] mb-1.5">Occasion</h2>
+      <h2 className="text-sm font-semibold text-[#111111] mb-1.5">Occasion</h2>
       <div className="flex gap-1.5 flex-wrap mb-3">
         {OCCASIONS.map(occ => (
           <button key={occ} onClick={() => setForm(f=>({...f, occasion:f.occasion===occ?'':occ}))}
@@ -188,7 +188,7 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
           <MessageSquare className="w-3 h-3" /> Special requests
         </label>
         <textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} rows={2}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-[13px] focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332] resize-none"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-[13px] focus:outline-none focus:ring-2 focus:ring-[#111111]/20 focus:border-[#111111] resize-none"
           placeholder="Allergies, dietary needs, high chair..."
         />
       </div>
@@ -197,7 +197,7 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
 
       <StickyFooter>
         <button onClick={handleSubmit} disabled={submitting}
-          className="w-full py-3 rounded-xl text-sm font-semibold bg-[#1B4332] text-white hover:bg-[#1B4332]/90 transition-all shadow-sm disabled:opacity-60"
+          className="w-full py-3 rounded-xl text-sm font-semibold bg-[#111111] text-white hover:bg-[#111111]/90 transition-all shadow-sm disabled:opacity-60"
         >
           {submitting ? (
             <span className="flex items-center justify-center gap-2">

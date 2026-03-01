@@ -23,7 +23,7 @@ const PickService = ({ data, onContinue }) => {
       <BookingHeader business={business} />
       <StepIndicator step={1} total={3} />
 
-      <h2 className="text-sm font-semibold text-[#1B4332] mb-3">Choose a service</h2>
+      <h2 className="text-sm font-semibold text-[#111111] mb-3">Choose a service</h2>
 
       {/* Category pills — horizontal scroll */}
       <div className="flex gap-2 flex-wrap mb-4">
@@ -33,8 +33,8 @@ const PickService = ({ data, onContinue }) => {
             onClick={() => setCategory(cat)}
             className={`px-2.5 py-1 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
               category === cat
-                ? 'bg-[#1B4332] text-white shadow-sm'
-                : 'bg-white text-gray-600 border border-gray-200 hover:border-[#1B4332]/30'
+                ? 'bg-[#111111] text-white shadow-sm'
+                : 'bg-white text-gray-600 border border-gray-200 hover:border-[#111111]/30'
             }`}
           >
             {cat}
@@ -53,13 +53,13 @@ const PickService = ({ data, onContinue }) => {
               onClick={() => setSelectedId(svc.id)}
               className={`w-full text-left p-3 rounded-xl border transition-all ${
                 selected
-                  ? 'border-[#1B4332] bg-[#1B4332]/[0.03] ring-1 ring-[#1B4332]/20'
+                  ? 'border-[#111111] bg-[#111111]/[0.03] ring-1 ring-[#111111]/20'
                   : 'border-gray-200 bg-white hover:border-gray-300'
               }`}
             >
               <div className="flex justify-between items-start gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className={`font-medium text-[13px] ${selected ? 'text-[#1B4332]' : 'text-gray-900'}`}>
+                  <p className={`font-medium text-[13px] ${selected ? 'text-[#111111]' : 'text-gray-900'}`}>
                     {svc.name}
                   </p>
                   {svc.description && (
@@ -73,7 +73,7 @@ const PickService = ({ data, onContinue }) => {
                   </div>
                 </div>
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
-                  selected ? 'border-[#1B4332] bg-[#1B4332]' : 'border-gray-300'
+                  selected ? 'border-[#111111] bg-[#111111]' : 'border-gray-300'
                 }`}>
                   {selected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
                 </div>
@@ -90,7 +90,7 @@ const PickService = ({ data, onContinue }) => {
           disabled={!selectedId}
           className={`w-full py-3 rounded-xl font-medium text-[13px] transition-all flex items-center justify-center gap-2 ${
             selectedId
-              ? 'bg-[#1B4332] text-white hover:bg-[#143326] shadow-sm'
+              ? 'bg-[#111111] text-white hover:bg-[#0a0a0a] shadow-sm'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >

@@ -392,19 +392,19 @@ Use this data to answer questions about today's bookings, covers, availability, 
           width: 52px;
           height: 52px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #1B4332, #2D6A4F);
+          background: linear-gradient(135deg, #111111, #1a1a1a);
           color: white;
           border: none;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 8px 32px rgba(27, 67, 50, 0.35), 0 2px 8px rgba(0,0,0,0.1);
+          box-shadow: 0 8px 32px rgba(17, 17, 17, 0.35), 0 2px 8px rgba(0,0,0,0.1);
           transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .rezvo-chat-bubble:hover {
           transform: scale(1.1);
-          box-shadow: 0 12px 40px rgba(27, 67, 50, 0.45);
+          box-shadow: 0 12px 40px rgba(17, 17, 17, 0.45);
         }
         .rezvo-chat-bubble.open {
           transform: rotate(180deg) scale(1);
@@ -461,7 +461,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
           border-radius: 20px;
           border: 1px solid #DDD5C5;
           background: white;
-          color: #1B4332;
+          color: #111111;
           font-size: 13px;
           font-weight: 500;
           cursor: pointer;
@@ -469,11 +469,11 @@ Use this data to answer questions about today's bookings, covers, availability, 
           white-space: nowrap;
         }
         .suggestion-chip:hover {
-          background: #1B4332;
+          background: #111111;
           color: white;
-          border-color: #1B4332;
+          border-color: #111111;
           transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(27, 67, 50, 0.2);
+          box-shadow: 0 4px 12px rgba(17, 17, 17, 0.2);
         }
         
         .chat-input:focus {
@@ -499,10 +499,10 @@ Use this data to answer questions about today's bookings, covers, availability, 
               <button key={i} onClick={item.action} style={{
                 display:'flex', alignItems:'center', gap:8, padding:'10px 18px', borderRadius:999,
                 background:'white', border:'1px solid #E8E4DD', boxShadow:'0 4px 16px rgba(0,0,0,.1)',
-                cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:600, color:'#1B4332',
+                cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:600, color:'#111111',
                 animation: `slide-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.08}s both`,
               }}>
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#1B4332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={item.icon}/></svg>
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#111111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={item.icon}/></svg>
                 {item.label}
               </button>
             ))}
@@ -541,11 +541,11 @@ Use this data to answer questions about today's bookings, covers, availability, 
             <div style={{ padding:'16px 24px', borderBottom:'1px solid #EBEBEB', flexShrink:0 }}>
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                  <div style={{ width:40, height:40, borderRadius:'50%', background:'linear-gradient(135deg,#1B4332,#2D6A4F)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <div style={{ width:40, height:40, borderRadius:'50%', background:'linear-gradient(135deg,#111111,#1a1a1a)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   </div>
                   <div>
-                    <div style={{ fontSize:18, fontWeight:700, color:'#1B4332' }}>New Booking</div>
+                    <div style={{ fontSize:18, fontWeight:700, color:'#111111' }}>New Booking</div>
                     <div style={{ fontSize:12, color:'#666', marginTop:1 }}>Add a reservation</div>
                   </div>
                 </div>
@@ -578,8 +578,8 @@ Use this data to answer questions about today's bookings, covers, availability, 
                 <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
                   {[1,2,3,4,5,6,7,8].map(n => (
                     <button key={n} onClick={() => setBookingForm({...bookingForm, party:n})} style={{
-                      width:44, height:44, borderRadius:12, border: bookingForm.party===n ? '2px solid #1B4332' : '1px solid #EBEBEB',
-                      background: bookingForm.party===n ? '#1B4332' : '#FAFAF8', color: bookingForm.party===n ? 'white' : '#555',
+                      width:44, height:44, borderRadius:12, border: bookingForm.party===n ? '2px solid #111111' : '1px solid #EBEBEB',
+                      background: bookingForm.party===n ? '#111111' : '#FAFAF8', color: bookingForm.party===n ? 'white' : '#555',
                       fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:"'Figtree', sans-serif",
                     }}>{n}</button>
                   ))}
@@ -590,7 +590,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                 <div style={{ flex:1 }}>
                   <label style={{ fontSize:13, fontWeight:600, color:'#999', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8, display:'block' }}>Date</label>
                   <div style={{ position:'relative' }}>
-                    <div onClick={() => { setBookingDateDrop(!bookingDateDrop); setBookingTimeDrop(false); }} style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', color: bookingForm.date ? '#1B4332' : '#999', cursor:'pointer', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                    <div onClick={() => { setBookingDateDrop(!bookingDateDrop); setBookingTimeDrop(false); }} style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', color: bookingForm.date ? '#111111' : '#999', cursor:'pointer', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                       <span>{bookingForm.date ? new Date(bookingForm.date + 'T12:00').toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' }) : 'Select date'}</span>
                       <span style={{ fontSize:10, color:'#999' }}>▼</span>
                     </div>
@@ -602,7 +602,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                           const label = d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
                           return (
                             <div key={val} onClick={() => { setBookingForm({...bookingForm, date:val}); setBookingDateDrop(false); }}
-                              style={{ padding:'10px 12px', fontSize:13, fontFamily:"'Figtree', sans-serif", cursor:'pointer', borderRadius:8, background: bookingForm.date===val ? '#F0F7F4' : 'transparent', fontWeight: bookingForm.date===val ? 600 : 400, color: bookingForm.date===val ? '#1B4332' : '#374151' }}
+                              style={{ padding:'10px 12px', fontSize:13, fontFamily:"'Figtree', sans-serif", cursor:'pointer', borderRadius:8, background: bookingForm.date===val ? '#F5F5F5' : 'transparent', fontWeight: bookingForm.date===val ? 600 : 400, color: bookingForm.date===val ? '#111111' : '#374151' }}
                               onMouseOver={e => { if (bookingForm.date!==val) e.currentTarget.style.background='#F5F5F5' }}
                               onMouseOut={e => { if (bookingForm.date!==val) e.currentTarget.style.background='transparent' }}
                             >{di === 0 ? `Today — ${label}` : di === 1 ? `Tomorrow — ${label}` : label}</div>
@@ -615,7 +615,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                 <div style={{ flex:1 }}>
                   <label style={{ fontSize:13, fontWeight:600, color:'#999', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8, display:'block' }}>Time</label>
                   <div style={{ position:'relative' }}>
-                    <div onClick={() => { setBookingTimeDrop(!bookingTimeDrop); setBookingDateDrop(false); }} style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', color: bookingForm.time ? '#1B4332' : '#999', cursor:'pointer', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                    <div onClick={() => { setBookingTimeDrop(!bookingTimeDrop); setBookingDateDrop(false); }} style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', color: bookingForm.time ? '#111111' : '#999', cursor:'pointer', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                       <span>{bookingForm.time || 'Select time'}</span>
                       <span style={{ fontSize:10, color:'#999' }}>▼</span>
                     </div>
@@ -628,7 +628,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                           const label = `${h > 12 ? h - 12 : h}:${m} ${h >= 12 ? 'PM' : 'AM'}`;
                           return (
                             <div key={val} onClick={() => { setBookingForm({...bookingForm, time:val}); setBookingTimeDrop(false); }}
-                              style={{ padding:'10px 12px', fontSize:13, fontFamily:"'Figtree', sans-serif", cursor:'pointer', borderRadius:8, background: bookingForm.time===val ? '#F0F7F4' : 'transparent', fontWeight: bookingForm.time===val ? 600 : 400, color: bookingForm.time===val ? '#1B4332' : '#374151' }}
+                              style={{ padding:'10px 12px', fontSize:13, fontFamily:"'Figtree', sans-serif", cursor:'pointer', borderRadius:8, background: bookingForm.time===val ? '#F5F5F5' : 'transparent', fontWeight: bookingForm.time===val ? 600 : 400, color: bookingForm.time===val ? '#111111' : '#374151' }}
                               onMouseOver={e => { if (bookingForm.time!==val) e.currentTarget.style.background='#F5F5F5' }}
                               onMouseOut={e => { if (bookingForm.time!==val) e.currentTarget.style.background='transparent' }}
                             >{label}</div>
@@ -643,7 +643,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
               <div>
                 <label style={{ fontSize:13, fontWeight:600, color:'#999', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8, display:'block' }}>Table (optional)</label>
                 <div style={{ position:'relative' }}>
-                  <div onClick={() => setBookingTableDrop(!bookingTableDrop)} style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', color: bookingForm.table ? '#1B4332' : '#999', cursor:'pointer', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <div onClick={() => setBookingTableDrop(!bookingTableDrop)} style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', color: bookingForm.table ? '#111111' : '#999', cursor:'pointer', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                     <span>{bookingForm.table ? `Table ${bookingForm.table}` : 'Auto-assign'}</span>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
                   </div>
@@ -651,7 +651,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                     <div style={{ position:'absolute', top:'100%', left:0, right:0, marginTop:4, background:'#fff', border:'1px solid #EBEBEB', borderRadius:12, boxShadow:'0 8px 24px rgba(0,0,0,0.1)', zIndex:100, maxHeight:200, overflowY:'auto', padding:4 }}>
                       <div onClick={() => { setBookingForm({...bookingForm, table:''}); setBookingTableDrop(false) }} style={{ padding:'10px 16px', borderRadius:8, fontSize:13, color:'#999', cursor:'pointer', fontFamily:"'Figtree', sans-serif" }} onMouseOver={e => e.currentTarget.style.background='#F5F5F5'} onMouseOut={e => e.currentTarget.style.background='transparent'}>Auto-assign</div>
                       {Array.from({length:15}, (_,i) => (
-                        <div key={i+1} onClick={() => { setBookingForm({...bookingForm, table:String(i+1)}); setBookingTableDrop(false) }} style={{ padding:'10px 16px', borderRadius:8, fontSize:13, color:'#1B4332', fontWeight: bookingForm.table===String(i+1)?700:400, cursor:'pointer', fontFamily:"'Figtree', sans-serif", background: bookingForm.table===String(i+1)?'#F0F7F4':'transparent' }} onMouseOver={e => { if(bookingForm.table!==String(i+1)) e.currentTarget.style.background='#F5F5F5' }} onMouseOut={e => { if(bookingForm.table!==String(i+1)) e.currentTarget.style.background='transparent' }}>Table {i+1}</div>
+                        <div key={i+1} onClick={() => { setBookingForm({...bookingForm, table:String(i+1)}); setBookingTableDrop(false) }} style={{ padding:'10px 16px', borderRadius:8, fontSize:13, color:'#111111', fontWeight: bookingForm.table===String(i+1)?700:400, cursor:'pointer', fontFamily:"'Figtree', sans-serif", background: bookingForm.table===String(i+1)?'#F5F5F5':'transparent' }} onMouseOver={e => { if(bookingForm.table!==String(i+1)) e.currentTarget.style.background='#F5F5F5' }} onMouseOut={e => { if(bookingForm.table!==String(i+1)) e.currentTarget.style.background='transparent' }}>Table {i+1}</div>
                       ))}
                     </div>
                   )}
@@ -666,8 +666,8 @@ Use this data to answer questions about today's bookings, covers, availability, 
 
             {/* Footer — CRM action bar style */}
             <div style={{ padding:16, borderTop:'1px solid #EBEBEB', flexShrink:0 }}>
-              {saveSuccess && <div style={{ marginBottom:8, padding:'10px 16px', borderRadius:10, background: saveSuccess.includes('!') ? '#F0F7F4' : '#FFFBEB', color: saveSuccess.includes('!') ? '#1B4332' : '#92400E', fontSize:13, fontWeight:600, textAlign:'center' }}>{saveSuccess}</div>}
-              <button onClick={handleSaveBooking} disabled={saving} style={{ width:'100%', padding:'14px', borderRadius:999, border:'none', background: saving ? '#9CA3AF' : '#1B4332', color:'white', fontSize:14, fontWeight:700, cursor: saving ? 'wait' : 'pointer', fontFamily:"'Figtree', sans-serif", boxShadow:'0 4px 12px rgba(27,67,50,.3)', transition:'all 0.2s' }}>{saving ? 'Saving...' : 'Confirm Booking'}</button>
+              {saveSuccess && <div style={{ marginBottom:8, padding:'10px 16px', borderRadius:10, background: saveSuccess.includes('!') ? '#F5F5F5' : '#FFFBEB', color: saveSuccess.includes('!') ? '#111111' : '#92400E', fontSize:13, fontWeight:600, textAlign:'center' }}>{saveSuccess}</div>}
+              <button onClick={handleSaveBooking} disabled={saving} style={{ width:'100%', padding:'14px', borderRadius:999, border:'none', background: saving ? '#9CA3AF' : '#111111', color:'white', fontSize:14, fontWeight:700, cursor: saving ? 'wait' : 'pointer', fontFamily:"'Figtree', sans-serif", boxShadow:'0 4px 12px rgba(17,17,17,.3)', transition:'all 0.2s' }}>{saving ? 'Saving...' : 'Confirm Booking'}</button>
             </div>
           </div>
         </>
@@ -687,7 +687,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                   </div>
                   <div>
                     <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                      <span style={{ fontSize:18, fontWeight:700, color:'#1B4332' }}>Walk-in</span>
+                      <span style={{ fontSize:18, fontWeight:700, color:'#111111' }}>Walk-in</span>
                       <span style={{ background:'#D4A37320', color:'#D4A373', padding:'3px 12px', borderRadius:999, fontSize:11, fontWeight:700 }}>Starting now</span>
                     </div>
                     <div style={{ fontSize:12, color:'#666', marginTop:1 }}>Quick-seat a walk-in guest</div>
@@ -722,7 +722,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
               <div>
                 <label style={{ fontSize:13, fontWeight:600, color:'#999', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8, display:'block' }}>Table (optional)</label>
                 <div style={{ position:'relative' }}>
-                  <div onClick={() => setWalkinTableDrop(!walkinTableDrop)} style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', color: walkinForm.table ? '#1B4332' : '#999', cursor:'pointer', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <div onClick={() => setWalkinTableDrop(!walkinTableDrop)} style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', color: walkinForm.table ? '#111111' : '#999', cursor:'pointer', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                     <span>{walkinForm.table ? `Table ${walkinForm.table}` : 'Auto-assign'}</span>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
                   </div>
@@ -730,7 +730,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                     <div style={{ position:'absolute', top:'100%', left:0, right:0, marginTop:4, background:'#fff', border:'1px solid #EBEBEB', borderRadius:12, boxShadow:'0 8px 24px rgba(0,0,0,0.1)', zIndex:100, maxHeight:200, overflowY:'auto', padding:4 }}>
                       <div onClick={() => { setWalkinForm({...walkinForm, table:''}); setWalkinTableDrop(false) }} style={{ padding:'10px 16px', borderRadius:8, fontSize:13, color:'#999', cursor:'pointer', fontFamily:"'Figtree', sans-serif" }} onMouseOver={e => e.currentTarget.style.background='#F5F5F5'} onMouseOut={e => e.currentTarget.style.background='transparent'}>Auto-assign</div>
                       {Array.from({length:15}, (_,i) => (
-                        <div key={i+1} onClick={() => { setWalkinForm({...walkinForm, table:String(i+1)}); setWalkinTableDrop(false) }} style={{ padding:'10px 16px', borderRadius:8, fontSize:13, color:'#1B4332', fontWeight: walkinForm.table===String(i+1)?700:400, cursor:'pointer', fontFamily:"'Figtree', sans-serif", background: walkinForm.table===String(i+1)?'#F0F7F4':'transparent' }} onMouseOver={e => { if(walkinForm.table!==String(i+1)) e.currentTarget.style.background='#F5F5F5' }} onMouseOut={e => { if(walkinForm.table!==String(i+1)) e.currentTarget.style.background='transparent' }}>Table {i+1}</div>
+                        <div key={i+1} onClick={() => { setWalkinForm({...walkinForm, table:String(i+1)}); setWalkinTableDrop(false) }} style={{ padding:'10px 16px', borderRadius:8, fontSize:13, color:'#111111', fontWeight: walkinForm.table===String(i+1)?700:400, cursor:'pointer', fontFamily:"'Figtree', sans-serif", background: walkinForm.table===String(i+1)?'#F5F5F5':'transparent' }} onMouseOver={e => { if(walkinForm.table!==String(i+1)) e.currentTarget.style.background='#F5F5F5' }} onMouseOut={e => { if(walkinForm.table!==String(i+1)) e.currentTarget.style.background='transparent' }}>Table {i+1}</div>
                       ))}
                     </div>
                   )}
@@ -777,7 +777,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
           {/* Header */}
           <div
             style={{
-              background: "linear-gradient(135deg, #0A1F14, #1B4332)",
+              background: "linear-gradient(135deg, #0a0a0a, #111111)",
               padding: "20px 20px 16px",
               flexShrink: 0,
             }}
@@ -788,7 +788,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                   width: 42,
                   height: 42,
                   borderRadius: 12,
-                  background: "#1B4332",
+                  background: "#111111",
                   border: "2px solid #52B788",
                   display: "flex",
                   alignItems: "center",
@@ -859,7 +859,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                   }}
                 >
                   <span style={{ fontSize: 20, display: "block", marginBottom: 6 }}>👋</span>
-                  <strong style={{ color: "#1B4332" }}>Hey! I'm your Rezvo assistant.</strong>
+                  <strong style={{ color: "#111111" }}>Hey! I'm your Rezvo assistant.</strong>
                   <br />
                   I can help with tonight's bookings, table availability, covers, and managing your restaurant. What do you need?
                 </div>
@@ -907,7 +907,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                     padding: "12px 16px",
                     borderRadius:
                       msg.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-                    background: msg.role === "user" ? "#1B4332" : "white",
+                    background: msg.role === "user" ? "#111111" : "white",
                     color: msg.role === "user" ? "white" : "#2A2A28",
                     border: msg.role === "user" ? "none" : "1px solid #E2E5DF",
                     fontSize: 14,
@@ -915,7 +915,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                     whiteSpace: "pre-wrap",
                     boxShadow:
                       msg.role === "user"
-                        ? "0 2px 8px rgba(27,67,50,0.15)"
+                        ? "0 2px 8px rgba(17,17,17,0.15)"
                         : "0 1px 4px rgba(0,0,0,0.04)",
                   }}
                 >
@@ -995,7 +995,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                   border: "none",
                   background:
                     input.trim() && !isLoading
-                      ? "linear-gradient(135deg, #1B4332, #2D6A4F)"
+                      ? "linear-gradient(135deg, #111111, #1a1a1a)"
                       : "#E2E5DF",
                   color: input.trim() && !isLoading ? "white" : "#9CA09E",
                   cursor: input.trim() && !isLoading ? "pointer" : "default",
@@ -1021,7 +1021,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
               }}
             >
               AI-powered · For account issues, email{" "}
-              <a href="mailto:support@rezvo.app" style={{ color: "#1B4332", textDecoration: "none", fontWeight: 600 }}>
+              <a href="mailto:support@rezvo.app" style={{ color: "#111111", textDecoration: "none", fontWeight: 600 }}>
                 support@rezvo.app
               </a>
             </div>

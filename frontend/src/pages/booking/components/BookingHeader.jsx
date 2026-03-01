@@ -17,7 +17,7 @@ const resolveImg = (url) => {
 
 const BookingHeader = ({ business }) => {
   if (!business) return null
-  const accent = business.accentColour || '#1B4332'
+  const accent = business.accentColour || '#111111'
   const logoSrc = resolveImg(business.logo)
 
   return (
@@ -41,7 +41,7 @@ const BookingHeader = ({ business }) => {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <h1 className="text-sm font-semibold leading-tight text-[#1B4332] truncate">
+            <h1 className="text-sm font-semibold leading-tight text-[#111111] truncate">
               {business.name}
             </h1>
             {business.isOpen && (

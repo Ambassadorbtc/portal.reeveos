@@ -57,7 +57,7 @@ const Register = () => {
     <div className="min-h-screen flex flex-col lg:flex-row overflow-hidden">
       {/* Left: Brand Hero */}
       <section className="hidden lg:flex lg:w-1/2 xl:w-7/12 bg-primary relative overflow-hidden flex-col justify-between p-12 text-white h-screen">
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1B4332] via-[#1B4332]/80 to-[#1B4332]/40 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/80 to-[#111111]/40 z-0" />
 
         {/* Logo */}
         <a href="/" className="relative z-10 flex items-center gap-3 no-underline">

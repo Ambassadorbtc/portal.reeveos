@@ -8,7 +8,7 @@
   if (window.__rezvoChat) return;
   window.__rezvoChat = true;
 
-  var FOREST = '#1B4332';
+  var FOREST = '#111111';
   var MINT = '#52B788';
   var API_URL = '/api/chatbot/chat';
   var STORE_KEY = 'rezvo_chat_v3';
@@ -84,8 +84,8 @@
   /* ─── Styles ─── */
   var style = document.createElement('style');
   style.textContent = [
-    '#rezvo-chat-fab{position:fixed;bottom:24px;right:24px;z-index:9999;width:60px;height:60px;border-radius:50%;background:'+FOREST+';color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(27,67,50,0.4);transition:all .3s cubic-bezier(.22,1,.36,1)}',
-    '#rezvo-chat-fab:hover{transform:scale(1.08);box-shadow:0 8px 32px rgba(27,67,50,0.5)}',
+    '#rezvo-chat-fab{position:fixed;bottom:24px;right:24px;z-index:9999;width:60px;height:60px;border-radius:50%;background:'+FOREST+';color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(17,17,17,0.4);transition:all .3s cubic-bezier(.22,1,.36,1)}',
+    '#rezvo-chat-fab:hover{transform:scale(1.08);box-shadow:0 8px 32px rgba(17,17,17,0.5)}',
     '#rezvo-chat-fab svg{width:28px;height:28px;transition:transform .3s ease}',
     '#rezvo-chat-fab.open svg.chat-icon{display:none}',
     '#rezvo-chat-fab.open svg.close-icon{display:block}',

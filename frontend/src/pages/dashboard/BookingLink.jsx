@@ -56,18 +56,18 @@ const BookingLink = () => {
           </div>
           <p className="text-sm text-gray-500 mb-4">Share this link with clients to let them book online. It works on all devices.</p>
           <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1 flex items-center bg-gray-50 border border-gray-200 rounded-full px-4 py-2.5 group hover:border-[#1B4332]/30 transition-colors">
+            <div className="flex-1 flex items-center bg-gray-50 border border-gray-200 rounded-full px-4 py-2.5 group hover:border-[#111111]/30 transition-colors">
               <Link2 className="w-4 h-4 text-gray-400 mr-3 shrink-0" />
-              <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-[#1B4332] truncate flex-1 hover:underline">{bookingUrl}</a>
+              <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-[#111111] truncate flex-1 hover:underline">{bookingUrl}</a>
             </div>
             <div className="flex gap-2">
-              <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="bg-white text-[#1B4332] border border-gray-200 font-bold text-xs px-5 py-2.5 rounded-full hover:bg-gray-50 transition-all flex items-center gap-2 no-underline shadow-sm">
+              <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="bg-white text-[#111111] border border-gray-200 font-bold text-xs px-5 py-2.5 rounded-full hover:bg-gray-50 transition-all flex items-center gap-2 no-underline shadow-sm">
                 <Eye className="w-4 h-4" /> View
               </a>
-              <button onClick={handleCopy} className="bg-[#1B4332] text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-lg shadow-[#1B4332]/20 hover:bg-[#2D6A4F] transition-all flex items-center gap-2" style={{ fontFamily: "'Figtree', sans-serif" }}>
+              <button onClick={handleCopy} className="bg-[#111111] text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-lg shadow-[#111111]/20 hover:bg-[#1a1a1a] transition-all flex items-center gap-2" style={{ fontFamily: "'Figtree', sans-serif" }}>
                 {copied ? <><Check className="w-4 h-4" /> Copied!</> : <><Copy className="w-4 h-4" /> Copy Link</>}
               </button>
-              <button className="bg-white text-[#1B4332] border border-gray-200 font-bold text-sm w-10 h-10 rounded-full hover:bg-gray-50 transition-all shadow-sm flex items-center justify-center">
+              <button className="bg-white text-[#111111] border border-gray-200 font-bold text-sm w-10 h-10 rounded-full hover:bg-gray-50 transition-all shadow-sm flex items-center justify-center">
                 <QrCode className="w-4 h-4" />
               </button>
             </div>
@@ -105,7 +105,7 @@ const BookingLink = () => {
               <button onClick={() => setActiveChannelTab('channels')}
                 className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
                   activeChannelTab === 'channels'
-                    ? 'bg-[#1B4332] text-white shadow-lg shadow-[#1B4332]/20'
+                    ? 'bg-[#111111] text-white shadow-lg shadow-[#111111]/20'
                     : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
                 }`} style={{ fontFamily: "'Figtree', sans-serif" }}>
                 <Globe className="w-3.5 h-3.5" />Booking Channels
@@ -113,7 +113,7 @@ const BookingLink = () => {
               <button onClick={() => setActiveChannelTab('widget')}
                 className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
                   activeChannelTab === 'widget'
-                    ? 'bg-[#1B4332] text-white shadow-lg shadow-[#1B4332]/20'
+                    ? 'bg-[#111111] text-white shadow-lg shadow-[#111111]/20'
                     : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
                 }`} style={{ fontFamily: "'Figtree', sans-serif" }}>
                 <Code className="w-3.5 h-3.5" />Widget Embed
@@ -135,7 +135,7 @@ const BookingLink = () => {
                     </div>
                     <p className="text-xs text-gray-500 mt-1">{ch.desc}</p>
                   </div>
-                  <button className={`text-xs font-bold px-4 py-1.5 rounded-full shrink-0 transition-all ${ch.connected ? 'text-gray-500 bg-gray-100 hover:bg-gray-200' : 'text-white bg-[#1B4332] hover:bg-[#2D6A4F] shadow-lg shadow-[#1B4332]/20'}`}
+                  <button className={`text-xs font-bold px-4 py-1.5 rounded-full shrink-0 transition-all ${ch.connected ? 'text-gray-500 bg-gray-100 hover:bg-gray-200' : 'text-white bg-[#111111] hover:bg-[#1a1a1a] shadow-lg shadow-[#111111]/20'}`}
                     style={{ fontFamily: "'Figtree', sans-serif" }}>
                     {ch.connected ? 'Manage' : 'Connect'}
                   </button>

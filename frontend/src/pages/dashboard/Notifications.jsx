@@ -41,7 +41,7 @@ const DEMO_NOTIFICATIONS = {
       time: '15 min ago', timeColor: 'text-emerald-600',
       tags: [{ label: '🎂 Birthday', bg: 'bg-blue-50 text-blue-700 border-blue-100' }],
       actions: [
-        { label: 'Accept', style: 'bg-[#1B4332] hover:bg-[#2D6A4F] text-white shadow-lg shadow-[#1B4332]/20' },
+        { label: 'Accept', style: 'bg-[#111111] hover:bg-[#1a1a1a] text-white shadow-lg shadow-[#111111]/20' },
         { label: 'Decline', style: 'bg-white border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-500' },
       ],
     },
@@ -202,7 +202,7 @@ const Notifications = () => {
     <div className="-m-6 lg:-m-8 flex flex-col h-[calc(100vh-4rem)]">
       {/* Toast */}
       {toast && (
-        <div className="fixed top-4 right-4 z-50 bg-[#1B4332] text-white px-4 py-2.5 rounded-lg shadow-lg text-sm font-bold animate-[slideIn_0.3s_ease-out]">
+        <div className="fixed top-4 right-4 z-50 bg-[#111111] text-white px-4 py-2.5 rounded-lg shadow-lg text-sm font-bold animate-[slideIn_0.3s_ease-out]">
           {toast}
         </div>
       )}
@@ -218,7 +218,7 @@ const Notifications = () => {
                   onClick={() => setActiveTab(t.id)}
                   className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
                     activeTab === t.id
-                      ? 'bg-[#1B4332] text-white shadow-lg shadow-[#1B4332]/20'
+                      ? 'bg-[#111111] text-white shadow-lg shadow-[#111111]/20'
                       : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
                   }`}
                 >

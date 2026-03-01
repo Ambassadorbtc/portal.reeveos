@@ -14,7 +14,7 @@ import RezvoLoader from '../../components/shared/RezvoLoader'
 
 /* ═══ KPI Card ═══ */
 const KpiCard = ({ label, value, Icon, iconColor, iconBg, trend, trendLabel, trendUp }) => (
-  <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_-5px_rgba(27,67,50,0.08)] transition-all duration-300 group"
+  <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_-5px_rgba(17,17,17,0.08)] transition-all duration-300 group"
     style={{ fontFamily: "'Figtree', sans-serif" }}>
     <div className="flex justify-between items-start mb-3">
       <div>
@@ -88,7 +88,7 @@ const Payments = () => {
   }, [bid, isDemo])
 
   const kpis = [
-    { label: 'Total Revenue', value: '£12,450.00', Icon: PoundSterling, iconColor: '#1B4332', iconBg: 'bg-emerald-50', trend: '12.5%', trendLabel: 'vs last 30 days', trendUp: true },
+    { label: 'Total Revenue', value: '£12,450.00', Icon: PoundSterling, iconColor: '#111111', iconBg: 'bg-emerald-50', trend: '12.5%', trendLabel: 'vs last 30 days', trendUp: true },
     { label: 'Occupancy', value: '84%', Icon: Users, iconColor: '#2563EB', iconBg: 'bg-blue-50', trend: '4.2%', trendLabel: 'vs last 30 days', trendUp: true },
     { label: 'Bookings', value: '142', Icon: CalendarCheck, iconColor: '#D97706', iconBg: 'bg-amber-50', trend: '1.8%', trendLabel: 'vs last 30 days', trendUp: false },
     { label: 'No-Show Rate', value: '2.1%', Icon: UserX, iconColor: '#EF4444', iconBg: 'bg-red-50', trend: '0.5%', trendLabel: 'Improvement', trendUp: true },
@@ -165,7 +165,7 @@ const Payments = () => {
                       className="w-full rounded-t-sm cursor-pointer transition-all duration-200 group-hover:opacity-100"
                       style={{
                         height: `${(d.revenue / maxRev) * 240}px`,
-                        background: `linear-gradient(to top, #1B4332, #2D6A4F)`,
+                        background: `linear-gradient(to top, #111111, #1a1a1a)`,
                         opacity: 0.7 + (d.revenue / maxRev) * 0.3,
                       }}
                     />
@@ -229,7 +229,7 @@ const Payments = () => {
                       <div className="h-full rounded-full transition-all duration-500"
                         style={{
                           width: `${s.pct}%`,
-                          background: i === 0 ? 'linear-gradient(to right, #1B4332, #2D6A4F)' : i === 1 ? 'linear-gradient(to right, #2D6A4F, #52B788)' : i === 2 ? '#52B788' : '#D1D5DB',
+                          background: i === 0 ? 'linear-gradient(to right, #111111, #1a1a1a)' : i === 1 ? 'linear-gradient(to right, #1a1a1a, #52B788)' : i === 2 ? '#52B788' : '#D1D5DB',
                         }} />
                     </div>
                   </div>
@@ -242,7 +242,7 @@ const Payments = () => {
               <h3 className="font-extrabold text-lg text-gray-900 mb-5">Booking Channels</h3>
               <div className="space-y-4">
                 {[
-                  { name: 'Direct / Walk-in', pct: 35, color: 'linear-gradient(to right, #1B4332, #2D6A4F)' },
+                  { name: 'Direct / Walk-in', pct: 35, color: 'linear-gradient(to right, #111111, #1a1a1a)' },
                   { name: 'Online Booking', pct: 42, color: 'linear-gradient(to right, #2563EB, #3B82F6)' },
                   { name: 'Google Reserve', pct: 15, color: 'linear-gradient(to right, #D97706, #F59E0B)' },
                   { name: 'Instagram', pct: 8, color: 'linear-gradient(to right, #EC4899, #F472B6)' },
@@ -273,7 +273,7 @@ const Payments = () => {
               { label: 'Pending Deposits', value: '£1,450', Icon: Receipt, iconBg: 'bg-amber-50', iconColor: '#D97706' },
               { label: 'Refunds', value: '£320', Icon: RefreshCw, iconBg: 'bg-red-50', iconColor: '#EF4444' },
             ].map((c, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)] group hover:shadow-[0_10px_30px_-5px_rgba(27,67,50,0.08)] transition-all">
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)] group hover:shadow-[0_10px_30px_-5px_rgba(17,17,17,0.08)] transition-all">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-xl ${c.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
                     <c.Icon className="w-5 h-5" style={{ color: c.iconColor }} />

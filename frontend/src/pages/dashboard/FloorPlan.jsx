@@ -23,7 +23,7 @@ import RoomSetupModal from '../../components/dashboard/RoomSetupModal'
 const STATUS = {
   available:  { bg: '#F7F7F5', border: '#D1D5DB', text: '#6B7280', label: 'Available', dot: '#9CA3AF' },
   reserved:   { bg: '#FFF8F0', border: '#D4A373', text: '#92400E', label: 'Reserved', dot: '#D4A373' },
-  confirmed:  { bg: '#EFF6FF', border: '#1B4332', text: '#1B4332', label: 'Confirmed', dot: '#1B4332' },
+  confirmed:  { bg: '#EFF6FF', border: '#111111', text: '#111111', label: 'Confirmed', dot: '#111111' },
   seated:     { bg: '#ECFDF5', border: '#059669', text: '#065F46', label: 'Seated', dot: '#059669' },
   mains:      { bg: '#FFF7ED', border: '#EA580C', text: '#9A3412', label: 'Mains', dot: '#EA580C' },
   dessert:    { bg: '#FAF5FF', border: '#8B5CF6', text: '#5B21B6', label: 'Dessert', dot: '#8B5CF6' },
@@ -34,8 +34,8 @@ const STATUS = {
 
 /* Floors = physical areas you toggle between (tabs) */
 const FLOORS = [
-  { id: 'all',       label: 'All Zones',   Icon: Eye,               color: '#1B4332' },
-  { id: 'main',      label: 'Main Floor',  Icon: Home,              color: '#1B4332' },
+  { id: 'all',       label: 'All Zones',   Icon: Eye,               color: '#111111' },
+  { id: 'main',      label: 'Main Floor',  Icon: Home,              color: '#111111' },
   { id: 'upstairs',  label: 'Upstairs',    Icon: ArrowUp,           color: '#7C3AED' },
   { id: 'terrace',   label: 'Terrace',     Icon: Sun,               color: '#059669' },
   { id: 'outside',   label: 'Outside',     Icon: TreePine,          color: '#0891B2' },
@@ -201,16 +201,16 @@ const TableNode = ({ table, status, isSelected, locked, isDragging, onMouseDown,
       {locked && hovered && !isDragging && (
         <div style={{
           position: 'absolute', bottom: h + 16, left: '50%', transform: 'translateX(-50%)',
-          background: '#1B4332', color: '#FAF7F2', borderRadius: 12, padding: '10px 14px',
+          background: '#111111', color: '#FAF7F2', borderRadius: 12, padding: '10px 14px',
           minWidth: 160, zIndex: 50, pointerEvents: 'none',
-          boxShadow: '0 8px 30px rgba(27,67,50,0.3)',
+          boxShadow: '0 8px 30px rgba(17,17,17,0.3)',
           animation: 'fpPopIn 200ms cubic-bezier(0.34,1.56,0.64,1) forwards',
           fontFamily: "'Figtree', sans-serif",
         }}>
           {/* Arrow */}
           <div style={{
             position: 'absolute', bottom: -6, left: '50%', transform: 'translateX(-50%) rotate(45deg)',
-            width: 12, height: 12, background: '#1B4332',
+            width: 12, height: 12, background: '#111111',
           }} />
           <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 4 }}>{table.name}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, opacity: 0.8, marginBottom: 3 }}>
@@ -802,7 +802,7 @@ const FloorPlan = ({ embedded = false }) => {
     <div className={`flex flex-col overflow-hidden bg-white ${embedded ? 'h-full' : 'h-full'}`} style={{ fontFamily: "'Figtree', sans-serif" }}>
       <style>{`
         @keyframes fpPopIn { from { opacity: 0; transform: scale(0.7) translateY(4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes fpPulse { 0%, 100% { box-shadow: 0 4px 14px rgba(27,67,50,0.3); } 50% { box-shadow: 0 4px 20px rgba(27,67,50,0.5); } }
+        @keyframes fpPulse { 0%, 100% { box-shadow: 0 4px 14px rgba(17,17,17,0.3); } 50% { box-shadow: 0 4px 20px rgba(17,17,17,0.5); } }
         @keyframes fpNewBooking {
           0% { transform: scale(0); opacity: 0; }
           50% { transform: scale(1.18); opacity: 1; }
@@ -822,8 +822,8 @@ const FloorPlan = ({ embedded = false }) => {
           100% { transform: scale(1) translateY(0); opacity: 1; }
         }
         @keyframes fpCardGlow {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(27,67,50,0); }
-          50% { box-shadow: 0 0 12px 3px rgba(27,67,50,0.15); }
+          0%, 100% { box-shadow: 0 0 0 0 rgba(17,17,17,0); }
+          50% { box-shadow: 0 0 12px 3px rgba(17,17,17,0.15); }
         }
       `}</style>
 
@@ -841,7 +841,7 @@ const FloorPlan = ({ embedded = false }) => {
           {/* Row 1: Stats + Controls */}
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-5">
-              <StatPill label="Tables" value={stats.total} color="#1B4332" />
+              <StatPill label="Tables" value={stats.total} color="#111111" />
               <StatPill label="Seated" value={stats.seated} color="#059669" />
               <StatPill label="Available" value={stats.available} color="#9CA3AF" />
               <StatPill label="Reserved" value={stats.reserved} color="#D4A373" />
@@ -859,8 +859,8 @@ const FloorPlan = ({ embedded = false }) => {
                 <button onClick={saveLayout} disabled={saving || !hasChanges}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all"
                   style={{
-                    background: saving ? '#D1D5DB' : hasChanges ? '#1B4332' : '#9CA3AF', color: '#fff',
-                    boxShadow: hasChanges && !saving ? '0 4px 14px rgba(27,67,50,0.3)' : 'none',
+                    background: saving ? '#D1D5DB' : hasChanges ? '#111111' : '#9CA3AF', color: '#fff',
+                    boxShadow: hasChanges && !saving ? '0 4px 14px rgba(17,17,17,0.3)' : 'none',
                     animation: hasChanges && !saving ? 'fpPulse 2s ease-in-out infinite' : 'none',
                     opacity: hasChanges ? 1 : 0.6,
                   }}>
@@ -880,9 +880,9 @@ const FloorPlan = ({ embedded = false }) => {
                 <button onClick={autoArrange} disabled={arranging}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all"
                   style={{
-                    background: arranging ? '#D1D5DB' : '#1B4332',
+                    background: arranging ? '#D1D5DB' : '#111111',
                     color: '#fff',
-                    boxShadow: arranging ? 'none' : '0 4px 14px rgba(27,67,50,0.3)',
+                    boxShadow: arranging ? 'none' : '0 4px 14px rgba(17,17,17,0.3)',
                   }}>
                   {arranging ? <Clock className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                   {arranging ? 'AI thinking...' : 'AI Arrange'}
@@ -908,7 +908,7 @@ const FloorPlan = ({ embedded = false }) => {
                   }
                 }}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all"
-                style={{ background: locked ? '#F3F4F6' : '#1B4332', color: locked ? '#374151' : '#fff', boxShadow: locked ? 'none' : '0 4px 14px rgba(27,67,50,0.3)' }}>
+                style={{ background: locked ? '#F3F4F6' : '#111111', color: locked ? '#374151' : '#fff', boxShadow: locked ? 'none' : '0 4px 14px rgba(17,17,17,0.3)' }}>
                 {locked ? <Lock className="w-4 h-4" /> : <Check className="w-4 h-4" />}
                 {locked ? 'Edit Layout' : 'Done'}
               </button>
@@ -1153,7 +1153,7 @@ const FloorPlan = ({ embedded = false }) => {
 
               {/* Edit mode banner */}
               {!locked && (
-                <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 50, background: '#1B4332', color: '#fff', fontSize: 11, fontWeight: 700, padding: '6px 16px', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 20px rgba(27,67,50,0.3)' }}>
+                <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 50, background: '#111111', color: '#fff', fontSize: 11, fontWeight: 700, padding: '6px 16px', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 20px rgba(17,17,17,0.3)' }}>
                   <Move size={13} /> Drag to rearrange · Click to select
                 </div>
               )}
@@ -1163,7 +1163,7 @@ const FloorPlan = ({ embedded = false }) => {
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
                   <LayoutGrid size={48} strokeWidth={1} className="mb-3 opacity-30" />
                   <p className="text-sm font-bold">No elements on {FLOORS.find(z => z.id === activeZone)?.label || 'this floor'}</p>
-                  {!locked && <button onClick={() => setShowAddPanel(true)} className="mt-3 px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold shadow-lg hover:bg-[#2D6A4F] transition-all"><Plus className="w-3.5 h-3.5 inline mr-1" /> Add First Element</button>}
+                  {!locked && <button onClick={() => setShowAddPanel(true)} className="mt-3 px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold shadow-lg hover:bg-[#1a1a1a] transition-all"><Plus className="w-3.5 h-3.5 inline mr-1" /> Add First Element</button>}
                 </div>
               )}
 
@@ -1314,7 +1314,7 @@ const FloorPlan = ({ embedded = false }) => {
               <button onClick={() => { duplicateTable(editTable.id); setEditTable(null) }} className="px-4 py-2.5 bg-blue-50 text-blue-600 rounded-xl text-sm font-bold hover:bg-blue-100 flex items-center gap-1.5"><Copy className="w-3.5 h-3.5" /> Duplicate</button>
               <button onClick={() => { deleteElement(editTable.id); setEditTable(null) }} className="px-4 py-2.5 bg-red-50 text-red-600 rounded-xl text-sm font-bold hover:bg-red-100 flex items-center gap-1.5"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
               <div className="flex-1" />
-              <button onClick={() => setEditTable(null)} className="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:bg-[#2D6A4F] shadow-lg shadow-primary/20">Done</button>
+              <button onClick={() => setEditTable(null)} className="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:bg-[#1a1a1a] shadow-lg shadow-primary/20">Done</button>
             </div>
           </div>
         </div>
@@ -1322,7 +1322,7 @@ const FloorPlan = ({ embedded = false }) => {
 
       {/* Toast */}
       {toast && (
-        <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 999, background: '#1B4332', color: '#fff', padding: '10px 20px', borderRadius: 12, fontSize: 13, fontWeight: 700, boxShadow: '0 8px 30px rgba(27,67,50,0.3)', fontFamily: "'Figtree', sans-serif" }}>
+        <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 999, background: '#111111', color: '#fff', padding: '10px 20px', borderRadius: 12, fontSize: 13, fontWeight: 700, boxShadow: '0 8px 30px rgba(17,17,17,0.3)', fontFamily: "'Figtree', sans-serif" }}>
           ✓ {toast}
         </div>
       )}

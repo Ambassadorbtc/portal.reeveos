@@ -102,7 +102,7 @@ input[type="date"],
 input[type="time"] {
   -webkit-appearance: none !important;
   font-family: 'Figtree', sans-serif !important;
-  color: #1B4332 !important;
+  color: #111111 !important;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator,
@@ -136,7 +136,7 @@ select {
   appearance: none !important;
   font-family: 'Figtree', sans-serif !important;
   font-weight: 500 !important;
-  color: #1B4332 !important;
+  color: #111111 !important;
   border-radius: 12px !important;
   border: 1px solid #E5E7EB !important;
   padding: 10px 36px 10px 14px !important;
@@ -155,8 +155,8 @@ select:hover {
 }
 
 select:focus {
-  border-color: rgba(27, 67, 50, 0.3) !important;
-  box-shadow: 0 0 0 2px rgba(27, 67, 50, 0.08) !important;
+  border-color: rgba(17, 17, 17, 0.3) !important;
+  box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.08) !important;
   outline: none !important;
 }
 
@@ -190,11 +190,11 @@ textarea {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(27, 67, 50, 0.15);
+  background: rgba(17, 17, 17, 0.15);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(27, 67, 50, 0.25);
+  background: rgba(17, 17, 17, 0.25);
 }
 
 /* Live booking animation */

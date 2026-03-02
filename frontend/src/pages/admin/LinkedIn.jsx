@@ -207,7 +207,7 @@ const LinkedIn = () => {
       <div className="mb-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-white flex items-center gap-3">
               <i className="fa-brands fa-linkedin text-[#0A66C2]" />
               LinkedIn Autopilot
             </h1>
@@ -235,12 +235,12 @@ const LinkedIn = () => {
             { label: 'Posted', value: postedPosts.length, color: '#0A66C2', icon: 'fa-paper-plane' },
             { label: 'Total Impressions', value: analytics?.performance?.total_impressions?.toLocaleString() || '0', color: '#8b5cf6', icon: 'fa-eye' },
           ].map((s, i) => (
-            <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3">
+            <div key={i} className="bg-gray-900 rounded-xl border border-gray-800 p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: s.color + '15' }}>
                 <i className={`fa-solid ${s.icon}`} style={{ color: s.color }} />
               </div>
               <div>
-                <div className="text-xl font-bold text-gray-900">{s.value}</div>
+                <div className="text-xl font-bold text-white">{s.value}</div>
                 <div className="text-xs text-gray-500">{s.label}</div>
               </div>
             </div>
@@ -249,13 +249,13 @@ const LinkedIn = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 overflow-x-auto">
+      <div className="flex gap-1 bg-gray-800 rounded-xl p-1 mb-6 overflow-x-auto">
         {TABS.map(t => (
           <button
             key={t.id}
             onClick={() => { setTab(t.id); if (t.id === 'analytics') fetchAnalytics(); if (t.id === 'posts') fetchPosts(); }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-              tab === t.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              tab === t.id ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200'
             }`}
           >
             <i className={`fa-solid ${t.icon}`} />
@@ -270,7 +270,7 @@ const LinkedIn = () => {
       {tab === 'calendar' && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">This Week's Content</h2>
+            <h2 className="text-lg font-semibold text-white">This Week's Content</h2>
             <div className="flex gap-2">
               {Object.entries(PILLARS).map(([k, v]) => (
                 <span key={k} className="text-xs font-medium px-2 py-1 rounded-full" style={{ background: v.bg, color: v.color }}>
@@ -281,7 +281,7 @@ const LinkedIn = () => {
           </div>
 
           {draftPosts.length === 0 && approvedPosts.length === 0 ? (
-            <div className="bg-white rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
+            <div className="bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-700 p-12 text-center">
               <i className="fa-solid fa-calendar-plus text-4xl text-gray-300 mb-4" />
               <h3 className="text-lg font-semibold text-gray-700 mb-2">No posts queued yet</h3>
               <p className="text-gray-500 mb-6">Hit "Generate This Week" to create 4 posts following the proven 4-3-2-1 system</p>
@@ -299,9 +299,9 @@ const LinkedIn = () => {
               {['monday', 'tuesday', 'thursday', 'friday'].map((day) => {
                 const dayPost = posts.find(p => p.day === day && (p.status === 'draft' || p.status === 'approved'))
                 if (!dayPost) return (
-                  <div key={day} className="bg-white rounded-xl border border-gray-100 p-5 opacity-50">
+                  <div key={day} className="bg-gray-900 rounded-xl border border-gray-800 p-5 opacity-50">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center">
                         <i className="fa-regular fa-calendar text-gray-400" />
                       </div>
                       <div>
@@ -317,27 +317,27 @@ const LinkedIn = () => {
                 const isEditing = editingPost === dayPost._id
 
                 return (
-                  <div key={day} className="bg-white rounded-xl border border-gray-100 p-5 hover:shadow-md transition-shadow">
+                  <div key={day} className="bg-gray-900 rounded-xl border border-gray-800 p-5 hover:border-gray-700 transition-all">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         {/* Day + Pillar + Framework badges */}
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <span className="font-semibold text-gray-900 capitalize">{day}</span>
+                          <span className="font-semibold text-white capitalize">{day}</span>
                           <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: pillar.bg, color: pillar.color }}>
                             {pillar.label}
                           </span>
-                          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-800 text-gray-400">
                             {(dayPost.framework || 'slay').toUpperCase()}
                           </span>
                           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                            dayPost.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                            dayPost.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-amber-900/30 text-amber-400'
                           }`}>
                             {dayPost.status}
                           </span>
                         </div>
 
                         {/* Hook */}
-                        <div className="font-bold text-gray-900 text-lg mb-2">{hook}</div>
+                        <div className="font-bold text-white text-lg mb-2">{hook}</div>
 
                         {/* Preview / Edit */}
                         {isEditing ? (
@@ -345,7 +345,7 @@ const LinkedIn = () => {
                             <textarea
                               value={editText}
                               onChange={(e) => setEditText(e.target.value)}
-                              className="w-full h-64 p-3 rounded-lg border border-gray-200 text-sm font-mono resize-y focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              className="w-full h-64 p-3 rounded-lg border border-gray-700 text-sm font-mono text-gray-200 bg-gray-800 resize-y focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                             <div className="flex gap-2 mt-2">
                               <button onClick={() => saveEdit(dayPost._id)} className="px-3 py-1.5 rounded-lg bg-green-600 text-white text-sm font-medium">Save</button>
@@ -354,7 +354,7 @@ const LinkedIn = () => {
                           </div>
                         ) : (
                           <div
-                            className="text-sm text-gray-600 whitespace-pre-line line-clamp-4 cursor-pointer hover:text-gray-900"
+                            className="text-sm text-gray-400 whitespace-pre-line line-clamp-4 cursor-pointer hover:text-gray-200"
                             onClick={() => setSelectedPost(dayPost)}
                           >
                             {getPostText(dayPost).substring(0, 300)}...
@@ -389,7 +389,7 @@ const LinkedIn = () => {
                         </button>
                         <button
                           onClick={() => { setEditingPost(dayPost._id); setEditText(getPostText(dayPost)) }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 text-gray-700 text-sm font-medium hover:bg-gray-100"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 text-gray-300 text-sm font-medium hover:bg-gray-700"
                         >
                           <i className="fa-solid fa-pen" /> Edit
                         </button>
@@ -436,8 +436,8 @@ const LinkedIn = () => {
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Controls */}
           <div>
-            <div className="bg-white rounded-xl border border-gray-100 p-5">
-              <h3 className="font-semibold text-gray-900 mb-4">Generate a Post</h3>
+            <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
+              <h3 className="font-semibold text-white mb-4">Generate a Post</h3>
 
               {/* Pillar */}
               <label className="block text-sm font-medium text-gray-700 mb-2">Content Pillar</label>
@@ -447,7 +447,7 @@ const LinkedIn = () => {
                     key={k}
                     onClick={() => setGenPillar(k)}
                     className={`p-3 rounded-xl border-2 text-center transition-all ${
-                      genPillar === k ? 'border-current shadow-sm' : 'border-gray-100 hover:border-gray-200'
+                      genPillar === k ? 'border-current shadow-sm' : 'border-gray-700 hover:border-gray-600'
                     }`}
                     style={genPillar === k ? { borderColor: v.color, background: v.bg } : {}}
                   >
@@ -465,7 +465,7 @@ const LinkedIn = () => {
                     key={k}
                     onClick={() => setGenFramework(k)}
                     className={`p-3 rounded-xl border-2 text-left transition-all ${
-                      genFramework === k ? 'border-[#111111] bg-green-50' : 'border-gray-100 hover:border-gray-200'
+                      genFramework === k ? 'border-emerald-500 bg-emerald-900/20' : 'border-gray-700 hover:border-gray-600'
                     }`}
                   >
                     <div className="font-semibold text-sm">{v.label}</div>
@@ -482,7 +482,7 @@ const LinkedIn = () => {
                     key={t.value}
                     onClick={() => setGenTone(t.value)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      genTone === t.value ? 'bg-[#111111] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      genTone === t.value ? 'bg-gray-200 text-black' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                     }`}
                   >
                     {t.icon} {t.label}
@@ -496,7 +496,7 @@ const LinkedIn = () => {
                 value={genTopic}
                 onChange={(e) => setGenTopic(e.target.value)}
                 placeholder="e.g. Father-son building the EPOS system, Burg Burgers saving £36k/year..."
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-[#0A66C2] focus:border-transparent mb-4"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-700 text-sm text-gray-200 bg-gray-800 focus:ring-2 focus:ring-[#0A66C2] focus:border-transparent mb-4"
               />
 
               {/* Generate button */}
@@ -515,8 +515,8 @@ const LinkedIn = () => {
             </div>
 
             {/* Topic Ideas */}
-            <div className="bg-white rounded-xl border border-gray-100 p-5 mt-4">
-              <h4 className="font-semibold text-gray-900 mb-3">Quick Topic Ideas</h4>
+            <div className="bg-gray-900 rounded-xl border border-gray-800 p-5 mt-4">
+              <h4 className="font-semibold text-white mb-3">Quick Topic Ideas</h4>
               <div className="flex flex-wrap gap-2">
                 {[
                   'Deliveroo commission vs Rezvo flat fee',
@@ -533,7 +533,7 @@ const LinkedIn = () => {
                   <button
                     key={i}
                     onClick={() => setGenTopic(topic)}
-                    className="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-[#0A66C2] hover:text-white transition-all"
+                    className="text-xs px-3 py-1.5 rounded-full bg-gray-800 text-gray-300 hover:bg-[#0A66C2] hover:text-white transition-all"
                   >
                     {topic}
                   </button>
@@ -545,9 +545,9 @@ const LinkedIn = () => {
           {/* Preview */}
           <div>
             {genResult ? (
-              <div className="bg-white rounded-xl border border-gray-100 p-5">
+              <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">Generated Post</h3>
+                  <h3 className="font-semibold text-white">Generated Post</h3>
                   <div className="flex gap-2">
                     <button
                       onClick={() => copyPost(genResult)}
@@ -585,11 +585,11 @@ const LinkedIn = () => {
                 )}
 
                 {/* LinkedIn preview mockup */}
-                <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                <div className="border border-gray-700 rounded-xl p-4 bg-gray-800">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-12 h-12 rounded-full bg-[#111111] flex items-center justify-center text-white font-bold text-lg">R</div>
                     <div>
-                      <div className="font-semibold text-gray-900 text-sm">Rezvo Founder</div>
+                      <div className="font-semibold text-white text-sm">Rezvo Founder</div>
                       <div className="text-xs text-gray-500">Save the High Street • Building @Rezvo</div>
                     </div>
                   </div>
@@ -606,7 +606,7 @@ const LinkedIn = () => {
                     </span>
                   )}
                   {genResult.framework && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+                    <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-400">
                       {genResult.framework.toUpperCase()}
                     </span>
                   )}
@@ -625,7 +625,7 @@ const LinkedIn = () => {
                 )}
               </div>
             ) : (
-              <div className="bg-white rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
+              <div className="bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-700 p-12 text-center">
                 <i className="fa-brands fa-linkedin text-5xl text-gray-200 mb-4" />
                 <h3 className="text-lg font-semibold text-gray-400 mb-2">Your post will appear here</h3>
                 <p className="text-gray-400 text-sm">Select your options and hit Generate</p>
@@ -642,7 +642,7 @@ const LinkedIn = () => {
         <div>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Trend Scanner</h2>
+              <h2 className="text-lg font-semibold text-white">Trend Scanner</h2>
               <p className="text-sm text-gray-500">Find trending topics and turn them into viral posts</p>
             </div>
             <button
@@ -660,14 +660,14 @@ const LinkedIn = () => {
           </div>
 
           {/* Manual trend jack */}
-          <div className="bg-white rounded-xl border border-gray-100 p-5 mb-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Quick Trend Jack</h3>
+          <div className="bg-gray-900 rounded-xl border border-gray-800 p-5 mb-4">
+            <h3 className="font-semibold text-white mb-3">Quick Trend Jack</h3>
             <div className="flex gap-2">
               <input
                 value={trendTopic}
                 onChange={(e) => setTrendTopic(e.target.value)}
                 placeholder="Paste a headline or trending topic..."
-                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-sm"
+                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-700 text-sm text-gray-200 bg-gray-800"
               />
               <button
                 onClick={() => trendJack()}
@@ -684,21 +684,21 @@ const LinkedIn = () => {
           {trends.length > 0 ? (
             <div className="grid gap-3">
               {trends.map((trend, i) => (
-                <div key={i} className="bg-white rounded-xl border border-gray-100 p-5 hover:shadow-md transition-shadow">
+                <div key={i} className="bg-gray-900 rounded-xl border border-gray-800 p-5 hover:border-gray-700 transition-all">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                          trend.urgency === 'high' ? 'bg-red-100 text-red-700' : trend.urgency === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'
+                          trend.urgency === 'high' ? 'bg-red-900/30 text-red-400' : trend.urgency === 'medium' ? 'bg-amber-900/30 text-amber-400' : 'bg-gray-800 text-gray-400'
                         }`}>
                           {trend.urgency?.toUpperCase()}
                         </span>
                       </div>
-                      <h4 className="font-bold text-gray-900">{trend.topic}</h4>
+                      <h4 className="font-bold text-white">{trend.topic}</h4>
                       <p className="text-sm text-gray-600 mt-1">{trend.why_trending}</p>
                       <p className="text-sm text-[#111111] mt-1 font-medium">{trend.rezvo_angle}</p>
                       {trend.suggested_hook && (
-                        <div className="mt-2 p-2 bg-gray-50 rounded-lg text-sm font-medium text-gray-800">
+                        <div className="mt-2 p-2 bg-gray-800 rounded-lg text-sm font-medium text-gray-300">
                           Hook: "{trend.suggested_hook}"
                         </div>
                       )}
@@ -715,7 +715,7 @@ const LinkedIn = () => {
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
+            <div className="bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-700 p-12 text-center">
               <i className="fa-solid fa-bolt text-4xl text-gray-200 mb-4" />
               <h3 className="text-lg font-semibold text-gray-400 mb-2">No trends scanned yet</h3>
               <p className="text-gray-400 text-sm">Hit "Scan for Trends" to find hot topics in the restaurant/hospitality space</p>
@@ -729,9 +729,9 @@ const LinkedIn = () => {
       {/* ═══════════════════════════════════════ */}
       {tab === 'posts' && (
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">All Posts ({posts.length})</h2>
+          <h2 className="text-lg font-semibold text-white mb-4">All Posts ({posts.length})</h2>
           {posts.length === 0 ? (
-            <div className="bg-white rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
+            <div className="bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-700 p-12 text-center">
               <p className="text-gray-400">No posts yet. Generate your first week!</p>
             </div>
           ) : (
@@ -739,7 +739,7 @@ const LinkedIn = () => {
               {posts.map(post => {
                 const pillar = PILLARS[post.pillar] || PILLARS.tam
                 return (
-                  <div key={post._id} className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4">
+                  <div key={post._id} className="bg-gray-900 rounded-xl border border-gray-800 p-4 flex items-center gap-4">
                     <div className="w-2 h-12 rounded-full" style={{ background: pillar.color }} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -749,24 +749,24 @@ const LinkedIn = () => {
                         <span className={`text-xs px-2 py-0.5 rounded-full ${
                           post.status === 'posted' ? 'bg-blue-100 text-blue-700' :
                           post.status === 'approved' ? 'bg-green-100 text-green-700' :
-                          'bg-amber-100 text-amber-700'
+                          'bg-amber-900/30 text-amber-400'
                         }`}>
                           {post.status}
                         </span>
                         {post.type === 'trend' && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">Trend Jack</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-red-900/30 text-red-400">Trend Jack</span>
                         )}
                         <span className="text-xs text-gray-400">
                           {post.created_at ? new Date(post.created_at).toLocaleDateString() : ''}
                         </span>
                       </div>
-                      <div className="font-semibold text-gray-900 truncate">{getPostHook(post)}</div>
+                      <div className="font-semibold text-white truncate">{getPostHook(post)}</div>
                     </div>
                     <div className="flex gap-1.5 shrink-0">
-                      <button onClick={() => copyPost(post)} className="p-2 rounded-lg hover:bg-gray-100" title="Copy">
+                      <button onClick={() => copyPost(post)} className="p-2 rounded-lg hover:bg-gray-800" title="Copy">
                         <i className={`fa-solid ${copied === post._id ? 'fa-check text-green-600' : 'fa-copy text-gray-400'}`} />
                       </button>
-                      <button onClick={() => setSelectedPost(post)} className="p-2 rounded-lg hover:bg-gray-100" title="View">
+                      <button onClick={() => setSelectedPost(post)} className="p-2 rounded-lg hover:bg-gray-800" title="View">
                         <i className="fa-solid fa-eye text-gray-400" />
                       </button>
                       <button onClick={() => deletePost(post._id)} className="p-2 rounded-lg hover:bg-red-50" title="Delete">
@@ -786,7 +786,7 @@ const LinkedIn = () => {
       {/* ═══════════════════════════════════════ */}
       {tab === 'analytics' && analytics && (
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Performance Analytics</h2>
+          <h2 className="text-lg font-semibold text-white mb-4">Performance Analytics</h2>
 
           {/* KPI Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -796,19 +796,19 @@ const LinkedIn = () => {
               { label: 'Total Comments', value: analytics.performance?.total_comments?.toLocaleString() || '0', icon: 'fa-comment', color: '#10b981' },
               { label: 'Leads Generated', value: analytics.performance?.total_leads?.toLocaleString() || '0', icon: 'fa-user-plus', color: '#f59e0b' },
             ].map((kpi, i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 p-5">
+              <div key={i} className="bg-gray-900 rounded-xl border border-gray-800 p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <i className={`fa-solid ${kpi.icon}`} style={{ color: kpi.color }} />
                   <span className="text-xs text-gray-500">{kpi.label}</span>
                 </div>
-                <div className="text-2xl font-bold text-gray-900">{kpi.value}</div>
+                <div className="text-2xl font-bold text-white">{kpi.value}</div>
               </div>
             ))}
           </div>
 
           {/* Averages */}
-          <div className="bg-white rounded-xl border border-gray-100 p-5 mb-6">
-            <h3 className="font-semibold text-gray-900 mb-3">Per Post Averages</h3>
+          <div className="bg-gray-900 rounded-xl border border-gray-800 p-5 mb-6">
+            <h3 className="font-semibold text-white mb-3">Per Post Averages</h3>
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-[#0A66C2]">{analytics.performance?.avg_impressions?.toLocaleString() || '0'}</div>
@@ -827,8 +827,8 @@ const LinkedIn = () => {
 
           {/* Best performing by pillar */}
           {Object.keys(analytics.pillar_performance || {}).length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-100 p-5 mb-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Performance by Pillar</h3>
+            <div className="bg-gray-900 rounded-xl border border-gray-800 p-5 mb-6">
+              <h3 className="font-semibold text-white mb-3">Performance by Pillar</h3>
               <div className="grid grid-cols-3 gap-4">
                 {Object.entries(analytics.pillar_performance).map(([pillar, data]) => {
                   const p = PILLARS[pillar] || PILLARS.tam
@@ -846,16 +846,16 @@ const LinkedIn = () => {
 
           {/* Best posts */}
           {analytics.best_posts?.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-100 p-5">
-              <h3 className="font-semibold text-gray-900 mb-3">Top Performing Posts</h3>
+            <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
+              <h3 className="font-semibold text-white mb-3">Top Performing Posts</h3>
               <div className="space-y-3">
                 {analytics.best_posts.map((post, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div key={i} className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
                     <div className="w-8 h-8 rounded-full bg-[#0A66C2] text-white flex items-center justify-center font-bold text-sm">
                       #{i + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 truncate">{post.hook}</div>
+                      <div className="font-medium text-white truncate">{post.hook}</div>
                       <div className="text-xs text-gray-500">{post.impressions?.toLocaleString()} impressions • {post.likes} likes • {post.comments} comments</div>
                     </div>
                   </div>
@@ -871,9 +871,9 @@ const LinkedIn = () => {
       {/* ═══════════════════════════════════════ */}
       {selectedPost && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedPost(null)}>
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
+          <div className="bg-gray-900 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-lg text-gray-900">Post Preview</h3>
+              <h3 className="font-bold text-lg text-white">Post Preview</h3>
               <div className="flex gap-2">
                 <button
                   onClick={() => copyPost(selectedPost)}
@@ -883,18 +883,18 @@ const LinkedIn = () => {
                   <i className={`fa-solid ${copied === selectedPost._id ? 'fa-check' : 'fa-copy'}`} />
                   {copied === selectedPost._id ? 'Copied!' : 'Copy to LinkedIn'}
                 </button>
-                <button onClick={() => setSelectedPost(null)} className="p-2 rounded-lg hover:bg-gray-100">
+                <button onClick={() => setSelectedPost(null)} className="p-2 rounded-lg hover:bg-gray-800">
                   <i className="fa-solid fa-xmark text-gray-500" />
                 </button>
               </div>
             </div>
 
             {/* LinkedIn mockup */}
-            <div className="border border-gray-200 rounded-xl p-5 bg-white shadow-sm">
+            <div className="border border-gray-700 rounded-xl p-5 bg-gray-800">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-14 h-14 rounded-full bg-[#111111] flex items-center justify-center text-white font-bold text-xl">R</div>
                 <div>
-                  <div className="font-semibold text-gray-900">Rezvo Founder</div>
+                  <div className="font-semibold text-white">Rezvo Founder</div>
                   <div className="text-xs text-gray-500">Save the High Street • Building @Rezvo • Nottingham, UK</div>
                   <div className="text-xs text-gray-400">Just now • <i className="fa-solid fa-earth-americas" /></div>
                 </div>
@@ -902,7 +902,7 @@ const LinkedIn = () => {
               <div className="whitespace-pre-line text-sm text-gray-800 leading-relaxed">
                 {getPostText(selectedPost)}
               </div>
-              <div className="flex items-center gap-6 mt-4 pt-3 border-t border-gray-100 text-xs text-gray-500">
+              <div className="flex items-center gap-6 mt-4 pt-3 border-t border-gray-800 text-xs text-gray-500">
                 <span><i className="fa-regular fa-thumbs-up mr-1" /> Like</span>
                 <span><i className="fa-regular fa-comment mr-1" /> Comment</span>
                 <span><i className="fa-solid fa-retweet mr-1" /> Repost</span>

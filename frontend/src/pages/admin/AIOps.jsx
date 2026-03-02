@@ -128,12 +128,12 @@ export default function AIOps() {
 
   // ─── Stat Card ─── //
   const StatCard = ({ label, value, icon, color = '#111111' }) => (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4">
+    <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5 flex items-center gap-4">
       <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white" style={{ background: color }}>
         <i className={`fas ${icon} text-sm`} />
       </div>
       <div>
-        <div className="text-2xl font-extrabold text-gray-900">{value}</div>
+        <div className="text-2xl font-extrabold text-white">{value}</div>
         <div className="text-xs text-gray-500">{label}</div>
       </div>
     </div>
@@ -144,7 +144,7 @@ export default function AIOps() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900 flex items-center gap-3">
+          <h1 className="text-2xl font-extrabold text-white flex items-center gap-3">
             <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-800 to-emerald-600 flex items-center justify-center text-white">
               <i className="fas fa-robot text-lg" />
             </span>
@@ -153,20 +153,20 @@ export default function AIOps() {
           <p className="text-sm text-gray-500 mt-1">Autonomous platform management • 11 scheduled tasks • Three-tier guardrails</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-green-900/30 text-green-400 border border-green-200">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> Agent Active
           </span>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 overflow-x-auto">
+      <div className="flex gap-1 bg-gray-800 rounded-xl p-1 mb-6 overflow-x-auto">
         {TABS.map(t => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition-all ${
-              tab === t.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              tab === t.id ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200'
             }`}
           >
             <i className={`fas ${t.icon} text-xs`} /> {t.label}
@@ -195,8 +195,8 @@ export default function AIOps() {
 
           {/* Task Breakdown */}
           {stats?.task_breakdown?.length > 0 && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
-              <h3 className="font-bold text-gray-900 mb-4">Task Breakdown (7 days)</h3>
+            <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6 mb-6">
+              <h3 className="font-bold text-white mb-4">Task Breakdown (7 days)</h3>
               <div className="space-y-3">
                 {stats.task_breakdown.map((t, i) => (
                   <div key={i} className="flex items-center justify-between text-sm">
@@ -214,15 +214,15 @@ export default function AIOps() {
 
           {/* Latest Health */}
           {stats?.latest_health && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h3 className="font-bold text-gray-900 mb-3">Latest Health Check</h3>
+            <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
+              <h3 className="font-bold text-white mb-3">Latest Health Check</h3>
               <p className="text-sm text-gray-600 whitespace-pre-line">{stats.latest_health}</p>
             </div>
           )}
 
           {/* Empty state */}
           {!stats?.runs_7d && (
-            <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
+            <div className="bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-700 p-12 text-center">
               <i className="fas fa-robot text-5xl text-gray-200 mb-4" />
               <h3 className="text-lg font-bold text-gray-400">Agent hasn't run yet</h3>
               <p className="text-sm text-gray-400 mt-2">Go to Task Control and trigger your first task manually, or wait for the scheduler to kick in.</p>
@@ -238,14 +238,14 @@ export default function AIOps() {
             {TASK_NAMES.map(task => {
               const schedule = stats?.task_schedule?.find(s => s.name === task.id)
               return (
-                <div key={task.id} className="bg-white rounded-2xl border border-gray-100 p-5">
+                <div key={task.id} className="bg-gray-900 rounded-2xl border border-gray-800 p-5">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
                         <i className={`fas ${task.icon} text-emerald-700`} />
                       </div>
                       <div>
-                        <h4 className="font-bold text-gray-900 text-sm">{task.label}</h4>
+                        <h4 className="font-bold text-white text-sm">{task.label}</h4>
                         <p className="text-xs text-gray-500">{task.desc}</p>
                       </div>
                     </div>
@@ -289,7 +289,7 @@ export default function AIOps() {
       {tab === 'approvals' && (
         <div>
           {approvals.length === 0 ? (
-            <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
+            <div className="bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-700 p-12 text-center">
               <i className="fas fa-shield-check text-5xl text-gray-200 mb-4" />
               <h3 className="text-lg font-bold text-gray-400">No pending approvals</h3>
               <p className="text-sm text-gray-400">The agent handles most things automatically. High-stakes actions land here.</p>
@@ -297,15 +297,15 @@ export default function AIOps() {
           ) : (
             <div className="space-y-4">
               {approvals.map((a, i) => (
-                <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6">
+                <div key={i} className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
                   <div className="flex items-start justify-between">
                     <div>
                       <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200 mb-2">
                         ⚠️ Requires Approval
                       </span>
-                      <h4 className="font-bold text-gray-900">{a.tool}</h4>
+                      <h4 className="font-bold text-white">{a.tool}</h4>
                       <p className="text-sm text-gray-500 mt-1">{a.task}</p>
-                      <pre className="text-xs bg-gray-50 rounded-lg p-3 mt-3 overflow-x-auto">{JSON.stringify(a.input, null, 2)}</pre>
+                      <pre className="text-xs bg-gray-800 rounded-lg p-3 mt-3 overflow-x-auto">{JSON.stringify(a.input, null, 2)}</pre>
                     </div>
                     <div className="flex gap-2 flex-shrink-0 ml-4">
                       <button
@@ -316,7 +316,7 @@ export default function AIOps() {
                       </button>
                       <button
                         onClick={() => handleApproval(a._id, 'reject')}
-                        className="px-4 py-2 rounded-xl text-sm font-bold bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        className="px-4 py-2 rounded-xl text-sm font-bold bg-gray-800 text-gray-300 hover:bg-gray-700"
                       >
                         ✕ Reject
                       </button>
@@ -361,14 +361,14 @@ export default function AIOps() {
           {/* Lead list */}
           <div className="space-y-3">
             {leads.map((lead, i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 flex items-center justify-between">
+              <div key={i} className="bg-gray-900 rounded-xl border border-gray-800 p-4 flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h4 className="font-bold text-gray-900 text-sm">{lead.name}</h4>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 capitalize">{lead.status}</span>
+                    <h4 className="font-bold text-white text-sm">{lead.name}</h4>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 capitalize">{lead.status}</span>
                     {lead.score > 0 && (
                       <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
-                        lead.score >= 60 ? 'bg-green-50 text-green-700' : lead.score >= 30 ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-50 text-gray-500'
+                        lead.score >= 60 ? 'bg-green-900/30 text-green-400' : lead.score >= 30 ? 'bg-yellow-900/30 text-yellow-400' : 'bg-gray-800 text-gray-400'
                       }`}>
                         Score: {lead.score}
                       </span>
@@ -386,7 +386,7 @@ export default function AIOps() {
           </div>
 
           {leads.length === 0 && (
-            <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
+            <div className="bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-700 p-12 text-center">
               <i className="fas fa-funnel-dollar text-5xl text-gray-200 mb-4" />
               <h3 className="text-lg font-bold text-gray-400">No leads yet</h3>
               <p className="text-sm text-gray-400">Hit "Discover Leads" to find restaurants via Google Places</p>
@@ -419,7 +419,7 @@ export default function AIOps() {
               </div>
 
               {churn.at_risk_businesses?.length > 0 && (
-                <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
                   <h3 className="font-bold mb-4">At-Risk Businesses</h3>
                   <div className="space-y-3">
                     {churn.at_risk_businesses.map((biz, i) => (
@@ -427,7 +427,7 @@ export default function AIOps() {
                         <div>
                           <h4 className="font-bold text-sm">{biz.business_name || biz.business_id}</h4>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100">{biz.plan}</span>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400">{biz.plan}</span>
                             {biz.signals?.map((s, j) => (
                               <span key={j} className="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-600">{s}</span>
                             ))}
@@ -464,13 +464,13 @@ export default function AIOps() {
 
           <div className="space-y-3">
             {seoPages.map((page, i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 p-5">
+              <div key={i} className="bg-gray-900 rounded-xl border border-gray-800 p-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h4 className="font-bold text-gray-900 text-sm">{page.cuisine} restaurants in {page.city}</h4>
+                    <h4 className="font-bold text-white text-sm">{page.cuisine} restaurants in {page.city}</h4>
                     <p className="text-xs text-gray-400 mt-1">/{page.slug}</p>
                     <span className={`inline-flex text-xs px-2 py-0.5 rounded-full mt-2 ${
-                      page.status === 'published' ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'
+                      page.status === 'published' ? 'bg-green-900/30 text-green-400' : 'bg-yellow-900/30 text-yellow-400'
                     }`}>
                       {page.status}
                     </span>
@@ -486,14 +486,14 @@ export default function AIOps() {
                 </div>
                 <details className="mt-3">
                   <summary className="text-xs text-blue-600 cursor-pointer">Preview content</summary>
-                  <pre className="text-xs text-gray-600 mt-2 whitespace-pre-wrap bg-gray-50 rounded-lg p-3">{page.content?.substring(0, 500)}...</pre>
+                  <pre className="text-xs text-gray-600 mt-2 whitespace-pre-wrap bg-gray-800 rounded-lg p-3">{page.content?.substring(0, 500)}...</pre>
                 </details>
               </div>
             ))}
           </div>
 
           {seoPages.length === 0 && (
-            <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
+            <div className="bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-700 p-12 text-center">
               <i className="fas fa-file-lines text-5xl text-gray-200 mb-4" />
               <h3 className="text-lg font-bold text-gray-400">No SEO pages generated yet</h3>
               <p className="text-sm text-gray-400">Hit "Generate Pages" to create directory content</p>
@@ -508,7 +508,7 @@ export default function AIOps() {
           <h2 className="font-bold text-lg mb-4">Agent Audit Log</h2>
           <div className="space-y-2">
             {audit.map((log, i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 p-4">
+              <div key={i} className="bg-gray-900 rounded-xl border border-gray-800 p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold">{log.task_type}</span>
@@ -525,7 +525,7 @@ export default function AIOps() {
           </div>
 
           {audit.length === 0 && (
-            <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
+            <div className="bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-700 p-12 text-center">
               <i className="fas fa-scroll text-5xl text-gray-200 mb-4" />
               <h3 className="text-lg font-bold text-gray-400">No audit logs yet</h3>
             </div>
@@ -536,7 +536,7 @@ export default function AIOps() {
       {/* ═══ ASK AGENT ═══ */}
       {tab === 'ask' && (
         <div>
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
+          <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6 mb-6">
             <h2 className="font-bold text-lg mb-2">Ask the Agent</h2>
             <p className="text-sm text-gray-500 mb-4">Ask anything about your platform. The agent can query bookings, revenue, support tickets, leads, and more.</p>
             <div className="flex gap-3">
@@ -545,7 +545,7 @@ export default function AIOps() {
                 onChange={e => setAskQuestion(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && askAgent()}
                 placeholder="e.g. What's our MRR and how many restaurants are at risk of churning?"
-                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="flex-1 px-4 py-3 rounded-xl border border-gray-700 text-sm text-gray-200 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <button
                 onClick={askAgent}
@@ -570,7 +570,7 @@ export default function AIOps() {
                 <button
                   key={i}
                   onClick={() => { setAskQuestion(q); }}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100"
+                  className="text-xs px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700"
                 >
                   {q}
                 </button>
@@ -579,7 +579,7 @@ export default function AIOps() {
           </div>
 
           {askResult && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
+            <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-bold text-sm">Agent Response</h3>
                 <div className="flex items-center gap-3 text-xs text-gray-400">

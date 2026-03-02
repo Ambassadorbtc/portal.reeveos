@@ -21,9 +21,9 @@ const CLASSIFICATION_STYLES = {
   interested: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', icon: 'fa-face-smile', label: 'INTERESTED' },
   question: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: 'fa-circle-question', label: 'QUESTION' },
   not_interested: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', icon: 'fa-xmark', label: 'NOT INTERESTED' },
-  out_of_office: { bg: 'bg-gray-100', text: 'text-gray-500', border: 'border-gray-200', icon: 'fa-plane', label: 'OOO' },
+  out_of_office: { bg: 'bg-gray-800', text: 'text-gray-400', border: 'border-gray-700', icon: 'fa-plane', label: 'OOO' },
   unsubscribe: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', icon: 'fa-ban', label: 'UNSUBSCRIBE' },
-  unknown: { bg: 'bg-gray-50', text: 'text-gray-500', border: 'border-gray-200', icon: 'fa-question', label: 'UNKNOWN' },
+  unknown: { bg: 'bg-gray-800', text: 'text-gray-400', border: 'border-gray-700', icon: 'fa-question', label: 'UNKNOWN' },
 }
 
 export default function EmailOutreach() {
@@ -220,14 +220,14 @@ export default function EmailOutreach() {
   // ─── Sub-Components ─── //
 
   const MetricCard = ({ label, value, icon, color = '#111111', subtitle }) => (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+    <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5">
       <div className="flex justify-between items-start mb-3">
         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{label}</span>
         <div className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{ background: color }}>
           <i className={`fas ${icon} text-xs`} />
         </div>
       </div>
-      <div className="text-2xl font-extrabold text-gray-900">{value}</div>
+      <div className="text-2xl font-extrabold text-white">{value}</div>
       {subtitle && <p className="text-xs text-gray-400 mt-1">{subtitle}</p>}
     </div>
   )
@@ -236,7 +236,7 @@ export default function EmailOutreach() {
     const styles = {
       active: 'bg-green-50 text-green-700 border-green-200',
       warming: 'bg-amber-50 text-amber-700 border-amber-200',
-      draft: 'bg-gray-100 text-gray-500 border-gray-200',
+      draft: 'bg-gray-800 text-gray-400 border-gray-700',
       paused: 'bg-yellow-50 text-yellow-700 border-yellow-200',
       complete: 'bg-blue-50 text-blue-700 border-blue-200',
     }
@@ -257,12 +257,12 @@ export default function EmailOutreach() {
   }
 
   const HealthScore = ({ score }) => {
-    const color = score >= 85 ? 'text-green-600' : score >= 60 ? 'text-amber-500' : 'text-red-600'
+    const color = score >= 85 ? 'text-green-400' : score >= 60 ? 'text-amber-500' : 'text-red-600'
     return <span className={`text-lg font-black ${color}`}>{score}</span>
   }
 
   const EmptyState = ({ icon, title, subtitle, action, actionLabel }) => (
-    <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
+    <div className="bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-700 p-12 text-center">
       <i className={`fas ${icon} text-5xl text-gray-200 mb-4`} />
       <h3 className="text-lg font-bold text-gray-400">{title}</h3>
       {subtitle && <p className="text-sm text-gray-400 mt-2">{subtitle}</p>}
@@ -280,7 +280,7 @@ export default function EmailOutreach() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900 flex items-center gap-3">
+          <h1 className="text-2xl font-extrabold text-white flex items-center gap-3">
             <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-800 to-emerald-600 flex items-center justify-center text-white">
               <i className="fas fa-paper-plane text-lg" />
             </span>
@@ -306,13 +306,13 @@ export default function EmailOutreach() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 overflow-x-auto">
+      <div className="flex gap-1 bg-gray-800 rounded-xl p-1 mb-6 overflow-x-auto">
         {TABS.map(t => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition-all ${
-              tab === t.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              tab === t.id ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200'
             }`}
           >
             <i className={`fas ${t.icon} text-xs`} /> {t.label}
@@ -342,27 +342,27 @@ export default function EmailOutreach() {
             {/* Active Campaigns */}
             <div className="lg:col-span-2">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-bold text-lg text-gray-900">Active Campaigns</h2>
+                <h2 className="font-bold text-lg text-white">Active Campaigns</h2>
                 <button onClick={() => setShowNewCampaign(true)} className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-700 text-white hover:bg-emerald-800">
                   <i className="fas fa-plus mr-1" /> New Campaign
                 </button>
               </div>
               <div className="space-y-3">
                 {campaigns.filter(c => ['active', 'warming'].includes(c.status)).map((c, i) => (
-                  <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5">
+                  <div key={i} className="bg-gray-900 rounded-2xl border border-gray-800 p-5">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-3">
                         <StatusBadge status={c.status} />
-                        <h3 className="font-bold text-gray-900 text-sm">{c.name}</h3>
+                        <h3 className="font-bold text-white text-sm">{c.name}</h3>
                       </div>
                       <div className="flex items-center gap-4 text-sm">
-                        <div className="text-center"><span className="font-bold text-gray-900">{c.total_sent || 0}</span><span className="text-xs text-gray-400 ml-1">sent</span></div>
-                        <div className="text-center"><span className="font-bold text-gray-900">{((c.open_rate || 0) * 100).toFixed(0)}%</span><span className="text-xs text-gray-400 ml-1">opens</span></div>
-                        <div className="text-center"><span className="font-bold text-green-600">{((c.reply_rate || 0) * 100).toFixed(1)}%</span><span className="text-xs text-gray-400 ml-1">replies</span></div>
+                        <div className="text-center"><span className="font-bold text-white">{c.total_sent || 0}</span><span className="text-xs text-gray-400 ml-1">sent</span></div>
+                        <div className="text-center"><span className="font-bold text-white">{((c.open_rate || 0) * 100).toFixed(0)}%</span><span className="text-xs text-gray-400 ml-1">opens</span></div>
+                        <div className="text-center"><span className="font-bold text-green-400">{((c.reply_rate || 0) * 100).toFixed(1)}%</span><span className="text-xs text-gray-400 ml-1">replies</span></div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 bg-gray-100 rounded-full h-1.5">
+                      <div className="flex-1 bg-gray-800 rounded-full h-1.5">
                         <div className={`h-full rounded-full ${c.status === 'warming' ? 'bg-amber-400' : 'bg-green-500'}`}
                           style={{ width: `${c.total_leads > 0 ? Math.round((c.leads_contacted || 0) / c.total_leads * 100) : 0}%` }}
                         />
@@ -380,20 +380,20 @@ export default function EmailOutreach() {
             {/* Right sidebar: Recent Replies + Monthly Stats */}
             <div className="space-y-6">
               {/* Recent Replies */}
-              <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-bold text-gray-900 text-sm">Recent Replies</h3>
+                  <h3 className="font-bold text-white text-sm">Recent Replies</h3>
                   <button onClick={() => setTab('inbox')} className="text-xs font-bold text-emerald-700 hover:underline">VIEW ALL</button>
                 </div>
                 <div className="space-y-3">
                   {replies.slice(0, 4).map((r, i) => (
-                    <div key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => { setTab('inbox'); setSelectedReply(r); selectReply(r); }}>
+                    <div key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer" onClick={() => { setTab('inbox'); setSelectedReply(r); selectReply(r); }}>
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs shrink-0 mt-0.5 ${CLASSIFICATION_STYLES[r.classification]?.bg} ${CLASSIFICATION_STYLES[r.classification]?.text}`}>
                         <i className={`fas ${CLASSIFICATION_STYLES[r.classification]?.icon}`} />
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <p className="text-sm font-bold text-gray-900 truncate">{r.from_name || r.from_email}</p>
+                          <p className="text-sm font-bold text-white truncate">{r.from_name || r.from_email}</p>
                           <ClassBadge classification={r.classification} />
                         </div>
                         <p className="text-xs text-gray-400 line-clamp-1">{r.body_text?.substring(0, 80)}</p>
@@ -405,28 +405,28 @@ export default function EmailOutreach() {
               </div>
 
               {/* Monthly Stats */}
-              <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5">
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">This Month</h3>
                 <div className="space-y-3">
                   {[
                     ['Total Sent', stats?.monthly_sent || 0],
                     ['Unique Leads', stats?.unique_leads_contacted || 0],
-                    ['Positive Replies', stats?.positive_replies || 0, 'text-green-600'],
+                    ['Positive Replies', stats?.positive_replies || 0, 'text-green-400'],
                     ['Active Campaigns', stats?.active_campaigns || 0],
                   ].map(([label, value, cls], i) => (
                     <div key={i} className="flex justify-between items-center text-sm">
                       <span className="text-gray-500">{label}</span>
-                      <span className={`font-bold ${cls || 'text-gray-900'}`}>{value}</span>
+                      <span className={`font-bold ${cls || 'text-white'}`}>{value}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Quick Actions */}
-              <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5">
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Quick Actions</h3>
                 <div className="space-y-2">
-                  <button onClick={triggerProcess} className="w-full py-2 rounded-lg border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50">
+                  <button onClick={triggerProcess} className="w-full py-2 rounded-lg border border-gray-700 text-xs font-bold text-gray-300 hover:bg-gray-800">
                     <i className="fas fa-play mr-2" />Process Campaign Sends
                   </button>
                   <button onClick={triggerWarmup} className="w-full py-2 rounded-lg border border-amber-200 text-xs font-bold text-amber-700 hover:bg-amber-50">
@@ -446,7 +446,7 @@ export default function EmailOutreach() {
       {tab === 'campaigns' && (
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-bold text-lg text-gray-900">All Campaigns</h2>
+            <h2 className="font-bold text-lg text-white">All Campaigns</h2>
             <button onClick={() => setShowNewCampaign(true)} className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-700 text-white hover:bg-emerald-800">
               <i className="fas fa-plus mr-1" /> New Campaign
             </button>
@@ -454,12 +454,12 @@ export default function EmailOutreach() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {campaigns.map((c, i) => (
-              <div key={i} className={`bg-white rounded-2xl border p-6 ${c.status === 'draft' ? 'border-dashed border-gray-300' : 'border-gray-100'}`}>
+              <div key={i} className={`bg-gray-900 rounded-2xl border p-6 ${c.status === 'draft' ? 'border-dashed border-gray-700' : 'border-gray-800'}`}>
                 <div className="flex items-center justify-between mb-4">
                   <StatusBadge status={c.status} />
                   <span className="text-xs text-gray-400">{c.started_at ? new Date(c.started_at).toLocaleDateString() : 'Draft'}</span>
                 </div>
-                <h3 className="font-bold text-gray-900 mb-1">{c.name}</h3>
+                <h3 className="font-bold text-white mb-1">{c.name}</h3>
                 <p className="text-xs text-gray-400 mb-4">{c.city} • {c.angle?.replace('_', ' ')} • {c.total_leads || 0} leads</p>
                 <div className="grid grid-cols-4 gap-2 mb-4">
                   {[
@@ -469,26 +469,26 @@ export default function EmailOutreach() {
                     ['Replies', c.total_sent > 0 ? `${((c.reply_rate || 0) * 100).toFixed(1)}%` : '—'],
                   ].map(([label, val], j) => (
                     <div key={j} className="text-center">
-                      <div className={`text-lg font-bold ${j === 3 && c.total_sent > 0 ? 'text-green-600' : 'text-gray-900'}`}>{val}</div>
+                      <div className={`text-lg font-bold ${j === 3 && c.total_sent > 0 ? 'text-green-400' : 'text-white'}`}>{val}</div>
                       <div className="text-[10px] text-gray-400">{label}</div>
                     </div>
                   ))}
                 </div>
                 {c.status === 'warming' && (
-                  <div className="w-full bg-gray-100 rounded-full h-2 mb-3">
+                  <div className="w-full bg-gray-800 rounded-full h-2 mb-3">
                     <div className="bg-amber-400 h-full rounded-full" style={{ width: '21%' }} />
                   </div>
                 )}
                 <div className="flex gap-2">
                   {c.status === 'draft' && (
                     <>
-                      <button className="flex-1 py-2 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50">EDIT</button>
+                      <button className="flex-1 py-2 rounded-lg border border-gray-700 text-xs font-bold text-gray-400 hover:bg-gray-800">EDIT</button>
                       <button onClick={() => launchCampaign(c._id)} className="flex-1 py-2 rounded-lg bg-emerald-700 text-white text-xs font-bold hover:bg-emerald-800">LAUNCH</button>
                     </>
                   )}
                   {c.status === 'active' && (
                     <>
-                      <button onClick={() => pauseCampaign(c._id)} className="flex-1 py-2 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50">PAUSE</button>
+                      <button onClick={() => pauseCampaign(c._id)} className="flex-1 py-2 rounded-lg border border-gray-700 text-xs font-bold text-gray-400 hover:bg-gray-800">PAUSE</button>
                       <button className="flex-1 py-2 rounded-lg border border-emerald-200 text-emerald-700 text-xs font-bold hover:bg-emerald-50">DETAILS</button>
                     </>
                   )}
@@ -500,7 +500,7 @@ export default function EmailOutreach() {
             ))}
 
             {/* Create placeholder */}
-            <div onClick={() => setShowNewCampaign(true)} className="bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300 p-6 flex flex-col items-center justify-center min-h-[260px] cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/30 transition-all">
+            <div onClick={() => setShowNewCampaign(true)} className="bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-700 p-6 flex flex-col items-center justify-center min-h-[260px] cursor-pointer hover:border-emerald-400 hover:bg-emerald-900/20 transition-all">
               <div className="w-12 h-12 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center mb-3">
                 <i className="fas fa-plus text-lg" />
               </div>
@@ -516,7 +516,7 @@ export default function EmailOutreach() {
           {/* Reply List */}
           <div className="w-96 shrink-0 flex flex-col">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-lg text-gray-900">Unified Inbox</h2>
+              <h2 className="font-bold text-lg text-white">Unified Inbox</h2>
             </div>
             <div className="flex-1 overflow-y-auto space-y-1 pr-2">
               {replies.map((r, i) => (
@@ -525,12 +525,12 @@ export default function EmailOutreach() {
                   onClick={() => selectReply(r)}
                   className={`rounded-xl p-4 cursor-pointer transition-all border-l-4 ${
                     selectedReply?._id === r._id
-                      ? 'bg-white shadow-sm border-emerald-600'
-                      : 'bg-white hover:bg-gray-50 border-transparent'
+                      ? 'bg-gray-800 shadow-sm border-emerald-600'
+                      : 'bg-gray-900 hover:bg-gray-800 border-transparent'
                   } ${['out_of_office', 'not_interested', 'unsubscribe'].includes(r.classification) ? 'opacity-50' : ''}`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-sm font-bold text-gray-900 truncate">{r.restaurant_name || r.from_name || r.from_email}</p>
+                    <p className="text-sm font-bold text-white truncate">{r.restaurant_name || r.from_name || r.from_email}</p>
                     <span className="text-[10px] text-gray-400 shrink-0">{r.received_at ? new Date(r.received_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
                   </div>
                   <p className="text-xs text-gray-400 line-clamp-2 mb-2">{r.body_text?.substring(0, 100)}</p>
@@ -542,13 +542,13 @@ export default function EmailOutreach() {
           </div>
 
           {/* Thread View */}
-          <div className="flex-1 bg-white rounded-2xl border border-gray-100 flex flex-col overflow-hidden">
+          <div className="flex-1 bg-gray-900 rounded-2xl border border-gray-800 flex flex-col overflow-hidden">
             {selectedReply && thread ? (
               <>
                 {/* Header */}
-                <div className="p-5 border-b border-gray-100 flex items-center justify-between shrink-0">
+                <div className="p-5 border-b border-gray-800 flex items-center justify-between shrink-0">
                   <div>
-                    <h3 className="font-bold text-gray-900">{selectedReply.restaurant_name || selectedReply.from_name}</h3>
+                    <h3 className="font-bold text-white">{selectedReply.restaurant_name || selectedReply.from_name}</h3>
                     <p className="text-xs text-gray-400">{selectedReply.from_email}</p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -577,7 +577,7 @@ export default function EmailOutreach() {
                     <div key={`reply-${i}`}>
                       <div className="flex justify-start">
                         <div className="max-w-[70%]">
-                          <div className="bg-gray-100 text-gray-900 p-4 rounded-2xl rounded-bl-sm text-sm leading-relaxed whitespace-pre-line">{r.body_text}</div>
+                          <div className="bg-gray-800 text-gray-300 p-4 rounded-2xl rounded-bl-sm text-sm leading-relaxed whitespace-pre-line">{r.body_text}</div>
                           <p className="text-[10px] text-gray-400 mt-1">{r.from_name || r.from_email} • {r.received_at ? new Date(r.received_at).toLocaleString() : ''}</p>
                         </div>
                       </div>
@@ -595,14 +595,14 @@ export default function EmailOutreach() {
                 </div>
 
                 {/* Reply composer */}
-                <div className="p-4 border-t border-gray-100 shrink-0">
+                <div className="p-4 border-t border-gray-800 shrink-0">
                   <div className="flex gap-3">
                     <textarea
                       value={replyText}
                       onChange={e => setReplyText(e.target.value)}
                       rows={3}
                       placeholder="Type your reply..."
-                      className="flex-1 border border-gray-200 rounded-xl p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                      className="flex-1 border border-gray-700 rounded-xl p-3 text-sm text-gray-200 bg-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                     />
                     <button
                       onClick={sendReplyMessage}
@@ -630,15 +630,15 @@ export default function EmailOutreach() {
       {tab === 'accounts' && (
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-bold text-lg text-gray-900">Sending Domains & Account Health</h2>
+            <h2 className="font-bold text-lg text-white">Sending Domains & Account Health</h2>
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             {domains.map((d, i) => (
-              <div key={i} className={`bg-white rounded-2xl border p-6 ${d.status === 'warming' ? 'border-amber-200 border-2' : 'border-gray-100'}`}>
+              <div key={i} className={`bg-gray-900 rounded-2xl border p-6 ${d.status === 'warming' ? 'border-amber-500/30 border-2' : 'border-gray-800'}`}>
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="font-bold text-gray-900 text-lg">{d.domain}</h3>
+                    <h3 className="font-bold text-white text-lg">{d.domain}</h3>
                     <p className="text-xs text-gray-400">{d.status === 'warming' ? `Warming — Day ${d.warmup_day || 0}` : 'Verified'}</p>
                   </div>
                   <StatusBadge status={d.status === 'active' ? 'active' : d.status} />
@@ -651,7 +651,7 @@ export default function EmailOutreach() {
                       <span className="flex items-center gap-2">
                         <i className={`fas ${ok ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-400'}`} /> {name}
                       </span>
-                      <span className={ok ? 'text-green-600 font-medium' : 'text-red-400'}>
+                      <span className={ok ? 'text-green-400 font-medium' : 'text-red-400'}>
                         {ok ? 'Verified' : 'Missing'}
                       </span>
                     </div>
@@ -662,9 +662,9 @@ export default function EmailOutreach() {
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">ACCOUNTS ({d.accounts?.length || 0})</p>
                 <div className="space-y-2">
                   {(d.accounts || []).map((a, j) => (
-                    <div key={j} className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                    <div key={j} className="flex items-center justify-between p-2.5 bg-gray-800 rounded-lg">
                       <div>
-                        <p className="text-xs font-medium text-gray-900">{a.email}</p>
+                        <p className="text-xs font-medium text-white">{a.email}</p>
                         <p className="text-[10px] text-gray-400">{a.sent_today || 0}/{a.daily_limit || 30} sent today</p>
                       </div>
                       <HealthScore score={a.health_score || 50} />
@@ -672,7 +672,7 @@ export default function EmailOutreach() {
                   ))}
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+                <div className="mt-4 pt-4 border-t border-gray-800 text-center">
                   <p className="text-xs text-gray-400">{d.sent_today || 0} / {d.max_daily_limit || 150} daily capacity</p>
                 </div>
               </div>
@@ -691,7 +691,7 @@ export default function EmailOutreach() {
       {tab === 'templates' && (
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-bold text-lg text-gray-900">Email Templates</h2>
+            <h2 className="font-bold text-lg text-white">Email Templates</h2>
             <div className="flex gap-2">
               <button onClick={seedTemplates} className="px-4 py-2 rounded-xl text-xs font-bold border border-purple-200 text-purple-700 hover:bg-purple-50">
                 <i className="fas fa-sparkles mr-1" /> Seed Defaults
@@ -701,10 +701,10 @@ export default function EmailOutreach() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {templates.map((t, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6">
+              <div key={i} className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="font-bold text-gray-900">{t.name}</h3>
+                    <h3 className="font-bold text-white">{t.name}</h3>
                     <p className="text-xs text-gray-400">{t.category} • Step {t.step_number}</p>
                   </div>
                   <div className="flex gap-2">
@@ -715,11 +715,11 @@ export default function EmailOutreach() {
                       <span className="px-2 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold rounded">{(t.open_rate * 100).toFixed(0)}% open</span>
                     )}
                     {t.angle && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold rounded">{t.angle.replace('_', ' ')}</span>
+                      <span className="px-2 py-1 bg-gray-800 text-gray-400 text-[10px] font-bold rounded">{t.angle.replace('_', ' ')}</span>
                     )}
                   </div>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4 text-xs text-gray-600 leading-relaxed font-mono">
+                <div className="bg-gray-800 rounded-xl p-4 text-xs text-gray-400 leading-relaxed font-mono">
                   <p className="text-gray-400 mb-2">Subject: {t.subject}</p>
                   <p className="whitespace-pre-line line-clamp-6">{t.body_text || t.body_html?.replace(/<[^>]+>/g, '')}</p>
                 </div>
@@ -744,12 +744,12 @@ export default function EmailOutreach() {
       {/* ═══════════════════════════ ANALYTICS ═══════════════════════════ */}
       {tab === 'analytics' && (
         <div>
-          <h2 className="font-bold text-lg text-gray-900 mb-6">Outreach Analytics</h2>
+          <h2 className="font-bold text-lg text-white mb-6">Outreach Analytics</h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             {/* Funnel */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Outreach Funnel — 30 Days</h3>
+            <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
+              <h3 className="font-bold text-white mb-4">Outreach Funnel — 30 Days</h3>
               <div className="space-y-2">
                 {funnel.map((f, i) => {
                   const maxCount = Math.max(...funnel.map(x => x.count), 1)
@@ -758,7 +758,7 @@ export default function EmailOutreach() {
                   return (
                     <div key={i} className="flex items-center gap-3">
                       <span className="text-xs text-gray-500 w-28 text-right shrink-0">{f.stage}</span>
-                      <div className="flex-1 bg-gray-100 rounded-full h-6 relative">
+                      <div className="flex-1 bg-gray-800 rounded-full h-6 relative">
                         <div className="h-full rounded-full flex items-center px-3" style={{ width: `${Math.max(pct, 8)}%`, background: colors[i] || '#e5e7eb' }}>
                           <span className="text-[10px] font-bold text-white">{f.count.toLocaleString()}</span>
                         </div>
@@ -770,12 +770,12 @@ export default function EmailOutreach() {
             </div>
 
             {/* Sentiment */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Reply Sentiment</h3>
+            <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
+              <h3 className="font-bold text-white mb-4">Reply Sentiment</h3>
               {sentiment ? (
                 <div className="space-y-3">
                   <div className="text-center mb-4">
-                    <span className="text-4xl font-black text-gray-900">{sentiment.total_replies || 0}</span>
+                    <span className="text-4xl font-black text-white">{sentiment.total_replies || 0}</span>
                     <span className="text-sm text-gray-400 ml-2">total replies</span>
                   </div>
                   {Object.entries(sentiment.sentiment || {}).map(([cls, count], i) => {
@@ -784,7 +784,7 @@ export default function EmailOutreach() {
                     return (
                       <div key={i} className="flex items-center gap-3">
                         <span className={`text-xs font-bold w-28 text-right ${s.text}`}>{s.label}</span>
-                        <div className="flex-1 bg-gray-100 rounded-full h-5">
+                        <div className="flex-1 bg-gray-800 rounded-full h-5">
                           <div className={`h-full rounded-full ${s.bg} flex items-center px-2`} style={{ width: `${Math.max(pct, 5)}%` }}>
                             <span className={`text-[10px] font-bold ${s.text}`}>{count}</span>
                           </div>
@@ -801,13 +801,13 @@ export default function EmailOutreach() {
           </div>
 
           {/* Daily Performance */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <h3 className="font-bold text-gray-900 mb-4">Daily Performance — 14 Days</h3>
+          <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
+            <h3 className="font-bold text-white mb-4">Daily Performance — 14 Days</h3>
             {daily.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-100">
+                    <tr className="border-b border-gray-800">
                       {['Date', 'Sent', 'Delivered', 'Opened', 'Replied', 'Bounced'].map((h, i) => (
                         <th key={i} className="py-2 px-3 text-xs font-bold text-gray-400 text-left">{h}</th>
                       ))}
@@ -815,10 +815,10 @@ export default function EmailOutreach() {
                   </thead>
                   <tbody>
                     {daily.map((d, i) => (
-                      <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
+                      <tr key={i} className="border-b border-gray-50 hover:bg-gray-800">
                         <td className="py-2 px-3 text-xs text-gray-600">{d.date}</td>
                         <td className="py-2 px-3 font-bold">{d.sent}</td>
-                        <td className="py-2 px-3 text-green-600">{d.delivered}</td>
+                        <td className="py-2 px-3 text-green-400">{d.delivered}</td>
                         <td className="py-2 px-3 text-blue-600">{d.opened}</td>
                         <td className="py-2 px-3 text-emerald-600 font-bold">{d.replied}</td>
                         <td className="py-2 px-3 text-red-500">{d.bounced}</td>
@@ -837,10 +837,10 @@ export default function EmailOutreach() {
       {/* ═══════════════════════════ NEW CAMPAIGN MODAL ═══════════════════════════ */}
       {showNewCampaign && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowNewCampaign(false)}>
-          <div className="bg-white rounded-2xl w-full max-w-xl mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white rounded-t-2xl z-10">
-              <h2 className="text-lg font-bold text-gray-900">New Outreach Campaign</h2>
-              <button onClick={() => setShowNewCampaign(false)} className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center">
+          <div className="bg-gray-900 rounded-2xl w-full max-w-xl mx-4 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="p-6 border-b border-gray-800 flex justify-between items-center sticky top-0 bg-gray-900 rounded-t-2xl z-10">
+              <h2 className="text-lg font-bold text-white">New Outreach Campaign</h2>
+              <button onClick={() => setShowNewCampaign(false)} className="w-8 h-8 rounded-full hover:bg-gray-800 flex items-center justify-center">
                 <i className="fas fa-xmark text-gray-400" />
               </button>
             </div>
@@ -850,7 +850,7 @@ export default function EmailOutreach() {
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Campaign Name</label>
                 <input type="text" value={newCampaign.name} onChange={e => setNewCampaign({ ...newCampaign, name: e.target.value })}
                   placeholder="e.g. Nottingham Curry Houses Q1"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  className="w-full border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-200 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 />
               </div>
               {/* City + Cuisine */}
@@ -858,7 +858,7 @@ export default function EmailOutreach() {
                 <div>
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">City</label>
                   <select value={newCampaign.city} onChange={e => setNewCampaign({ ...newCampaign, city: e.target.value })}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full border border-gray-700 rounded-xl px-4 py-3 text-sm bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   >
                     {['Nottingham', 'Birmingham', 'Manchester', 'London', 'Sheffield', 'Cardiff'].map(c => <option key={c}>{c}</option>)}
                   </select>
@@ -866,7 +866,7 @@ export default function EmailOutreach() {
                 <div>
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Cuisine (optional)</label>
                   <select value={newCampaign.cuisine} onChange={e => setNewCampaign({ ...newCampaign, cuisine: e.target.value })}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full border border-gray-700 rounded-xl px-4 py-3 text-sm bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   >
                     <option value="">All Cuisines</option>
                     {['Indian', 'Italian', 'Turkish', 'Chinese', 'British', 'Thai', 'Mexican'].map(c => <option key={c}>{c}</option>)}
@@ -879,11 +879,11 @@ export default function EmailOutreach() {
                 <div className="grid grid-cols-2 gap-3">
                   {ANGLES.map(a => (
                     <label key={a.id} className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all ${
-                      newCampaign.angle === a.id ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 hover:border-gray-300'
+                      newCampaign.angle === a.id ? 'border-emerald-500 bg-emerald-900/20' : 'border-gray-700 hover:border-gray-600'
                     }`}>
                       <input type="radio" name="angle" checked={newCampaign.angle === a.id} onChange={() => setNewCampaign({ ...newCampaign, angle: a.id })} className="accent-emerald-600" />
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{a.label}</p>
+                        <p className="text-sm font-medium text-white">{a.label}</p>
                         <p className="text-[10px] text-gray-400">{a.desc}</p>
                       </div>
                     </label>
@@ -901,12 +901,12 @@ export default function EmailOutreach() {
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" checked={newCampaign.ai_personalisation} onChange={e => setNewCampaign({ ...newCampaign, ai_personalisation: e.target.checked })} className="sr-only peer" />
-                  <div className="w-9 h-5 bg-gray-200 peer-checked:bg-purple-500 rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                  <div className="w-9 h-5 bg-gray-700 peer-checked:bg-purple-500 rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                 </label>
               </div>
             </div>
-            <div className="p-6 border-t border-gray-100 flex justify-between items-center sticky bottom-0 bg-white rounded-b-2xl">
-              <button onClick={() => setShowNewCampaign(false)} className="px-6 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">Cancel</button>
+            <div className="p-6 border-t border-gray-800 flex justify-between items-center sticky bottom-0 bg-gray-900 rounded-b-2xl">
+              <button onClick={() => setShowNewCampaign(false)} className="px-6 py-2.5 border border-gray-700 rounded-xl text-sm font-medium text-gray-400 hover:bg-gray-800">Cancel</button>
               <button onClick={createCampaign} disabled={creating || !newCampaign.name.trim()} className="px-6 py-2.5 bg-emerald-700 text-white rounded-xl text-sm font-bold hover:bg-emerald-800 disabled:bg-gray-300">
                 {creating ? <><i className="fas fa-spinner fa-spin mr-2" />Creating...</> : <><i className="fas fa-rocket mr-1" /> Create Campaign</>}
               </button>

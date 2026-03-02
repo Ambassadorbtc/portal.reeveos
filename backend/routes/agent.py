@@ -249,20 +249,23 @@ async def run_task_manually(req: ManualTaskRequest):
 @router.post("/ask")
 async def ask_agent(req: AgentQuery):
     """Ask the agent a question — it can use tools to gather data and answer."""
-    from agent.runner import run_agent, MODEL_SONNET
-    from agent.tools.all_tools import register_all_tools, TOOL_REGISTRY
-    
-    if not TOOL_REGISTRY:
-        register_all_tools()
-    
-    result = await run_agent(
-        task=req.question,
-        tools=req.tools,
-        model=MODEL_SONNET,
-        max_turns=8,
-        task_type="manual_query",
-    )
-    return result
+    try:
+        from agent.runner import run_agent, MODEL_SONNET
+        from agent.tools.all_tools import register_all_tools, TOOL_REGISTRY
+        
+        if not TOOL_REGISTRY:
+            register_all_tools()
+        
+        result = await run_agent(
+            task=req.question,
+            tools=req.tools,
+            model=MODEL_SONNET,
+            max_turns=8,
+            task_type="manual_query",
+        )
+        return result
+    except Exception as e:
+        return {"result": f"Agent error: {str(e)}", "tool_calls": [], "tokens_used": 0, "duration": 0}
 
 
 # ─── Sales Pipeline ─── #

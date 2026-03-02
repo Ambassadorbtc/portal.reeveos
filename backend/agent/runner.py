@@ -88,6 +88,7 @@ Always explain what you did and why. If something needs human attention, say so 
     messages = [{"role": "user", "content": task}]
     all_tool_calls = []
     total_tokens = 0
+    text_blocks = []
 
     async with httpx.AsyncClient(timeout=60.0) as client:
         for turn in range(max_turns):
@@ -112,10 +113,12 @@ Always explain what you did and why. If something needs human attention, say so 
                 )
             except Exception as e:
                 logger.error(f"Claude API error: {e}")
+                text_blocks = [f"API connection error: {str(e)}"]
                 break
 
             if resp.status_code != 200:
                 logger.error(f"Claude API {resp.status_code}: {resp.text[:300]}")
+                text_blocks = [f"Claude API returned {resp.status_code}. Check your ANTHROPIC_API_KEY in .env"]
                 break
 
             data = resp.json()

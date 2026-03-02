@@ -29,7 +29,6 @@ import Orders from './pages/dashboard/Orders'
 import Clients from './pages/dashboard/Clients'
 import Notifications from './pages/dashboard/Notifications'
 import Marketing from './pages/dashboard/Marketing'
-import Studio from './pages/dashboard/Studio'
 import Payments from './pages/dashboard/Payments'
 import Help from './pages/dashboard/Help'
 
@@ -140,7 +139,6 @@ const App = () => {
               <Route path="analytics" element={<Analytics />} />
               <Route path="payments" element={<Payments />} />
               <Route path="marketing" element={<Marketing />} />
-              <Route path="studio" element={<Studio />} />
               <Route path="settings" element={<Settings />} />
               <Route path="help" element={<Help />} />
               {/* EPOS pages */}

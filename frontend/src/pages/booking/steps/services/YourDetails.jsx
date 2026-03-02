@@ -49,7 +49,7 @@ const YourDetails = ({ data, onCreate, onBack }) => {
         notes: notes.trim() || undefined,
       })
       if (res?.booking?.id) {
-        window.location.href = `/book/${slug}/confirm/${res.booking.id}`
+        window.location.href = `/${slug}/confirm/${res.booking.id}`
       }
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')

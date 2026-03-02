@@ -127,8 +127,8 @@ export default function AdminBusinesses() {
                       </a>
                     )}
                     {b.slug && (
-                      <a href={`/book/${b.slug}`} target="_blank" rel="noopener" className="text-xs text-emerald-400 flex items-center gap-1 hover:underline">
-                        <ExternalLink size={10} /> /book/{b.slug}
+                      <a href={`https://book.rezvo.app/${b.slug}`} target="_blank" rel="noopener" className="text-xs text-emerald-400 flex items-center gap-1 hover:underline">
+                        <ExternalLink size={10} /> book.rezvo.app/{b.slug}
                       </a>
                     )}
                   </div>

@@ -63,8 +63,35 @@ import Onboarding from './pages/onboarding/Onboarding'
 import BookingFlow from './pages/booking/BookingFlow'
 import BookingConfirmation from './pages/booking/BookingConfirmation'
 import BookingManage from './pages/booking/BookingManage'
+import { isBookingDomain } from './utils/domain'
+
+/** Redirect old portal.rezvo.app/book/ URLs → book.rezvo.app */
+const BookingRedirect = () => {
+  const path = window.location.pathname.replace(/^\/book/, '')
+  window.location.replace(`https://book.rezvo.app${path}`)
+  return null
+}
 
 const App = () => {
+  /* If we're on book.rezvo.app, render ONLY booking routes at root level */
+  if (isBookingDomain()) {
+    return (
+      <Router>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/:businessSlug" element={<BookingFlow />} />
+          <Route path="/:businessSlug/confirm/:bookingId" element={<BookingConfirmation />} />
+          <Route path="/:businessSlug/manage/:bookingId" element={<BookingManage />} />
+          <Route path="/" element={
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontFamily: 'Figtree, sans-serif' }}>
+              <p style={{ color: '#888' }}>Enter a restaurant name to book — e.g. book.rezvo.app/restaurant-name</p>
+            </div>
+          } />
+        </Routes>
+      </Router>
+    )
+  }
+
   return (
     <>
     <Router>
@@ -136,10 +163,8 @@ const App = () => {
               <Route path="settings" element={<AdminSettings />} />
             </Route>
 
-            {/* Public booking flow */}
-            <Route path="/book/:businessSlug" element={<BookingFlow />} />
-            <Route path="/book/:businessSlug/confirm/:bookingId" element={<BookingConfirmation />} />
-            <Route path="/book/:businessSlug/manage/:bookingId" element={<BookingManage />} />
+            {/* Old /book/ routes → redirect to book.rezvo.app */}
+            <Route path="/book/*" element={<BookingRedirect />} />
 
             {/* Root → dashboard (marketing is served as static HTML by Nginx) */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />

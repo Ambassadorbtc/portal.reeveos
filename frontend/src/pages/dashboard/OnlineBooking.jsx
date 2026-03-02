@@ -40,7 +40,7 @@ const OnlineBooking = () => {
   const imageBase = API_BASE_URL
   const slug = business?.slug || data?.share?.slug || 'your-business'
   const { baseUrl } = getDomainConfig()
-  const bookingUrl = `${baseUrl}/book/${slug}`
+  const bookingUrl = `https://book.rezvo.app/${slug}`
 
   const hasDeposits = isFeatureUnlocked(tier, 'growth')
   const hasIntegrations = isFeatureUnlocked(tier, 'scale')
@@ -648,8 +648,9 @@ const EmbedModal = ({ businessId, accentColour, onClose, onCopy }) => {
     api.get(`/booking-page/${businessId}/embed`).then(setEmbed)
   }, [businessId])
   const { baseUrl: base } = getDomainConfig()
-  const iframeCode = embed?.embedCode || `<iframe src="${base}/book/your-business" width="100%" height="600" frameborder="0"></iframe>`
-  const buttonCode = embed?.buttonCode || `<a href="${base}/book/your-business" style="background:${accentColour};color:#FEFBF4;padding:12px 24px;border-radius:10px;">Book Now</a>`
+  const bookBase = 'https://book.rezvo.app'
+  const iframeCode = embed?.embedCode || `<iframe src="${bookBase}/your-business" width="100%" height="600" frameborder="0"></iframe>`
+  const buttonCode = embed?.buttonCode || `<a href="${bookBase}/your-business" style="background:${accentColour};color:#FEFBF4;padding:12px 24px;border-radius:10px;">Book Now</a>`
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" onClick={onClose}>
       <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>

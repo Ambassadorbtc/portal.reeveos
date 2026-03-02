@@ -126,7 +126,7 @@ const BookingConfirmation = () => {
             <MapPin className="w-3.5 h-3.5" /> Get Directions
           </a>
         )}
-        <Link to={`/book/${businessSlug}/manage/${bookingId}`}
+        <Link to={`/${businessSlug}/manage/${bookingId}`}
           className="block w-full py-2.5 text-center text-xs text-gray-500 hover:text-[#111111] transition-colors">
           Modify or Cancel Booking
         </Link>

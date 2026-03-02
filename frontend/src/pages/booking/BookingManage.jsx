@@ -68,7 +68,7 @@ const BookingManage = () => {
         </div>
         <h1 className="text-lg font-semibold text-[#111111]">Booking Cancelled</h1>
         <p className="text-xs text-gray-500 mt-1.5">Your booking has been cancelled successfully.</p>
-        <Link to={`/book/${businessSlug}`}
+        <Link to={`/${businessSlug}`}
           className="inline-flex items-center gap-2 mt-4 px-5 py-2 rounded-xl bg-[#111111] text-white font-medium text-xs hover:bg-[#0a0a0a] transition-colors">
           <RotateCcw className="w-3.5 h-3.5" /> Book again
         </Link>
@@ -82,7 +82,7 @@ const BookingManage = () => {
   return (
     <div className="min-h-screen bg-[#FEFBF4] flex items-start justify-center" style={{ fontFamily: "'Figtree', sans-serif" }}>
     <div className="w-full sm:max-w-[400px] sm:my-6 sm:rounded-2xl sm:border sm:border-gray-200 sm:shadow-xl sm:bg-[#FEFBF4] sm:overflow-hidden px-4 pt-4 pb-8">
-      <Link to={`/book/${businessSlug}/confirm/${bookingId}`}
+      <Link to={`/${businessSlug}/confirm/${bookingId}`}
         className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#111111] mb-4 transition-colors">
         <ArrowLeft className="w-3.5 h-3.5" /> Back to confirmation
       </Link>
@@ -117,7 +117,7 @@ const BookingManage = () => {
 
       {/* Actions */}
       <div className="space-y-2">
-        <Link to={`/book/${businessSlug}`}
+        <Link to={`/${businessSlug}`}
           className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[#111111] text-[#111111] font-medium text-xs hover:bg-[#111111] hover:text-white transition-all">
           <RotateCcw className="w-3.5 h-3.5" /> Reschedule Booking
         </Link>

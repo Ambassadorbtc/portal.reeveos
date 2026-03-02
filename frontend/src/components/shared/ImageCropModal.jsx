@@ -87,7 +87,7 @@ const ImageCropModal = ({
         </div>
 
         {/* Crop Area */}
-        <div className="relative w-full" style={{ height: 420, background: '#1a1a1a' }}>
+        <div className="relative w-full" style={{ height: 420, background: '#1a1a1a', touchAction: 'none' }}>
           <Cropper
             image={imageSrc}
             crop={crop}
@@ -98,11 +98,15 @@ const ImageCropModal = ({
             showGrid={cropShape === 'rect'}
             minZoom={0.5}
             maxZoom={5}
-            objectFit="horizontal-cover"
+            objectFit="contain"
             restrictPosition={false}
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}
+            style={{
+              containerStyle: { touchAction: 'none' },
+              mediaStyle: { touchAction: 'none' },
+            }}
           />
         </div>
 

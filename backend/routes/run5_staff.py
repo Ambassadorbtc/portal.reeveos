@@ -61,7 +61,7 @@ def _is_on_holiday(staff):
 async def list_staff(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     staff_list = business.get("staff", [])
     today_str = date.today().isoformat()
 
@@ -117,7 +117,7 @@ async def list_staff(business_id: str, tenant: TenantContext = Depends(verify_bu
 async def create_staff(business_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     staff_list = [s for s in business.get("staff", []) if s.get("active", True)]
     limit = _staff_limit(business.get("tier") or business.get("rezvo_tier"))
     if len(staff_list) >= limit:
@@ -170,7 +170,7 @@ async def create_staff(business_id: str, payload: dict = Body(...), tenant: Tena
 async def update_staff(business_id: str, staff_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     staff_list = business.get("staff", [])
     idx = next((i for i, s in enumerate(staff_list) if s.get("id") == staff_id), None)
     if idx is None:
@@ -195,7 +195,7 @@ async def update_staff(business_id: str, staff_id: str, payload: dict = Body(...
 async def delete_staff(business_id: str, staff_id: str, confirm: bool = Query(False), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     if staff_list[idx].get("permissions") == "owner":
         raise HTTPException(400, "Cannot delete the owner")
 
@@ -232,7 +232,7 @@ async def delete_staff(business_id: str, staff_id: str, confirm: bool = Query(Fa
 async def update_hours(business_id: str, staff_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     staff_list = business.get("staff", [])
     idx = next((i for i, s in enumerate(staff_list) if s.get("id") == staff_id), None)
     if idx is None:
@@ -253,7 +253,7 @@ async def update_hours(business_id: str, staff_id: str, payload: dict = Body(...
 async def add_time_off(business_id: str, staff_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     staff_list = business.get("staff", [])
     idx = next((i for i, s in enumerate(staff_list) if s.get("id") == staff_id), None)
     if idx is None:
@@ -308,7 +308,7 @@ async def add_time_off(business_id: str, staff_id: str, payload: dict = Body(...
 async def remove_time_off(business_id: str, staff_id: str, time_off_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     staff_list = business.get("staff", [])
     idx = next((i for i, s in enumerate(staff_list) if s.get("id") == staff_id), None)
     if idx is None:
@@ -329,7 +329,7 @@ async def reinvite_staff(business_id: str, staff_id: str, tenant: TenantContext 
     """Resend invite email to pending staff member."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     staff_list = business.get("staff", [])
     idx = next((i for i, s in enumerate(staff_list) if s.get("id") == staff_id), None)
     if idx is None:
@@ -359,7 +359,7 @@ async def upload_staff_avatar(
     """Upload staff avatar photo."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
 
     # Validate file — check MIME type AND magic bytes
     allowed = {"image/jpeg", "image/png", "image/webp", "image/gif"}

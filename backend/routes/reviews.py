@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, status, Depends, Query
+from fastapi import APIRouter, HTTPException, status, Depends, Query, Request
+from middleware.rate_limit import limiter
 from database import get_database
 from models.review import ReviewCreate, ReviewUpdate, ReviewResponse
 from middleware.auth import get_current_user, get_current_owner
@@ -9,7 +10,9 @@ router = APIRouter(prefix="/reviews", tags=["reviews"])
 
 
 @router.post("/", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/minute")
 async def create_review(
+    request: Request,
     review_data: ReviewCreate,
     current_user: dict = Depends(get_current_user)
 ):

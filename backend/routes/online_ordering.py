@@ -4,7 +4,8 @@ ReeveOS EPOS — Online Ordering & Pay-at-Table API
 Consumer-facing ordering: QR table ordering, online takeaway/delivery,
 pay-at-table, digital receipts, order tracking.
 """
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import APIRouter, Request
+from middleware.rate_limit import limiter, HTTPException, Body
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 from datetime import datetime, timedelta
@@ -73,7 +74,9 @@ async def qr_table_landing(business_id: str, table_number: str):
 
 
 @router.post("/qr/{business_id}/table/{table_number}/order")
+@limiter.limit("10/minute")
 async def qr_place_order(
+    request: Request,
     business_id: str,
     table_number: str,
     items: List[Dict] = Body(...),
@@ -377,7 +380,9 @@ async def public_menu(business_id: str):
 
 
 @router.post("/order/{business_id}")
+@limiter.limit("10/minute")
 async def place_online_order(
+    request: Request,
     business_id: str,
     items: List[Dict] = Body(...),
     order_type: str = Body(...),  # delivery, collection

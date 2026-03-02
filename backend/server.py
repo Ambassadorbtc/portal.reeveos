@@ -11,6 +11,7 @@ import logging
 import database
 from middleware.cors import setup_cors
 from middleware.rate_limit import limiter
+from middleware.security import SecurityMiddleware
 from routes import (
     auth_router,
     book_router,
@@ -100,6 +101,7 @@ app = FastAPI(
 )
 
 setup_cors(app)
+app.add_middleware(SecurityMiddleware)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 

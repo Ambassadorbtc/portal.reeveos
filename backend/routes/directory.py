@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
+from middleware.rate_limit import limiter
 from database import get_database
 from typing import Optional, List
 from models.business import BusinessCategory
@@ -127,7 +128,8 @@ async def get_featured_businesses(
 
 
 @router.post("/notify/{business_id}")
-async def notify_business(business_id: str):
+@limiter.limit("5/minute")
+async def notify_business(request: Request, business_id: str):
     db = get_database()
     
     business = await db.businesses.find_one({"_id": business_id})

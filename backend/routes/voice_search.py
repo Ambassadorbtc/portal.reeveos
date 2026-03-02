@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Request
+from middleware.rate_limit import limiter, HTTPException
 from pydantic import BaseModel
 from datetime import datetime, timedelta
 from typing import Optional
@@ -27,7 +28,8 @@ class VoiceSearchResponse(BaseModel):
 
 
 @router.post("/parse", response_model=VoiceSearchResponse)
-async def parse_voice_search(request: VoiceSearchRequest):
+@limiter.limit("10/minute")
+async def parse_voice_search(request: Request, voice_data: VoiceSearchRequest):
     """
     Parse voice search transcript using Claude Haiku to extract structured booking intent.
     
@@ -87,7 +89,7 @@ Output: {{"cuisine": "Japanese", "location": null, "guests": 2, "date": "next Sa
             messages=[
                 {
                     "role": "user",
-                    "content": f"Transcript: {request.transcript}\nVertical context: {request.vertical}"
+                    "content": f"Transcript: {voice_data.transcript}\nVertical context: {voice_data.vertical}"
                 }
             ]
         )

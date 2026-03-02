@@ -490,6 +490,14 @@ async def create_booking(request: Request, business_slug: str, payload: dict):
     auto_confirm = bp_s.get("autoConfirm", bs.get("auto_confirm", True))
     customer = payload.get("customer", {})
 
+    # ── Input validation ──
+    from middleware.validation import sanitise_text, validate_party_size
+    cust_name = sanitise_text(customer.get("name", ""), 100)
+    cust_email = customer.get("email", "").strip().lower()[:254]
+    cust_phone = customer.get("phone", "").strip()[:20]
+    if not cust_name:
+        raise HTTPException(400, "Customer name is required")
+
     # ── Duration (restaurants) ──
     turn_time = bp_s.get("turnTimeMinutes") or bs.get("turn_time_minutes") or DEFAULT_TURN_TIME
     duration = payload.get("duration") or turn_time
@@ -498,6 +506,7 @@ async def create_booking(request: Request, business_slug: str, payload: dict):
 
     # ── Party size ──
     party_size = payload.get("partySize") or 2
+    party_size = validate_party_size(int(party_size))
 
     # ── Allergens (validate against UK 14) ──
     raw_allergens = payload.get("allergens", [])
@@ -577,11 +586,11 @@ async def create_booking(request: Request, business_slug: str, payload: dict):
         "tableId": table_id,
         "tableName": table_name,
         "customer": {
-            "name": customer.get("name", ""),
-            "phone": customer.get("phone", ""),
-            "email": customer.get("email", ""),
+            "name": cust_name,
+            "phone": cust_phone,
+            "email": cust_email,
         },
-        "notes": payload.get("notes"),
+        "notes": sanitise_text(payload.get("notes") or "", 500),
         "occasion": payload.get("occasion"),
         "seatingPreference": payload.get("seatingPreference"),
         "allergens": allergens,

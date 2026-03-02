@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Request
-from middleware.rate_limit import limiter, HTTPException
+from fastapi import APIRouter, Request, HTTPException
+from middleware.rate_limit import limiter
 from pydantic import BaseModel
 from datetime import datetime, timedelta
 from typing import Optional

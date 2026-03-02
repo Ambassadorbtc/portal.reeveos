@@ -4,8 +4,8 @@ ReeveOS EPOS — Online Ordering & Pay-at-Table API
 Consumer-facing ordering: QR table ordering, online takeaway/delivery,
 pay-at-table, digital receipts, order tracking.
 """
-from fastapi import APIRouter, Request
-from middleware.rate_limit import limiter, HTTPException, Body
+from fastapi import APIRouter, Request, HTTPException, Body
+from middleware.rate_limit import limiter
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 from datetime import datetime, timedelta

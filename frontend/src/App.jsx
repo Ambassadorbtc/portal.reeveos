@@ -43,6 +43,7 @@ import AdminUsers from './pages/admin/AdminUsers'
 import AdminBookings from './pages/admin/AdminBookings'
 import AdminDirectory from './pages/admin/AdminDirectory'
 import AdminSubscriptions from './pages/admin/AdminSubscriptions'
+import CommandCentre from './pages/admin/CommandCentre'
 
 import Onboarding from './pages/onboarding/Onboarding'
 
@@ -100,6 +101,7 @@ const App = () => {
             {/* Admin — internal ops portal (PIN protected) */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminOverview />} />
+              <Route path="command-centre" element={<CommandCentre />} />
               <Route path="ai-ops" element={<AdminAIOps />} />
               <Route path="outreach" element={<AdminOutreach />} />
               <Route path="linkedin" element={<AdminLinkedIn />} />

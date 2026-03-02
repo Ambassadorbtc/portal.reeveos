@@ -5,7 +5,7 @@ import {
   Globe, FileText, Settings, LogOut, ChevronLeft, ChevronRight,
   Zap, Building2, CalendarCheck, MessageSquare, Star, AlertTriangle,
   CreditCard, ScrollText, Bug, Megaphone, ShieldCheck, Linkedin,
-  Package, TrendingUp, Search
+  Package, TrendingUp, Search, Crosshair
 } from 'lucide-react'
 
 const NAV_SECTIONS = [
@@ -13,6 +13,7 @@ const NAV_SECTIONS = [
     label: 'Operations',
     items: [
       { id: 'overview', label: 'Overview', icon: LayoutDashboard, path: '/admin' },
+      { id: 'command-centre', label: 'Command Centre', icon: Crosshair, path: '/admin/command-centre' },
       { id: 'ai-ops', label: 'AI Ops Centre', icon: Bot, path: '/admin/ai-ops' },
       { id: 'outreach', label: 'Email Outreach', icon: Send, path: '/admin/outreach' },
       { id: 'pipeline', label: 'Sales Pipeline', icon: TrendingUp, path: '/admin/pipeline' },
@@ -122,7 +123,7 @@ export default function AdminLayout() {
 
   // ─── Admin Shell ─── //
   return (
-    <div className="flex h-screen bg-gray-950 overflow-hidden">
+    <div className="admin-shell flex h-screen bg-gray-950 overflow-hidden">
       {/* Sidebar */}
       <aside className={`${collapsed ? 'w-16' : 'w-56'} bg-gray-900 border-r border-gray-800 flex flex-col transition-all duration-200 shrink-0`}>
         {/* Brand */}

@@ -4,15 +4,14 @@ Rezvo Agent API Routes
 Dashboard endpoints for monitoring the AI operations layer.
 Manual task triggers, approval queue, audit log, stats.
 """
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime, timedelta
 from bson import ObjectId
 from database import get_database
-from middleware.auth import get_current_owner
 
-router = APIRouter(prefix="/agent", tags=["AI Agent"], dependencies=[Depends(get_current_owner)])
+router = APIRouter(prefix="/agent", tags=["AI Agent"])
 
 
 # ─── Models ─── #

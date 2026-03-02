@@ -8,7 +8,7 @@ Follows Lara Acosta's proven LinkedIn playbook:
 - 8-word hooks, rehooks, broad→narrow→niche structure
 - Authority jacking + trend jacking + strategic arbitrage
 """
-from fastapi import APIRouter, HTTPException, Body, Depends
+from fastapi import APIRouter, HTTPException, Body
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, timedelta
@@ -18,9 +18,8 @@ import random
 from bson import ObjectId
 from config import Settings
 from database import get_database
-from middleware.auth import get_current_owner
 
-router = APIRouter(prefix="/linkedin", tags=["linkedin"], dependencies=[Depends(get_current_owner)])
+router = APIRouter(prefix="/linkedin", tags=["linkedin"])
 logger = logging.getLogger(__name__)
 settings = Settings()
 

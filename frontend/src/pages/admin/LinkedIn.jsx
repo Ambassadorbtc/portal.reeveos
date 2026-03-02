@@ -202,9 +202,9 @@ const LinkedIn = () => {
   const postedPosts = posts.filter(p => p.status === 'posted')
 
   return (
-    <div>
+    <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-5">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-3">
@@ -228,20 +228,20 @@ const LinkedIn = () => {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
           {[
             { label: 'Drafts', value: draftPosts.length, color: '#f59e0b', icon: 'fa-pen' },
             { label: 'Approved', value: approvedPosts.length, color: '#10b981', icon: 'fa-check' },
             { label: 'Posted', value: postedPosts.length, color: '#0A66C2', icon: 'fa-paper-plane' },
             { label: 'Total Impressions', value: analytics?.performance?.total_impressions?.toLocaleString() || '0', color: '#8b5cf6', icon: 'fa-eye' },
           ].map((s, i) => (
-            <div key={i} className="bg-gray-900 rounded-xl border border-gray-800 p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: s.color + '15' }}>
-                <i className={`fa-solid ${s.icon}`} style={{ color: s.color }} />
+            <div key={i} className="bg-gray-900 rounded-xl border border-gray-800 p-3 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: s.color + '15' }}>
+                <i className={`fa-solid ${s.icon} text-sm`} style={{ color: s.color }} />
               </div>
               <div>
-                <div className="text-xl font-bold text-white">{s.value}</div>
-                <div className="text-xs text-gray-500">{s.label}</div>
+                <div className="text-lg font-bold text-white">{s.value}</div>
+                <div className="text-[10px] text-gray-500">{s.label}</div>
               </div>
             </div>
           ))}
@@ -249,7 +249,7 @@ const LinkedIn = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-800 rounded-xl p-1 mb-6 overflow-x-auto">
+      <div className="flex gap-1 bg-gray-800 rounded-xl p-1 mb-4 overflow-x-auto">
         {TABS.map(t => (
           <button
             key={t.id}
@@ -281,10 +281,10 @@ const LinkedIn = () => {
           </div>
 
           {draftPosts.length === 0 && approvedPosts.length === 0 ? (
-            <div className="bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-700 p-12 text-center">
-              <i className="fa-solid fa-calendar-plus text-4xl text-gray-300 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-300 mb-2">No posts queued yet</h3>
-              <p className="text-gray-500 mb-6">Hit "Generate This Week" to create 4 posts following the proven 4-3-2-1 system</p>
+            <div className="bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-700 p-8 text-center">
+              <i className="fa-solid fa-calendar-plus text-3xl text-gray-500 mb-3" />
+              <h3 className="text-sm font-semibold text-gray-300 mb-1">No posts queued yet</h3>
+              <p className="text-xs text-gray-500 mb-4">Hit "Generate This Week" to create 4 posts following the proven 4-3-2-1 system</p>
               <button
                 onClick={generateWeek}
                 disabled={generating}
@@ -416,7 +416,7 @@ const LinkedIn = () => {
 
           {/* Posting Guide */}
           <div className="mt-6 bg-blue-900/20 rounded-xl p-5 border border-blue-700/40">
-            <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+            <h3 className="font-semibold text-blue-400 mb-2 flex items-center gap-2">
               <i className="fa-solid fa-lightbulb" /> Posting Playbook
             </h3>
             <div className="grid sm:grid-cols-2 gap-3 text-sm text-blue-400">

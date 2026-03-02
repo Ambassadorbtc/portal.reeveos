@@ -1,0 +1,19 @@
+[Unit]
+Description=Rezvo Backend API
+After=network.target mongod.service
+
+[Service]
+Type=simple
+User=rezvo
+Group=rezvo
+WorkingDirectory=/opt/rezvo-app/backend
+EnvironmentFile=-/opt/rezvo-app/backend/.env
+Environment=TMPDIR=/opt/rezvo-app/backend/tmp
+Environment=PLAYWRIGHT_BROWSERS_PATH=/opt/rezvo-app/.cache/ms-playwright
+ExecStart=/usr/local/bin/uvicorn server:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=10
+PrivateTmp=no
+
+[Install]
+WantedBy=multi-user.target

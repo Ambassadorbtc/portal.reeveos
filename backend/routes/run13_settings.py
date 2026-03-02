@@ -138,7 +138,7 @@ async def get_settings(business_id: str, tenant: TenantContext = Depends(verify_
     """Returns all settings for Run 13 Settings page."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     return _build_settings_response(business)
 
 
@@ -152,7 +152,7 @@ async def update_settings(business_id: str, payload: dict = Body(default={}), te
     """Partial update of business settings."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
 
     updates = {"updated_at": datetime.utcnow()}
     biz = payload.get("business", {})
@@ -215,7 +215,7 @@ async def update_hours(business_id: str, payload: dict = Body(...), tenant: Tena
     """Update opening hours."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     hours = payload.get("openingHours") or payload
     if not isinstance(hours, dict):
         raise HTTPException(400, "openingHours required")
@@ -245,7 +245,7 @@ async def add_special_hours(business_id: str, payload: dict = Body(...), tenant:
     """Add special hours entry."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     date = payload.get("date")
     if not date:
         raise HTTPException(400, "date required")
@@ -270,7 +270,7 @@ async def delete_special_hours(business_id: str, entry_id: str, tenant: TenantCo
     """Remove special hours entry."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     special = [s for s in business.get("specialHours", []) if s.get("id") != entry_id]
     await db.businesses.update_one(
         {"_id": business["_id"]},
@@ -284,7 +284,7 @@ async def update_notifications(business_id: str, payload: dict = Body(...), tena
     """Update notification preferences."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     current = business.get("notifications") or {}
     merged = {**DEFAULT_NOTIFICATIONS, **current, **payload}
     await db.businesses.update_one(
@@ -300,7 +300,7 @@ async def get_subscription(business_id: str, tenant: TenantContext = Depends(ver
     """Current plan details."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     tier = business.get("rezvo_tier", "free")
     plan = PLANS.get(tier, PLANS["free"])
     return {
@@ -322,7 +322,7 @@ async def change_subscription(business_id: str, payload: dict = Body(...), tenan
     """Upgrade/downgrade plan."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     tier = payload.get("tier") or PLAN_TO_TIER.get(payload.get("plan", "")) or payload.get("plan")
     if tier not in PLANS:
         raise HTTPException(400, f"Invalid tier. Use: {list(PLANS.keys())}")
@@ -338,7 +338,7 @@ async def cancel_subscription(business_id: str, tenant: TenantContext = Depends(
     """Cancel at end of billing period."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     await db.businesses.update_one(
         {"_id": business["_id"]},
         {"$set": {"subscription_cancel_at_period_end": True, "updated_at": datetime.utcnow()}},
@@ -378,7 +378,7 @@ async def connect_integration(business_id: str, integration_type: str, tenant: T
             raise HTTPException(500, "Stripe not configured")
         db = get_database()
         sdb = get_scoped_db(tenant.business_id)
-        business = await _get_business(db, business_id, user)
+        business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
         try:
             account = stripe.Account.create(
                 type="standard",
@@ -407,7 +407,7 @@ async def disconnect_integration(business_id: str, integration_type: str, tenant
     """Disconnect integration."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     if integration_type == "stripe":
         await db.businesses.update_one(
             {"_id": business["_id"]},
@@ -423,7 +423,7 @@ async def export_business_data(business_id: str, tenant: TenantContext = Depends
     """Export all business data as ZIP of CSVs."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     bid = business["_id"]
 
     buf = io.BytesIO()
@@ -480,7 +480,7 @@ async def delete_business_soft(
     """Soft-delete business. Requires typing business name to confirm."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     name_to_check = (confirm_name or payload.get("confirmName") or payload.get("confirm_name") or "").strip()
     if name_to_check != business.get("name", ""):
         raise HTTPException(400, "Business name must match to confirm deletion")

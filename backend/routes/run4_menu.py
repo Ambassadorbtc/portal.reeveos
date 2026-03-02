@@ -38,7 +38,7 @@ def _gen_id():
 async def get_menu_grouped(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     menu = business.get("menu", [])
     categories_raw = business.get("categories", [])
 
@@ -80,7 +80,7 @@ async def get_menu_grouped(business_id: str, tenant: TenantContext = Depends(ver
 async def create_menu_item(business_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     name = (payload.get("name") or "").strip()
     if len(name) < 2 or len(name) > 100:
         raise HTTPException(400, "Name must be 2-100 chars")
@@ -119,7 +119,7 @@ async def create_menu_item(business_id: str, payload: dict = Body(...), tenant: 
 async def update_menu_item(business_id: str, item_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     menu = business.get("menu", [])
     idx = next((i for i, m in enumerate(menu) if m.get("id") == item_id), None)
     if idx is None:
@@ -155,7 +155,7 @@ async def update_menu_item(business_id: str, item_id: str, payload: dict = Body(
 async def delete_menu_item(business_id: str, item_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     menu = business.get("menu", [])
     idx = next((i for i, m in enumerate(menu) if m.get("id") == item_id), None)
     if idx is None:
@@ -174,7 +174,7 @@ async def toggle_86(business_id: str, item_id: str, payload: dict = Body(...), t
     """One-tap 86 toggle — critical for kitchen."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     menu = business.get("menu", [])
     idx = next((i for i, m in enumerate(menu) if m.get("id") == item_id), None)
     if idx is None:
@@ -193,7 +193,7 @@ async def toggle_86(business_id: str, item_id: str, payload: dict = Body(...), t
 async def reorder_menu(business_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     category_id = payload.get("categoryId")
     ids = payload.get("serviceIds", []) or payload.get("itemIds", [])
     menu = business.get("menu", [])

@@ -43,7 +43,7 @@ async def get_services_grouped(business_id: str, tenant: TenantContext = Depends
     """Run 4: Services grouped by category."""
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     menu = business.get("menu", [])
     categories_raw = business.get("categories", [])
     staff_list = business.get("staff", [])
@@ -104,7 +104,7 @@ async def get_services_grouped(business_id: str, tenant: TenantContext = Depends
 async def create_service(business_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     name = (payload.get("name") or "").strip()
     if len(name) < 2 or len(name) > 100:
         raise HTTPException(400, "Name must be 2-100 chars")
@@ -147,7 +147,7 @@ async def create_service(business_id: str, payload: dict = Body(...), tenant: Te
 async def update_service(business_id: str, service_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     menu = business.get("menu", [])
     idx = next((i for i, s in enumerate(menu) if s.get("id") == service_id), None)
     if idx is None:
@@ -187,7 +187,7 @@ async def delete_service(
 ):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     menu = business.get("menu", [])
     idx = next((i for i, s in enumerate(menu) if s.get("id") == service_id), None)
     if idx is None:
@@ -218,7 +218,7 @@ async def delete_service(
 async def reorder_services(business_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     category_id = payload.get("categoryId")
     ids = payload.get("serviceIds", [])
     menu = business.get("menu", [])
@@ -240,7 +240,7 @@ async def reorder_services(business_id: str, payload: dict = Body(...), tenant: 
 async def toggle_online(business_id: str, service_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     menu = business.get("menu", [])
     idx = next((i for i, s in enumerate(menu) if s.get("id") == service_id), None)
     if idx is None:
@@ -260,7 +260,7 @@ async def toggle_online(business_id: str, service_id: str, payload: dict = Body(
 async def get_categories(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     return {"categories": business.get("categories", [])}
 
 
@@ -268,7 +268,7 @@ async def get_categories(business_id: str, tenant: TenantContext = Depends(verif
 async def create_category(business_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     name = (payload.get("name") or "").strip()
     if len(name) < 2 or len(name) > 50:
         raise HTTPException(400, "Name must be 2-50 chars")
@@ -289,7 +289,7 @@ async def create_category(business_id: str, payload: dict = Body(...), tenant: T
 async def update_category(business_id: str, category_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     cats = business.get("categories", [])
     idx = next((i for i, c in enumerate(cats) if c.get("id") == category_id), None)
     if idx is None:
@@ -306,7 +306,7 @@ async def update_category(business_id: str, category_id: str, payload: dict = Bo
 async def delete_category(business_id: str, category_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     menu = business.get("menu", [])
     active_in_cat = sum(1 for s in menu if (s.get("categoryId") or s.get("category")) == category_id and s.get("active", True))
     if active_in_cat > 0:

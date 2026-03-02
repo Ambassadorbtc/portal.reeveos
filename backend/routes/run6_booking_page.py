@@ -77,7 +77,7 @@ def _base_url():
 async def get_booking_page(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     slug = business.get("slug", "your-business")
     bp = _merge_defaults(business.get("bookingPage"))
     base = _base_url()
@@ -97,7 +97,7 @@ async def get_booking_page(business_id: str, tenant: TenantContext = Depends(ver
 async def update_booking_page(business_id: str, payload: dict = Body(default={}), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     current = business.get("bookingPage") or {}
     updated = {}
     if payload and "branding" in payload:
@@ -145,7 +145,7 @@ def _save_upload(file: UploadFile, max_size: int, allowed: set, resize_size=None
 async def upload_logo(business_id: str, file: UploadFile = File(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     allowed = {"jpg", "jpeg", "png", "webp", "svg"}
     url = _save_upload(file, 2 * 1024 * 1024, allowed, resize_size=(200, 200))
     bp = business.get("bookingPage") or {}
@@ -163,7 +163,7 @@ async def upload_logo(business_id: str, file: UploadFile = File(...), tenant: Te
 async def upload_cover(business_id: str, file: UploadFile = File(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     allowed = {"jpg", "jpeg", "png", "webp"}
     url = _save_upload(file, 5 * 1024 * 1024, allowed, resize_size=(1200, 400))
     bp = business.get("bookingPage") or {}
@@ -181,10 +181,9 @@ async def upload_cover(business_id: str, file: UploadFile = File(...), tenant: T
 async def get_qr_code(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     slug = business.get("slug", "your-business")
-    base = _base_url()
-    url = f"{base}/book/{slug}"
+    url = f"https://book.rezvo.app/{slug}"
     try:
         import qrcode
         qr = qrcode.QRCode(version=1, box_size=10, border=2)
@@ -205,10 +204,9 @@ async def get_qr_code(business_id: str, tenant: TenantContext = Depends(verify_b
 async def get_embed_code(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     slug = business.get("slug", "your-business")
-    base = _base_url()
-    url = f"{base}/book/{slug}"
+    url = f"https://book.rezvo.app/{slug}"
     accent = (business.get("bookingPage") or {}).get("branding") or {}
     accent = accent.get("accentColour", "#1B4332")
     iframe = f'<iframe src="{url}" width="100%" height="600" frameborder="0"></iframe>'

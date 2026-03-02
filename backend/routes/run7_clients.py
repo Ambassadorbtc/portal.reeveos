@@ -122,7 +122,7 @@ async def list_clients(
 ):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     biz_id = str(business["_id"])
 
     match = {"businessId": biz_id, "active": {"$ne": False}}
@@ -191,7 +191,7 @@ async def list_clients(
 async def get_client(business_id: str, client_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     biz_id = str(business["_id"])
     staff_map = {s.get("id"): s.get("name", "") for s in business.get("staff", [])}
 
@@ -269,7 +269,7 @@ async def get_client(business_id: str, client_id: str, tenant: TenantContext = D
 async def create_client(business_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     biz_id = str(business["_id"])
 
     name = (payload.get("name") or "").strip()
@@ -326,7 +326,7 @@ async def create_client(business_id: str, payload: dict = Body(...), tenant: Ten
 async def update_client(business_id: str, client_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     biz_id = str(business["_id"])
 
     c = await sdb.clients.find_one({"businessId": biz_id, "id": client_id})
@@ -351,7 +351,7 @@ async def update_client(business_id: str, client_id: str, payload: dict = Body(.
 async def delete_client(business_id: str, client_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     biz_id = str(business["_id"])
 
     c = await sdb.clients.find_one({"businessId": biz_id, "id": client_id})
@@ -371,7 +371,7 @@ async def delete_client(business_id: str, client_id: str, tenant: TenantContext 
 async def add_tags(business_id: str, client_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     biz_id = str(business["_id"])
 
     c = await sdb.clients.find_one({"businessId": biz_id, "id": client_id})
@@ -397,7 +397,7 @@ async def add_tags(business_id: str, client_id: str, payload: dict = Body(...), 
 async def remove_tag(business_id: str, client_id: str, tag: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     biz_id = str(business["_id"])
 
     c = await sdb.clients.find_one({"businessId": biz_id, "id": client_id})
@@ -418,7 +418,7 @@ async def remove_tag(business_id: str, client_id: str, tag: str, tenant: TenantC
 async def add_note(business_id: str, client_id: str, payload: dict = Body(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     biz_id = str(business["_id"])
 
     c = await sdb.clients.find_one({"businessId": biz_id, "id": client_id})
@@ -450,7 +450,7 @@ async def add_note(business_id: str, client_id: str, payload: dict = Body(...), 
 async def delete_note(business_id: str, client_id: str, note_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     biz_id = str(business["_id"])
 
     c = await sdb.clients.find_one({"businessId": biz_id, "id": client_id})
@@ -471,7 +471,7 @@ async def delete_note(business_id: str, client_id: str, note_id: str, tenant: Te
 async def export_clients(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     biz_id = str(business["_id"])
 
     cursor = sdb.clients.find({"businessId": biz_id, "active": {"$ne": False}})
@@ -504,7 +504,7 @@ async def export_clients(business_id: str, tenant: TenantContext = Depends(verif
 async def import_clients(business_id: str, file: UploadFile = File(...), tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sdb = get_scoped_db(tenant.business_id)
-    business = await _get_business(db, business_id, user)
+    business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     biz_id = str(business["_id"])
 
     content = await file.read()

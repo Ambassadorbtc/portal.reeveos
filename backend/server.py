@@ -171,9 +171,9 @@ app.include_router(online_ordering_router)
 app.include_router(pay_at_table_router)
 app.include_router(cash_and_tax_router)
 app.include_router(ops_router)
+app.include_router(notifications_router)
 app.include_router(library_router)
 app.include_router(studio_router)
-app.include_router(notifications_router)
 
 # Static uploads for booking page logo/cover
 static_dir = Path(__file__).parent / "static" / "uploads"

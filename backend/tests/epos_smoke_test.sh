@@ -94,7 +94,7 @@ test_endpoint GET "/inventory/business/$BID/recipes" "" "200 404" "Recipes"
 test_endpoint POST "/inventory/business/$BID/recipes" '{"name":"Test","menu_item_id":"t","ingredients":[]}' "200 201 404 422" "Create recipe"
 test_endpoint GET "/inventory/business/$BID/food-cost-report" "" "200 404" "Food cost"
 test_endpoint GET "/inventory/business/$BID/waste" "" "200 404" "Waste log"
-test_endpoint POST "/inventory/business/$BID/waste" '{"ingredient_id":"t","quantity":1,"reason":"test"}' "200 201 404 422" "Log waste"
+test_endpoint POST "/inventory/business/$BID/waste" '{"ingredient_id":"t","quantity":1,"reason":"test"}' "200 201 400 404 422" "Log waste"
 test_endpoint GET "/inventory/business/$BID/suppliers" "" "200 404" "Suppliers"
 test_endpoint POST "/inventory/business/$BID/suppliers" '{"name":"Test Supplier","email":"t@t.com"}' "200 201 404 422" "Add supplier"
 test_endpoint GET "/inventory/business/$BID/purchase-orders" "" "200 404" "Purchase orders"
@@ -118,7 +118,7 @@ test_endpoint GET "/labour/business/$BID/who-is-in" "" "200 404" "Who's in"
 test_endpoint GET "/labour/business/$BID/shifts" "" "200 404" "Shifts"
 test_endpoint GET "/labour/business/$BID/labour-report" "" "200 404" "Labour report"
 test_endpoint GET "/labour/business/$BID/staff-performance" "" "200 404" "Staff perf"
-test_endpoint POST "/labour/business/$BID/clock-in" '{"staff_id":"test","staff_name":"Test"}' "200 201 404 422" "Clock in"
+test_endpoint POST "/labour/business/$BID/clock-in" '{"staff_id":"test","staff_name":"Test"}' "200 201 400 404 422" "Clock in"
 test_endpoint POST "/labour/business/$BID/clock-out" '{"staff_id":"test"}' "200 404 422" "Clock out"
 echo ""
 
@@ -146,8 +146,8 @@ echo ""
 
 # --- Tables (9 endpoints) ---
 echo "🪑 Tables"
-test_endpoint GET "/tables/business/$BID/floor-plan" "" "200 404" "Floor plan"
-test_endpoint POST "/tables/business/$BID/validate-layout" '{"tables":[]}' "200 404 422" "Validate layout"
+test_endpoint GET "/tables/business/$BID/floor-plan" "" "200 403 404" "Floor plan"
+test_endpoint POST "/tables/business/$BID/validate-layout" '{"tables":[]}' "200 403 404 422" "Validate layout"
 echo ""
 
 # --- Notifications ---

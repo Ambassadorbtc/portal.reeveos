@@ -131,8 +131,16 @@ async def _hide_overlays(page: Page) -> int:
 async def _get_dims(page: Page) -> tuple:
     try:
         d = await page.evaluate("""() => ({
-            h: document.body?.scrollHeight || document.documentElement?.scrollHeight || 0,
-            w: document.body?.scrollWidth || document.documentElement?.scrollWidth || 0,
+            h: Math.max(
+                document.body?.scrollHeight || 0,
+                document.body?.offsetHeight || 0,
+                document.documentElement?.scrollHeight || 0,
+                document.documentElement?.offsetHeight || 0
+            ),
+            w: Math.max(
+                document.body?.scrollWidth || 0,
+                document.documentElement?.scrollWidth || 0
+            ),
             vh: window.innerHeight || 0
         })""")
         return d["h"], d["w"], d["vh"]
@@ -142,13 +150,20 @@ async def _get_dims(page: Page) -> tuple:
 async def _scroll_lazy(page: Page) -> int:
     ph, _, vh = await _get_dims(page)
     if ph == 0 or vh == 0: return 0
-    cur, iters = 0, 100
+    cur, iters = 0, 200  # More iterations for very tall pages
     while cur < ph and iters > 0:
         await page.evaluate(f"window.scrollTo(0,{cur})")
         await page.wait_for_timeout(SCROLL_DELAY)
         nh, _, _ = await _get_dims(page)
         if nh > ph: ph = nh
         cur += vh; iters -= 1
+    # Scroll to absolute bottom to trigger any remaining lazy content
+    await page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
+    await page.wait_for_timeout(1000)
+    # Re-measure — page may have grown
+    nh, _, _ = await _get_dims(page)
+    if nh > ph: ph = nh
+    # Scroll back to top
     await page.evaluate("window.scrollTo(0,0)")
     await page.wait_for_timeout(500)
     return ph
@@ -166,24 +181,50 @@ async def _capture_screenshot(page: Page, out: Path, dpr: int = DPR) -> dict:
     if aph <= CHROMIUM_MAX_HEIGHT:
         await page.screenshot(path=str(out), full_page=True, type="png")
     else:
-        logger.info(f"Stitching: {aph}px > {CHROMIUM_MAX_HEIGHT}px")
-        sh = CHROMIUM_MAX_HEIGHT // dpr
+        # Stitch mode — scroll through page capturing viewport-sized chunks
+        # DO NOT resize viewport (causes page reflow and content loss)
+        logger.info(f"Stitching: {aph}px > {CHROMIUM_MAX_HEIGHT}px (page: {ph}px CSS, viewport: {vh}px)")
         sections, cy, idx = [], 0, 0
         while cy < ph:
-            ch = min(sh, ph - cy)
-            await page.set_viewport_size({"width": pw, "height": ch})
             await page.evaluate(f"window.scrollTo(0,{cy})")
-            await page.wait_for_timeout(300)
+            await page.wait_for_timeout(400)  # Wait for render after scroll
             sp = out.parent / f"_s{idx}.png"
             await page.screenshot(path=str(sp), full_page=False, type="png")
-            sections.append({"path": sp, "y": cy*dpr})
-            cy += ch; idx += 1
-        stitched = Image.new("RGB", (pw*dpr, ph*dpr))
+            sections.append({"path": sp, "y": cy * dpr, "h": vh * dpr})
+            cy += vh
+            idx += 1
+            # Re-check page height (content may still be loading)
+            nh, _, _ = await _get_dims(page)
+            if nh > ph:
+                ph = nh
+                aph = ph * dpr
+                info["pixel_height"] = aph
+                info["page_height"] = ph
+
+        # Stitch all sections together
+        total_w = pw * dpr
+        total_h = ph * dpr
+        stitched = Image.new("RGB", (total_w, total_h))
         for s in sections:
-            img = Image.open(s["path"]); stitched.paste(img, (0, s["y"])); img.close(); os.remove(s["path"])
-        stitched.save(str(out), "PNG", optimize=True); stitched.close()
-        await page.set_viewport_size({"width": pw, "height": vh or 900})
-        info["stitched"] = True; info["sections"] = idx
+            img = Image.open(s["path"])
+            # Last section might extend beyond page — crop if needed
+            paste_y = s["y"]
+            if paste_y + img.height > total_h:
+                crop_h = total_h - paste_y
+                if crop_h > 0:
+                    img = img.crop((0, 0, img.width, crop_h))
+                else:
+                    img.close()
+                    os.remove(s["path"])
+                    continue
+            stitched.paste(img, (0, paste_y))
+            img.close()
+            os.remove(s["path"])
+
+        stitched.save(str(out), "PNG", optimize=True)
+        stitched.close()
+        info["stitched"] = True
+        info["sections"] = idx
 
     info["file_size_mb"] = round(out.stat().st_size/(1024*1024), 2)
     return info

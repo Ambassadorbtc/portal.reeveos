@@ -1,6 +1,6 @@
+import adminFetch from '../../utils/adminFetch'
 import { useState, useEffect, useCallback } from 'react'
 import { Activity, RefreshCw, CheckCircle2, AlertTriangle, XCircle, Server, Database, Globe, Wifi, Clock, Zap } from 'lucide-react'
-import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 const STATUS_C = { healthy:'#10B981', degraded:'#F59E0B', down:'#EF4444' }

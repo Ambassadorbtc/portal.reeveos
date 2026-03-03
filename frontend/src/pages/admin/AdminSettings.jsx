@@ -1,6 +1,6 @@
+import adminFetch from '../../utils/adminFetch'
 import { useState, useEffect, useCallback } from 'react'
 import { Settings, RefreshCw, Save, Key, Globe, Mail, CreditCard, Database, Shield, Bell, Palette, CheckCircle2 } from 'lucide-react'
-import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 

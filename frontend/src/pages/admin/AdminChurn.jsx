@@ -1,6 +1,6 @@
+import adminFetch from '../../utils/adminFetch'
 import { useState, useEffect, useCallback } from 'react'
 import { AlertTriangle, RefreshCw, TrendingDown, Building2, Calendar, CreditCard, Activity, Shield } from 'lucide-react'
-import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 const RISK_C = { high:'#EF4444', medium:'#F59E0B', low:'#10B981', none:'#6B7280' }

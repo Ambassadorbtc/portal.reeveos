@@ -61,7 +61,116 @@ const NAV_SECTIONS = [
   },
 ]
 
-/* ── Theme tokens ── */
+/* ══════════════════════════════════════════════════════
+   LIGHT MODE CSS OVERRIDES
+   Remaps ALL dark Tailwind classes used in admin pages
+   to light equivalents — ZERO changes to page files.
+   ══════════════════════════════════════════════════════ */
+const LIGHT_OVERRIDES = `
+/* ── Backgrounds ── */
+.admin-light .bg-gray-950 { background-color: #F8F7F4 !important; }
+.admin-light .bg-gray-900 { background-color: #FFFFFF !important; }
+.admin-light .bg-gray-900\\/60 { background-color: rgba(255,255,255,0.85) !important; }
+.admin-light .bg-gray-900\\/50 { background-color: rgba(255,255,255,0.75) !important; }
+.admin-light .bg-gray-900\\/40 { background-color: rgba(255,255,255,0.65) !important; }
+.admin-light .bg-gray-800 { background-color: #F0EDE7 !important; }
+.admin-light .bg-gray-800\\/60 { background-color: rgba(240,237,231,0.7) !important; }
+.admin-light .bg-gray-800\\/50 { background-color: rgba(240,237,231,0.6) !important; }
+.admin-light .bg-gray-800\\/40 { background-color: rgba(240,237,231,0.5) !important; }
+.admin-light .bg-gray-700 { background-color: #E8E4DD !important; }
+.admin-light .bg-gray-700\\/50 { background-color: rgba(232,228,221,0.5) !important; }
+.admin-light .bg-black\\/60 { background-color: rgba(0,0,0,0.25) !important; }
+.admin-light .bg-black\\/50 { background-color: rgba(0,0,0,0.2) !important; }
+
+/* ── Borders ── */
+.admin-light .border-gray-800 { border-color: #E8E4DD !important; }
+.admin-light .border-gray-700 { border-color: #E0DCD5 !important; }
+.admin-light .border-gray-700\\/50 { border-color: rgba(224,220,213,0.5) !important; }
+.admin-light .border-gray-600 { border-color: #D5D0C8 !important; }
+
+/* ── Text ── */
+.admin-light .text-white { color: #111111 !important; }
+.admin-light .text-gray-200 { color: #2C2C2A !important; }
+.admin-light .text-gray-300 { color: #3D3D3A !important; }
+.admin-light .text-gray-400 { color: #5A5750 !important; }
+.admin-light .text-gray-500 { color: #7A776F !important; }
+.admin-light .text-gray-600 { color: #9A9790 !important; }
+.admin-light .text-gray-700 { color: #AEABA5 !important; }
+.admin-light .placeholder-gray-600::placeholder { color: #AEABA5 !important; }
+
+/* ── Accent: emerald → gold ── */
+.admin-light .text-emerald-400 { color: #C9A84C !important; }
+.admin-light .text-emerald-500 { color: #B8943F !important; }
+.admin-light .bg-emerald-600 { background-color: #C9A84C !important; }
+.admin-light .bg-emerald-700 { background-color: #B8943F !important; }
+.admin-light .bg-emerald-800 { background-color: #A6832E !important; }
+.admin-light .bg-emerald-600\\/15 { background-color: rgba(201,168,76,0.12) !important; }
+.admin-light .bg-emerald-500\\/15 { background-color: rgba(201,168,76,0.12) !important; }
+.admin-light .bg-emerald-500\\/25 { background-color: rgba(201,168,76,0.2) !important; }
+.admin-light .bg-emerald-500\\/10 { background-color: rgba(201,168,76,0.08) !important; }
+.admin-light .bg-emerald-500\\/5 { background-color: rgba(201,168,76,0.05) !important; }
+.admin-light .bg-emerald-900\\/20 { background-color: rgba(201,168,76,0.08) !important; }
+.admin-light .border-emerald-400 { border-color: #C9A84C !important; }
+.admin-light .ring-emerald-500\\/40 { --tw-ring-color: rgba(201,168,76,0.4) !important; }
+.admin-light .ring-emerald-500\\/20 { --tw-ring-color: rgba(201,168,76,0.2) !important; }
+.admin-light .focus\\:ring-emerald-500\\/40:focus { --tw-ring-color: rgba(201,168,76,0.4) !important; }
+.admin-light .focus\\:border-emerald-500:focus { border-color: #C9A84C !important; }
+
+/* ── Accent backgrounds for status cards ── */
+.admin-light .bg-blue-900\\/20 { background-color: rgba(59,130,246,0.06) !important; }
+.admin-light .bg-red-900\\/20 { background-color: rgba(239,68,68,0.06) !important; }
+.admin-light .bg-red-500\\/10 { background-color: rgba(239,68,68,0.06) !important; }
+.admin-light .bg-red-500\\/5 { background-color: rgba(239,68,68,0.04) !important; }
+.admin-light .bg-amber-900\\/30 { background-color: rgba(201,168,76,0.1) !important; }
+.admin-light .bg-amber-500\\/10 { background-color: rgba(201,168,76,0.08) !important; }
+.admin-light .bg-blue-500\\/10 { background-color: rgba(59,130,246,0.06) !important; }
+.admin-light .bg-blue-500\\/15 { background-color: rgba(59,130,246,0.08) !important; }
+
+/* ── Hover overrides ── */
+.admin-light .hover\\:bg-gray-800:hover { background-color: #F0EDE7 !important; }
+.admin-light .hover\\:bg-gray-800\\/60:hover { background-color: rgba(240,237,231,0.7) !important; }
+.admin-light .hover\\:bg-gray-700:hover { background-color: #E8E4DD !important; }
+.admin-light .hover\\:text-gray-200:hover { color: #2C2C2A !important; }
+.admin-light .hover\\:text-gray-300:hover { color: #3D3D3A !important; }
+.admin-light .hover\\:border-gray-600:hover { border-color: #D5D0C8 !important; }
+.admin-light .hover\\:border-gray-700:hover { border-color: #E0DCD5 !important; }
+.admin-light .hover\\:bg-emerald-500\\/25:hover { background-color: rgba(201,168,76,0.2) !important; }
+.admin-light .hover\\:bg-emerald-700:hover { background-color: #B8943F !important; }
+
+/* ── Focus overrides ── */
+.admin-light .focus\\:border-gray-600:focus { border-color: #C9A84C !important; }
+.admin-light .focus\\:ring-amber-500\\/40:focus { --tw-ring-color: rgba(201,168,76,0.4) !important; }
+.admin-light .focus\\:border-amber-500:focus { border-color: #C9A84C !important; }
+
+/* ── Input/select in light mode ── */
+.admin-light input,
+.admin-light textarea,
+.admin-light select {
+  color: #111 !important;
+}
+.admin-light input::placeholder,
+.admin-light textarea::placeholder {
+  color: #AEABA5 !important;
+}
+.admin-light .admin-select {
+  color: #111 !important;
+  background-color: #F0EDE7 !important;
+  border-color: #E0DCD5 !important;
+}
+
+/* ── Scrollbar ── */
+.admin-light ::-webkit-scrollbar { width: 6px; }
+.admin-light ::-webkit-scrollbar-track { background: transparent; }
+.admin-light ::-webkit-scrollbar-thumb { background: #D5D0C8; border-radius: 3px; }
+.admin-light ::-webkit-scrollbar-thumb:hover { background: #C0BBB3; }
+
+/* ── Gradient overrides (used in some cards) ── */
+.admin-light .from-emerald-500 { --tw-gradient-from: #C9A84C !important; }
+.admin-light .to-emerald-700 { --tw-gradient-to: #B8943F !important; }
+.admin-light .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-from, #C9A84C), var(--tw-gradient-to, #B8943F)) !important; }
+`
+
+/* ── Theme tokens for sidebar/shell (inline styles) ── */
 const LIGHT = {
   bg: '#F8F7F4',
   sidebar: '#FFFFFF',
@@ -220,7 +329,11 @@ export default function AdminLayout() {
 
   /* ─── Admin Shell ─── */
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: FIG, background: t.bg, transition: 'background 300ms' }}>
+    <div className={dark ? 'admin-dark' : 'admin-light'} style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: FIG, background: t.bg, transition: 'background 300ms' }}>
+      {/* Inject light-mode CSS overrides */}
+      <style>{LIGHT_OVERRIDES}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+
       {/* Sidebar */}
       <aside style={{
         width: collapsed ? 64 : 240, minWidth: collapsed ? 64 : 240,

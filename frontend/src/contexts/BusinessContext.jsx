@@ -37,7 +37,8 @@ export const BusinessProvider = ({ children }) => {
 
   const value = useMemo(() => {
     const business = tierCtx?.business || null
-    const businessType = devTypeOverride ?? (business?.type === 'restaurant' ? 'restaurant' : 'services')
+    const isRestaurant = business?.type === 'restaurant' || business?.category === 'restaurant' || business?.subcategory === 'turkish'
+    const businessType = devTypeOverride ?? (isRestaurant ? 'restaurant' : 'services')
     const tier = devTierOverride ?? mapTier(business?.tier || business?.rezvo_tier) ?? 'enterprise'
 
     const setBusinessType = (type) => setDevTypeOverride(type)

@@ -157,7 +157,7 @@ const App = () => {
               <Route path="ai-ops" element={<AdminAIOps />} />
               <Route path="outreach" element={<AdminOutreach />} />
               <Route path="linkedin" element={<AdminLinkedIn />} />
-              <Route path="pipeline" element={<AdminPipeline />} />
+              <Route path="pipeline" element={<Navigate to="/admin/crm" replace />} />
               <Route path="crm" element={<AdminCRM />} />
               <Route path="businesses" element={<AdminBusinesses />} />
               <Route path="bookings" element={<AdminBookings />} />

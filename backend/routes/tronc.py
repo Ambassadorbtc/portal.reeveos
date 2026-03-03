@@ -99,7 +99,7 @@ async def get_tronc_policy(business_id: str, tenant: TenantContext = Depends(ver
 
 
 @router.put("/business/{business_id}/policy")
-async def set_tronc_policy(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: TroncPolicy):
+async def set_tronc_policy(business_id: str, body: TroncPolicy, tenant: TenantContext = Depends(verify_business_access)):
     """Set or update the tronc distribution policy."""
     db = get_database()
     
@@ -141,7 +141,7 @@ async def set_tronc_policy(business_id: str, tenant: TenantContext = Depends(ver
 # ─── Tip Recording ─── #
 
 @router.post("/business/{business_id}/tips")
-async def record_tip(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: TipRecord):
+async def record_tip(business_id: str, body: TipRecord, tenant: TenantContext = Depends(verify_business_access)):
     """
     Record an individual tip. Can be linked to an order or standalone (cash jar).
     Tips are held in the pool until distribution.
@@ -167,7 +167,7 @@ async def record_tip(business_id: str, tenant: TenantContext = Depends(verify_bu
 
 
 @router.post("/business/{business_id}/tips/from-order/{order_id}")
-async def record_tip_from_order(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str):
+async def record_tip_from_order(business_id: str, order_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """
     Auto-record tips from a completed order.
     Extracts card tips, service charges, and any gratuity from payment data.
@@ -231,7 +231,7 @@ async def get_tips(
     from_date: Optional[str] = None,
     to_date: Optional[str] = None,
     staff_id: Optional[str] = None,
-    limit: int = 100
+    limit: int = 100,
     tenant: TenantContext = Depends(verify_business_access),
 ):
     """List tips with filtering."""
@@ -261,7 +261,7 @@ async def get_tips(
 
 
 @router.post("/business/{business_id}/tips/{tip_id}/void")
-async def void_tip(business_id: str, tenant: TenantContext = Depends(verify_business_access), tip_id: str, reason: str = Body(..., embed=True)):
+async def void_tip(business_id: str, tip_id: str, tenant: TenantContext = Depends(verify_business_access), reason: str = Body(..., embed=True)):
     """Void a tip (e.g., payment reversal). Must provide reason for audit trail."""
     db = get_database()
     
@@ -333,7 +333,7 @@ async def get_tronc_pool(business_id: str, tenant: TenantContext = Depends(verif
 # ─── Distribution Calculation & Execution ─── #
 
 @router.post("/business/{business_id}/distribute/preview")
-async def preview_distribution(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: DistributionRun):
+async def preview_distribution(business_id: str, body: DistributionRun, tenant: TenantContext = Depends(verify_business_access)):
     """
     Preview (dry run) a distribution calculation without executing it.
     Shows exactly what each staff member would receive.
@@ -344,7 +344,7 @@ async def preview_distribution(business_id: str, tenant: TenantContext = Depends
 
 
 @router.post("/business/{business_id}/distribute/execute")
-async def execute_distribution(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: DistributionRun):
+async def execute_distribution(business_id: str, body: DistributionRun, tenant: TenantContext = Depends(verify_business_access)):
     """
     Execute the distribution — marks tips as distributed, creates distribution records,
     and generates staff statements. This action is permanent.
@@ -416,7 +416,7 @@ async def execute_distribution(business_id: str, tenant: TenantContext = Depends
 
 
 @router.post("/business/{business_id}/distribute/{distribution_id}/adjust")
-async def adjust_distribution(business_id: str, tenant: TenantContext = Depends(verify_business_access), distribution_id: str, body: ManualAdjustment):
+async def adjust_distribution(business_id: str, distribution_id: str, body: ManualAdjustment, tenant: TenantContext = Depends(verify_business_access)):
     """Post-distribution manual adjustment (e.g., correction, absence deduction)."""
     db = get_database()
     
@@ -467,7 +467,7 @@ async def get_distributions(business_id: str, tenant: TenantContext = Depends(ve
 
 
 @router.get("/business/{business_id}/distributions/{distribution_id}")
-async def get_distribution_detail(business_id: str, tenant: TenantContext = Depends(verify_business_access), distribution_id: str):
+async def get_distribution_detail(business_id: str, distribution_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get full detail of a specific distribution run."""
     db = get_database()
     
@@ -492,7 +492,7 @@ async def get_distribution_detail(business_id: str, tenant: TenantContext = Depe
 # ─── Staff Statements ─── #
 
 @router.get("/business/{business_id}/staff/{staff_id}/statements")
-async def get_staff_statements(business_id: str, tenant: TenantContext = Depends(verify_business_access), staff_id: str, limit: int = 12):
+async def get_staff_statements(business_id: str, staff_id: str, tenant: TenantContext = Depends(verify_business_access), limit: int = 12):
     """
     Get tip distribution statements for a staff member.
     Workers have a legal right to request these (Act 2023, Section 3).
@@ -552,7 +552,7 @@ async def get_staff_statements(business_id: str, tenant: TenantContext = Depends
 async def generate_hmrc_tronc_report(
     business_id: str,
     tax_year: str = Query(..., description="Tax year e.g., 2024-25"),
-    format: str = "json"
+    format: str = "json",
     tenant: TenantContext = Depends(verify_business_access),
 ):
     """

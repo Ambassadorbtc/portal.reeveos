@@ -25,7 +25,7 @@ async def get_notifications(
     unread_only: bool = False,
     category: Optional[str] = None,
     limit: int = 50,
-    hours_back: int = 168,  # 7 days default
+    hours_back: int = 168,  # 7 days default,
     tenant: TenantContext = Depends(verify_business_access),
 ):
     """Get notifications for a business."""

@@ -9,8 +9,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("/me", response_model=UserResponse)
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def get_current_user_profile(current_user: dict = Depends(get_current_user)):
+async def get_current_user_profile(tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_user)):
     return UserResponse(
         id=str(current_user["_id"]),
         email=current_user.get("email", ""),
@@ -103,8 +102,7 @@ async def unsave_business(
 
 
 @router.get("/me/saved-businesses")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def get_saved_businesses(current_user: dict = Depends(get_current_user)):
+async def get_saved_businesses(tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_user)):
     db = get_database()
     
     saved_ids = current_user.get("saved_businesses", [])
@@ -117,8 +115,7 @@ async def get_saved_businesses(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/me/bookings")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def get_user_bookings(current_user: dict = Depends(get_current_user)):
+async def get_user_bookings(tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_user)):
     db = get_database()
     # Use bookings (Run 2) — match by customer email since bookings don't have user_id
     user_email = (current_user.get("email") or "").strip().lower()
@@ -131,8 +128,7 @@ async def get_user_bookings(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/me/reviews")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def get_user_reviews(current_user: dict = Depends(get_current_user)):
+async def get_user_reviews(tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_user)):
     db = get_database()
     
     reviews = await db.reviews.find(

@@ -191,7 +191,7 @@ async def predictive_prep(business_id: str, tenant: TenantContext = Depends(veri
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/ai/upsell/{order_id}")
-async def smart_upsell(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str):
+async def smart_upsell(business_id: str, order_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Suggest upsell items based on what's currently in the order.
     Uses association rules from past orders.
     NO competitor has real-time AI upsell during order entry.
@@ -303,7 +303,7 @@ async def predict_waste(business_id: str, tenant: TenantContext = Depends(verify
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/ai/order-cost/{order_id}")
-async def real_time_order_cost(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str):
+async def real_time_order_cost(business_id: str, order_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Calculate real food cost for a specific order using recipes.
     Shows actual GP% per order in real time.
     """

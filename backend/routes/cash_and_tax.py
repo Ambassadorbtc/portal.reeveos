@@ -435,10 +435,11 @@ async def multi_site_overview(owner_id: str, tenant: TenantContext = Depends(set
 
 @router.post("/receipts/send/{order_id}")
 async def send_digital_receipt(
-    tenant: TenantContext = Depends(set_user_tenant_context),
     order_id: str,
+    # email address or phone,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     method: str = Body("email"),
-    destination: str = Body(...),  # email address or phone
+    destination: str = Body(...)
 ):
     """Send digital receipt via email or SMS.
     Reduces paper waste, enables marketing follow-up.

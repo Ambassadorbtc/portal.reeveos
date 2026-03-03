@@ -119,7 +119,7 @@ async def vat_report(business_id: str, tenant: TenantContext = Depends(verify_bu
 
 
 @router.get("/business/{business_id}/vat-quarterly")
-async def vat_quarterly(business_id: str, tenant: TenantContext = Depends(verify_business_access), quarter: str):
+async def vat_quarterly(business_id: str, quarter: str, tenant: TenantContext = Depends(verify_business_access)):
     """Quarterly VAT summary for HMRC submission.
     quarter format: 2025-Q1, 2025-Q2, etc."""
     year, q = quarter.split("-Q")

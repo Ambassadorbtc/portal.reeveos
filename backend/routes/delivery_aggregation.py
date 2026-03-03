@@ -94,7 +94,7 @@ async def get_platform_configs(business_id: str, tenant: TenantContext = Depends
 
 
 @router.put("/business/{business_id}/platforms/{platform}")
-async def set_platform_config(business_id: str, tenant: TenantContext = Depends(verify_business_access), platform: str, body: PlatformConfig):
+async def set_platform_config(business_id: str, platform: str, body: PlatformConfig, tenant: TenantContext = Depends(verify_business_access)):
     """Configure a delivery platform integration."""
     db = get_database()
     
@@ -117,7 +117,7 @@ async def set_platform_config(business_id: str, tenant: TenantContext = Depends(
 
 
 @router.put("/business/{business_id}/platforms/{platform}/toggle")
-async def toggle_platform(business_id: str, tenant: TenantContext = Depends(verify_business_access), platform: str, enabled: bool = Body(..., embed=True)):
+async def toggle_platform(business_id: str, platform: str, tenant: TenantContext = Depends(verify_business_access), enabled: bool = Body(..., embed=True)):
     """Quick toggle a platform on/off (e.g., kitchen too busy)."""
     db = get_database()
     result = await db.delivery_platforms.update_one(
@@ -130,7 +130,7 @@ async def toggle_platform(business_id: str, tenant: TenantContext = Depends(veri
 
 
 @router.put("/business/{business_id}/platforms/{platform}/prep-time")
-async def update_prep_time(business_id: str, tenant: TenantContext = Depends(verify_business_access), platform: str, minutes: int = Body(..., embed=True)):
+async def update_prep_time(business_id: str, platform: str, tenant: TenantContext = Depends(verify_business_access), minutes: int = Body(..., embed=True)):
     """Update prep time for a platform. Syncs to platform if API supports it."""
     db = get_database()
     await db.delivery_platforms.update_one(
@@ -143,7 +143,7 @@ async def update_prep_time(business_id: str, tenant: TenantContext = Depends(ver
 # ─── Webhook Receivers (Platform → ReeveOS) ─── #
 
 @router.post("/webhooks/deliveroo/{business_id}")
-async def deliveroo_webhook(business_id: str, tenant: TenantContext = Depends(verify_business_access), request: Request):
+async def deliveroo_webhook(business_id: str, request: Request, tenant: TenantContext = Depends(verify_business_access)):
     """
     Deliveroo order webhook receiver.
     Transforms Deliveroo order format into unified ReeveOS order.
@@ -221,7 +221,7 @@ async def deliveroo_webhook(business_id: str, tenant: TenantContext = Depends(ve
 
 
 @router.post("/webhooks/ubereats/{business_id}")
-async def ubereats_webhook(business_id: str, tenant: TenantContext = Depends(verify_business_access), request: Request):
+async def ubereats_webhook(business_id: str, request: Request, tenant: TenantContext = Depends(verify_business_access)):
     """UberEats order webhook receiver."""
     db = get_database()
     body = await request.json()
@@ -288,7 +288,7 @@ async def ubereats_webhook(business_id: str, tenant: TenantContext = Depends(ver
 
 
 @router.post("/webhooks/justeat/{business_id}")
-async def justeat_webhook(business_id: str, tenant: TenantContext = Depends(verify_business_access), request: Request):
+async def justeat_webhook(business_id: str, request: Request, tenant: TenantContext = Depends(verify_business_access)):
     """Just Eat order webhook receiver."""
     db = get_database()
     body = await request.json()
@@ -436,7 +436,7 @@ async def create_uber_direct_delivery(business_id: str, tenant: TenantContext = 
 @router.get("/business/{business_id}/uber-direct/quote")
 async def get_uber_direct_quote(
     business_id: str,
-    dropoff_address: str = Query(...)
+    dropoff_address: str = Query(...),
     tenant: TenantContext = Depends(verify_business_access),
 ):
     """Get a delivery fee quote from Uber Direct before creating the delivery."""
@@ -495,7 +495,7 @@ async def get_delivery_orders(
     status: Optional[str] = None,
     from_date: Optional[str] = None,
     to_date: Optional[str] = None,
-    limit: int = 50
+    limit: int = 50,
     tenant: TenantContext = Depends(verify_business_access),
 ):
     """Get all delivery orders across all platforms. The unified inbox."""
@@ -550,7 +550,7 @@ async def get_live_delivery_orders(business_id: str, tenant: TenantContext = Dep
 
 
 @router.put("/business/{business_id}/orders/{order_id}/status")
-async def update_delivery_order_status(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str, body: OrderStatusUpdate):
+async def update_delivery_order_status(business_id: str, order_id: str, body: OrderStatusUpdate, tenant: TenantContext = Depends(verify_business_access)):
     """
     Update delivery order status. Syncs status back to the originating platform.
     
@@ -599,7 +599,7 @@ async def update_delivery_order_status(business_id: str, tenant: TenantContext =
 
 
 @router.post("/business/{business_id}/orders/{order_id}/accept")
-async def accept_delivery_order(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str, prep_minutes: int = Body(15, embed=True)):
+async def accept_delivery_order(business_id: str, order_id: str, tenant: TenantContext = Depends(verify_business_access), prep_minutes: int = Body(15, embed=True)):
     """Quick accept an order with estimated prep time."""
     return await update_delivery_order_status(
         business_id, order_id,
@@ -608,7 +608,7 @@ async def accept_delivery_order(business_id: str, tenant: TenantContext = Depend
 
 
 @router.post("/business/{business_id}/orders/{order_id}/reject")
-async def reject_delivery_order(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str, reason: str = Body(..., embed=True)):
+async def reject_delivery_order(business_id: str, order_id: str, tenant: TenantContext = Depends(verify_business_access), reason: str = Body(..., embed=True)):
     """Reject an order with reason."""
     return await update_delivery_order_status(
         business_id, order_id,
@@ -617,7 +617,7 @@ async def reject_delivery_order(business_id: str, tenant: TenantContext = Depend
 
 
 @router.post("/business/{business_id}/orders/{order_id}/ready")
-async def mark_order_ready(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str):
+async def mark_order_ready(business_id: str, order_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Mark order as ready for pickup."""
     return await update_delivery_order_status(
         business_id, order_id,
@@ -628,7 +628,7 @@ async def mark_order_ready(business_id: str, tenant: TenantContext = Depends(ver
 # ─── Menu Sync ─── #
 
 @router.post("/business/{business_id}/sync-menu/{platform}")
-async def sync_menu_to_platform(business_id: str, tenant: TenantContext = Depends(verify_business_access), platform: str):
+async def sync_menu_to_platform(business_id: str, platform: str, tenant: TenantContext = Depends(verify_business_access)):
     """
     Sync ReeveOS menu to a delivery platform.
     Maps menu items, modifiers, prices, and availability.
@@ -669,7 +669,7 @@ async def sync_menu_to_platform(business_id: str, tenant: TenantContext = Depend
 
 
 @router.put("/business/{business_id}/item/{item_id}/availability")
-async def toggle_item_delivery_availability(business_id: str, tenant: TenantContext = Depends(verify_business_access), item_id: str, available: bool = Body(..., embed=True)):
+async def toggle_item_delivery_availability(business_id: str, item_id: str, tenant: TenantContext = Depends(verify_business_access), available: bool = Body(..., embed=True)):
     """
     86 an item across all delivery platforms instantly.
     Marks item unavailable and syncs to all connected platforms.
@@ -701,7 +701,7 @@ async def toggle_item_delivery_availability(business_id: str, tenant: TenantCont
 async def get_delivery_analytics(
     business_id: str,
     from_date: str = Query(...),
-    to_date: str = Query(...)
+    to_date: str = Query(...),
     tenant: TenantContext = Depends(verify_business_access),
 ):
     """

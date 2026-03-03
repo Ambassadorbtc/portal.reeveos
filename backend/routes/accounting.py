@@ -79,7 +79,7 @@ class ManualSyncRequest(BaseModel):
 # ─── OAuth Connection Flow ─── #
 
 @router.post("/business/{business_id}/connect")
-async def initiate_connection(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: AccountingProvider):
+async def initiate_connection(business_id: str, body: AccountingProvider, tenant: TenantContext = Depends(verify_business_access)):
     """
     Step 1: Initiate OAuth connection to accounting provider.
     Returns the authorization URL the user should be redirected to.
@@ -117,7 +117,7 @@ async def initiate_connection(business_id: str, tenant: TenantContext = Depends(
 
 
 @router.post("/business/{business_id}/callback")
-async def handle_oauth_callback(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: AccountingConnection):
+async def handle_oauth_callback(business_id: str, body: AccountingConnection, tenant: TenantContext = Depends(verify_business_access)):
     """
     Step 2: Handle OAuth callback with access token.
     Store the connection and verify it works.
@@ -159,7 +159,7 @@ async def get_connection_status(business_id: str, tenant: TenantContext = Depend
 
 
 @router.delete("/business/{business_id}/disconnect/{provider}")
-async def disconnect_provider(business_id: str, tenant: TenantContext = Depends(verify_business_access), provider: str):
+async def disconnect_provider(business_id: str, provider: str, tenant: TenantContext = Depends(verify_business_access)):
     """Disconnect an accounting provider."""
     db = get_database()
     await db.accounting_connections.update_one(
@@ -184,7 +184,7 @@ async def get_account_mapping(business_id: str, tenant: TenantContext = Depends(
 
 
 @router.put("/business/{business_id}/mapping")
-async def set_account_mapping(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: AccountMapping):
+async def set_account_mapping(business_id: str, body: AccountMapping, tenant: TenantContext = Depends(verify_business_access)):
     """Set custom account code mapping for your chart of accounts."""
     db = get_database()
     mapping = body.dict()
@@ -213,7 +213,7 @@ async def get_sync_config(business_id: str, tenant: TenantContext = Depends(veri
 
 
 @router.put("/business/{business_id}/sync-config")
-async def set_sync_config(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: SyncConfig):
+async def set_sync_config(business_id: str, body: SyncConfig, tenant: TenantContext = Depends(verify_business_access)):
     """Set sync configuration."""
     db = get_database()
     config = body.dict()
@@ -231,7 +231,7 @@ async def set_sync_config(business_id: str, tenant: TenantContext = Depends(veri
 # ─── Daily Sales Journal Generation ─── #
 
 @router.post("/business/{business_id}/generate-journal")
-async def generate_daily_journal(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: ManualSyncRequest):
+async def generate_daily_journal(business_id: str, body: ManualSyncRequest, tenant: TenantContext = Depends(verify_business_access)):
     """
     Generate a daily sales journal entry for the specified date range.
     This is the core of the integration — transforms POS data into double-entry bookkeeping.
@@ -279,7 +279,7 @@ async def generate_daily_journal(business_id: str, tenant: TenantContext = Depen
 
 
 @router.post("/business/{business_id}/sync")
-async def sync_to_provider(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: ManualSyncRequest):
+async def sync_to_provider(business_id: str, body: ManualSyncRequest, tenant: TenantContext = Depends(verify_business_access)):
     """
     Generate journals AND push them to the connected accounting provider.
     """

@@ -442,7 +442,7 @@ async def get_table_alerts(business_id: str, tenant: TenantContext = Depends(ver
 
 
 @router.put("/business/{business_id}/alerts/{alert_id}/dismiss")
-async def dismiss_alert(business_id: str, tenant: TenantContext = Depends(verify_business_access), alert_id: str):
+async def dismiss_alert(business_id: str, alert_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     await db.table_alerts.update_one(
         {"_id": ObjectId(alert_id)},

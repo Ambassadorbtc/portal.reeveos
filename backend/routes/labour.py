@@ -42,7 +42,7 @@ class BreakEvent(BaseModel):
 # ─── Time Clock ─── #
 
 @router.post("/business/{business_id}/clock-in")
-async def clock_in(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: ClockEvent):
+async def clock_in(business_id: str, body: ClockEvent, tenant: TenantContext = Depends(verify_business_access)):
     """Staff clock-in. Creates a timesheet entry."""
     db = get_database()
 
@@ -89,7 +89,7 @@ async def clock_in(business_id: str, tenant: TenantContext = Depends(verify_busi
 
 
 @router.post("/business/{business_id}/clock-out")
-async def clock_out(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: ClockEvent):
+async def clock_out(business_id: str, body: ClockEvent, tenant: TenantContext = Depends(verify_business_access)):
     """Staff clock-out. Calculates hours and labour cost."""
     db = get_database()
 
@@ -140,7 +140,7 @@ async def clock_out(business_id: str, tenant: TenantContext = Depends(verify_bus
 
 
 @router.post("/business/{business_id}/break-start")
-async def start_break(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: BreakEvent):
+async def start_break(business_id: str, body: BreakEvent, tenant: TenantContext = Depends(verify_business_access)):
     """Start a break."""
     db = get_database()
     entry = await db.timesheets.find_one({
@@ -161,7 +161,7 @@ async def start_break(business_id: str, tenant: TenantContext = Depends(verify_b
 
 
 @router.post("/business/{business_id}/break-end")
-async def end_break(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: BreakEvent):
+async def end_break(business_id: str, body: BreakEvent, tenant: TenantContext = Depends(verify_business_access)):
     """End current break."""
     db = get_database()
     entry = await db.timesheets.find_one({
@@ -213,7 +213,7 @@ async def who_is_in(business_id: str, tenant: TenantContext = Depends(verify_bus
 # ─── Shift Scheduling ─── #
 
 @router.post("/business/{business_id}/shifts")
-async def create_shift(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: ShiftCreate):
+async def create_shift(business_id: str, body: ShiftCreate, tenant: TenantContext = Depends(verify_business_access)):
     """Schedule a shift."""
     db = get_database()
     shift = body.dict()

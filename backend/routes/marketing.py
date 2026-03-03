@@ -175,8 +175,7 @@ async def _get_audience_emails(business_id: str, audience: str, filters: Optiona
 # ─── Campaign CRUD ─── #
 
 @router.post("/campaigns")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def create_campaign(data: CampaignCreate, current_user: dict = Depends(get_current_owner)):
+async def create_campaign(data: CampaignCreate, tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
 
@@ -234,8 +233,7 @@ async def list_campaigns(
 
 
 @router.get("/campaigns/{campaign_id}")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def get_campaign(campaign_id: str, current_user: dict = Depends(get_current_owner)):
+async def get_campaign(campaign_id: str, tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
 
@@ -246,8 +244,7 @@ async def get_campaign(campaign_id: str, current_user: dict = Depends(get_curren
 
 
 @router.patch("/campaigns/{campaign_id}")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def update_campaign(campaign_id: str, data: CampaignUpdate, current_user: dict = Depends(get_current_owner)):
+async def update_campaign(campaign_id: str, data: CampaignUpdate, tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
 
@@ -270,8 +267,7 @@ async def update_campaign(campaign_id: str, data: CampaignUpdate, current_user: 
 
 
 @router.delete("/campaigns/{campaign_id}")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def delete_campaign(campaign_id: str, current_user: dict = Depends(get_current_owner)):
+async def delete_campaign(campaign_id: str, tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
 
@@ -495,8 +491,7 @@ async def send_test_email(
 # ─── Campaign Stats ─── #
 
 @router.get("/campaigns/{campaign_id}/stats")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def get_campaign_stats(campaign_id: str, current_user: dict = Depends(get_current_owner)):
+async def get_campaign_stats(campaign_id: str, tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
 
@@ -594,8 +589,7 @@ async def get_templates():
 # ─── Drip Sequences ─── #
 
 @router.post("/drips")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def create_drip(data: DripCreate, current_user: dict = Depends(get_current_owner)):
+async def create_drip(data: DripCreate, tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_owner)):
     """Create an automated drip sequence."""
     db = get_database()
     business_id = await _get_business_id(current_user)
@@ -618,8 +612,7 @@ async def create_drip(data: DripCreate, current_user: dict = Depends(get_current
 
 
 @router.get("/drips")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def list_drips(current_user: dict = Depends(get_current_owner)):
+async def list_drips(tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
     docs = await db.drip_sequences.find({"business_id": business_id}).sort("created_at", -1).to_list(50)
@@ -627,8 +620,7 @@ async def list_drips(current_user: dict = Depends(get_current_owner)):
 
 
 @router.get("/drips/{drip_id}")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def get_drip(drip_id: str, current_user: dict = Depends(get_current_owner)):
+async def get_drip(drip_id: str, tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
     doc = await db.drip_sequences.find_one({"_id": ObjectId(drip_id), "business_id": business_id})
@@ -638,8 +630,7 @@ async def get_drip(drip_id: str, current_user: dict = Depends(get_current_owner)
 
 
 @router.patch("/drips/{drip_id}")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def update_drip(drip_id: str, data: dict, current_user: dict = Depends(get_current_owner)):
+async def update_drip(drip_id: str, data: dict, tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
 
@@ -659,8 +650,7 @@ async def update_drip(drip_id: str, data: dict, current_user: dict = Depends(get
 
 
 @router.delete("/drips/{drip_id}")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def delete_drip(drip_id: str, current_user: dict = Depends(get_current_owner)):
+async def delete_drip(drip_id: str, tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
 
@@ -671,8 +661,7 @@ async def delete_drip(drip_id: str, current_user: dict = Depends(get_current_own
 
 
 @router.post("/drips/{drip_id}/toggle")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def toggle_drip(drip_id: str, current_user: dict = Depends(get_current_owner)):
+async def toggle_drip(drip_id: str, tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_owner)):
     """Toggle a drip sequence on/off."""
     db = get_database()
     business_id = await _get_business_id(current_user)
@@ -1133,8 +1122,7 @@ AUTO_CAMPAIGN_TYPES = [
 
 
 @router.get("/auto-campaigns")
-tenant: TenantContext = Depends(set_user_tenant_context),
-async def list_auto_campaigns(current_user: dict = Depends(get_current_owner)):
+async def list_auto_campaigns(tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_owner)):
     """List all auto-campaign types with their enabled/disabled status."""
     db = get_database()
     business_id = await _get_business_id(current_user)

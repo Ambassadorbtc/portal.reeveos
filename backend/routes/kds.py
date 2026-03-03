@@ -52,7 +52,7 @@ async def get_live_tickets(
     business_id: str,
     station: Optional[str] = None,
     status: Optional[str] = None,
-    limit: int = 50
+    limit: int = 50,
     tenant: TenantContext = Depends(verify_business_access),
 ):
     """Get live KDS tickets for a business/station."""

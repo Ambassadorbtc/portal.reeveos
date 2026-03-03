@@ -68,6 +68,7 @@ const Payments = () => {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({})
   const [transactions, setTransactions] = useState([])
+  const [txSummary, setTxSummary] = useState({})
   const [chartRange, setChartRange] = useState('30')
 
   const bid = business?.id ?? business?._id
@@ -77,15 +78,15 @@ const Payments = () => {
     const load = async () => {
       try {
         const [s, t] = await Promise.all([
-          api.get(`/analytics/business/${bid}`).catch(() => ({})),
-          api.get(`/payments/business/${bid}/transactions`).catch(() => ({ transactions: [] }))
+          api.get(`/analytics/business/${bid}?days=${chartRange}`).catch(() => ({})),
+          api.get(`/analytics/business/${bid}/transactions`).catch(() => ({ transactions: [], summary: {} }))
         ])
-        setStats(s); setTransactions(t.transactions || [])
+        setStats(s); setTransactions(t.transactions || []); setTxSummary(t.summary || {})
       } catch {}
       setLoading(false)
     }
     load()
-  }, [bid])
+  }, [bid, chartRange])
 
   const kpis = [
     { label: 'Total Revenue', value: stats.total_revenue ? `£${Number(stats.total_revenue).toLocaleString('en-GB', {minimumFractionDigits: 2})}` : '£0.00', Icon: PoundSterling, iconColor: '#111111', iconBg: 'bg-emerald-50', trend: stats.revenue_trend || '—', trendLabel: 'vs last 30 days', trendUp: (stats.revenue_trend_pct || 0) > 0 },
@@ -198,16 +199,11 @@ const Payments = () => {
             <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
               <h3 className="font-extrabold text-lg text-gray-900 mb-5">Staff Performance</h3>
               <div className="space-y-4">
-                {[
-                  { name: 'Sarah Jenkins', rev: 4200, pct: 85 },
-                  { name: 'Mike Ross', rev: 3100, pct: 62 },
-                  { name: 'Tom Walker', rev: 2800, pct: 56 },
-                  { name: 'Emma Smith', rev: 1350, pct: 27 },
-                ].map((s, i) => (
+                {(stats.staff_performance || []).map((s, i) => (
                   <div key={s.name}>
                     <div className="flex justify-between text-sm mb-1.5">
                       <span className="font-bold text-gray-900">{s.name}</span>
-                      <span className="font-bold text-gray-500">£{s.rev.toLocaleString()}</span>
+                      <span className="font-bold text-gray-500">£{Number(s.revenue).toLocaleString()}</span>
                     </div>
                     <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
                       <div className="h-full rounded-full transition-all duration-500"
@@ -225,12 +221,7 @@ const Payments = () => {
             <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
               <h3 className="font-extrabold text-lg text-gray-900 mb-5">Booking Channels</h3>
               <div className="space-y-4">
-                {[
-                  { name: 'Direct / Walk-in', pct: 35, color: 'linear-gradient(to right, #111111, #1a1a1a)' },
-                  { name: 'Online Booking', pct: 42, color: 'linear-gradient(to right, #2563EB, #3B82F6)' },
-                  { name: 'Google Reserve', pct: 15, color: 'linear-gradient(to right, #D97706, #F59E0B)' },
-                  { name: 'Instagram', pct: 8, color: 'linear-gradient(to right, #EC4899, #F472B6)' },
-                ].map(c => (
+                {(stats.booking_channels || []).map(c => (
                   <div key={c.name}>
                     <div className="flex justify-between text-sm mb-1.5">
                       <span className="font-bold text-gray-900">{c.name}</span>
@@ -253,9 +244,9 @@ const Payments = () => {
           {/* Summary cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { label: 'Total Collected', value: '£8,240', Icon: Wallet, iconBg: 'bg-emerald-50', iconColor: '#059669' },
-              { label: 'Pending Deposits', value: '£1,450', Icon: Receipt, iconBg: 'bg-amber-50', iconColor: '#D97706' },
-              { label: 'Refunds', value: '£320', Icon: RefreshCw, iconBg: 'bg-red-50', iconColor: '#EF4444' },
+              { label: 'Total Collected', value: '£' + Number(txSummary.total_collected || stats.total_collected || 0).toLocaleString('en-GB', {minimumFractionDigits: 2}), Icon: Wallet, iconBg: 'bg-emerald-50', iconColor: '#059669' },
+              { label: 'Pending Deposits', value: '£' + Number(txSummary.pending || 0).toLocaleString('en-GB', {minimumFractionDigits: 2}), Icon: Receipt, iconBg: 'bg-amber-50', iconColor: '#D97706' },
+              { label: 'Refunds', value: '£' + Number(txSummary.refunds || 0).toLocaleString('en-GB', {minimumFractionDigits: 2}), Icon: RefreshCw, iconBg: 'bg-red-50', iconColor: '#EF4444' },
             ].map((c, i) => (
               <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)] group hover:shadow-[0_10px_30px_-5px_rgba(17,17,17,0.08)] transition-all">
                 <div className="flex items-center gap-3">

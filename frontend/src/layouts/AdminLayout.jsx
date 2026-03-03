@@ -99,10 +99,10 @@ const LIGHT_OVERRIDES = `
 
 /* ── Accent: emerald → gold ── */
 .admin-light .text-emerald-400 { color: #C9A84C !important; }
-.admin-light .text-emerald-500 { color: #B8943F !important; }
+.admin-light .text-emerald-500 { color: #C9A84C !important; }
 .admin-light .bg-emerald-600 { background-color: #C9A84C !important; }
-.admin-light .bg-emerald-700 { background-color: #B8943F !important; }
-.admin-light .bg-emerald-800 { background-color: #A6832E !important; }
+.admin-light .bg-emerald-700 { background-color: #C9A84C !important; }
+.admin-light .bg-emerald-800 { background-color: #C9A84C !important; }
 .admin-light .bg-emerald-600\\/15 { background-color: rgba(201,168,76,0.12) !important; }
 .admin-light .bg-emerald-500\\/15 { background-color: rgba(201,168,76,0.12) !important; }
 .admin-light .bg-emerald-500\\/25 { background-color: rgba(201,168,76,0.2) !important; }
@@ -114,6 +114,23 @@ const LIGHT_OVERRIDES = `
 .admin-light .ring-emerald-500\\/20 { --tw-ring-color: rgba(201,168,76,0.2) !important; }
 .admin-light .focus\\:ring-emerald-500\\/40:focus { --tw-ring-color: rgba(201,168,76,0.4) !important; }
 .admin-light .focus\\:border-emerald-500:focus { border-color: #C9A84C !important; }
+
+/* ── Amber → Brand Gold #C9A84C ── */
+.admin-light .text-amber-400 { color: #C9A84C !important; }
+.admin-light .text-amber-500 { color: #C9A84C !important; }
+.admin-light .text-amber-600 { color: #C9A84C !important; }
+.admin-light .border-amber-400 { border-color: #C9A84C !important; }
+.admin-light .border-amber-500 { border-color: #C9A84C !important; }
+.admin-light .border-amber-600 { border-color: #C9A84C !important; }
+.admin-light .border-amber-600\\/30 { border-color: rgba(201,168,76,0.3) !important; }
+.admin-light .border-amber-600\\/40 { border-color: rgba(201,168,76,0.4) !important; }
+.admin-light .border-amber-600\\/60 { border-color: rgba(201,168,76,0.6) !important; }
+.admin-light .bg-amber-500 { background-color: #C9A84C !important; }
+.admin-light .bg-amber-500\\/5 { background-color: rgba(201,168,76,0.05) !important; }
+.admin-light .bg-amber-500\\/10 { background-color: rgba(201,168,76,0.1) !important; }
+.admin-light .ring-amber-600\\/20 { --tw-ring-color: rgba(201,168,76,0.2) !important; }
+.admin-light .focus\\:border-amber-600\\/40:focus { border-color: rgba(201,168,76,0.4) !important; }
+.admin-light .focus\\:ring-amber-600\\/20:focus { --tw-ring-color: rgba(201,168,76,0.2) !important; }
 
 /* ── Accent backgrounds for status cards ── */
 .admin-light .bg-blue-900\\/20 { background-color: rgba(59,130,246,0.06) !important; }
@@ -134,7 +151,7 @@ const LIGHT_OVERRIDES = `
 .admin-light .hover\\:border-gray-600:hover { border-color: #D5D0C8 !important; }
 .admin-light .hover\\:border-gray-700:hover { border-color: #E0DCD5 !important; }
 .admin-light .hover\\:bg-emerald-500\\/25:hover { background-color: rgba(201,168,76,0.2) !important; }
-.admin-light .hover\\:bg-emerald-700:hover { background-color: #B8943F !important; }
+.admin-light .hover\\:bg-emerald-700:hover { background-color: #C9A84C !important; }
 
 /* ── Focus overrides ── */
 .admin-light .focus\\:border-gray-600:focus { border-color: #C9A84C !important; }
@@ -165,8 +182,8 @@ const LIGHT_OVERRIDES = `
 
 /* ── Gradient overrides (used in some cards) ── */
 .admin-light .from-emerald-500 { --tw-gradient-from: #C9A84C !important; }
-.admin-light .to-emerald-700 { --tw-gradient-to: #B8943F !important; }
-.admin-light .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-from, #C9A84C), var(--tw-gradient-to, #B8943F)) !important; }
+.admin-light .to-emerald-700 { --tw-gradient-to: #C9A84C !important; }
+.admin-light .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-from, #C9A84C), var(--tw-gradient-to, #C9A84C)) !important; }
 `
 
 /* ══════════════════════════════════════════════════════
@@ -213,11 +230,28 @@ const DARK_OVERRIDES = `
 
 /* ── Accent: emerald → gold (dark mode) ── */
 .admin-dark .text-emerald-400 { color: #C9A84C !important; }
-.admin-dark .text-emerald-500 { color: #B8943F !important; }
-.admin-dark .text-emerald-300 { color: #D4B85E !important; }
+.admin-dark .text-emerald-500 { color: #C9A84C !important; }
+.admin-dark .text-emerald-300 { color: #C9A84C !important; }
+
+/* ── Amber → Brand Gold #C9A84C (dark mode) ── */
+.admin-dark .text-amber-400 { color: #C9A84C !important; }
+.admin-dark .text-amber-500 { color: #C9A84C !important; }
+.admin-dark .text-amber-600 { color: #C9A84C !important; }
+.admin-dark .border-amber-400 { border-color: #C9A84C !important; }
+.admin-dark .border-amber-500 { border-color: #C9A84C !important; }
+.admin-dark .border-amber-600 { border-color: #C9A84C !important; }
+.admin-dark .border-amber-600\\/30 { border-color: rgba(201,168,76,0.3) !important; }
+.admin-dark .border-amber-600\\/40 { border-color: rgba(201,168,76,0.4) !important; }
+.admin-dark .border-amber-600\\/60 { border-color: rgba(201,168,76,0.6) !important; }
+.admin-dark .bg-amber-500 { background-color: #C9A84C !important; }
+.admin-dark .bg-amber-500\\/5 { background-color: rgba(201,168,76,0.05) !important; }
+.admin-dark .bg-amber-500\\/10 { background-color: rgba(201,168,76,0.1) !important; }
+.admin-dark .ring-amber-600\\/20 { --tw-ring-color: rgba(201,168,76,0.2) !important; }
+.admin-dark .focus\\:border-amber-600\\/40:focus { border-color: rgba(201,168,76,0.4) !important; }
+.admin-dark .focus\\:ring-amber-600\\/20:focus { --tw-ring-color: rgba(201,168,76,0.2) !important; }
 .admin-dark .bg-emerald-600 { background-color: #C9A84C !important; }
-.admin-dark .bg-emerald-700 { background-color: #B8943F !important; }
-.admin-dark .bg-emerald-800 { background-color: #A6832E !important; }
+.admin-dark .bg-emerald-700 { background-color: #C9A84C !important; }
+.admin-dark .bg-emerald-800 { background-color: #C9A84C !important; }
 .admin-dark .bg-emerald-600\\/15 { background-color: rgba(201,168,76,0.15) !important; }
 .admin-dark .bg-emerald-500\\/15 { background-color: rgba(201,168,76,0.15) !important; }
 .admin-dark .bg-emerald-500\\/25 { background-color: rgba(201,168,76,0.25) !important; }
@@ -226,19 +260,19 @@ const DARK_OVERRIDES = `
 .admin-dark .bg-emerald-900\\/20 { background-color: rgba(201,168,76,0.1) !important; }
 .admin-dark .border-emerald-400 { border-color: #C9A84C !important; }
 .admin-dark .border-emerald-500 { border-color: #C9A84C !important; }
-.admin-dark .border-emerald-600 { border-color: #B8943F !important; }
+.admin-dark .border-emerald-600 { border-color: #C9A84C !important; }
 .admin-dark .ring-emerald-500\\/40 { --tw-ring-color: rgba(201,168,76,0.4) !important; }
 .admin-dark .ring-emerald-500\\/20 { --tw-ring-color: rgba(201,168,76,0.2) !important; }
 .admin-dark .focus\\:ring-emerald-500\\/40:focus { --tw-ring-color: rgba(201,168,76,0.4) !important; }
 .admin-dark .focus\\:border-emerald-500:focus { border-color: #C9A84C !important; }
 .admin-dark .hover\\:bg-emerald-500\\/25:hover { background-color: rgba(201,168,76,0.25) !important; }
-.admin-dark .hover\\:bg-emerald-700:hover { background-color: #B8943F !important; }
+.admin-dark .hover\\:bg-emerald-700:hover { background-color: #C9A84C !important; }
 .admin-dark .hover\\:bg-emerald-600:hover { background-color: #C9A84C !important; }
 
 /* ── Gradient overrides (dark) ── */
 .admin-dark .from-emerald-500 { --tw-gradient-from: #C9A84C !important; }
-.admin-dark .to-emerald-700 { --tw-gradient-to: #B8943F !important; }
-.admin-dark .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-from, #C9A84C), var(--tw-gradient-to, #B8943F)) !important; }
+.admin-dark .to-emerald-700 { --tw-gradient-to: #C9A84C !important; }
+.admin-dark .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-from, #C9A84C), var(--tw-gradient-to, #C9A84C)) !important; }
 
 /* ── Scrollbar (dark) ── */
 .admin-dark ::-webkit-scrollbar { width: 6px; }

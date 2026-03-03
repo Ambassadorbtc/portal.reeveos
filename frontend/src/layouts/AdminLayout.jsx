@@ -172,10 +172,39 @@ const LIGHT_OVERRIDES = `
 
 /* ══════════════════════════════════════════════════════
    DARK MODE CSS OVERRIDES
-   Remaps emerald → gold in dark mode so ALL pages
-   match the new ReeveOS branding.
+   Remaps emerald → gold AND fixes blue-tinted grays
+   to clean neutral blacks/dark grays.
    ══════════════════════════════════════════════════════ */
 const DARK_OVERRIDES = `
+/* ── Fix blue-tinted backgrounds → neutral blacks ── */
+.admin-dark .bg-gray-950 { background-color: #0a0a0a !important; }
+.admin-dark .bg-gray-900 { background-color: #111111 !important; }
+.admin-dark .bg-gray-900\\/60 { background-color: rgba(17,17,17,0.6) !important; }
+.admin-dark .bg-gray-900\\/50 { background-color: rgba(17,17,17,0.5) !important; }
+.admin-dark .bg-gray-900\\/40 { background-color: rgba(17,17,17,0.4) !important; }
+.admin-dark .bg-gray-800 { background-color: #1a1a1a !important; }
+.admin-dark .bg-gray-800\\/60 { background-color: rgba(26,26,26,0.6) !important; }
+.admin-dark .bg-gray-800\\/50 { background-color: rgba(26,26,26,0.5) !important; }
+.admin-dark .bg-gray-800\\/40 { background-color: rgba(26,26,26,0.4) !important; }
+.admin-dark .bg-gray-700 { background-color: #252525 !important; }
+.admin-dark .bg-gray-700\\/50 { background-color: rgba(37,37,37,0.5) !important; }
+
+/* ── Fix blue-tinted borders → neutral ── */
+.admin-dark .border-gray-800 { border-color: #222222 !important; }
+.admin-dark .border-gray-700 { border-color: #2a2a2a !important; }
+.admin-dark .border-gray-700\\/50 { border-color: rgba(42,42,42,0.5) !important; }
+.admin-dark .border-gray-600 { border-color: #333333 !important; }
+
+/* ── Hover bg fixes ── */
+.admin-dark .hover\\:bg-gray-800:hover { background-color: #1a1a1a !important; }
+.admin-dark .hover\\:bg-gray-800\\/60:hover { background-color: rgba(26,26,26,0.6) !important; }
+.admin-dark .hover\\:bg-gray-700:hover { background-color: #252525 !important; }
+.admin-dark .hover\\:border-gray-600:hover { border-color: #333333 !important; }
+.admin-dark .hover\\:border-gray-700:hover { border-color: #2a2a2a !important; }
+
+/* ── Focus fixes ── */
+.admin-dark .focus\\:border-gray-600:focus { border-color: #C9A84C !important; }
+
 /* ── Accent: emerald → gold (dark mode) ── */
 .admin-dark .text-emerald-400 { color: #C9A84C !important; }
 .admin-dark .text-emerald-500 { color: #B8943F !important; }
@@ -204,6 +233,12 @@ const DARK_OVERRIDES = `
 .admin-dark .from-emerald-500 { --tw-gradient-from: #C9A84C !important; }
 .admin-dark .to-emerald-700 { --tw-gradient-to: #B8943F !important; }
 .admin-dark .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-from, #C9A84C), var(--tw-gradient-to, #B8943F)) !important; }
+
+/* ── Scrollbar (dark) ── */
+.admin-dark ::-webkit-scrollbar { width: 6px; }
+.admin-dark ::-webkit-scrollbar-track { background: transparent; }
+.admin-dark ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+.admin-dark ::-webkit-scrollbar-thumb:hover { background: #444; }
 `
 
 /* ── Theme tokens for sidebar/shell (inline styles) ── */

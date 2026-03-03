@@ -38,6 +38,11 @@ def _register_tasks():
         outreach_health_scoring,
         outreach_campaign_status_check,
     )
+    from agent.tasks.security import (
+        security_watchdog,
+        security_full_audit,
+        security_realtime_guard,
+    )
 
     global _task_schedule
     _task_schedule = [
@@ -59,8 +64,12 @@ def _register_tasks():
         ("outreach_campaigns",  30 * 60,        outreach_process_campaigns, None, False, None),    # Every 30m
         ("outreach_health",     6 * 60 * 60,    outreach_health_scoring,    None, False, None),    # Every 6h
         ("outreach_status",     60 * 60,        outreach_campaign_status_check, None, False, None), # Every 1h
+        # ═══ Security Watchdog Tasks ═══
+        ("security_realtime",   5 * 60,         security_realtime_guard,        None, False, None),   # Every 5m (no AI, zero cost)
+        ("security_watchdog",   30 * 60,        security_watchdog,              None, False, None),   # Every 30m (Haiku)
+        ("security_full_audit", 24 * 60 * 60,   security_full_audit,            None, True,  5),      # Daily 5 AM (Sonnet)
     ]
-    logger.info(f"Registered {len(_task_schedule)} agent tasks (including outreach engine)")
+    logger.info(f"Registered {len(_task_schedule)} agent tasks (including outreach + security)")
 
 
 async def run_agent_tick():

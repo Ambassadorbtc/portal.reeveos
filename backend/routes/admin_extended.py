@@ -343,3 +343,59 @@ async def save_settings(data: dict):
     data["updated_at"] = datetime.utcnow()
     await db.admin_settings.update_one({"_id": "global"}, {"$set": data}, upsert=True)
     return {"saved": True}
+
+
+# ═══════════════════════════════════════════════════════
+# SECURITY MONITORING
+# ═══════════════════════════════════════════════════════
+
+@router.get("/security/report")
+async def get_latest_security_report():
+    """Get the most recent security report."""
+    db = get_db()
+    report = await db.security_reports.find_one(sort=[("created_at", -1)])
+    if report:
+        report["_id"] = str(report["_id"])
+        if "created_at" in report:
+            report["created_at"] = report["created_at"].isoformat()
+    return {"report": _ser(report) if report else None}
+
+@router.get("/security/reports")
+async def get_security_reports(limit: int = 30):
+    """Get security report history."""
+    db = get_db()
+    reports = []
+    async for doc in db.security_daily_reports.find().sort("created_at", -1).limit(limit):
+        doc["_id"] = str(doc["_id"])
+        if "created_at" in doc:
+            doc["created_at"] = doc["created_at"].isoformat()
+        reports.append(doc)
+    return {"reports": reports}
+
+@router.post("/security/scan-now")
+async def run_security_scan_now():
+    """Trigger an immediate security scan (on-demand)."""
+    from agent.tools.security import get_security_report
+    report = await get_security_report()
+    return {"report": report}
+
+@router.get("/security/tenant-audit")
+async def run_tenant_audit():
+    """Run tenant isolation audit and return results."""
+    from agent.tools.security import scan_tenant_isolation
+    result = await scan_tenant_isolation()
+    return {"audit": result}
+
+@router.get("/security/notifications")
+async def get_security_notifications(limit: int = 50):
+    """Get security alert notifications."""
+    db = get_db()
+    notifications = []
+    async for doc in db.admin_notifications.find(
+        {"type": {"$in": ["security_alert", "security_audit", "realtime_security"]}}
+    ).sort("created_at", -1).limit(limit):
+        doc["_id"] = str(doc["_id"])
+        if "created_at" in doc:
+            doc["created_at"] = doc["created_at"].isoformat()
+        notifications.append(doc)
+    return {"notifications": notifications}

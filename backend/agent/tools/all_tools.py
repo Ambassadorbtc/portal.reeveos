@@ -16,6 +16,10 @@ logger = logging.getLogger("agent.tools")
 
 
 def register_all_tools():
+    # ═══ Security Monitoring Tools ═══
+    from agent.tools.security import register_security_tools
+    register_security_tools()
+
     """Register every tool with the agent runner."""
     from agent.runner import register_tool
 

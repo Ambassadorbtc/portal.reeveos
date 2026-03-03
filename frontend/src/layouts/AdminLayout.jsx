@@ -50,6 +50,7 @@ const NAV_SECTIONS = [
   {
     label: 'System',
     items: [
+      { id: 'security', label: 'Security', icon: ShieldCheck, path: '/admin/security' },
       { id: 'analytics', label: 'Platform Analytics', icon: BarChart3, path: '/admin/analytics' },
       { id: 'health', label: 'System Health', icon: Activity, path: '/admin/health' },
       { id: 'audit', label: 'Activity Log', icon: ScrollText, path: '/admin/audit' },

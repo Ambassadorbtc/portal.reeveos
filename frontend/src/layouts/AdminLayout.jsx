@@ -170,6 +170,42 @@ const LIGHT_OVERRIDES = `
 .admin-light .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-from, #C9A84C), var(--tw-gradient-to, #B8943F)) !important; }
 `
 
+/* ══════════════════════════════════════════════════════
+   DARK MODE CSS OVERRIDES
+   Remaps emerald → gold in dark mode so ALL pages
+   match the new ReeveOS branding.
+   ══════════════════════════════════════════════════════ */
+const DARK_OVERRIDES = `
+/* ── Accent: emerald → gold (dark mode) ── */
+.admin-dark .text-emerald-400 { color: #C9A84C !important; }
+.admin-dark .text-emerald-500 { color: #B8943F !important; }
+.admin-dark .text-emerald-300 { color: #D4B85E !important; }
+.admin-dark .bg-emerald-600 { background-color: #C9A84C !important; }
+.admin-dark .bg-emerald-700 { background-color: #B8943F !important; }
+.admin-dark .bg-emerald-800 { background-color: #A6832E !important; }
+.admin-dark .bg-emerald-600\\/15 { background-color: rgba(201,168,76,0.15) !important; }
+.admin-dark .bg-emerald-500\\/15 { background-color: rgba(201,168,76,0.15) !important; }
+.admin-dark .bg-emerald-500\\/25 { background-color: rgba(201,168,76,0.25) !important; }
+.admin-dark .bg-emerald-500\\/10 { background-color: rgba(201,168,76,0.1) !important; }
+.admin-dark .bg-emerald-500\\/5 { background-color: rgba(201,168,76,0.05) !important; }
+.admin-dark .bg-emerald-900\\/20 { background-color: rgba(201,168,76,0.1) !important; }
+.admin-dark .border-emerald-400 { border-color: #C9A84C !important; }
+.admin-dark .border-emerald-500 { border-color: #C9A84C !important; }
+.admin-dark .border-emerald-600 { border-color: #B8943F !important; }
+.admin-dark .ring-emerald-500\\/40 { --tw-ring-color: rgba(201,168,76,0.4) !important; }
+.admin-dark .ring-emerald-500\\/20 { --tw-ring-color: rgba(201,168,76,0.2) !important; }
+.admin-dark .focus\\:ring-emerald-500\\/40:focus { --tw-ring-color: rgba(201,168,76,0.4) !important; }
+.admin-dark .focus\\:border-emerald-500:focus { border-color: #C9A84C !important; }
+.admin-dark .hover\\:bg-emerald-500\\/25:hover { background-color: rgba(201,168,76,0.25) !important; }
+.admin-dark .hover\\:bg-emerald-700:hover { background-color: #B8943F !important; }
+.admin-dark .hover\\:bg-emerald-600:hover { background-color: #C9A84C !important; }
+
+/* ── Gradient overrides (dark) ── */
+.admin-dark .from-emerald-500 { --tw-gradient-from: #C9A84C !important; }
+.admin-dark .to-emerald-700 { --tw-gradient-to: #B8943F !important; }
+.admin-dark .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-from, #C9A84C), var(--tw-gradient-to, #B8943F)) !important; }
+`
+
 /* ── Theme tokens for sidebar/shell (inline styles) ── */
 const LIGHT = {
   bg: '#F8F7F4',
@@ -330,8 +366,9 @@ export default function AdminLayout() {
   /* ─── Admin Shell ─── */
   return (
     <div className={dark ? 'admin-dark' : 'admin-light'} style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: FIG, background: t.bg, transition: 'background 300ms' }}>
-      {/* Inject light-mode CSS overrides */}
+      {/* Inject theme CSS overrides */}
       <style>{LIGHT_OVERRIDES}</style>
+      <style>{DARK_OVERRIDES}</style>
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
 
       {/* Sidebar */}

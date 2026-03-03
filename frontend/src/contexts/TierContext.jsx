@@ -18,7 +18,7 @@ export const TierProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (isAuthenticated && user?.role === 'owner' && user?.business_ids?.length > 0) {
+    if (isAuthenticated && ['owner', 'business_owner', 'admin', 'platform_admin'].includes(user?.role) && user?.business_ids?.length > 0) {
       fetchBusiness()
     } else {
       setLoading(false)

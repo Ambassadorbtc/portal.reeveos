@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { CalendarCheck, RefreshCw, Clock, Building2, User, Filter } from 'lucide-react'
 
-const api = (path) => { const t = localStorage.getItem('token'); return fetch(`/api${path}`, { headers: t ? { Authorization: `Bearer ${t}` } : {} }).then(r => r.ok ? r.json() : null).catch(() => null) }
+const api = (path) => { const t = sessionStorage.getItem('rezvo_admin_token'); return fetch(`/api${path}`, { headers: t ? { Authorization: `Bearer ${t}` } : {} }).then(r => r.ok ? r.json() : null).catch(() => null) }
 
 const STATUS_STYLES = {
   confirmed: 'bg-emerald-500/10 text-emerald-400',

@@ -23,6 +23,10 @@ EXEMPT_FILES = {
     "studio.py",         # Design studio (platform tool)
     "agent.py",          # AI agent (platform tool)
     "chatbot.py",        # Support chatbot
+    "online_ordering.py", # Public QR ordering (customer-facing, no auth)
+    "outreach.py",        # Platform sales outreach (not tenant data)
+    "linkedin.py",        # Platform content generation (not tenant data)
+    "library.py",         # Platform knowledge library (not tenant data)
 }
 
 GUARD_PATTERNS = [

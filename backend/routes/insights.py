@@ -12,6 +12,7 @@ from models.insights_report import InsightsReport, slugify
 from middleware.auth import get_current_owner
 import database
 import logging
+from middleware.tenant import set_user_tenant_context, TenantContext
 
 router = APIRouter(prefix="/insights", tags=["insights"])
 logger = logging.getLogger(__name__)
@@ -96,7 +97,7 @@ def estimate_commission_savings(
 # ─── Endpoints ─── #
 
 @router.post("/reports", response_model=dict)
-async def create_report(req: CreateReportRequest, _user=Depends(get_current_owner)):
+async def create_report(req: CreateReportRequest, tenant: TenantContext = Depends(set_user_tenant_context), _user=Depends(get_current_owner)):
     """Generate a new insights report for a business"""
 
     coll = get_collection()
@@ -249,6 +250,7 @@ async def view_report(slug: str, token: str):
 
 @router.get("/reports", response_model=List[ReportSummary])
 async def list_reports(
+    tenant: TenantContext = Depends(set_user_tenant_context),
     _user=Depends(get_current_owner),
     status: Optional[str] = None,
     expired: Optional[bool] = None,

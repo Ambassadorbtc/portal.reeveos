@@ -6,6 +6,7 @@ from datetime import datetime
 from bson import ObjectId
 from typing import List
 import re
+from middleware.tenant import verify_business_access, set_user_tenant_context, TenantContext
 
 router = APIRouter(prefix="/businesses", tags=["businesses"])
 
@@ -32,6 +33,7 @@ def slugify(text: str) -> str:
 @router.post("/", response_model=BusinessResponse, status_code=status.HTTP_201_CREATED)
 async def create_business(
     business_data: BusinessCreate,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner)
 ):
     db = get_database()
@@ -126,7 +128,7 @@ async def create_business(
 
 
 @router.get("/{business_id}")
-async def get_business(business_id: str):
+async def get_business(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     
     business = await _find_business(db, business_id)
@@ -182,6 +184,7 @@ async def get_business(business_id: str):
 async def update_business(
     business_id: str,
     business_update: BusinessUpdate,
+    tenant: TenantContext = Depends(verify_business_access),
     current_user: dict = Depends(get_current_owner)
 ):
     db = get_database()
@@ -240,6 +243,7 @@ async def update_business(
 @router.delete("/{business_id}")
 async def delete_business(
     business_id: str,
+    tenant: TenantContext = Depends(verify_business_access),
     current_user: dict = Depends(get_current_owner)
 ):
     db = get_database()
@@ -270,6 +274,7 @@ async def delete_business(
 @router.post("/{business_id}/claim")
 async def claim_business(
     business_id: str,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner)
 ):
     db = get_database()
@@ -307,7 +312,7 @@ async def claim_business(
 
 
 @router.get("/owner/my-businesses")
-async def get_my_businesses(current_user: dict = Depends(get_current_owner)):
+async def get_my_businesses(tenant: TenantContext = Depends(set_user_tenant_context), current_user: dict = Depends(get_current_owner)):
     db = get_database()
     
     businesses = await db.businesses.find(

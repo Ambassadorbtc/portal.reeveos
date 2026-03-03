@@ -10,7 +10,7 @@ Customers scan a QR code at their table to:
 NO competitor includes this natively — Epos Now charges extra,
 Toast requires add-on, SumUp doesn't have it.
 """
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import Depends,  APIRouter, HTTPException, Body
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 from datetime import datetime, timedelta
@@ -18,6 +18,7 @@ from bson import ObjectId
 from database import get_database
 import secrets
 import logging
+from middleware.tenant import verify_business_access, TenantContext
 
 logger = logging.getLogger("pay_at_table")
 router = APIRouter(prefix="/table-service", tags=["Pay at Table"])
@@ -26,7 +27,7 @@ router = APIRouter(prefix="/table-service", tags=["Pay at Table"])
 # ─── QR Code / Table Token Generation ─── #
 
 @router.post("/business/{business_id}/generate-qr-tokens")
-async def generate_table_tokens(business_id: str):
+async def generate_table_tokens(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Generate unique QR tokens for each table. 
     Each token maps to a table and can be used to create QR codes.
     """
@@ -425,7 +426,7 @@ async def call_waiter(token: str, message: Optional[str] = Body("Attention neede
 
 
 @router.get("/business/{business_id}/alerts")
-async def get_table_alerts(business_id: str):
+async def get_table_alerts(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get pending table alerts (waiter calls, bill requests)."""
     db = get_database()
     alerts = []
@@ -441,7 +442,7 @@ async def get_table_alerts(business_id: str):
 
 
 @router.put("/business/{business_id}/alerts/{alert_id}/dismiss")
-async def dismiss_alert(business_id: str, alert_id: str):
+async def dismiss_alert(business_id: str, tenant: TenantContext = Depends(verify_business_access), alert_id: str):
     db = get_database()
     await db.table_alerts.update_one(
         {"_id": ObjectId(alert_id)},

@@ -3,11 +3,13 @@ from database import get_database
 from models.user import UserUpdate, UserResponse, UserRole
 from middleware.auth import get_current_user
 from datetime import datetime
+from middleware.tenant import verify_business_access, set_user_tenant_context, TenantContext
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("/me", response_model=UserResponse)
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def get_current_user_profile(current_user: dict = Depends(get_current_user)):
     return UserResponse(
         id=str(current_user["_id"]),
@@ -26,6 +28,7 @@ async def get_current_user_profile(current_user: dict = Depends(get_current_user
 @router.patch("/me", response_model=UserResponse)
 async def update_current_user(
     user_update: UserUpdate,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_user)
 ):
     db = get_database()
@@ -63,6 +66,7 @@ async def update_current_user(
 @router.post("/me/save-business/{business_id}")
 async def save_business(
     business_id: str,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_user)
 ):
     db = get_database()
@@ -85,6 +89,7 @@ async def save_business(
 @router.delete("/me/save-business/{business_id}")
 async def unsave_business(
     business_id: str,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_user)
 ):
     db = get_database()
@@ -98,6 +103,7 @@ async def unsave_business(
 
 
 @router.get("/me/saved-businesses")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def get_saved_businesses(current_user: dict = Depends(get_current_user)):
     db = get_database()
     
@@ -111,6 +117,7 @@ async def get_saved_businesses(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/me/bookings")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def get_user_bookings(current_user: dict = Depends(get_current_user)):
     db = get_database()
     # Use bookings (Run 2) — match by customer email since bookings don't have user_id
@@ -124,6 +131,7 @@ async def get_user_bookings(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/me/reviews")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def get_user_reviews(current_user: dict = Depends(get_current_user)):
     db = get_database()
     

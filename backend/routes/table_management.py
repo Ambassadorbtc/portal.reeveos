@@ -28,6 +28,7 @@ import logging
 import math
 import random
 import string
+from middleware.tenant import verify_business_access, TenantContext
 
 logger = logging.getLogger("table_management")
 router = APIRouter(prefix="/tables-epos", tags=["EPOS Table Management"])
@@ -153,7 +154,7 @@ BASE_TURN_TIMES = {
 # ═══════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/floor-plan")
-async def get_floor_plan(business_id: str):
+async def get_floor_plan(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get complete floor plan with all zones, tables, and current status."""
     db = get_database()
 
@@ -230,7 +231,7 @@ async def get_floor_plan(business_id: str):
 
 
 @router.post("/business/{business_id}/floor-plan")
-async def save_floor_plan(business_id: str, layout: FloorPlanLayout):
+async def save_floor_plan(business_id: str, tenant: TenantContext = Depends(verify_business_access), layout: FloorPlanLayout):
     """Save entire floor plan layout (positions, walls, labels)."""
     db = get_database()
     doc = {
@@ -259,7 +260,7 @@ async def save_floor_plan(business_id: str, layout: FloorPlanLayout):
 # ═══════════════════════════════════════════════════════
 
 @router.post("/business/{business_id}/zones")
-async def create_zone(business_id: str, zone: TableZone):
+async def create_zone(business_id: str, tenant: TenantContext = Depends(verify_business_access), zone: TableZone):
     db = get_database()
     doc = {
         "business_id": business_id,
@@ -275,7 +276,7 @@ async def create_zone(business_id: str, zone: TableZone):
 
 
 @router.put("/business/{business_id}/zones/{zone_id}")
-async def update_zone(business_id: str, zone_id: str, zone: TableZone):
+async def update_zone(business_id: str, tenant: TenantContext = Depends(verify_business_access), zone_id: str, zone: TableZone):
     db = get_database()
     await db.epos_zones.update_one(
         {"_id": ObjectId(zone_id), "business_id": business_id},
@@ -286,7 +287,7 @@ async def update_zone(business_id: str, zone_id: str, zone: TableZone):
 
 
 @router.delete("/business/{business_id}/zones/{zone_id}")
-async def delete_zone(business_id: str, zone_id: str):
+async def delete_zone(business_id: str, tenant: TenantContext = Depends(verify_business_access), zone_id: str):
     db = get_database()
     await db.epos_zones.delete_one({"_id": ObjectId(zone_id), "business_id": business_id})
     return {"ok": True}
@@ -297,7 +298,7 @@ async def delete_zone(business_id: str, zone_id: str):
 # ═══════════════════════════════════════════════════════
 
 @router.post("/business/{business_id}/tables")
-async def create_table(business_id: str, table: TableCreate):
+async def create_table(business_id: str, tenant: TenantContext = Depends(verify_business_access), table: TableCreate):
     """Create a table. Validates no duplicate number in business."""
     db = get_database()
     existing = await db.epos_tables.find_one({"business_id": business_id, "number": table.number})
@@ -341,7 +342,7 @@ async def create_table(business_id: str, table: TableCreate):
 
 
 @router.post("/business/{business_id}/tables/bulk")
-async def create_tables_bulk(business_id: str, tables: List[TableCreate] = Body(...)):
+async def create_tables_bulk(business_id: str, tenant: TenantContext = Depends(verify_business_access), tables: List[TableCreate] = Body(...)):
     """Create multiple tables at once (initial setup)."""
     db = get_database()
     created = []
@@ -379,7 +380,7 @@ async def create_tables_bulk(business_id: str, tables: List[TableCreate] = Body(
 
 
 @router.put("/business/{business_id}/tables/{table_id}")
-async def update_table(business_id: str, table_id: str, table: TableCreate):
+async def update_table(business_id: str, tenant: TenantContext = Depends(verify_business_access), table_id: str, table: TableCreate):
     """Update table properties (not status — use status endpoint)."""
     db = get_database()
     updates = {
@@ -405,7 +406,7 @@ async def update_table(business_id: str, table_id: str, table: TableCreate):
 
 
 @router.put("/business/{business_id}/tables/{table_id}/position")
-async def update_table_position(business_id: str, table_id: str, body: Dict = Body(...)):
+async def update_table_position(business_id: str, tenant: TenantContext = Depends(verify_business_access), table_id: str, body: Dict = Body(...)):
     """Quick position update for drag-and-drop (x, y, rotation only)."""
     db = get_database()
     updates = {"updated_at": now()}
@@ -420,7 +421,7 @@ async def update_table_position(business_id: str, table_id: str, body: Dict = Bo
 
 
 @router.delete("/business/{business_id}/tables/{table_id}")
-async def delete_table(business_id: str, table_id: str):
+async def delete_table(business_id: str, tenant: TenantContext = Depends(verify_business_access), table_id: str):
     db = get_database()
     table = await db.epos_tables.find_one({"_id": ObjectId(table_id), "business_id": business_id})
     if table and table.get("status") not in ("available",):
@@ -434,7 +435,7 @@ async def delete_table(business_id: str, table_id: str):
 # ═══════════════════════════════════════════════════════
 
 @router.put("/business/{business_id}/tables/{table_id}/status")
-async def update_table_status(business_id: str, table_id: str, body: TableStatusUpdate):
+async def update_table_status(business_id: str, tenant: TenantContext = Depends(verify_business_access), table_id: str, body: TableStatusUpdate):
     """Transition table through status lifecycle with validation."""
     db = get_database()
     table = await db.epos_tables.find_one({"_id": ObjectId(table_id), "business_id": business_id})
@@ -525,7 +526,7 @@ async def update_table_status(business_id: str, table_id: str, body: TableStatus
 
 
 @router.post("/business/{business_id}/tables/{table_id}/quick-seat")
-async def quick_seat(business_id: str, table_id: str, body: Dict = Body(...)):
+async def quick_seat(business_id: str, tenant: TenantContext = Depends(verify_business_access), table_id: str, body: Dict = Body(...)):
     """One-tap seat: available → seated with covers. Used by host."""
     db = get_database()
     table = await db.epos_tables.find_one({"_id": ObjectId(table_id), "business_id": business_id})
@@ -564,7 +565,7 @@ async def quick_seat(business_id: str, table_id: str, body: Dict = Body(...)):
 # ═══════════════════════════════════════════════════════
 
 @router.put("/business/{business_id}/tables/{table_id}/seats/{seat_number}")
-async def assign_seat(business_id: str, table_id: str, seat_number: int, body: SeatAssignment):
+async def assign_seat(business_id: str, tenant: TenantContext = Depends(verify_business_access), table_id: str, seat_number: int, body: SeatAssignment):
     """Assign guest info to a specific seat. Used for bill splitting and dietary alerts."""
     db = get_database()
     await db.epos_tables.update_one(
@@ -583,7 +584,7 @@ async def assign_seat(business_id: str, table_id: str, seat_number: int, body: S
 
 
 @router.get("/business/{business_id}/tables/{table_id}/seats")
-async def get_seats(business_id: str, table_id: str):
+async def get_seats(business_id: str, tenant: TenantContext = Depends(verify_business_access), table_id: str):
     """Get all seat assignments for a table."""
     db = get_database()
     table = await db.epos_tables.find_one({"_id": ObjectId(table_id), "business_id": business_id})
@@ -601,7 +602,7 @@ async def get_seats(business_id: str, table_id: str):
 # ═══════════════════════════════════════════════════════
 
 @router.post("/business/{business_id}/tables/merge")
-async def merge_tables(business_id: str, body: MergeTablesRequest):
+async def merge_tables(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: MergeTablesRequest):
     """Merge 2+ tables into one. Primary table keeps its number and gets combined seats."""
     db = get_database()
     if len(body.table_ids) < 2:
@@ -656,7 +657,7 @@ async def merge_tables(business_id: str, body: MergeTablesRequest):
 
 
 @router.post("/business/{business_id}/tables/{table_id}/unmerge")
-async def unmerge_table(business_id: str, table_id: str):
+async def unmerge_table(business_id: str, tenant: TenantContext = Depends(verify_business_access), table_id: str):
     """Unmerge a previously merged table back to originals."""
     db = get_database()
     table = await db.epos_tables.find_one({"_id": ObjectId(table_id), "business_id": business_id})
@@ -701,7 +702,7 @@ async def unmerge_table(business_id: str, table_id: str):
 # ═══════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/server-sections")
-async def get_server_sections(business_id: str):
+async def get_server_sections(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     sections = []
     async for s in db.epos_server_sections.find({"business_id": business_id}):
@@ -723,7 +724,7 @@ async def get_server_sections(business_id: str):
 
 
 @router.post("/business/{business_id}/server-sections")
-async def create_server_section(business_id: str, section: ServerSection):
+async def create_server_section(business_id: str, tenant: TenantContext = Depends(verify_business_access), section: ServerSection):
     db = get_database()
     doc = {
         "business_id": business_id,
@@ -749,7 +750,7 @@ async def create_server_section(business_id: str, section: ServerSection):
 
 
 @router.put("/business/{business_id}/server-sections/{section_id}")
-async def update_server_section(business_id: str, section_id: str, section: ServerSection):
+async def update_server_section(business_id: str, tenant: TenantContext = Depends(verify_business_access), section_id: str, section: ServerSection):
     db = get_database()
     await db.epos_server_sections.update_one(
         {"_id": ObjectId(section_id), "business_id": business_id},
@@ -774,7 +775,7 @@ async def update_server_section(business_id: str, section_id: str, section: Serv
 
 
 @router.delete("/business/{business_id}/server-sections/{section_id}")
-async def delete_server_section(business_id: str, section_id: str):
+async def delete_server_section(business_id: str, tenant: TenantContext = Depends(verify_business_access), section_id: str):
     db = get_database()
     section = await db.epos_server_sections.find_one({"_id": ObjectId(section_id)})
     if section:
@@ -788,7 +789,7 @@ async def delete_server_section(business_id: str, section_id: str):
 
 
 @router.post("/business/{business_id}/server-sections/auto-balance")
-async def auto_balance_sections(business_id: str, body: Dict = Body(...)):
+async def auto_balance_sections(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: Dict = Body(...)):
     """Auto-assign tables to servers evenly based on available staff. UNIQUE TO REEVEOS."""
     db = get_database()
     server_ids = body.get("server_ids", [])  # [{id, name}, ...]
@@ -840,7 +841,7 @@ async def auto_balance_sections(business_id: str, body: Dict = Body(...)):
 # ═══════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/waitlist")
-async def get_waitlist(business_id: str):
+async def get_waitlist(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     entries = []
     async for w in db.epos_waitlist.find({
@@ -857,7 +858,7 @@ async def get_waitlist(business_id: str):
 
 
 @router.post("/business/{business_id}/waitlist")
-async def add_to_waitlist(business_id: str, entry: WaitlistEntry):
+async def add_to_waitlist(business_id: str, tenant: TenantContext = Depends(verify_business_access), entry: WaitlistEntry):
     db = get_database()
     doc = {
         "business_id": business_id,
@@ -880,7 +881,7 @@ async def add_to_waitlist(business_id: str, entry: WaitlistEntry):
 
 
 @router.put("/business/{business_id}/waitlist/{entry_id}/notify")
-async def notify_waitlist_guest(business_id: str, entry_id: str):
+async def notify_waitlist_guest(business_id: str, tenant: TenantContext = Depends(verify_business_access), entry_id: str):
     """Mark guest as notified (triggers SMS in frontend)."""
     db = get_database()
     await db.epos_waitlist.update_one(
@@ -892,7 +893,7 @@ async def notify_waitlist_guest(business_id: str, entry_id: str):
 
 
 @router.put("/business/{business_id}/waitlist/{entry_id}/seat")
-async def seat_from_waitlist(business_id: str, entry_id: str, body: Dict = Body(...)):
+async def seat_from_waitlist(business_id: str, tenant: TenantContext = Depends(verify_business_access), entry_id: str, body: Dict = Body(...)):
     """Move from waitlist to a specific table."""
     db = get_database()
     table_id = body.get("table_id")
@@ -925,7 +926,7 @@ async def seat_from_waitlist(business_id: str, entry_id: str, body: Dict = Body(
 
 
 @router.put("/business/{business_id}/waitlist/{entry_id}/cancel")
-async def cancel_waitlist(business_id: str, entry_id: str):
+async def cancel_waitlist(business_id: str, tenant: TenantContext = Depends(verify_business_access), entry_id: str):
     db = get_database()
     await db.epos_waitlist.update_one(
         {"_id": ObjectId(entry_id)},
@@ -939,7 +940,7 @@ async def cancel_waitlist(business_id: str, entry_id: str):
 # ═══════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/suggest-table")
-async def suggest_table(business_id: str, party_size: int = Query(...), preferences: str = Query("")):
+async def suggest_table(business_id: str, tenant: TenantContext = Depends(verify_business_access), party_size: int = Query(...), preferences: str = Query("")):
     """AI-powered table suggestion. Optimises for:
     1. Right-sized table (avoid putting 2 at a 6-top if 2-tops are free)
     2. Zone/feature preferences (window, booth, patio)
@@ -1019,7 +1020,7 @@ async def suggest_table(business_id: str, party_size: int = Query(...), preferen
 # ═══════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/table-analytics")
-async def table_analytics(business_id: str, days: int = Query(7)):
+async def table_analytics(business_id: str, tenant: TenantContext = Depends(verify_business_access), days: int = Query(7)):
     """Revenue-per-seat-hour, average turn time by party size, busiest tables.
     NO COMPETITOR TRACKS REVENUE PER SEAT HOUR."""
     db = get_database()

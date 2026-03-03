@@ -4,13 +4,14 @@ ReeveOS EPOS — Cash Management, Tax Reporting & Multi-Site API
 Cash drawer tracking, float management, variance detection,
 HMRC-ready VAT reporting, and multi-site oversight.
 """
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import Depends, APIRouter, HTTPException, Body
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 from datetime import datetime, timedelta
 from bson import ObjectId
 from database import get_database
 import logging
+from middleware.tenant import verify_business_access, set_user_tenant_context, TenantContext
 
 logger = logging.getLogger("cash_tax")
 router = APIRouter(prefix="/finance", tags=["Cash & Tax"])
@@ -34,7 +35,7 @@ class CashDrop(BaseModel):
 
 
 @router.post("/cash/open-drawer")
-async def open_cash_drawer(body: CashFloat):
+async def open_cash_drawer(body: CashFloat, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Record opening float — start of day."""
     db = get_database()
     session = {
@@ -51,7 +52,7 @@ async def open_cash_drawer(body: CashFloat):
 
 
 @router.post("/cash/close-drawer")
-async def close_cash_drawer(body: CashFloat):
+async def close_cash_drawer(body: CashFloat, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Record closing count — end of day with variance calculation."""
     db = get_database()
 
@@ -137,7 +138,7 @@ async def close_cash_drawer(body: CashFloat):
 
 
 @router.post("/cash/drop")
-async def cash_drop(body: CashDrop):
+async def cash_drop(body: CashDrop, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Record cash drop to safe during shift."""
     db = get_database()
     drop = {
@@ -153,7 +154,7 @@ async def cash_drop(body: CashDrop):
 
 
 @router.get("/cash/business/{business_id}/history")
-async def cash_history(business_id: str, days_back: int = 30):
+async def cash_history(business_id: str, tenant: TenantContext = Depends(verify_business_access), days_back: int = 30):
     """Cash drawer history with variance tracking."""
     db = get_database()
     cutoff = datetime.utcnow() - timedelta(days=days_back)
@@ -181,7 +182,7 @@ async def cash_history(business_id: str, days_back: int = 30):
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/tax/business/{business_id}/vat-summary")
-async def vat_summary(business_id: str, period: str = "quarter"):
+async def vat_summary(business_id: str, tenant: TenantContext = Depends(verify_business_access), period: str = "quarter"):
     """Generate VAT summary for HMRC reporting.
     UK standard rate: 20%, reduced: 5%, zero: 0%.
     """
@@ -296,7 +297,7 @@ async def vat_summary(business_id: str, period: str = "quarter"):
 
 
 @router.get("/tax/business/{business_id}/profit-loss")
-async def profit_and_loss(business_id: str, days_back: int = 30):
+async def profit_and_loss(business_id: str, tenant: TenantContext = Depends(verify_business_access), days_back: int = 30):
     """Simplified P&L — Revenue, COGS, Labour, GP.
     NO competitor generates this automatically from EPOS data.
     """
@@ -366,7 +367,7 @@ async def profit_and_loss(business_id: str, days_back: int = 30):
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/multi-site/{owner_id}/overview")
-async def multi_site_overview(owner_id: str, hours_back: int = 24):
+async def multi_site_overview(owner_id: str, tenant: TenantContext = Depends(set_user_tenant_context), hours_back: int = 24):
     """Cross-site dashboard for multi-location operators.
     See revenue, labour, and issues across all sites at once.
     Epos Now charges extra for this — we include it free.
@@ -434,6 +435,7 @@ async def multi_site_overview(owner_id: str, hours_back: int = 24):
 
 @router.post("/receipts/send/{order_id}")
 async def send_digital_receipt(
+    tenant: TenantContext = Depends(set_user_tenant_context),
     order_id: str,
     method: str = Body("email"),
     destination: str = Body(...),  # email address or phone

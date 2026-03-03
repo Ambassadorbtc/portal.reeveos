@@ -16,7 +16,7 @@ COMPETITIVE EDGE:
 - Toast: US-centric integrations only
 - ReeveOS: native integration with zero middleware cost, plus Uber Direct for own-brand delivery
 """
-from fastapi import APIRouter, HTTPException, Body, Request, Query, Header
+from fastapi import Depends,  APIRouter, HTTPException, Body, Request, Query, Header
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
 from datetime import datetime, timedelta
@@ -27,6 +27,7 @@ import httpx
 import hashlib
 import hmac
 import json
+from middleware.tenant import verify_business_access, TenantContext
 
 logger = logging.getLogger("delivery")
 router = APIRouter(prefix="/delivery", tags=["Delivery Aggregation"])
@@ -79,7 +80,7 @@ class OrderStatusUpdate(BaseModel):
 # ─── Platform Configuration ─── #
 
 @router.get("/business/{business_id}/platforms")
-async def get_platform_configs(business_id: str):
+async def get_platform_configs(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get all delivery platform configurations."""
     db = get_database()
     configs = []
@@ -93,7 +94,7 @@ async def get_platform_configs(business_id: str):
 
 
 @router.put("/business/{business_id}/platforms/{platform}")
-async def set_platform_config(business_id: str, platform: str, body: PlatformConfig):
+async def set_platform_config(business_id: str, tenant: TenantContext = Depends(verify_business_access), platform: str, body: PlatformConfig):
     """Configure a delivery platform integration."""
     db = get_database()
     
@@ -116,7 +117,7 @@ async def set_platform_config(business_id: str, platform: str, body: PlatformCon
 
 
 @router.put("/business/{business_id}/platforms/{platform}/toggle")
-async def toggle_platform(business_id: str, platform: str, enabled: bool = Body(..., embed=True)):
+async def toggle_platform(business_id: str, tenant: TenantContext = Depends(verify_business_access), platform: str, enabled: bool = Body(..., embed=True)):
     """Quick toggle a platform on/off (e.g., kitchen too busy)."""
     db = get_database()
     result = await db.delivery_platforms.update_one(
@@ -129,7 +130,7 @@ async def toggle_platform(business_id: str, platform: str, enabled: bool = Body(
 
 
 @router.put("/business/{business_id}/platforms/{platform}/prep-time")
-async def update_prep_time(business_id: str, platform: str, minutes: int = Body(..., embed=True)):
+async def update_prep_time(business_id: str, tenant: TenantContext = Depends(verify_business_access), platform: str, minutes: int = Body(..., embed=True)):
     """Update prep time for a platform. Syncs to platform if API supports it."""
     db = get_database()
     await db.delivery_platforms.update_one(
@@ -142,7 +143,7 @@ async def update_prep_time(business_id: str, platform: str, minutes: int = Body(
 # ─── Webhook Receivers (Platform → ReeveOS) ─── #
 
 @router.post("/webhooks/deliveroo/{business_id}")
-async def deliveroo_webhook(business_id: str, request: Request):
+async def deliveroo_webhook(business_id: str, tenant: TenantContext = Depends(verify_business_access), request: Request):
     """
     Deliveroo order webhook receiver.
     Transforms Deliveroo order format into unified ReeveOS order.
@@ -220,7 +221,7 @@ async def deliveroo_webhook(business_id: str, request: Request):
 
 
 @router.post("/webhooks/ubereats/{business_id}")
-async def ubereats_webhook(business_id: str, request: Request):
+async def ubereats_webhook(business_id: str, tenant: TenantContext = Depends(verify_business_access), request: Request):
     """UberEats order webhook receiver."""
     db = get_database()
     body = await request.json()
@@ -287,7 +288,7 @@ async def ubereats_webhook(business_id: str, request: Request):
 
 
 @router.post("/webhooks/justeat/{business_id}")
-async def justeat_webhook(business_id: str, request: Request):
+async def justeat_webhook(business_id: str, tenant: TenantContext = Depends(verify_business_access), request: Request):
     """Just Eat order webhook receiver."""
     db = get_database()
     body = await request.json()
@@ -349,7 +350,7 @@ async def justeat_webhook(business_id: str, request: Request):
 # ─── Uber Direct (Own-Brand Delivery) ─── #
 
 @router.post("/business/{business_id}/uber-direct/create")
-async def create_uber_direct_delivery(business_id: str, order_id: str = Body(..., embed=True)):
+async def create_uber_direct_delivery(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str = Body(..., embed=True)):
     """
     Create an Uber Direct delivery for an own-brand online order.
     This is ReeveOS's zero-commission alternative — restaurant keeps 100% minus delivery cost.
@@ -436,6 +437,7 @@ async def create_uber_direct_delivery(business_id: str, order_id: str = Body(...
 async def get_uber_direct_quote(
     business_id: str,
     dropoff_address: str = Query(...)
+    tenant: TenantContext = Depends(verify_business_access),
 ):
     """Get a delivery fee quote from Uber Direct before creating the delivery."""
     db = get_database()
@@ -494,6 +496,7 @@ async def get_delivery_orders(
     from_date: Optional[str] = None,
     to_date: Optional[str] = None,
     limit: int = 50
+    tenant: TenantContext = Depends(verify_business_access),
 ):
     """Get all delivery orders across all platforms. The unified inbox."""
     db = get_database()
@@ -522,7 +525,7 @@ async def get_delivery_orders(
 
 
 @router.get("/business/{business_id}/orders/live")
-async def get_live_delivery_orders(business_id: str):
+async def get_live_delivery_orders(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get currently active delivery orders (not yet delivered/cancelled)."""
     db = get_database()
     
@@ -547,7 +550,7 @@ async def get_live_delivery_orders(business_id: str):
 
 
 @router.put("/business/{business_id}/orders/{order_id}/status")
-async def update_delivery_order_status(business_id: str, order_id: str, body: OrderStatusUpdate):
+async def update_delivery_order_status(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str, body: OrderStatusUpdate):
     """
     Update delivery order status. Syncs status back to the originating platform.
     
@@ -596,7 +599,7 @@ async def update_delivery_order_status(business_id: str, order_id: str, body: Or
 
 
 @router.post("/business/{business_id}/orders/{order_id}/accept")
-async def accept_delivery_order(business_id: str, order_id: str, prep_minutes: int = Body(15, embed=True)):
+async def accept_delivery_order(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str, prep_minutes: int = Body(15, embed=True)):
     """Quick accept an order with estimated prep time."""
     return await update_delivery_order_status(
         business_id, order_id,
@@ -605,7 +608,7 @@ async def accept_delivery_order(business_id: str, order_id: str, prep_minutes: i
 
 
 @router.post("/business/{business_id}/orders/{order_id}/reject")
-async def reject_delivery_order(business_id: str, order_id: str, reason: str = Body(..., embed=True)):
+async def reject_delivery_order(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str, reason: str = Body(..., embed=True)):
     """Reject an order with reason."""
     return await update_delivery_order_status(
         business_id, order_id,
@@ -614,7 +617,7 @@ async def reject_delivery_order(business_id: str, order_id: str, reason: str = B
 
 
 @router.post("/business/{business_id}/orders/{order_id}/ready")
-async def mark_order_ready(business_id: str, order_id: str):
+async def mark_order_ready(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str):
     """Mark order as ready for pickup."""
     return await update_delivery_order_status(
         business_id, order_id,
@@ -625,7 +628,7 @@ async def mark_order_ready(business_id: str, order_id: str):
 # ─── Menu Sync ─── #
 
 @router.post("/business/{business_id}/sync-menu/{platform}")
-async def sync_menu_to_platform(business_id: str, platform: str):
+async def sync_menu_to_platform(business_id: str, tenant: TenantContext = Depends(verify_business_access), platform: str):
     """
     Sync ReeveOS menu to a delivery platform.
     Maps menu items, modifiers, prices, and availability.
@@ -666,7 +669,7 @@ async def sync_menu_to_platform(business_id: str, platform: str):
 
 
 @router.put("/business/{business_id}/item/{item_id}/availability")
-async def toggle_item_delivery_availability(business_id: str, item_id: str, available: bool = Body(..., embed=True)):
+async def toggle_item_delivery_availability(business_id: str, tenant: TenantContext = Depends(verify_business_access), item_id: str, available: bool = Body(..., embed=True)):
     """
     86 an item across all delivery platforms instantly.
     Marks item unavailable and syncs to all connected platforms.
@@ -699,6 +702,7 @@ async def get_delivery_analytics(
     business_id: str,
     from_date: str = Query(...),
     to_date: str = Query(...)
+    tenant: TenantContext = Depends(verify_business_access),
 ):
     """
     Delivery analytics with commission tracking — the data restaurants need

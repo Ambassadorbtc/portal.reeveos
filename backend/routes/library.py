@@ -3,7 +3,7 @@ Library / Knowledge Base — /admin/library
 Stores all project research, chat transcripts, decisions, code summaries.
 Auto-populate endpoint ready for the chrome extension to POST into.
 """
-from fastapi import APIRouter, HTTPException, UploadFile, File, Query
+from fastapi import Depends, APIRouter, HTTPException, UploadFile, File, Query
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
@@ -13,6 +13,7 @@ import re
 import logging
 
 import database
+from middleware.tenant import set_user_tenant_context, TenantContext
 
 router = APIRouter(prefix="/admin/library", tags=["library"])
 logger = logging.getLogger("library")

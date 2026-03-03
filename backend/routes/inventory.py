@@ -4,13 +4,14 @@ ReeveOS EPOS — Inventory & Stock Management API
 Track ingredients, stock levels, low-stock alerts, waste logging,
 recipe costing, supplier management, and auto-reorder suggestions.
 """
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import Depends,  APIRouter, HTTPException, Body
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 from datetime import datetime, timedelta
 from bson import ObjectId
 from database import get_database
 import logging
+from middleware.tenant import verify_business_access, TenantContext
 
 logger = logging.getLogger("inventory")
 router = APIRouter(prefix="/inventory", tags=["Inventory"])
@@ -78,6 +79,7 @@ async def list_ingredients(
     category: Optional[str] = None,
     low_stock: Optional[bool] = None,
     search: Optional[str] = None,
+    tenant: TenantContext = Depends(verify_business_access),
 ):
     """List all ingredients with optional filters."""
     db = get_database()
@@ -100,7 +102,7 @@ async def list_ingredients(
 
 
 @router.post("/business/{business_id}/ingredients")
-async def create_ingredient(business_id: str, body: IngredientCreate):
+async def create_ingredient(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: IngredientCreate):
     """Add a new ingredient to inventory."""
     db = get_database()
     doc = body.dict()
@@ -115,7 +117,7 @@ async def create_ingredient(business_id: str, body: IngredientCreate):
 
 
 @router.put("/business/{business_id}/ingredients/{ingredient_id}")
-async def update_ingredient(business_id: str, ingredient_id: str, updates: dict = Body(...)):
+async def update_ingredient(business_id: str, tenant: TenantContext = Depends(verify_business_access), ingredient_id: str, updates: dict = Body(...)):
     """Update ingredient details."""
     db = get_database()
     updates["updated_at"] = datetime.utcnow()
@@ -127,7 +129,7 @@ async def update_ingredient(business_id: str, ingredient_id: str, updates: dict 
 
 
 @router.delete("/business/{business_id}/ingredients/{ingredient_id}")
-async def delete_ingredient(business_id: str, ingredient_id: str):
+async def delete_ingredient(business_id: str, tenant: TenantContext = Depends(verify_business_access), ingredient_id: str):
     db = get_database()
     await db.ingredients.delete_one({"_id": ObjectId(ingredient_id), "business_id": business_id})
     return {"message": "Ingredient deleted"}
@@ -136,7 +138,7 @@ async def delete_ingredient(business_id: str, ingredient_id: str):
 # ─── Stock Adjustments ─── #
 
 @router.post("/business/{business_id}/adjust")
-async def adjust_stock(business_id: str, body: StockAdjustment):
+async def adjust_stock(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: StockAdjustment):
     """Adjust stock level (delivery, waste, stocktake, etc.)."""
     db = get_database()
     ingredient = await db.ingredients.find_one({"_id": ObjectId(body.ingredient_id), "business_id": business_id})
@@ -183,7 +185,7 @@ async def adjust_stock(business_id: str, body: StockAdjustment):
 
 
 @router.post("/business/{business_id}/stocktake")
-async def bulk_stocktake(business_id: str, counts: List[Dict] = Body(...)):
+async def bulk_stocktake(business_id: str, tenant: TenantContext = Depends(verify_business_access), counts: List[Dict] = Body(...)):
     """Bulk stocktake — update multiple ingredients at once.
     Each item: {ingredient_id: str, actual_count: float}
     """
@@ -231,7 +233,7 @@ async def bulk_stocktake(business_id: str, counts: List[Dict] = Body(...)):
 # ─── Low Stock Alerts ─── #
 
 @router.get("/business/{business_id}/alerts")
-async def get_stock_alerts(business_id: str):
+async def get_stock_alerts(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get all low-stock and out-of-stock alerts."""
     db = get_database()
     pipeline = [
@@ -253,7 +255,7 @@ async def get_stock_alerts(business_id: str):
 # ─── Recipes / Menu Costing ─── #
 
 @router.post("/business/{business_id}/recipes")
-async def create_recipe(business_id: str, body: RecipeCreate):
+async def create_recipe(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: RecipeCreate):
     """Link a menu item to its ingredient recipe for cost tracking."""
     db = get_database()
     doc = body.dict()
@@ -273,7 +275,7 @@ async def create_recipe(business_id: str, body: RecipeCreate):
 
 
 @router.get("/business/{business_id}/recipes")
-async def list_recipes(business_id: str):
+async def list_recipes(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get all recipes with food costs."""
     db = get_database()
     recipes = []
@@ -284,7 +286,7 @@ async def list_recipes(business_id: str):
 
 
 @router.get("/business/{business_id}/food-cost-report")
-async def food_cost_report(business_id: str):
+async def food_cost_report(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Calculate food cost % for all menu items with recipes."""
     db = get_database()
     recipes = []
@@ -326,7 +328,7 @@ async def food_cost_report(business_id: str):
 # ─── Waste Tracking ─── #
 
 @router.post("/business/{business_id}/waste")
-async def log_waste(business_id: str, body: WasteLog):
+async def log_waste(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: WasteLog):
     """Log food waste — tracks cost and reason."""
     db = get_database()
     try:
@@ -362,7 +364,7 @@ async def log_waste(business_id: str, body: WasteLog):
 
 
 @router.get("/business/{business_id}/waste")
-async def get_waste_report(business_id: str, days_back: int = 30):
+async def get_waste_report(business_id: str, tenant: TenantContext = Depends(verify_business_access), days_back: int = 30):
     """Get waste report with cost breakdown."""
     db = get_database()
     cutoff = datetime.utcnow() - timedelta(days=days_back)
@@ -413,7 +415,7 @@ async def get_waste_report(business_id: str, days_back: int = 30):
 # ─── Suppliers ─── #
 
 @router.get("/business/{business_id}/suppliers")
-async def list_suppliers(business_id: str):
+async def list_suppliers(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     db = get_database()
     suppliers = []
     async for doc in db.suppliers.find({"business_id": business_id}):
@@ -423,7 +425,7 @@ async def list_suppliers(business_id: str):
 
 
 @router.post("/business/{business_id}/suppliers")
-async def create_supplier(business_id: str, body: SupplierCreate):
+async def create_supplier(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: SupplierCreate):
     db = get_database()
     doc = body.dict()
     doc["business_id"] = business_id
@@ -435,7 +437,7 @@ async def create_supplier(business_id: str, body: SupplierCreate):
 # ─── Purchase Orders ─── #
 
 @router.post("/business/{business_id}/purchase-orders")
-async def create_purchase_order(business_id: str, body: PurchaseOrder):
+async def create_purchase_order(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: PurchaseOrder):
     """Create a purchase order for a supplier."""
     db = get_database()
 
@@ -457,7 +459,7 @@ async def create_purchase_order(business_id: str, body: PurchaseOrder):
 
 
 @router.get("/business/{business_id}/purchase-orders")
-async def list_purchase_orders(business_id: str, status: Optional[str] = None):
+async def list_purchase_orders(business_id: str, tenant: TenantContext = Depends(verify_business_access), status: Optional[str] = None):
     db = get_database()
     query = {"business_id": business_id}
     if status:
@@ -470,7 +472,7 @@ async def list_purchase_orders(business_id: str, status: Optional[str] = None):
 
 
 @router.put("/business/{business_id}/purchase-orders/{po_id}/receive")
-async def receive_purchase_order(business_id: str, po_id: str):
+async def receive_purchase_order(business_id: str, tenant: TenantContext = Depends(verify_business_access), po_id: str):
     """Mark PO as received and auto-adjust stock levels."""
     db = get_database()
     po = await db.purchase_orders.find_one({"_id": ObjectId(po_id), "business_id": business_id})
@@ -502,7 +504,7 @@ async def receive_purchase_order(business_id: str, po_id: str):
 # ─── Auto-Reorder Suggestions ─── #
 
 @router.get("/business/{business_id}/reorder-suggestions")
-async def get_reorder_suggestions(business_id: str):
+async def get_reorder_suggestions(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """AI-powered reorder suggestions based on stock levels and usage patterns."""
     db = get_database()
 

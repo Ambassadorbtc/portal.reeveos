@@ -4,6 +4,7 @@ from models.review import ReviewCreate, ReviewUpdate, ReviewResponse
 from middleware.auth import get_current_user, get_current_owner
 from datetime import datetime
 from typing import Optional
+from middleware.tenant import verify_business_access, set_user_tenant_context, TenantContext
 
 router = APIRouter(prefix="/reviews", tags=["reviews"])
 
@@ -11,6 +12,7 @@ router = APIRouter(prefix="/reviews", tags=["reviews"])
 @router.post("/", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
 async def create_review(
     review_data: ReviewCreate,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_user)
 ):
     db = get_database()
@@ -82,6 +84,7 @@ async def create_review(
 @router.get("/business/{business_id}")
 async def get_business_reviews(
     business_id: str,
+    tenant: TenantContext = Depends(verify_business_access),
     limit: int = Query(20, ge=1, le=100),
     skip: int = Query(0, ge=0),
     min_rating: Optional[int] = None
@@ -114,6 +117,7 @@ async def get_business_reviews(
 async def update_review(
     review_id: str,
     review_update: ReviewUpdate,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_user)
 ):
     db = get_database()
@@ -173,6 +177,7 @@ async def update_review(
 @router.delete("/{review_id}")
 async def delete_review(
     review_id: str,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_user)
 ):
     db = get_database()
@@ -217,6 +222,7 @@ async def delete_review(
 @router.post("/{review_id}/helpful")
 async def mark_helpful(
     review_id: str,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_user)
 ):
     db = get_database()
@@ -242,6 +248,7 @@ async def mark_helpful(
 async def reply_to_review(
     review_id: str,
     body: dict,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_user)
 ):
     """Business owner replies to a review."""

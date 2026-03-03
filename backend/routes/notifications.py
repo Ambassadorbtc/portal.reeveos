@@ -3,11 +3,12 @@ Notifications — real-time notification system.
 Creates notifications from system events (bookings, orders, reviews, system).
 Stores in MongoDB, serves via API, supports read/dismiss.
 """
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import Depends,  APIRouter, HTTPException, Body
 from database import get_database
 from datetime import datetime, timedelta
 from typing import Optional, List
 from bson import ObjectId
+from middleware.tenant import verify_business_access, TenantContext
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
@@ -25,6 +26,7 @@ async def get_notifications(
     category: Optional[str] = None,
     limit: int = 50,
     hours_back: int = 168,  # 7 days default
+    tenant: TenantContext = Depends(verify_business_access),
 ):
     """Get notifications for a business."""
     db = get_database()
@@ -50,7 +52,7 @@ async def get_notifications(
 
 
 @router.post("/business/{business_id}")
-async def create_notification(business_id: str, body: dict = Body(...)):
+async def create_notification(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: dict = Body(...)):
     """Create a notification (used internally or by admin)."""
     db = get_database()
     notif = {
@@ -84,7 +86,7 @@ async def mark_read(notification_id: str):
 
 
 @router.put("/business/{business_id}/read-all")
-async def mark_all_read(business_id: str):
+async def mark_all_read(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Mark all notifications as read for a business."""
     db = get_database()
     result = await db.notifications.update_many(
@@ -108,7 +110,7 @@ async def dismiss_notification(notification_id: str):
 
 
 @router.delete("/business/{business_id}/clear")
-async def clear_old_notifications(business_id: str, days_old: int = 30):
+async def clear_old_notifications(business_id: str, tenant: TenantContext = Depends(verify_business_access), days_old: int = 30):
     """Delete notifications older than N days."""
     db = get_database()
     cutoff = datetime.utcnow() - timedelta(days=days_old)
@@ -120,7 +122,7 @@ async def clear_old_notifications(business_id: str, days_old: int = 30):
 
 
 @router.get("/business/{business_id}/counts")
-async def get_counts(business_id: str):
+async def get_counts(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get notification counts by category."""
     db = get_database()
     pipeline = [

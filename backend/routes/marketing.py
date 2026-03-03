@@ -14,6 +14,7 @@ from database import get_database
 from middleware.auth import get_current_owner, get_current_user
 from helpers.email import send_email, send_batch, render_template, wrap_html, CAMPAIGNS_FROM, log_email_event
 import logging
+from middleware.tenant import set_user_tenant_context, TenantContext
 
 router = APIRouter(prefix="/marketing", tags=["marketing"])
 logger = logging.getLogger(__name__)
@@ -174,6 +175,7 @@ async def _get_audience_emails(business_id: str, audience: str, filters: Optiona
 # ─── Campaign CRUD ─── #
 
 @router.post("/campaigns")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def create_campaign(data: CampaignCreate, current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
@@ -217,6 +219,7 @@ async def create_campaign(data: CampaignCreate, current_user: dict = Depends(get
 async def list_campaigns(
     status: Optional[str] = None,
     limit: int = Query(50, ge=1, le=200),
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner),
 ):
     db = get_database()
@@ -231,6 +234,7 @@ async def list_campaigns(
 
 
 @router.get("/campaigns/{campaign_id}")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def get_campaign(campaign_id: str, current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
@@ -242,6 +246,7 @@ async def get_campaign(campaign_id: str, current_user: dict = Depends(get_curren
 
 
 @router.patch("/campaigns/{campaign_id}")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def update_campaign(campaign_id: str, data: CampaignUpdate, current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
@@ -265,6 +270,7 @@ async def update_campaign(campaign_id: str, data: CampaignUpdate, current_user: 
 
 
 @router.delete("/campaigns/{campaign_id}")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def delete_campaign(campaign_id: str, current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
@@ -284,6 +290,7 @@ async def delete_campaign(campaign_id: str, current_user: dict = Depends(get_cur
 @router.get("/audience/count")
 async def get_audience_count(
     audience: str = Query("all"),
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner),
 ):
     """Preview recipient count for an audience segment."""
@@ -296,6 +303,7 @@ async def get_audience_count(
 async def preview_audience(
     audience: str = Query("all"),
     limit: int = Query(20, ge=1, le=100),
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner),
 ):
     """Preview the audience list with names and visit counts."""
@@ -409,6 +417,7 @@ async def _execute_campaign_send(campaign_id: str, business_id: str):
 async def send_campaign(
     campaign_id: str,
     background_tasks: BackgroundTasks,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner),
 ):
     """Send a campaign immediately (runs in background)."""
@@ -442,6 +451,7 @@ async def send_campaign(
 async def send_test_email(
     campaign_id: str,
     test_email: str = Query(..., description="Email to send test to"),
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner),
 ):
     """Send a test email for a campaign to yourself."""
@@ -485,6 +495,7 @@ async def send_test_email(
 # ─── Campaign Stats ─── #
 
 @router.get("/campaigns/{campaign_id}/stats")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def get_campaign_stats(campaign_id: str, current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
@@ -583,6 +594,7 @@ async def get_templates():
 # ─── Drip Sequences ─── #
 
 @router.post("/drips")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def create_drip(data: DripCreate, current_user: dict = Depends(get_current_owner)):
     """Create an automated drip sequence."""
     db = get_database()
@@ -606,6 +618,7 @@ async def create_drip(data: DripCreate, current_user: dict = Depends(get_current
 
 
 @router.get("/drips")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def list_drips(current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
@@ -614,6 +627,7 @@ async def list_drips(current_user: dict = Depends(get_current_owner)):
 
 
 @router.get("/drips/{drip_id}")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def get_drip(drip_id: str, current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
@@ -624,6 +638,7 @@ async def get_drip(drip_id: str, current_user: dict = Depends(get_current_owner)
 
 
 @router.patch("/drips/{drip_id}")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def update_drip(drip_id: str, data: dict, current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
@@ -644,6 +659,7 @@ async def update_drip(drip_id: str, data: dict, current_user: dict = Depends(get
 
 
 @router.delete("/drips/{drip_id}")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def delete_drip(drip_id: str, current_user: dict = Depends(get_current_owner)):
     db = get_database()
     business_id = await _get_business_id(current_user)
@@ -655,6 +671,7 @@ async def delete_drip(drip_id: str, current_user: dict = Depends(get_current_own
 
 
 @router.post("/drips/{drip_id}/toggle")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def toggle_drip(drip_id: str, current_user: dict = Depends(get_current_owner)):
     """Toggle a drip sequence on/off."""
     db = get_database()
@@ -850,6 +867,7 @@ async def unsubscribe(email: str = Query(...), business_id: str = Query(...)):
 @router.get("/stats")
 async def get_marketing_stats(
     days: int = Query(30, ge=1, le=365),
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner),
 ):
     """Overall marketing email stats for the business."""
@@ -967,6 +985,7 @@ AI_CAMPAIGN_PROMPTS = {
 @router.post("/ai/generate")
 async def ai_generate_campaign(
     data: dict = Body(...),
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner),
 ):
     """AI-generate a campaign from a prompt or template type."""
@@ -1114,6 +1133,7 @@ AUTO_CAMPAIGN_TYPES = [
 
 
 @router.get("/auto-campaigns")
+tenant: TenantContext = Depends(set_user_tenant_context),
 async def list_auto_campaigns(current_user: dict = Depends(get_current_owner)):
     """List all auto-campaign types with their enabled/disabled status."""
     db = get_database()
@@ -1140,6 +1160,7 @@ async def list_auto_campaigns(current_user: dict = Depends(get_current_owner)):
 @router.post("/auto-campaigns/{campaign_type}/toggle")
 async def toggle_auto_campaign(
     campaign_type: str,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner),
 ):
     """Enable or disable an auto-campaign. Creates the drip sequence if it doesn't exist."""
@@ -1194,6 +1215,7 @@ async def toggle_auto_campaign(
 async def create_ab_test(
     campaign_id: str,
     data: dict = Body(...),
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner),
 ):
     """Set up A/B test with variant subject line or body."""
@@ -1232,6 +1254,7 @@ async def create_ab_test(
 @router.get("/analytics/timeline")
 async def get_analytics_timeline(
     days: int = Query(30, ge=7, le=365),
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner),
 ):
     """Daily email send/open/click counts for charting."""
@@ -1277,6 +1300,7 @@ async def get_analytics_timeline(
 
 @router.get("/analytics/top-campaigns")
 async def get_top_campaigns(
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner),
 ):
     """Top performing campaigns by open rate."""
@@ -1312,6 +1336,7 @@ async def get_top_campaigns(
 @router.get("/analytics/audience-growth")
 async def get_audience_growth(
     days: int = Query(90, ge=7, le=365),
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner),
 ):
     """Track audience growth over time based on new client bookings."""
@@ -1351,6 +1376,7 @@ async def get_audience_growth(
 
 @router.get("/analytics/send-time-heatmap")
 async def get_send_time_heatmap(
+    tenant: TenantContext = Depends(set_user_tenant_context),
     current_user: dict = Depends(get_current_owner),
 ):
     """Heatmap of best open times by day-of-week and hour."""

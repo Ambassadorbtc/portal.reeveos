@@ -12,7 +12,7 @@ COMPETITIVE EDGE: No UK EPOS natively handles allergen compliance at this depth.
 - Epos Now: basic product-level info (we auto-calculate from ingredients)
 - Toast/Square/Lightspeed: modifier notes only (we have structured data)
 """
-from fastapi import APIRouter, HTTPException, Body, UploadFile, File, Query
+from fastapi import Depends,  APIRouter, HTTPException, Body, UploadFile, File, Query
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
 from datetime import datetime
@@ -21,6 +21,7 @@ from database import get_database
 import csv
 import io
 import logging
+from middleware.tenant import verify_business_access, TenantContext
 
 logger = logging.getLogger("allergens")
 router = APIRouter(prefix="/allergens", tags=["Allergen Management"])
@@ -95,7 +96,7 @@ async def get_uk_allergens():
 # ─── Ingredient-Level Allergen Tagging ─── #
 
 @router.put("/business/{business_id}/ingredient/{ingredient_id}/allergens")
-async def tag_ingredient_allergens(business_id: str, ingredient_id: str, body: IngredientAllergens):
+async def tag_ingredient_allergens(business_id: str, tenant: TenantContext = Depends(verify_business_access), ingredient_id: str, body: IngredientAllergens):
     """
     Tag an ingredient with allergens. This is the foundation — menu item allergens
     are auto-calculated from their recipe's ingredients.
@@ -147,7 +148,7 @@ async def tag_ingredient_allergens(business_id: str, ingredient_id: str, body: I
 
 
 @router.get("/business/{business_id}/ingredient/{ingredient_id}/allergens")
-async def get_ingredient_allergens(business_id: str, ingredient_id: str):
+async def get_ingredient_allergens(business_id: str, tenant: TenantContext = Depends(verify_business_access), ingredient_id: str):
     """Get allergen tags for a specific ingredient."""
     db = get_database()
     ingredient = await db.ingredients.find_one(
@@ -165,7 +166,7 @@ async def get_ingredient_allergens(business_id: str, ingredient_id: str):
 
 
 @router.post("/business/{business_id}/ingredients/allergens/bulk")
-async def bulk_tag_ingredient_allergens(business_id: str, tags: List[IngredientAllergens] = Body(...)):
+async def bulk_tag_ingredient_allergens(business_id: str, tenant: TenantContext = Depends(verify_business_access), tags: List[IngredientAllergens] = Body(...)):
     """Bulk tag allergens for multiple ingredients at once."""
     db = get_database()
     updated = 0
@@ -202,7 +203,7 @@ async def bulk_tag_ingredient_allergens(business_id: str, tags: List[IngredientA
 
 
 @router.post("/business/{business_id}/ingredients/allergens/import-csv")
-async def import_allergens_csv(business_id: str, file: UploadFile = File(...)):
+async def import_allergens_csv(business_id: str, tenant: TenantContext = Depends(verify_business_access), file: UploadFile = File(...)):
     """
     Bulk import allergens from CSV.
     Format: ingredient_name, celery, cereals, crustaceans, eggs, fish, lupin, milk, molluscs, mustard, nuts, peanuts, sesame, soya, sulphites
@@ -276,7 +277,7 @@ async def get_csv_template():
 # ─── Menu Item Allergen Auto-Calculation ─── #
 
 @router.get("/business/{business_id}/menu-item/{item_id}/allergens")
-async def get_menu_item_allergens(business_id: str, item_id: str):
+async def get_menu_item_allergens(business_id: str, tenant: TenantContext = Depends(verify_business_access), item_id: str):
     """
     Get calculated allergens for a menu item, including:
     - Auto-calculated from recipe ingredients
@@ -330,7 +331,7 @@ async def get_menu_item_allergens(business_id: str, item_id: str):
 
 
 @router.post("/business/{business_id}/menu-item/{item_id}/override")
-async def set_menu_item_allergen_override(business_id: str, item_id: str, body: MenuItemAllergenOverride):
+async def set_menu_item_allergen_override(business_id: str, tenant: TenantContext = Depends(verify_business_access), item_id: str, body: MenuItemAllergenOverride):
     """
     Set manual allergen overrides for a menu item.
     Use for cross-contamination risks that can't be auto-calculated
@@ -369,7 +370,7 @@ async def set_menu_item_allergen_override(business_id: str, item_id: str, body: 
 
 
 @router.post("/business/{business_id}/recalculate-all")
-async def recalculate_all_allergens(business_id: str):
+async def recalculate_all_allergens(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Force recalculation of allergens for all menu items. Run after bulk ingredient changes."""
     db = get_database()
     count = await _recalculate_all_menu_items(db, business_id)
@@ -379,7 +380,7 @@ async def recalculate_all_allergens(business_id: str):
 # ─── Consumer-Facing Allergen Filtering ─── #
 
 @router.post("/business/{business_id}/menu/filter")
-async def filter_menu_by_allergens(business_id: str, body: AllergenFilterRequest):
+async def filter_menu_by_allergens(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: AllergenFilterRequest):
     """
     Filter the entire menu to show only items safe for the given allergen profile.
     Used by online ordering, kiosks, and QR dine-in ordering.
@@ -441,7 +442,7 @@ async def filter_menu_by_allergens(business_id: str, body: AllergenFilterRequest
 
 
 @router.get("/business/{business_id}/menu-item/{item_id}/safe-for")
-async def check_item_safe_for(business_id: str, item_id: str, allergens: str = Query(...)):
+async def check_item_safe_for(business_id: str, tenant: TenantContext = Depends(verify_business_access), item_id: str, allergens: str = Query(...)):
     """Quick check: is this menu item safe for a list of allergens? allergens=nuts,milk,eggs"""
     db = get_database()
     check_allergens = set(allergens.split(","))
@@ -473,7 +474,7 @@ async def check_item_safe_for(business_id: str, item_id: str, allergens: str = Q
 # ─── Customer Allergen Profiles ─── #
 
 @router.post("/business/{business_id}/customer-profiles")
-async def create_customer_allergen_profile(business_id: str, body: CustomerAllergenProfile):
+async def create_customer_allergen_profile(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: CustomerAllergenProfile):
     """
     Create/update an allergen profile for a customer.
     Linked to booking and CRM — displayed on table assignments and KDS.
@@ -511,7 +512,7 @@ async def create_customer_allergen_profile(business_id: str, body: CustomerAller
 
 
 @router.get("/business/{business_id}/customer-profiles")
-async def list_customer_allergen_profiles(business_id: str, search: Optional[str] = None):
+async def list_customer_allergen_profiles(business_id: str, tenant: TenantContext = Depends(verify_business_access), search: Optional[str] = None):
     """List all customers with allergen profiles. Search by name, phone, or email."""
     db = get_database()
     query = {"business_id": business_id}
@@ -531,7 +532,7 @@ async def list_customer_allergen_profiles(business_id: str, search: Optional[str
 
 
 @router.get("/business/{business_id}/customer-profiles/{profile_id}")
-async def get_customer_allergen_profile(business_id: str, profile_id: str):
+async def get_customer_allergen_profile(business_id: str, tenant: TenantContext = Depends(verify_business_access), profile_id: str):
     """Get a specific customer's allergen profile."""
     db = get_database()
     doc = await db.customer_allergen_profiles.find_one(
@@ -544,7 +545,7 @@ async def get_customer_allergen_profile(business_id: str, profile_id: str):
 
 
 @router.delete("/business/{business_id}/customer-profiles/{profile_id}")
-async def delete_customer_allergen_profile(business_id: str, profile_id: str):
+async def delete_customer_allergen_profile(business_id: str, tenant: TenantContext = Depends(verify_business_access), profile_id: str):
     """Delete a customer allergen profile."""
     db = get_database()
     result = await db.customer_allergen_profiles.delete_one(
@@ -558,7 +559,7 @@ async def delete_customer_allergen_profile(business_id: str, profile_id: str):
 # ─── Natasha's Law Label Generation ─── #
 
 @router.post("/business/{business_id}/menu-item/{item_id}/label")
-async def generate_natasha_law_label(business_id: str, item_id: str, config: LabelConfig):
+async def generate_natasha_law_label(business_id: str, tenant: TenantContext = Depends(verify_business_access), item_id: str, config: LabelConfig):
     """
     Generate a Natasha's Law compliant label for pre-packed items sold on-premises.
     
@@ -625,7 +626,7 @@ async def generate_natasha_law_label(business_id: str, item_id: str, config: Lab
 # ─── KDS Allergen Alerts ─── #
 
 @router.get("/business/{business_id}/kds-alerts/active")
-async def get_active_kds_allergen_alerts(business_id: str):
+async def get_active_kds_allergen_alerts(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """
     Get active allergen alerts for KDS display.
     Pulls from current open orders where the table has a customer with allergen profiles,
@@ -682,7 +683,7 @@ async def get_active_kds_allergen_alerts(business_id: str):
 # ─── Allergen Compliance Dashboard ─── #
 
 @router.get("/business/{business_id}/compliance")
-async def get_allergen_compliance_status(business_id: str):
+async def get_allergen_compliance_status(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """
     Compliance dashboard: shows which items are fully tagged, partially tagged,
     or missing allergen data entirely.
@@ -750,7 +751,7 @@ async def get_allergen_compliance_status(business_id: str):
 # ─── Audit Trail ─── #
 
 @router.get("/business/{business_id}/audit")
-async def get_allergen_audit_trail(business_id: str, limit: int = 50):
+async def get_allergen_audit_trail(business_id: str, tenant: TenantContext = Depends(verify_business_access), limit: int = 50):
     """Full audit trail of allergen changes for regulatory compliance."""
     db = get_database()
     

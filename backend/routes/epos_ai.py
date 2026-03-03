@@ -10,13 +10,14 @@ Features NO competitor offers:
 
 Plus standard: Loyalty programme, Kiosk self-ordering
 """
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import Depends,  APIRouter, HTTPException, Body
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 from datetime import datetime, timedelta
 from bson import ObjectId
 from database import get_database
 import logging
+from middleware.tenant import verify_business_access, TenantContext
 
 logger = logging.getLogger("epos_ai")
 router = APIRouter(prefix="/epos", tags=["EPOS AI + Loyalty + Kiosk"])
@@ -27,7 +28,7 @@ router = APIRouter(prefix="/epos", tags=["EPOS AI + Loyalty + Kiosk"])
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/ai/menu-optimizer")
-async def ai_menu_optimizer(business_id: str, days_back: int = 30):
+async def ai_menu_optimizer(business_id: str, tenant: TenantContext = Depends(verify_business_access), days_back: int = 30):
     """Analyse every menu item by profitability × popularity.
     Quadrant: Star (high margin + popular), Puzzle (high margin + low sales),
     Plowhouse (low margin + popular), Dog (low margin + low sales).
@@ -123,7 +124,7 @@ async def ai_menu_optimizer(business_id: str, days_back: int = 30):
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/ai/prep-forecast")
-async def predictive_prep(business_id: str, hours_ahead: int = 3):
+async def predictive_prep(business_id: str, tenant: TenantContext = Depends(verify_business_access), hours_ahead: int = 3):
     """Predict what items will be ordered in the next N hours.
     Based on same day/time patterns from last 8 weeks.
     NO EPOS competitor does this.
@@ -190,7 +191,7 @@ async def predictive_prep(business_id: str, hours_ahead: int = 3):
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/ai/upsell/{order_id}")
-async def smart_upsell(business_id: str, order_id: str):
+async def smart_upsell(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str):
     """Suggest upsell items based on what's currently in the order.
     Uses association rules from past orders.
     NO competitor has real-time AI upsell during order entry.
@@ -239,7 +240,7 @@ async def smart_upsell(business_id: str, order_id: str):
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/ai/waste-prediction")
-async def predict_waste(business_id: str):
+async def predict_waste(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Predict which ingredients are at risk of waste based on
     shelf life, current stock, and usage rate.
     """
@@ -302,7 +303,7 @@ async def predict_waste(business_id: str):
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/ai/order-cost/{order_id}")
-async def real_time_order_cost(business_id: str, order_id: str):
+async def real_time_order_cost(business_id: str, tenant: TenantContext = Depends(verify_business_access), order_id: str):
     """Calculate real food cost for a specific order using recipes.
     Shows actual GP% per order in real time.
     """
@@ -359,7 +360,7 @@ async def real_time_order_cost(business_id: str, order_id: str):
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/ai/peak-heatmap")
-async def peak_time_heatmap(business_id: str, weeks_back: int = 8):
+async def peak_time_heatmap(business_id: str, tenant: TenantContext = Depends(verify_business_access), weeks_back: int = 8):
     """Generate day × hour heatmap of order volume."""
     db = get_database()
     cutoff = datetime.utcnow() - timedelta(weeks=weeks_back)
@@ -397,7 +398,7 @@ async def peak_time_heatmap(business_id: str, weeks_back: int = 8):
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/loyalty/config")
-async def get_loyalty_config(business_id: str):
+async def get_loyalty_config(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get loyalty programme settings."""
     db = get_database()
     biz = await db.businesses.find_one({"_id": ObjectId(business_id)})
@@ -420,7 +421,7 @@ async def get_loyalty_config(business_id: str):
 
 
 @router.put("/business/{business_id}/loyalty/config")
-async def update_loyalty_config(business_id: str, config: dict = Body(...)):
+async def update_loyalty_config(business_id: str, tenant: TenantContext = Depends(verify_business_access), config: dict = Body(...)):
     """Update loyalty settings."""
     db = get_database()
     await db.businesses.update_one(
@@ -552,7 +553,7 @@ async def redeem_points(
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/kiosk/{business_id}/menu")
-async def kiosk_menu(business_id: str):
+async def kiosk_menu(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get menu formatted for kiosk display (grouped by category, images, modifiers)."""
     db = get_database()
     biz = await db.businesses.find_one({"_id": ObjectId(business_id)})
@@ -593,6 +594,7 @@ async def kiosk_place_order(
     order_type: str = Body("dine_in"),
     table_number: Optional[str] = Body(None),
     customer_name: Optional[str] = Body(None),
+    tenant: TenantContext = Depends(verify_business_access),
 ):
     """Place order from kiosk — creates order and fires to KDS."""
     from routes.orders import create_order, fire_order, CreateOrder, OrderItem

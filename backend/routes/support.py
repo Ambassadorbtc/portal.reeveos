@@ -18,6 +18,7 @@ from typing import List, Optional
 from bson import ObjectId
 import re
 from collections import Counter
+from middleware.tenant import verify_business_access, set_user_tenant_context, TenantContext
 
 router = APIRouter(prefix="/api/support", tags=["support"])
 
@@ -35,6 +36,7 @@ def calculate_cost_microcents(input_tokens: int, output_tokens: int) -> int:
 @router.post("/conversations", response_model=ConversationResponse, status_code=status.HTTP_201_CREATED)
 async def start_conversation(
     data: ConversationCreate,
+    tenant: TenantContext = Depends(set_user_tenant_context),
     user_agent: Optional[str] = Header(None)
 ):
     """Start a new support conversation (creates a support ticket)."""
@@ -88,7 +90,7 @@ async def start_conversation(
 
 
 @router.post("/conversations/{conversation_id}/messages", status_code=status.HTTP_201_CREATED)
-async def log_message(conversation_id: str, data: SupportMessageCreate):
+async def log_message(conversation_id: str, data: SupportMessageCreate, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Log a message (user or assistant) to a conversation."""
     db = get_database()
     
@@ -148,7 +150,7 @@ async def log_message(conversation_id: str, data: SupportMessageCreate):
 
 
 @router.patch("/conversations/{conversation_id}", response_model=ConversationResponse)
-async def update_conversation(conversation_id: str, data: ConversationUpdate, _user=Depends(get_current_staff)):
+async def update_conversation(conversation_id: str, data: ConversationUpdate, tenant: TenantContext = Depends(set_user_tenant_context), _user=Depends(get_current_staff)):
     """Update conversation status or metadata."""
     db = get_database()
     
@@ -214,6 +216,7 @@ async def update_conversation(conversation_id: str, data: ConversationUpdate, _u
 
 @router.get("/conversations", response_model=List[ConversationResponse])
 async def list_conversations(
+    tenant: TenantContext = Depends(set_user_tenant_context),
     _user=Depends(get_current_staff),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
@@ -264,7 +267,7 @@ async def list_conversations(
 
 
 @router.get("/conversations/{conversation_id}")
-async def get_conversation(conversation_id: str):
+async def get_conversation(conversation_id: str, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Get a single conversation with full message history."""
     db = get_database()
     
@@ -347,6 +350,7 @@ async def get_conversation(conversation_id: str):
 
 @router.get("/tickets", response_model=List[ConversationResponse])
 async def get_tickets_needing_review(
+    tenant: TenantContext = Depends(set_user_tenant_context),
     _user=Depends(get_current_staff),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100)
@@ -443,7 +447,7 @@ async def get_tickets_needing_review(
 
 
 @router.get("/analytics", response_model=AnalyticsResponse)
-async def get_analytics(days: int = Query(30, ge=1, le=365), _user=Depends(get_current_owner)):
+async def get_analytics(days: int = Query(30, ge=1, le=365), tenant: TenantContext = Depends(set_user_tenant_context), _user=Depends(get_current_owner)):
     """Get support analytics: top questions, costs, volumes."""
     db = get_database()
     

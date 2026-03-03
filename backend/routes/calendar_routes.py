@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Query, Depends
 from database import get_database
 from middleware.auth import get_current_staff
 from datetime import datetime, date, timedelta
+from middleware.tenant import verify_business_access, TenantContext
 
 router = APIRouter(prefix="/calendar", tags=["calendar"])
 
@@ -25,6 +26,7 @@ async def get_calendar(
     date_param: str = Query(..., alias="date"),
     view: str = Query("day"),
     current_user: dict = Depends(get_current_staff),
+    tenant: TenantContext = Depends(verify_business_access),
 ):
     db = get_database()
     business = await db.businesses.find_one({"_id": business_id})

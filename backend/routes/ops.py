@@ -4,12 +4,13 @@ ReeveOS EPOS — Tax Reporting, Multi-Site & Cash Drawer API
 HMRC-ready VAT reports, cash drawer management, multi-site
 overview, and end-of-day reconciliation.
 """
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import Depends,  APIRouter, HTTPException, Body
 from typing import Optional, List
 from datetime import datetime, timedelta
 from bson import ObjectId
 from database import get_database
 import logging
+from middleware.tenant import verify_business_access, TenantContext
 
 logger = logging.getLogger("tax_multisite")
 router = APIRouter(prefix="/ops", tags=["Tax, Cash Drawer & Multi-Site"])
@@ -20,7 +21,7 @@ router = APIRouter(prefix="/ops", tags=["Tax, Cash Drawer & Multi-Site"])
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/business/{business_id}/vat-report")
-async def vat_report(business_id: str, month: Optional[str] = None):
+async def vat_report(business_id: str, tenant: TenantContext = Depends(verify_business_access), month: Optional[str] = None):
     """Generate HMRC-ready VAT report.
     month format: YYYY-MM (defaults to current month).
     UK standard: 20% VAT included in prices."""
@@ -118,7 +119,7 @@ async def vat_report(business_id: str, month: Optional[str] = None):
 
 
 @router.get("/business/{business_id}/vat-quarterly")
-async def vat_quarterly(business_id: str, quarter: str):
+async def vat_quarterly(business_id: str, tenant: TenantContext = Depends(verify_business_access), quarter: str):
     """Quarterly VAT summary for HMRC submission.
     quarter format: 2025-Q1, 2025-Q2, etc."""
     year, q = quarter.split("-Q")
@@ -180,6 +181,7 @@ async def open_cash_drawer(
     business_id: str,
     opening_float: float = Body(...),
     staff_id: Optional[str] = Body(None),
+    tenant: TenantContext = Depends(verify_business_access),
 ):
     """Open cash drawer session with float amount."""
     db = get_database()
@@ -208,7 +210,7 @@ async def open_cash_drawer(
 
 
 @router.post("/business/{business_id}/cash/add")
-async def cash_in(business_id: str, amount: float = Body(...), reason: str = Body("manual")):
+async def cash_in(business_id: str, tenant: TenantContext = Depends(verify_business_access), amount: float = Body(...), reason: str = Body("manual")):
     """Add cash to drawer (e.g. manual addition)."""
     db = get_database()
     session = await db.cash_sessions.find_one({"business_id": business_id, "status": "open"})
@@ -224,7 +226,7 @@ async def cash_in(business_id: str, amount: float = Body(...), reason: str = Bod
 
 
 @router.post("/business/{business_id}/cash/remove")
-async def cash_out(business_id: str, amount: float = Body(...), reason: str = Body("paid_out")):
+async def cash_out(business_id: str, tenant: TenantContext = Depends(verify_business_access), amount: float = Body(...), reason: str = Body("paid_out")):
     """Remove cash from drawer (petty cash, paid out)."""
     db = get_database()
     session = await db.cash_sessions.find_one({"business_id": business_id, "status": "open"})
@@ -244,6 +246,7 @@ async def close_cash_drawer(
     business_id: str,
     counted_amount: float = Body(...),
     staff_id: Optional[str] = Body(None),
+    tenant: TenantContext = Depends(verify_business_access),
 ):
     """Close cash drawer and reconcile."""
     db = get_database()

@@ -4,12 +4,13 @@ ReeveOS EPOS — Kitchen Display System (KDS) API
 Real-time kitchen ticket management with station routing,
 course firing, prep timers, and fulfillment tracking.
 """
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import Depends,  APIRouter, HTTPException, Body
 from typing import Optional, List
 from datetime import datetime, timedelta
 from bson import ObjectId
 from database import get_database
 import logging
+from middleware.tenant import verify_business_access, TenantContext
 
 logger = logging.getLogger("kds")
 router = APIRouter(prefix="/kds", tags=["Kitchen Display"])
@@ -18,7 +19,7 @@ router = APIRouter(prefix="/kds", tags=["Kitchen Display"])
 # ─── Station Config ─── #
 
 @router.get("/business/{business_id}/stations")
-async def get_stations(business_id: str):
+async def get_stations(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get KDS station configuration for a business."""
     db = get_database()
     biz = await db.businesses.find_one({"_id": ObjectId(business_id)})
@@ -34,7 +35,7 @@ async def get_stations(business_id: str):
 
 
 @router.put("/business/{business_id}/stations")
-async def update_stations(business_id: str, stations: List[dict] = Body(...)):
+async def update_stations(business_id: str, tenant: TenantContext = Depends(verify_business_access), stations: List[dict] = Body(...)):
     """Update KDS station config (which categories route where)."""
     db = get_database()
     await db.businesses.update_one(
@@ -52,6 +53,7 @@ async def get_live_tickets(
     station: Optional[str] = None,
     status: Optional[str] = None,
     limit: int = 50
+    tenant: TenantContext = Depends(verify_business_access),
 ):
     """Get live KDS tickets for a business/station."""
     db = get_database()
@@ -81,7 +83,7 @@ async def get_live_tickets(
 
 
 @router.get("/business/{business_id}/tickets/all-day")
-async def get_all_day_view(business_id: str):
+async def get_all_day_view(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """All-day summary — item counts needed across all open tickets."""
     db = get_database()
     pipeline = [
@@ -228,7 +230,7 @@ async def set_priority(ticket_id: str, priority: str = Body(..., embed=True)):
 # ─── Recently Fulfilled ─── #
 
 @router.get("/business/{business_id}/recent")
-async def get_recent_tickets(business_id: str, limit: int = 10):
+async def get_recent_tickets(business_id: str, tenant: TenantContext = Depends(verify_business_access), limit: int = 10):
     """Get recently completed tickets."""
     db = get_database()
     tickets = []
@@ -244,7 +246,7 @@ async def get_recent_tickets(business_id: str, limit: int = 10):
 # ─── KDS Analytics ─── #
 
 @router.get("/business/{business_id}/analytics")
-async def kds_analytics(business_id: str, hours_back: int = 8):
+async def kds_analytics(business_id: str, tenant: TenantContext = Depends(verify_business_access), hours_back: int = 8):
     """KDS performance stats — avg prep times, throughput, bottlenecks."""
     db = get_database()
     cutoff = datetime.utcnow() - timedelta(hours=hours_back)

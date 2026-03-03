@@ -5,13 +5,14 @@ Time clock, shift scheduling, labour cost tracking,
 break management, overtime alerts, staff performance.
 Competitors charge extra for this — ours is built-in.
 """
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import Depends,  APIRouter, HTTPException, Body
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 from datetime import datetime, timedelta
 from bson import ObjectId
 from database import get_database
 import logging
+from middleware.tenant import verify_business_access, TenantContext
 
 logger = logging.getLogger("labour")
 router = APIRouter(prefix="/labour", tags=["Staff Scheduling & Labour"])
@@ -41,7 +42,7 @@ class BreakEvent(BaseModel):
 # ─── Time Clock ─── #
 
 @router.post("/business/{business_id}/clock-in")
-async def clock_in(business_id: str, body: ClockEvent):
+async def clock_in(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: ClockEvent):
     """Staff clock-in. Creates a timesheet entry."""
     db = get_database()
 
@@ -88,7 +89,7 @@ async def clock_in(business_id: str, body: ClockEvent):
 
 
 @router.post("/business/{business_id}/clock-out")
-async def clock_out(business_id: str, body: ClockEvent):
+async def clock_out(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: ClockEvent):
     """Staff clock-out. Calculates hours and labour cost."""
     db = get_database()
 
@@ -139,7 +140,7 @@ async def clock_out(business_id: str, body: ClockEvent):
 
 
 @router.post("/business/{business_id}/break-start")
-async def start_break(business_id: str, body: BreakEvent):
+async def start_break(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: BreakEvent):
     """Start a break."""
     db = get_database()
     entry = await db.timesheets.find_one({
@@ -160,7 +161,7 @@ async def start_break(business_id: str, body: BreakEvent):
 
 
 @router.post("/business/{business_id}/break-end")
-async def end_break(business_id: str, body: BreakEvent):
+async def end_break(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: BreakEvent):
     """End current break."""
     db = get_database()
     entry = await db.timesheets.find_one({
@@ -185,7 +186,7 @@ async def end_break(business_id: str, body: BreakEvent):
 
 
 @router.get("/business/{business_id}/who-is-in")
-async def who_is_in(business_id: str):
+async def who_is_in(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get all currently clocked-in staff."""
     db = get_database()
     staff = []
@@ -212,7 +213,7 @@ async def who_is_in(business_id: str):
 # ─── Shift Scheduling ─── #
 
 @router.post("/business/{business_id}/shifts")
-async def create_shift(business_id: str, body: ShiftCreate):
+async def create_shift(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: ShiftCreate):
     """Schedule a shift."""
     db = get_database()
     shift = body.dict()
@@ -225,7 +226,7 @@ async def create_shift(business_id: str, body: ShiftCreate):
 
 
 @router.get("/business/{business_id}/shifts")
-async def get_shifts(business_id: str, week_of: Optional[str] = None):
+async def get_shifts(business_id: str, tenant: TenantContext = Depends(verify_business_access), week_of: Optional[str] = None):
     """Get shift schedule for a week. week_of=YYYY-MM-DD (Monday of that week)."""
     db = get_database()
 
@@ -249,7 +250,7 @@ async def get_shifts(business_id: str, week_of: Optional[str] = None):
 
 
 @router.post("/business/{business_id}/shifts/auto-schedule")
-async def auto_schedule(business_id: str, week_of: str = Body(..., embed=True)):
+async def auto_schedule(business_id: str, tenant: TenantContext = Depends(verify_business_access), week_of: str = Body(..., embed=True)):
     """Auto-generate schedule based on historical busy patterns.
     NO competitor offers AI-powered auto-scheduling."""
     db = get_database()
@@ -332,7 +333,7 @@ async def auto_schedule(business_id: str, week_of: str = Body(..., embed=True)):
 # ─── Labour Analytics ─── #
 
 @router.get("/business/{business_id}/labour-report")
-async def labour_report(business_id: str, days_back: int = 7):
+async def labour_report(business_id: str, tenant: TenantContext = Depends(verify_business_access), days_back: int = 7):
     """Labour cost report with revenue comparison."""
     db = get_database()
     cutoff = datetime.utcnow() - timedelta(days=days_back)
@@ -405,7 +406,7 @@ async def labour_report(business_id: str, days_back: int = 7):
 # ─── Staff Performance ─── #
 
 @router.get("/business/{business_id}/staff-performance")
-async def staff_performance(business_id: str, days_back: int = 30):
+async def staff_performance(business_id: str, tenant: TenantContext = Depends(verify_business_access), days_back: int = 30):
     """Per-staff performance: revenue generated, avg order value, upsell rate, tips.
     NO competitor tracks individual server revenue attribution."""
     db = get_database()

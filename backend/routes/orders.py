@@ -13,6 +13,7 @@ from bson import ObjectId
 from database import get_database
 from decimal import Decimal
 import logging
+from middleware.tenant import verify_business_access, set_user_tenant_context, TenantContext
 
 logger = logging.getLogger("orders")
 router = APIRouter(prefix="/orders", tags=["EPOS Orders"])
@@ -144,7 +145,7 @@ def serialise(doc):
 # ─── Create Order ─── #
 
 @router.post("/")
-async def create_order(body: CreateOrder):
+async def create_order(body: CreateOrder, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Create a new order (dine-in, takeaway, delivery, kiosk)."""
     db = get_database()
 
@@ -196,7 +197,7 @@ async def create_order(body: CreateOrder):
 
 
 @router.get("/{order_id}")
-async def get_order(order_id: str):
+async def get_order(order_id: str, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Get full order details."""
     db = get_database()
     order = await db.orders.find_one({"_id": ObjectId(order_id)})
@@ -208,6 +209,7 @@ async def get_order(order_id: str):
 @router.get("/business/{business_id}")
 async def list_orders(
     business_id: str,
+    tenant: TenantContext = Depends(verify_business_access),
     status: Optional[str] = None,
     order_type: Optional[str] = None,
     hours_back: int = 24,
@@ -232,7 +234,7 @@ async def list_orders(
 
 
 @router.get("/business/{business_id}/open")
-async def get_open_orders(business_id: str):
+async def get_open_orders(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get all currently open orders (active service)."""
     db = get_database()
     orders = []
@@ -247,7 +249,7 @@ async def get_open_orders(business_id: str):
 # ─── Modify Order ─── #
 
 @router.post("/{order_id}/items")
-async def add_items_to_order(order_id: str, body: AddItems):
+async def add_items_to_order(order_id: str, body: AddItems, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Add items to an open order."""
     db = get_database()
     order = await db.orders.find_one({"_id": ObjectId(order_id)})
@@ -270,7 +272,7 @@ async def add_items_to_order(order_id: str, body: AddItems):
 
 
 @router.delete("/{order_id}/items/{item_index}")
-async def remove_item(order_id: str, item_index: int, reason: str = "removed"):
+async def remove_item(order_id: str, item_index: int, tenant: TenantContext = Depends(set_user_tenant_context), reason: str = "removed"):
     """Remove an item from order (void line)."""
     db = get_database()
     order = await db.orders.find_one({"_id": ObjectId(order_id)})
@@ -299,7 +301,7 @@ async def remove_item(order_id: str, item_index: int, reason: str = "removed"):
 
 
 @router.put("/{order_id}/items/{item_index}")
-async def update_item(order_id: str, item_index: int, updates: dict = Body(...)):
+async def update_item(order_id: str, item_index: int, tenant: TenantContext = Depends(set_user_tenant_context), updates: dict = Body(...)):
     """Update item quantity, modifiers, notes, course, seat."""
     db = get_database()
     order = await db.orders.find_one({"_id": ObjectId(order_id)})
@@ -325,7 +327,7 @@ async def update_item(order_id: str, item_index: int, updates: dict = Body(...))
 # ─── Fire to Kitchen ─── #
 
 @router.post("/{order_id}/fire")
-async def fire_order(order_id: str, course: Optional[int] = None):
+async def fire_order(order_id: str, tenant: TenantContext = Depends(set_user_tenant_context), course: Optional[int] = None):
     """Fire order (or specific course) to KDS."""
     db = get_database()
     order = await db.orders.find_one({"_id": ObjectId(order_id)})
@@ -393,7 +395,7 @@ async def fire_order(order_id: str, course: Optional[int] = None):
 # ─── Discounts ─── #
 
 @router.post("/{order_id}/discount")
-async def apply_discount(order_id: str, body: ApplyDiscount):
+async def apply_discount(order_id: str, body: ApplyDiscount, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Apply discount to order or specific item."""
     db = get_database()
     order = await db.orders.find_one({"_id": ObjectId(order_id)})
@@ -437,7 +439,7 @@ async def apply_discount(order_id: str, body: ApplyDiscount):
 # ─── Service Charge ─── #
 
 @router.put("/{order_id}/service-charge")
-async def set_service_charge(order_id: str, percent: float = Body(..., embed=True)):
+async def set_service_charge(order_id: str, tenant: TenantContext = Depends(set_user_tenant_context), percent: float = Body(..., embed=True)):
     """Set service charge percentage (0 to remove)."""
     db = get_database()
     order = await db.orders.find_one({"_id": ObjectId(order_id)})
@@ -458,7 +460,7 @@ async def set_service_charge(order_id: str, percent: float = Body(..., embed=Tru
 # ─── Split Bill ─── #
 
 @router.post("/{order_id}/split")
-async def split_bill(order_id: str, body: SplitBillRequest):
+async def split_bill(order_id: str, body: SplitBillRequest, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Split the bill equally, by seat, by item, or custom."""
     db = get_database()
     order = await db.orders.find_one({"_id": ObjectId(order_id)})
@@ -512,7 +514,7 @@ async def split_bill(order_id: str, body: SplitBillRequest):
 # ─── Payments ─── #
 
 @router.post("/{order_id}/pay")
-async def process_payment(order_id: str, body: PaymentRequest):
+async def process_payment(order_id: str, body: PaymentRequest, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Process a payment against the order."""
     db = get_database()
     order = await db.orders.find_one({"_id": ObjectId(order_id)})
@@ -580,7 +582,7 @@ async def process_payment(order_id: str, body: PaymentRequest):
 # ─── Close / Void ─── #
 
 @router.post("/{order_id}/close")
-async def close_order(order_id: str):
+async def close_order(order_id: str, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Close a paid order (end of transaction)."""
     db = get_database()
     order = await db.orders.find_one({"_id": ObjectId(order_id)})
@@ -604,7 +606,7 @@ async def close_order(order_id: str):
 
 
 @router.post("/{order_id}/void")
-async def void_order(order_id: str, reason: str = Body(..., embed=True)):
+async def void_order(order_id: str, tenant: TenantContext = Depends(set_user_tenant_context), reason: str = Body(..., embed=True)):
     """Void entire order (manager action)."""
     db = get_database()
     order = await db.orders.find_one({"_id": ObjectId(order_id)})
@@ -637,7 +639,7 @@ async def void_order(order_id: str, reason: str = Body(..., embed=True)):
 # ─── Refunds ─── #
 
 @router.post("/{order_id}/refund")
-async def refund_order(order_id: str, body: RefundRequest):
+async def refund_order(order_id: str, body: RefundRequest, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Refund full or partial order."""
     db = get_database()
     order = await db.orders.find_one({"_id": ObjectId(order_id)})
@@ -681,7 +683,7 @@ async def refund_order(order_id: str, body: RefundRequest):
 # ─── Receipt ─── #
 
 @router.get("/{order_id}/receipt")
-async def get_receipt(order_id: str):
+async def get_receipt(order_id: str, tenant: TenantContext = Depends(set_user_tenant_context)):
     """Generate receipt data for printing or digital delivery."""
     db = get_database()
     order = await db.orders.find_one({"_id": ObjectId(order_id)})
@@ -736,7 +738,7 @@ async def get_receipt(order_id: str):
 # ─── Table Time Tracking ─── #
 
 @router.get("/business/{business_id}/table-times")
-async def get_table_times(business_id: str):
+async def get_table_times(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get time-at-table for all occupied tables (live service view)."""
     db = get_database()
     open_orders = []
@@ -763,7 +765,7 @@ async def get_table_times(business_id: str):
 # ─── Shift / End of Day Reports ─── #
 
 @router.get("/business/{business_id}/shift-report")
-async def shift_report(business_id: str, hours_back: int = 8):
+async def shift_report(business_id: str, tenant: TenantContext = Depends(verify_business_access), hours_back: int = 8):
     """Generate shift report (X report)."""
     db = get_database()
     cutoff = datetime.utcnow() - timedelta(hours=hours_back)
@@ -842,7 +844,7 @@ async def shift_report(business_id: str, hours_back: int = 8):
 
 
 @router.get("/business/{business_id}/z-report")
-async def z_report(business_id: str):
+async def z_report(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Generate Z report (end of day) — full day summary."""
     # Z report is just a shift report for the full day
     return await shift_report(business_id, hours_back=24)
@@ -869,7 +871,7 @@ class UpdateOrderStatus(BaseModel):
     status: str
 
 @router.patch("/{order_id}/status")
-async def update_order_status(order_id: str, body: UpdateOrderStatus):
+async def update_order_status(order_id: str, body: UpdateOrderStatus, tenant: TenantContext = Depends(set_user_tenant_context)):
     db = get_database()
     valid = ["confirmed", "preparing", "ready", "collected", "delivered", "cancelled"]
     if body.status not in valid:

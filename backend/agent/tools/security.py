@@ -26,6 +26,10 @@ EXEMPT_FILES = {
     "auth.py", "directory.py", "book.py", "voice_search.py",
     "email_webhooks.py", "admin.py", "admin_extended.py",
     "command_centre.py", "studio.py", "agent.py", "chatbot.py",
+    "online_ordering.py",  # Public QR ordering — no auth needed
+    "outreach.py",         # Platform sales outreach (not tenant data)
+    "linkedin.py",         # Platform content generation (not tenant data)
+    "library.py",          # Platform knowledge library (not tenant data)
 }
 
 

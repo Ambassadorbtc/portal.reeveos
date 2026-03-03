@@ -5,13 +5,14 @@ Full CRUD for outreach domains, accounts, campaigns, templates,
 unified inbox, analytics, Resend webhooks.
 Prefix: /outreach
 """
-from fastapi import APIRouter, HTTPException, Request, Query
+from fastapi import Depends, APIRouter, HTTPException, Request, Query
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 from bson import ObjectId
 from database import get_database
 import logging
+from middleware.tenant import set_user_tenant_context, TenantContext
 
 logger = logging.getLogger("outreach.routes")
 

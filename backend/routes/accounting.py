@@ -10,7 +10,7 @@ COMPETITIVE EDGE:
 - Auto-reconciliation suggestions save hours of bookkeeper time weekly
 - Built-in MTD (Making Tax Digital) VAT return preparation
 """
-from fastapi import APIRouter, HTTPException, Body, Query
+from fastapi import Depends,  APIRouter, HTTPException, Body, Query
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
 from datetime import datetime, timedelta, date
@@ -19,6 +19,7 @@ from database import get_database
 import logging
 import httpx
 import json
+from middleware.tenant import verify_business_access, TenantContext
 
 logger = logging.getLogger("accounting")
 router = APIRouter(prefix="/accounting", tags=["Accounting Integration"])
@@ -78,7 +79,7 @@ class ManualSyncRequest(BaseModel):
 # ─── OAuth Connection Flow ─── #
 
 @router.post("/business/{business_id}/connect")
-async def initiate_connection(business_id: str, body: AccountingProvider):
+async def initiate_connection(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: AccountingProvider):
     """
     Step 1: Initiate OAuth connection to accounting provider.
     Returns the authorization URL the user should be redirected to.
@@ -116,7 +117,7 @@ async def initiate_connection(business_id: str, body: AccountingProvider):
 
 
 @router.post("/business/{business_id}/callback")
-async def handle_oauth_callback(business_id: str, body: AccountingConnection):
+async def handle_oauth_callback(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: AccountingConnection):
     """
     Step 2: Handle OAuth callback with access token.
     Store the connection and verify it works.
@@ -139,7 +140,7 @@ async def handle_oauth_callback(business_id: str, body: AccountingConnection):
 
 
 @router.get("/business/{business_id}/connection")
-async def get_connection_status(business_id: str):
+async def get_connection_status(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Check current accounting connection status."""
     db = get_database()
     
@@ -158,7 +159,7 @@ async def get_connection_status(business_id: str):
 
 
 @router.delete("/business/{business_id}/disconnect/{provider}")
-async def disconnect_provider(business_id: str, provider: str):
+async def disconnect_provider(business_id: str, tenant: TenantContext = Depends(verify_business_access), provider: str):
     """Disconnect an accounting provider."""
     db = get_database()
     await db.accounting_connections.update_one(
@@ -171,7 +172,7 @@ async def disconnect_provider(business_id: str, provider: str):
 # ─── Account Mapping ─── #
 
 @router.get("/business/{business_id}/mapping")
-async def get_account_mapping(business_id: str):
+async def get_account_mapping(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get the current account code mapping."""
     db = get_database()
     mapping = await db.accounting_mappings.find_one({"business_id": business_id})
@@ -183,7 +184,7 @@ async def get_account_mapping(business_id: str):
 
 
 @router.put("/business/{business_id}/mapping")
-async def set_account_mapping(business_id: str, body: AccountMapping):
+async def set_account_mapping(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: AccountMapping):
     """Set custom account code mapping for your chart of accounts."""
     db = get_database()
     mapping = body.dict()
@@ -201,7 +202,7 @@ async def set_account_mapping(business_id: str, body: AccountMapping):
 # ─── Sync Configuration ─── #
 
 @router.get("/business/{business_id}/sync-config")
-async def get_sync_config(business_id: str):
+async def get_sync_config(business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Get sync configuration."""
     db = get_database()
     config = await db.accounting_sync_config.find_one({"business_id": business_id})
@@ -212,7 +213,7 @@ async def get_sync_config(business_id: str):
 
 
 @router.put("/business/{business_id}/sync-config")
-async def set_sync_config(business_id: str, body: SyncConfig):
+async def set_sync_config(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: SyncConfig):
     """Set sync configuration."""
     db = get_database()
     config = body.dict()
@@ -230,7 +231,7 @@ async def set_sync_config(business_id: str, body: SyncConfig):
 # ─── Daily Sales Journal Generation ─── #
 
 @router.post("/business/{business_id}/generate-journal")
-async def generate_daily_journal(business_id: str, body: ManualSyncRequest):
+async def generate_daily_journal(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: ManualSyncRequest):
     """
     Generate a daily sales journal entry for the specified date range.
     This is the core of the integration — transforms POS data into double-entry bookkeeping.
@@ -278,7 +279,7 @@ async def generate_daily_journal(business_id: str, body: ManualSyncRequest):
 
 
 @router.post("/business/{business_id}/sync")
-async def sync_to_provider(business_id: str, body: ManualSyncRequest):
+async def sync_to_provider(business_id: str, tenant: TenantContext = Depends(verify_business_access), body: ManualSyncRequest):
     """
     Generate journals AND push them to the connected accounting provider.
     """
@@ -351,7 +352,7 @@ async def sync_to_provider(business_id: str, body: ManualSyncRequest):
 # ─── VAT Reporting ─── #
 
 @router.get("/business/{business_id}/vat-summary")
-async def get_vat_summary(business_id: str, period_from: str = Query(...), period_to: str = Query(...)):
+async def get_vat_summary(business_id: str, tenant: TenantContext = Depends(verify_business_access), period_from: str = Query(...), period_to: str = Query(...)):
     """
     VAT summary for MTD (Making Tax Digital) preparation.
     Breaks down sales by VAT rate with the correct UK hospitality rules:
@@ -439,7 +440,7 @@ async def get_vat_summary(business_id: str, period_from: str = Query(...), perio
 # ─── Reconciliation ─── #
 
 @router.get("/business/{business_id}/reconciliation")
-async def get_reconciliation_data(business_id: str, date_str: str = Query(..., alias="date")):
+async def get_reconciliation_data(business_id: str, tenant: TenantContext = Depends(verify_business_access), date_str: str = Query(..., alias="date")):
     """
     Reconciliation helper: compares POS takings with expected bank deposits.
     Accounts for card processing fees, timing delays, and cash variance.
@@ -554,7 +555,7 @@ async def get_reconciliation_data(business_id: str, date_str: str = Query(..., a
 # ─── Sync History ─── #
 
 @router.get("/business/{business_id}/sync-log")
-async def get_sync_log(business_id: str, limit: int = 30):
+async def get_sync_log(business_id: str, tenant: TenantContext = Depends(verify_business_access), limit: int = 30):
     """Get sync history."""
     db = get_database()
     

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ScrollText, RefreshCw, Filter, Search, User, Building2, Calendar, Settings, Mail, Bot, CreditCard, Globe } from 'lucide-react'
+import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 const TYPE_C = { auth:'#3B82F6', booking:'#10B981', business:'#F59E0B', payment:'#8B5CF6', email:'#EC4899', agent:'#6366F1', admin:'#EF4444', system:'#6B7280' }
@@ -15,7 +16,7 @@ export default function AdminAudit() {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch(`${API}/admin/audit/logs?type=${filter}&search=${search}&page=${page}&limit=50`)
+      const r = await adminFetch(`${API}/admin/audit/logs?type=${filter}&search=${search}&page=${page}&limit=50`)
       if (r.ok) { const d = await r.json(); setLogs(d.logs||[]); setTotal(d.total||0) }
     } catch(e) { console.error(e) }
     setLoading(false)

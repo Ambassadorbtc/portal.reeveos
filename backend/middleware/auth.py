@@ -68,7 +68,7 @@ async def get_current_owner(current_user: dict = Depends(get_current_user)):
 
 async def get_current_admin(current_user: dict = Depends(get_current_user)):
     """Platform admin only — not business owners."""
-    if current_user.get("role") != UserRole.ADMIN.value:
+    if current_user.get("role") not in ("admin", "platform_admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required"

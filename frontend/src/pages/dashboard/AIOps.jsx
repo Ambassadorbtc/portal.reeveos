@@ -44,7 +44,7 @@ export default function AIOps() {
   const loadStats = useCallback(async () => {
     try {
       const res = await api.get('/agent/stats')
-      setStats(res.data)
+      setStats(res)
     } catch (err) {
       console.error('Failed to load agent stats:', err)
     }
@@ -57,19 +57,19 @@ export default function AIOps() {
       
       if (tab === 'audit') {
         const res = await api.get('/agent/audit?limit=50')
-        setAudit(res.data.logs || [])
+        setAudit(res.logs || [])
       } else if (tab === 'approvals') {
         const res = await api.get('/agent/approvals')
-        setApprovals(res.data.approvals || [])
+        setApprovals(res.approvals || [])
       } else if (tab === 'leads') {
         const res = await api.get('/agent/leads?limit=50')
-        setLeads(res.data.leads || [])
+        setLeads(res.leads || [])
       } else if (tab === 'churn') {
         const res = await api.get('/agent/churn')
-        setChurn(res.data)
+        setChurn(res)
       } else if (tab === 'seo') {
         const res = await api.get('/agent/seo-pages')
-        setSeoPages(res.data.pages || [])
+        setSeoPages(res.pages || [])
       }
     } catch (err) {
       console.error('Load error:', err)
@@ -84,10 +84,10 @@ export default function AIOps() {
     setTaskResult(null)
     try {
       const res = await api.post('/agent/run-task', { task: taskId })
-      setTaskResult({ task: taskId, ...res.data })
+      setTaskResult({ task: taskId, ...res })
       await loadStats()
     } catch (err) {
-      setTaskResult({ task: taskId, error: err.response?.data?.detail || err.message })
+      setTaskResult({ task: taskId, error: err.message })
     }
     setRunningTask(null)
   }
@@ -96,10 +96,10 @@ export default function AIOps() {
     try {
       await api.post(`/agent/approvals/${id}`, { action })
       const res = await api.get('/agent/approvals')
-      setApprovals(res.data.approvals || [])
+      setApprovals(res.approvals || [])
       await loadStats()
     } catch (err) {
-      alert('Failed: ' + (err.response?.data?.detail || err.message))
+      alert('Failed: ' + (err.message))
     }
   }
 
@@ -109,9 +109,9 @@ export default function AIOps() {
     setAskResult(null)
     try {
       const res = await api.post('/agent/ask', { question: askQuestion })
-      setAskResult(res.data)
+      setAskResult(res)
     } catch (err) {
-      setAskResult({ result: 'Error: ' + (err.response?.data?.detail || err.message) })
+      setAskResult({ result: 'Error: ' + (err.message) })
     }
     setAsking(false)
   }
@@ -120,7 +120,7 @@ export default function AIOps() {
     try {
       await api.put(`/agent/seo-pages/${pageId}/publish`)
       const res = await api.get('/agent/seo-pages')
-      setSeoPages(res.data.pages || [])
+      setSeoPages(res.pages || [])
     } catch (err) {
       alert('Failed to publish')
     }

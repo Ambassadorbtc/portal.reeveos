@@ -3,14 +3,15 @@ Admin Extended API — Endpoints for all admin dashboard pages.
 Covers: Pipeline, Support, Reviews, Churn, Email Marketing, SEO, Content,
 Analytics, Health, Audit, Errors, Settings.
 """
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query, HTTPException, Depends
 from pydantic import BaseModel
 from database import get_database as get_db, safe_object_id
 from datetime import datetime
 from bson import ObjectId
 from typing import Optional, List
+from middleware.auth import get_current_admin
 
-router = APIRouter(prefix="/admin", tags=["admin-extended"])
+router = APIRouter(prefix="/admin", tags=["admin-extended"], dependencies=[Depends(get_current_admin)])
 
 
 def _ser(doc):

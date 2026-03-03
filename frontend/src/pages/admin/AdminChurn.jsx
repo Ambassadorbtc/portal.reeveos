@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { AlertTriangle, RefreshCw, TrendingDown, Building2, Calendar, CreditCard, Activity, Shield } from 'lucide-react'
+import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 const RISK_C = { high:'#EF4444', medium:'#F59E0B', low:'#10B981', none:'#6B7280' }
@@ -11,7 +12,7 @@ export default function AdminChurn() {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch(`${API}/admin/churn/overview`)
+      const r = await adminFetch(`${API}/admin/churn/overview`)
       if (r.ok) { const d = await r.json(); setBusinesses(d.businesses||[]); setStats(d.stats||{total:0,at_risk:0,healthy:0}) }
     } catch(e) { console.error(e) }
     setLoading(false)

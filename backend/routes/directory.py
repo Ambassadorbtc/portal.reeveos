@@ -95,7 +95,7 @@ async def get_locations(
     
     locations = await db.locations.find(filters).limit(limit).to_list(length=None)
     
-    return locations
+    return jsonable_encoder(locations)
 
 
 @router.get("/locations/{location_slug}")
@@ -109,7 +109,7 @@ async def get_location(location_slug: str):
             detail="Location not found"
         )
     
-    return location
+    return jsonable_encoder(location)
 
 
 @router.get("/featured")
@@ -179,7 +179,7 @@ async def get_home_page():
     location_counts = await db.businesses.aggregate(loc_pipeline).to_list(length=None)
     
     return {
-        "trending": trending,
+        "trending": jsonable_encoder(trending),
         "categories": category_counts,
         "locations": location_counts
     }

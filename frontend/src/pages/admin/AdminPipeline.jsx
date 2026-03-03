@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { TrendingUp, Plus, Search, Filter, Phone, Mail, Building2, RefreshCw, ArrowRight, ExternalLink, ChevronDown, Star, X, MapPin } from 'lucide-react'
+import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 const STAGES = ['cold','warm','hot','demo','won','lost']
@@ -17,7 +18,7 @@ export default function AdminPipeline() {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch(`${API}/admin/pipeline/leads?stage=${filter}&search=${search}`)
+      const r = await adminFetch(`${API}/admin/pipeline/leads?stage=${filter}&search=${search}`)
       if (r.ok) { const d = await r.json(); setLeads(d.leads || []) }
     } catch(e) { console.error(e) }
     setLoading(false)
@@ -26,16 +27,16 @@ export default function AdminPipeline() {
   useEffect(() => { load() }, [load])
 
   const moveLead = async (id, stage) => {
-    try { await fetch(`${API}/admin/pipeline/leads/${id}/move`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({stage}) }); load(); if(selected?._id===id) setSelected({...selected, stage}) } catch(e) { console.error(e) }
+    try { await adminFetch(`${API}/admin/pipeline/leads/${id}/move`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({stage}) }); load(); if(selected?._id===id) setSelected({...selected, stage}) } catch(e) { console.error(e) }
   }
 
   const addNote = async (id) => {
     if (!noteText.trim()) return
-    try { await fetch(`${API}/admin/pipeline/leads/${id}/notes`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:noteText,author:'Founder'}) }); setNoteText(''); load() } catch(e) { console.error(e) }
+    try { await adminFetch(`${API}/admin/pipeline/leads/${id}/notes`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:noteText,author:'Founder'}) }); setNoteText(''); load() } catch(e) { console.error(e) }
   }
 
   const createLead = async (data) => {
-    try { await fetch(`${API}/admin/pipeline/leads`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }); setShowAdd(false); load() } catch(e) { console.error(e) }
+    try { await adminFetch(`${API}/admin/pipeline/leads`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }); setShowAdd(false); load() } catch(e) { console.error(e) }
   }
 
   const grouped = STAGES.reduce((a,s) => ({...a,[s]:leads.filter(l=>l.stage===s)}),{})

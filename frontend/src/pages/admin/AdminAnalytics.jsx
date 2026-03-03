@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { BarChart3, RefreshCw, Users, Building2, CalendarCheck, CreditCard, TrendingUp, TrendingDown, Globe, Clock } from 'lucide-react'
+import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 
@@ -21,7 +22,7 @@ export default function AdminAnalytics() {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch(`${API}/admin/analytics/platform?period=${period}`)
+      const r = await adminFetch(`${API}/admin/analytics/platform?period=${period}`)
       if (r.ok) { setData(await r.json()) }
     } catch(e) { console.error(e) }
     setLoading(false)

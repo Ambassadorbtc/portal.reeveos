@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Bug, RefreshCw, AlertTriangle, XCircle, CheckCircle2, Search, Filter, Clock, ExternalLink } from 'lucide-react'
+import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 const SEV_C = { critical:'#EF4444', error:'#F97316', warning:'#F59E0B', info:'#3B82F6' }
@@ -13,7 +14,7 @@ export default function AdminErrors() {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch(`${API}/admin/errors?severity=${filter}`)
+      const r = await adminFetch(`${API}/admin/errors?severity=${filter}`)
       if (r.ok) { const d = await r.json(); setErrors(d.errors||[]) }
     } catch(e) { console.error(e) }
     setLoading(false)
@@ -22,7 +23,7 @@ export default function AdminErrors() {
   useEffect(() => { load() }, [load])
 
   const updateError = async (id, status) => {
-    try { await fetch(`${API}/admin/errors/${id}/status`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status}) }); load() } catch(e) { console.error(e) }
+    try { await adminFetch(`${API}/admin/errors/${id}/status`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status}) }); load() } catch(e) { console.error(e) }
   }
 
   const stats = { total:errors.length, critical:errors.filter(e=>e.severity==='critical').length, open:errors.filter(e=>e.status==='open').length, resolved:errors.filter(e=>e.status==='resolved').length }

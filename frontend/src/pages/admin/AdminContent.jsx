@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { FileText, RefreshCw, Plus, Calendar, Eye, Edit3, Trash2, Clock, CheckCircle2, X, Zap } from 'lucide-react'
+import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 const STATUS_C = { published:'#10B981', draft:'#6B7280', scheduled:'#3B82F6' }
@@ -11,7 +12,7 @@ export default function AdminContent() {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch(`${API}/admin/content/posts`)
+      const r = await adminFetch(`${API}/admin/content/posts`)
       if (r.ok) { const d = await r.json(); setPosts(d.posts||[]) }
     } catch(e) { console.error(e) }
     setLoading(false)
@@ -20,12 +21,12 @@ export default function AdminContent() {
   useEffect(() => { load() }, [load])
 
   const createPost = async (data) => {
-    try { await fetch(`${API}/admin/content/posts`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }); setShowCreate(false); load() } catch(e) { console.error(e) }
+    try { await adminFetch(`${API}/admin/content/posts`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }); setShowCreate(false); load() } catch(e) { console.error(e) }
   }
 
   const deletePost = async (id) => {
     if (!confirm('Delete this post?')) return
-    try { await fetch(`${API}/admin/content/posts/${id}`, { method:'DELETE' }); load() } catch(e) { console.error(e) }
+    try { await adminFetch(`${API}/admin/content/posts/${id}`, { method:'DELETE' }); load() } catch(e) { console.error(e) }
   }
 
   const stats = { total:posts.length, published:posts.filter(p=>p.status==='published').length, draft:posts.filter(p=>p.status==='draft').length, scheduled:posts.filter(p=>p.status==='scheduled').length }

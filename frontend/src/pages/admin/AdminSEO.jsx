@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Search, RefreshCw, Globe, CheckCircle2, Clock, AlertTriangle, Plus, ExternalLink, TrendingUp, FileText, X } from 'lucide-react'
+import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 const STATUS_C = { indexed:'#10B981', pending:'#F59E0B', error:'#EF4444', draft:'#6B7280' }
@@ -12,7 +13,7 @@ export default function AdminSEO() {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch(`${API}/admin/seo/pages`)
+      const r = await adminFetch(`${API}/admin/seo/pages`)
       if (r.ok) { const d = await r.json(); setPages(d.pages||[]); setStats(d.stats||{total:0,indexed:0,pending:0}) }
     } catch(e) { console.error(e) }
     setLoading(false)
@@ -21,11 +22,11 @@ export default function AdminSEO() {
   useEffect(() => { load() }, [load])
 
   const generatePages = async (data) => {
-    try { await fetch(`${API}/admin/seo/generate`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }); setShowGenerate(false); load() } catch(e) { console.error(e) }
+    try { await adminFetch(`${API}/admin/seo/generate`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }); setShowGenerate(false); load() } catch(e) { console.error(e) }
   }
 
   const requestIndex = async (id) => {
-    try { await fetch(`${API}/admin/seo/pages/${id}/index`, { method:'POST' }); load() } catch(e) { console.error(e) }
+    try { await adminFetch(`${API}/admin/seo/pages/${id}/index`, { method:'POST' }); load() } catch(e) { console.error(e) }
   }
 
   return (

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Mail, RefreshCw, Plus, Send, Users, BarChart3, Clock, CheckCircle2, X, TrendingUp } from 'lucide-react'
+import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 
@@ -11,7 +12,7 @@ export default function AdminEmailMarketing() {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch(`${API}/admin/email-marketing/overview`)
+      const r = await adminFetch(`${API}/admin/email-marketing/overview`)
       if (r.ok) { const d = await r.json(); setCampaigns(d.campaigns||[]); setSubscribers(d.subscribers||{total:0,active:0,unsubscribed:0}) }
     } catch(e) { console.error(e) }
     setLoading(false)
@@ -20,7 +21,7 @@ export default function AdminEmailMarketing() {
   useEffect(() => { load() }, [load])
 
   const createCampaign = async (data) => {
-    try { await fetch(`${API}/admin/email-marketing/campaigns`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }); setShowCreate(false); load() } catch(e) { console.error(e) }
+    try { await adminFetch(`${API}/admin/email-marketing/campaigns`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }); setShowCreate(false); load() } catch(e) { console.error(e) }
   }
 
   return (

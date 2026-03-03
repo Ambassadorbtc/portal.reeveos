@@ -4,6 +4,7 @@
  */
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import {
+import adminFetch from '../../utils/adminFetch'
   Crosshair, Plus, Search, Filter, ChevronDown, ChevronRight, ChevronUp,
   X, Check, Circle, CheckCircle2, Clock, MessageSquare, History,
   ArrowRight, GripVertical, BarChart3, List, LayoutGrid, GitBranch,
@@ -45,22 +46,22 @@ const REV_C = { 'Very High': '#C9A84C', High: '#10B981', Medium: '#3B82F6', Low:
 /* ─── API Helpers ─── */
 const api = {
   get: async (path) => {
-    const r = await fetch(`${API}${path}`)
+    const r = await adminFetch(`${API}${path}`)
     if (!r.ok) throw new Error(`GET ${path} failed`)
     return r.json()
   },
   post: async (path, body) => {
-    const r = await fetch(`${API}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    const r = await adminFetch(`${API}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
     if (!r.ok) throw new Error(`POST ${path} failed`)
     return r.json()
   },
   put: async (path, body) => {
-    const r = await fetch(`${API}${path}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    const r = await adminFetch(`${API}${path}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
     if (!r.ok) throw new Error(`PUT ${path} failed`)
     return r.json()
   },
   del: async (path) => {
-    const r = await fetch(`${API}${path}`, { method: 'DELETE' })
+    const r = await adminFetch(`${API}${path}`, { method: 'DELETE' })
     if (!r.ok) throw new Error(`DELETE ${path} failed`)
     return r.json()
   },

@@ -2,13 +2,14 @@
 Admin API routes — platform-wide data for the /admin panel.
 Access gated by AdminLayout on the frontend.
 """
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query, HTTPException, Depends
 from pydantic import BaseModel
 from database import get_database as get_db, safe_object_id
 from datetime import datetime, timedelta
 from bson import ObjectId
+from middleware.auth import get_current_admin
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(get_current_admin)])
 
 
 def _serialize(doc):
@@ -42,6 +43,38 @@ async def admin_overview():
         bookings_total += await col.count_documents({})
         bookings_today += await col.count_documents({"date": today_str})
     
+    # Real-time stats
+    from datetime import timedelta
+    now = datetime.utcnow()
+    hour_ago = now - timedelta(hours=1)
+    day_ago = now - timedelta(days=1)
+
+    open_tickets = await db.support_conversations.count_documents({"status": {"$in": ["open", "new", "pending"]}})
+    churn_risk = await db.businesses.count_documents({"churn_risk": {"$in": ["high", "critical"]}})
+
+    # Error rate (last hour)
+    error_count = 0
+    try:
+        error_count = await db.error_log.count_documents({"created_at": {"$gte": hour_ago}})
+    except Exception:
+        pass
+
+    # AI actions today
+    ai_today = 0
+    try:
+        ai_today = await db.agent_audit.count_documents({"created_at": {"$gte": day_ago.replace(hour=0, minute=0, second=0)}})
+    except Exception:
+        pass
+
+    # Outreach stats
+    emails_sent = 0
+    outreach_replies = 0
+    try:
+        emails_sent = await db.outreach_sends.count_documents({"sent_at": {"$gte": day_ago.replace(hour=0, minute=0, second=0)}})
+        outreach_replies = await db.outreach_replies.count_documents({"received_at": {"$gte": day_ago.replace(hour=0, minute=0, second=0)}})
+    except Exception:
+        pass
+
     return {
         "mrr": "£0",
         "mrr_change": "+£0",
@@ -51,14 +84,12 @@ async def admin_overview():
         "total_users": users,
         "total_bookings": bookings_total,
         "bookings_today": bookings_today,
-        "open_tickets": 0,
-        "churn_risk": 0,
-        "emails_sent_today": 0,
-        "outreach_replies": 0,
-        "ai_actions_today": 0,
-        "uptime": "99.9%",
-        "error_rate": "0.0%",
-        "avg_response": "~50ms",
+        "open_tickets": open_tickets,
+        "churn_risk": churn_risk,
+        "emails_sent_today": emails_sent,
+        "outreach_replies": outreach_replies,
+        "ai_actions_today": ai_today,
+        "error_rate": f"{error_count}/hr",
     }
 
 

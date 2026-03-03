@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Users, Search, RefreshCw, Shield, User, ChefHat, Mail, Clock } from 'lucide-react'
 
-const api = (path) => fetch(`/api${path}`).then(r => r.ok ? r.json() : null).catch(() => null)
+const api = (path) => { const t = localStorage.getItem('token'); return fetch(`/api${path}`, { headers: t ? { Authorization: `Bearer ${t}` } : {} }).then(r => r.ok ? r.json() : null).catch(() => null) }
 
 export default function AdminUsers() {
   const [data, setData] = useState(null)

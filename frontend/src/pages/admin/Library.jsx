@@ -5,6 +5,7 @@
  */
 import { useState, useEffect, useCallback, useRef } from 'react'
 import {
+import adminFetch from '../../utils/adminFetch'
   BookOpen, Search, Upload, Plus, Filter, X, Tag, Clock,
   FileText, Trash2, Edit3, ChevronDown, ChevronRight, Eye,
   Download, RefreshCw, Zap, MessageSquare, GitBranch,
@@ -107,7 +108,7 @@ export default function Library() {
       params.set('sort', sortBy)
       params.set('limit', '100')
 
-      const r = await fetch(`${API}/admin/library/documents?${params}`)
+      const r = await adminFetch(`${API}/admin/library/documents?${params}`)
       const data = await r.json()
       setDocuments(data.documents || [])
       setTotal(data.total || 0)
@@ -121,9 +122,9 @@ export default function Library() {
   const fetchStats = async () => {
     try {
       const [statsRes, tagsRes, catsRes] = await Promise.all([
-        fetch(`${API}/admin/library/stats`).then(r => r.json()),
-        fetch(`${API}/admin/library/tags`).then(r => r.json()),
-        fetch(`${API}/admin/library/categories`).then(r => r.json()),
+        adminFetch(`${API}/admin/library/stats`).then(r => r.json()),
+        adminFetch(`${API}/admin/library/tags`).then(r => r.json()),
+        adminFetch(`${API}/admin/library/categories`).then(r => r.json()),
       ])
       setStats(statsRes)
       setTags(tagsRes.tags || [])
@@ -141,7 +142,7 @@ export default function Library() {
     if (!form.title.trim()) return
     setCreating(true)
     try {
-      const r = await fetch(`${API}/admin/library/documents`, {
+      const r = await adminFetch(`${API}/admin/library/documents`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -163,7 +164,7 @@ export default function Library() {
   const handleDelete = async (id) => {
     if (!confirm('Delete this document?')) return
     try {
-      await fetch(`${API}/admin/library/documents/${id}`, { method: 'DELETE' })
+      await adminFetch(`${API}/admin/library/documents/${id}`, { method: 'DELETE' })
       if (selectedDoc?.id === id) { setSelectedDoc(null); setView('browse') }
       fetchDocs()
       fetchStats()
@@ -181,7 +182,7 @@ export default function Library() {
     try {
       const formData = new FormData()
       formData.append('file', file)
-      const r = await fetch(`${API}/admin/library/import/file`, {
+      const r = await adminFetch(`${API}/admin/library/import/file`, {
         method: 'POST',
         body: formData,
       })

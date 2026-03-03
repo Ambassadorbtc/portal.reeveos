@@ -57,7 +57,7 @@ const LinkedIn = () => {
   const fetchPosts = useCallback(async () => {
     try {
       const res = await api.get('/linkedin/posts?limit=50')
-      setPosts(res.data.posts || [])
+      setPosts(res.posts || [])
     } catch (e) {
       console.error('Failed to fetch posts:', e)
     }
@@ -66,7 +66,7 @@ const LinkedIn = () => {
   const fetchAnalytics = useCallback(async () => {
     try {
       const res = await api.get('/linkedin/analytics')
-      setAnalytics(res.data)
+      setAnalytics(res)
     } catch (e) {
       console.error('Failed to fetch analytics:', e)
     }
@@ -101,7 +101,7 @@ const LinkedIn = () => {
         tone: genTone,
         topic: genTopic || null,
       })
-      setGenResult(res.data.post)
+      setGenResult(res.post)
       await fetchPosts()
     } catch (e) {
       console.error('Failed to generate:', e)
@@ -116,7 +116,7 @@ const LinkedIn = () => {
       const res = await api.post('/linkedin/trend-jack', {
         trend_topic: topic || trendTopic,
       })
-      setGenResult(res.data.post)
+      setGenResult(res.post)
       setTab('generate')
       await fetchPosts()
     } catch (e) {
@@ -130,7 +130,7 @@ const LinkedIn = () => {
     setLoading(true)
     try {
       const res = await api.post('/linkedin/scan-trends')
-      setTrends(res.data.trends || [])
+      setTrends(res.trends || [])
     } catch (e) {
       console.error('Failed to scan trends:', e)
     }

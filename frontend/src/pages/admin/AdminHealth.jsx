@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Activity, RefreshCw, CheckCircle2, AlertTriangle, XCircle, Server, Database, Globe, Wifi, Clock, Zap } from 'lucide-react'
+import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 const STATUS_C = { healthy:'#10B981', degraded:'#F59E0B', down:'#EF4444' }
@@ -12,7 +13,7 @@ export default function AdminHealth() {
   const load = useCallback(async () => {
     const start = Date.now()
     try {
-      const r = await fetch(`${API}/admin/health/check`)
+      const r = await adminFetch(`${API}/admin/health/check`)
       const latency = Date.now() - start
       if (r.ok) { const d = await r.json(); setHealth({...d, api_latency:latency}) }
       else setHealth({ status:'degraded', api_latency:latency, services:[] })

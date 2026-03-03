@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Shield, RefreshCw, CheckCircle2, AlertTriangle, XCircle, Lock, Users, Database, FileWarning, Clock, ShieldCheck, ShieldAlert, Scan, Eye } from 'lucide-react'
+import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 const SEV_C = { ok:'#10B981', warning:'#F59E0B', critical:'#EF4444' }
@@ -18,9 +19,9 @@ export default function AdminSecurity() {
   const load = useCallback(async () => {
     try {
       const [repR, notR, auditR] = await Promise.all([
-        fetch(`${API}/admin/security/report`, { headers }),
-        fetch(`${API}/admin/security/notifications?limit=50`, { headers }),
-        fetch(`${API}/admin/security/tenant-audit`, { headers }),
+        adminFetch(`${API}/admin/security/report`, { headers }),
+        adminFetch(`${API}/admin/security/notifications?limit=50`, { headers }),
+        adminFetch(`${API}/admin/security/tenant-audit`, { headers }),
       ])
       if (repR.ok) { const d = await repR.json(); setReport(d.report) }
       if (notR.ok) { const d = await notR.json(); setNotifications(d.notifications || []) }
@@ -34,7 +35,7 @@ export default function AdminSecurity() {
   const runScanNow = async () => {
     setScanning(true)
     try {
-      const r = await fetch(`${API}/admin/security/scan-now`, { method:'POST', headers })
+      const r = await adminFetch(`${API}/admin/security/scan-now`, { method:'POST', headers })
       if (r.ok) { const d = await r.json(); setReport(d.report); await load() }
     } catch(e) { console.error('Scan error:', e) }
     setScanning(false)

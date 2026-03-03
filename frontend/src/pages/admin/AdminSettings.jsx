@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Settings, RefreshCw, Save, Key, Globe, Mail, CreditCard, Database, Shield, Bell, Palette, CheckCircle2 } from 'lucide-react'
+import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 
@@ -51,7 +52,7 @@ export default function AdminSettings() {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch(`${API}/admin/settings`)
+      const r = await adminFetch(`${API}/admin/settings`)
       if (r.ok) { const d = await r.json(); if (d.settings) setSettings(s=>({...s,...d.settings})) }
     } catch(e) { console.error(e) }
     setLoading(false)
@@ -62,7 +63,7 @@ export default function AdminSettings() {
   const save = async () => {
     setSaving(true)
     try {
-      await fetch(`${API}/admin/settings`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(settings) })
+      await adminFetch(`${API}/admin/settings`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(settings) })
       setSaved(true); setTimeout(()=>setSaved(false), 2000)
     } catch(e) { console.error(e) }
     setSaving(false)

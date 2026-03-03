@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { MessageSquare, RefreshCw, Clock, CheckCircle2, AlertTriangle, Search, Filter, X, Send, User } from 'lucide-react'
+import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 const STATUS_C = { open:'#F59E0B', pending:'#3B82F6', resolved:'#10B981', closed:'#6B7280' }
@@ -14,7 +15,7 @@ export default function AdminSupport() {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch(`${API}/admin/support/tickets`)
+      const r = await adminFetch(`${API}/admin/support/tickets`)
       if (r.ok) { const d = await r.json(); setTickets(d.tickets || []) }
     } catch(e) { console.error(e) }
     setLoading(false)
@@ -23,12 +24,12 @@ export default function AdminSupport() {
   useEffect(() => { load() }, [load])
 
   const updateStatus = async (id, status) => {
-    try { await fetch(`${API}/admin/support/tickets/${id}/status`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status}) }); load() } catch(e) { console.error(e) }
+    try { await adminFetch(`${API}/admin/support/tickets/${id}/status`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status}) }); load() } catch(e) { console.error(e) }
   }
 
   const sendReply = async (id) => {
     if (!reply.trim()) return
-    try { await fetch(`${API}/admin/support/tickets/${id}/reply`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:reply,author:'Support'}) }); setReply(''); load() } catch(e) { console.error(e) }
+    try { await adminFetch(`${API}/admin/support/tickets/${id}/reply`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:reply,author:'Support'}) }); setReply(''); load() } catch(e) { console.error(e) }
   }
 
   const filtered = filter ? tickets.filter(t=>t.status===filter) : tickets

@@ -57,7 +57,7 @@ const fmtDate = (iso) => {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 }
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_BASE = import.meta.env.VITE_API_URL || ''
 
 /* ─── Step indicator dot ─── */
 const StepDot = ({ status }) => {

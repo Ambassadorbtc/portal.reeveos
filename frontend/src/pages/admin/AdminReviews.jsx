@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Star, RefreshCw, ThumbsUp, ThumbsDown, Flag, CheckCircle2, Search, Filter, MessageSquare, X } from 'lucide-react'
+import adminFetch from '../../utils/adminFetch'
 
 const API = import.meta.env.VITE_API_URL || ''
 const STATUS_C = { pending:'#F59E0B', approved:'#10B981', flagged:'#EF4444', hidden:'#6B7280' }
@@ -12,7 +13,7 @@ export default function AdminReviews() {
 
   const load = useCallback(async () => {
     try {
-      const r = await fetch(`${API}/admin/reviews?status=${filter}`)
+      const r = await adminFetch(`${API}/admin/reviews?status=${filter}`)
       if (r.ok) { const d = await r.json(); setReviews(d.reviews||[]); setStats(d.stats||{avg:0,total:0,pending:0}) }
     } catch(e) { console.error(e) }
     setLoading(false)
@@ -21,7 +22,7 @@ export default function AdminReviews() {
   useEffect(() => { load() }, [load])
 
   const moderate = async (id, action) => {
-    try { await fetch(`${API}/admin/reviews/${id}/moderate`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action}) }); load() } catch(e) { console.error(e) }
+    try { await adminFetch(`${API}/admin/reviews/${id}/moderate`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action}) }); load() } catch(e) { console.error(e) }
   }
 
   const Stars = ({n}) => <div className="flex gap-0.5">{[1,2,3,4,5].map(i=><Star key={i} size={11} className={i<=n?'text-amber-400 fill-amber-400':'text-gray-700'}/>)}</div>

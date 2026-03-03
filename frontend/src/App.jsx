@@ -50,6 +50,7 @@ import AdminDirectory from './pages/admin/AdminDirectory'
 import AdminSubscriptions from './pages/admin/AdminSubscriptions'
 import CommandCentre from './pages/admin/CommandCentre'
 import AdminPipeline from './pages/admin/AdminPipeline'
+import AdminCRM from './pages/admin/AdminCRM'
 import AdminSupport from './pages/admin/AdminSupport'
 import AdminReviews from './pages/admin/AdminReviews'
 import AdminChurn from './pages/admin/AdminChurn'
@@ -157,6 +158,7 @@ const App = () => {
               <Route path="outreach" element={<AdminOutreach />} />
               <Route path="linkedin" element={<AdminLinkedIn />} />
               <Route path="pipeline" element={<AdminPipeline />} />
+              <Route path="crm" element={<AdminCRM />} />
               <Route path="businesses" element={<AdminBusinesses />} />
               <Route path="bookings" element={<AdminBookings />} />
               <Route path="users" element={<AdminUsers />} />

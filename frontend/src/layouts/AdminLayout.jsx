@@ -5,7 +5,7 @@ import {
   Globe, FileText, Settings, LogOut, ChevronLeft, ChevronRight,
   Zap, Building2, CalendarCheck, MessageSquare, Star, AlertTriangle,
   CreditCard, ScrollText, Bug, Megaphone, ShieldCheck, Linkedin,
-  Package, TrendingUp, Search, Crosshair, BookOpen
+  Package, TrendingUp, Search, Crosshair, BookOpen, Wallet
 } from 'lucide-react'
 
 const NAV_SECTIONS = [
@@ -17,6 +17,7 @@ const NAV_SECTIONS = [
       { id: 'ai-ops', label: 'AI Ops Centre', icon: Bot, path: '/admin/ai-ops' },
       { id: 'outreach', label: 'Email Outreach', icon: Send, path: '/admin/outreach' },
       { id: 'pipeline', label: 'Sales Pipeline', icon: TrendingUp, path: '/admin/pipeline' },
+      { id: 'crm', label: 'Dojo CRM', icon: Wallet, path: '/admin/crm' },
       { id: 'library', label: 'Knowledge Library', icon: BookOpen, path: '/admin/library' },
     ],
   },
@@ -121,11 +122,11 @@ export default function AdminLayout() {
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <form onSubmit={handleLogin} className="w-full max-w-sm mx-4">
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center mx-auto mb-4">
-              <Zap size={24} className="text-white" />
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: 'linear-gradient(135deg, #C9A84C, #B8943F)' }}>
+              <span className="text-white text-xl font-black" style={{ fontFamily: "'Figtree', sans-serif" }}>R<span style={{fontSize:8}}>.</span></span>
             </div>
-            <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Figtree', sans-serif" }}>Rezvo Admin</h1>
-            <p className="text-sm text-gray-500 mt-1">Internal Operations Portal</p>
+            <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Figtree', sans-serif" }}>Reeve<span style={{color:'#C9A84C'}}>OS</span></h1>
+            <p className="text-sm text-gray-500 mt-1">Admin Panel</p>
           </div>
           <div className="space-y-3">
             <div>
@@ -137,7 +138,7 @@ export default function AdminLayout() {
                 placeholder="admin@rezvo.co.uk"
                 autoFocus
                 autoComplete="email"
-                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500"
                 style={{ fontFamily: "'Figtree', sans-serif" }}
               />
             </div>
@@ -149,7 +150,7 @@ export default function AdminLayout() {
                 onChange={e => { setPassword(e.target.value); setLoginError('') }}
                 placeholder="••••••••"
                 autoComplete="current-password"
-                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500"
+                className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500"
                 style={{ fontFamily: "'Figtree', sans-serif" }}
               />
             </div>
@@ -162,8 +163,8 @@ export default function AdminLayout() {
             <button
               type="submit"
               disabled={loggingIn || !email || !password}
-              className="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              style={{ fontFamily: "'Figtree', sans-serif" }}
+              className="w-full py-3 rounded-xl font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              style={{ fontFamily: "'Figtree', sans-serif", backgroundColor: '#C9A84C', color: '#111' }}
             >
               {loggingIn ? (
                 <>
@@ -189,13 +190,13 @@ export default function AdminLayout() {
         {/* Brand */}
         <div className="h-14 flex items-center justify-between px-3 border-b border-gray-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shrink-0">
-              <Zap size={14} className="text-white" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #C9A84C, #B8943F)' }}>
+              <span className="text-white text-xs font-black" style={{ fontFamily: "'Figtree', sans-serif" }}>R</span>
             </div>
             {!collapsed && (
               <div>
-                <h1 className="text-xs font-bold text-white leading-tight">Rezvo Admin</h1>
-                <p className="text-[9px] text-gray-500">Internal Ops</p>
+                <h1 className="text-xs font-bold text-white leading-tight" style={{ fontFamily: "'Figtree', sans-serif" }}>Reeve<span style={{color:'#C9A84C'}}>OS</span></h1>
+                <p className="text-[9px] text-gray-500">Admin Panel</p>
               </div>
             )}
           </div>
@@ -221,12 +222,12 @@ export default function AdminLayout() {
                     onClick={() => navigate(item.path)}
                     className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium transition-all ${
                       active
-                        ? 'bg-emerald-600/15 text-emerald-400 border-r-2 border-emerald-400'
+                        ? 'bg-amber-600/15 text-amber-400 border-r-2 border-amber-400'
                         : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/60'
                     }`}
                     title={collapsed ? item.label : undefined}
                   >
-                    <Icon size={15} className={`shrink-0 ${active ? 'text-emerald-400' : 'text-gray-500'}`} />
+                    <Icon size={15} className={`shrink-0 ${active ? 'text-amber-400' : 'text-gray-500'}`} />
                     {!collapsed && <span className="truncate">{item.label}</span>}
                   </button>
                 )
@@ -240,7 +241,7 @@ export default function AdminLayout() {
           {!collapsed && adminUser && (
             <div className="px-3 py-2 mb-1">
               <p className="text-[10px] font-bold text-gray-500 truncate">{adminUser.email}</p>
-              <p className="text-[9px] text-emerald-500 uppercase tracking-widest font-bold">Admin</p>
+              <p className="text-[9px] text-amber-500 uppercase tracking-widest font-bold">Admin</p>
             </div>
           )}
           <button

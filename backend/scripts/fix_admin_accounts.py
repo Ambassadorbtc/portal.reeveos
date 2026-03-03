@@ -1,56 +1,76 @@
-"""
-Fix admin accounts:
-1. Reset peter.griffin8222@gmail.com password to Rezvo2024!
-2. Update Grant Woods name (was Grant Wood)
-Run: cd /opt/rezvo-app && python3 backend/scripts/fix_admin_accounts.py
-"""
 import asyncio
 from datetime import datetime
 from motor.motor_asyncio import AsyncIOMotorClient
 from passlib.context import CryptContext
 import os
 
-MONGO_URI = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
-DB_NAME = os.getenv("DB_NAME", "rezvo")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
+MONGO_URI = os.getenv('MONGODB_URL', 'mongodb://localhost:27017')
+DB_NAME = os.getenv('DB_NAME', 'rezvo')
+pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 async def main():
     client = AsyncIOMotorClient(MONGO_URI)
     db = client[DB_NAME]
 
-    # 1. Reset Ambassador password
-    ambassador = await db.users.find_one({"email": "peter.griffin8222@gmail.com"})
-    if ambassador:
-        new_hash = pwd_context.hash("Rezvo2024!")
+    amb = await db.users.find_one({'email': 'peter.griffin8222@gmail.com'})
+    if amb:
         await db.users.update_one(
-            {"_id": ambassador["_id"]},
-            {"$set": {
-                "password_hash": new_hash,
-                "role": "platform_admin",
-                "updated_at": datetime.utcnow(),
+            {'_id': amb['_id']},
+            {'$set': {
+                'password_hash': pwd_context.hash('Rezvo2024!'),
+                'role': 'platform_admin',
+                'updated_at': datetime.utcnow(),
             }},
         )
-        print(f"peter.griffin8222@gmail.com: password reset to Rezvo2024!, role=platform_admin")
+        biz_ids = amb.get('business_ids', [])
+        print(f'[1] peter.griffin8222: password reset, role=platform_admin')
     else:
-        print("peter.griffin8222@gmail.com NOT FOUND")
+        biz_ids = []
+        print('[1] peter.griffin8222 NOT FOUND')
 
-    # 2. Fix Grant's name
-    grant = await db.users.find_one({"email": "grantwoods@live.com"})
+    ibby = await db.users.find_one({'email': 'ibbyonline@gmail.com'})
+    if ibby:
+        await db.users.update_one(
+            {'_id': ibby['_id']},
+            {'$set': {
+                'password_hash': pwd_context.hash('Reeve@Micho2026'),
+                'role': 'business_owner',
+                'business_ids': biz_ids if biz_ids else ibby.get('business_ids', []),
+                'name': 'Micho Test',
+                'updated_at': datetime.utcnow(),
+            }},
+        )
+        print('[2] ibbyonline: updated')
+    else:
+        r = await db.users.insert_one({
+            'email': 'ibbyonline@gmail.com',
+            'name': 'Micho Test',
+            'phone': '',
+            'role': 'business_owner',
+            'password_hash': pwd_context.hash('Reeve@Micho2026'),
+            'avatar': None,
+            'saved_businesses': [],
+            'booking_history': [],
+            'review_history': [],
+            'business_ids': biz_ids,
+            'stripe_connected': False,
+            'created_at': datetime.utcnow(),
+            'updated_at': datetime.utcnow(),
+        })
+        print(f'[2] ibbyonline: CREATED id={r.inserted_id}')
+
+    grant = await db.users.find_one({'email': 'grantwoods@live.com'})
     if grant:
         await db.users.update_one(
-            {"_id": grant["_id"]},
-            {"$set": {
-                "name": "Grant Woods",
-                "updated_at": datetime.utcnow(),
-            }},
+            {'_id': grant['_id']},
+            {'$set': {'name': 'Grant Woods', 'updated_at': datetime.utcnow()}},
         )
-        print(f"grantwoods@live.com: name updated to Grant Woods")
+        print('[3] Grant Woods: name fixed')
     else:
-        print("grantwoods@live.com NOT FOUND")
+        print('[3] grantwoods@live.com NOT FOUND')
 
     client.close()
+    print('Done!')
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     asyncio.run(main())

@@ -296,38 +296,30 @@ export default function RestaurantCalendar() {
     return { covers, confirmed, seated, late, pending, available: (data.tables || []).length - seated }
   }, [filteredBookings, data.tables])
 
-  /* ── Current time line position (updates every 60s) ── */
-  const [clockTick, setClockTick] = useState(0)
+  /* ── Current time line position (updates every 15s, real time only) ── */
+  const [nowTime, setNowTime] = useState(() => new Date())
   useEffect(() => {
-    const interval = setInterval(() => setClockTick(t => t + 1), 1000)
-    return () => clearInterval(interval)
+    const tick = () => setNowTime(new Date())
+    tick()
+    const interval = setInterval(tick, 15000)
+    // Also update immediately when tab becomes visible again
+    const onVisible = () => { if (!document.hidden) tick() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible) }
   }, [])
 
   const nowPercent = useMemo(() => {
     if (!isToday) return null
-    const now = new Date()
-    let nowMin = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60
-    // If outside service hours, show demo line at a visible position
-    if (nowMin < timeRange.start || nowMin > timeRange.end) {
-      // Place demo line 40% into the visible range
-      nowMin = timeRange.start + Math.round((timeRange.end - timeRange.start) * 0.4)
-    }
+    const nowMin = nowTime.getHours() * 60 + nowTime.getMinutes() + nowTime.getSeconds() / 60
+    // Only show line when current time is within the visible time range — never fake it
+    if (nowMin < timeRange.start || nowMin > timeRange.end) return null
     return ((nowMin - timeRange.start) / (timeRange.end - timeRange.start)) * 100
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isToday, timeRange, clockTick])
+  }, [isToday, timeRange, nowTime])
 
   const nowTimeLabel = useMemo(() => {
-    const now = new Date()
-    const nowMin = now.getHours() * 60 + now.getMinutes()
-    if (nowMin >= timeRange.start && nowMin <= timeRange.end) {
-      return now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-    }
-    // Demo label
-    const demoMin = timeRange.start + Math.round((timeRange.end - timeRange.start) * 0.4)
-    const h = Math.floor(demoMin / 60)
-    const m = demoMin % 60
-    return `${h}:${String(m).padStart(2, '0')}`
-  }, [timeRange, clockTick])
+    if (nowPercent == null) return null
+    return nowTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  }, [nowTime, nowPercent])
 
   /* ── Capacity per slot ── */
   const slotCaps = useMemo(() => {

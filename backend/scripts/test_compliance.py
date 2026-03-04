@@ -312,7 +312,7 @@ def test_cross_tenant_api():
         log("Login tokens obtained", False, "could not authenticate")
         return
 
-    # Get Peter's business ID — try API first, then DB fallback
+    # Get James's business ID — try API first, then DB fallback
     code, me = api_get("/users/me", token=james_token)
     james_biz = me.get("business_id") or me.get("businessId") or ""
     # Check business_ids array
@@ -337,18 +337,18 @@ def test_cross_tenant_api():
     if not james_biz:
         return
 
-    # Peter should see his own bookings
+    # James should see his own bookings
     code, data = api_get(f"/bookings/business/{james_biz}?limit=5", token=james_token)
-    log("Peter CAN access own bookings", code == 200)
+    log("James CAN access own bookings", code == 200)
 
-    # Fabricated business ID — Peter should NOT see it
+    # Fabricated business ID — James should NOT see it
     fake_biz = "000000000000000000000000"
     code, data = api_get(f"/bookings/business/{fake_biz}?limit=5", token=james_token)
-    log("Peter BLOCKED from fake business", code in (403, 404), f"HTTP {code}")
+    log("James BLOCKED from fake business", code in (403, 404), f"HTTP {code}")
 
-    # Peter should NOT access admin endpoints (role-based, not token-based)
+    # James should NOT access admin endpoints (role-based, not token-based)
     code, _ = api_get("/admin/users", token=james_token)
-    log("Peter BLOCKED from admin/users (business_owner role)", code == 403, f"HTTP {code}")
+    log("James BLOCKED from admin/users (business_owner role)", code == 403, f"HTTP {code}")
 
     # Ibby (super_admin) CAN access admin endpoints
     code, _ = api_get("/admin/users", token=ibby_token)

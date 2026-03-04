@@ -127,9 +127,9 @@ export default function AIOps() {
   }
 
   // ─── Stat Card ─── //
-  const StatCard = ({ label, value, icon, color = '#111111' }) => (
+  const StatCard = ({ label, value, icon }) => (
     <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5 flex items-center gap-4">
-      <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white" style={{ background: color }}>
+      <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: 'rgba(201,168,76,0.1)', color: '#C9A84C' }}>
         <i className={`fas ${icon} text-sm`} />
       </div>
       <div>
@@ -145,7 +145,7 @@ export default function AIOps() {
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-white flex items-center gap-3">
-            <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-800 to-emerald-600 flex items-center justify-center text-white">
+            <span className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(201,168,76,0.15)', color: '#C9A84C' }}>
               <i className="fas fa-robot text-lg" />
             </span>
             AI Ops Centre
@@ -153,8 +153,8 @@ export default function AIOps() {
           <p className="text-sm text-gray-500 mt-1">Autonomous platform management • 11 scheduled tasks • Three-tier guardrails</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-green-900/30 text-green-400 border border-green-700">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> Agent Active
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border" style={{ background: 'rgba(201,168,76,0.1)', color: '#C9A84C', borderColor: 'rgba(201,168,76,0.3)' }}>
+            <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#C9A84C' }} /> Agent Active
           </span>
         </div>
       </div>
@@ -181,16 +181,16 @@ export default function AIOps() {
       {tab === 'overview' && (
         <div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <StatCard label="Tasks (24h)" value={stats?.runs_24h || 0} icon="fa-bolt" color="#111111" />
-            <StatCard label="Tasks (7d)" value={stats?.runs_7d || 0} icon="fa-chart-bar" color="#1a1a1a" />
-            <StatCard label="Tokens (7d)" value={(stats?.tokens_7d || 0).toLocaleString()} icon="fa-microchip" color="#40916C" />
-            <StatCard label="Cost (7d)" value={`$${(stats?.estimated_cost_7d_usd || 0).toFixed(2)}`} icon="fa-sterling-sign" color="#52B788" />
+            <StatCard label="Tasks (24h)" value={stats?.runs_24h || 0} icon="fa-bolt" />
+            <StatCard label="Tasks (7d)" value={stats?.runs_7d || 0} icon="fa-chart-bar" />
+            <StatCard label="Tokens (7d)" value={(stats?.tokens_7d || 0).toLocaleString()} icon="fa-microchip" />
+            <StatCard label="Cost (7d)" value={`$${(stats?.estimated_cost_7d_usd || 0).toFixed(2)}`} icon="fa-sterling-sign" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <StatCard label="Pending Approvals" value={stats?.pending_approvals || 0} icon="fa-shield-halved" color={stats?.pending_approvals > 0 ? '#dc2626' : '#6b7280'} />
-            <StatCard label="Emails Sent (24h)" value={stats?.emails_sent_24h || 0} icon="fa-envelope" color="#0A66C2" />
-            <StatCard label="Leads (7d)" value={stats?.leads_7d || 0} icon="fa-user-plus" color="#9333ea" />
-            <StatCard label="Health" value="OK" icon="fa-heart" color="#10b981" />
+            <StatCard label="Pending Approvals" value={stats?.pending_approvals || 0} icon="fa-shield-halved" />
+            <StatCard label="Emails Sent (24h)" value={stats?.emails_sent_24h || 0} icon="fa-envelope" />
+            <StatCard label="Leads (7d)" value={stats?.leads_7d || 0} icon="fa-user-plus" />
+            <StatCard label="Health" value="OK" icon="fa-heart" />
           </div>
 
           {/* Task Breakdown */}
@@ -412,10 +412,10 @@ export default function AIOps() {
           {churn && (
             <>
               <div className="grid grid-cols-4 gap-4 mb-6">
-                <StatCard label="Critical (80+)" value={churn.critical} icon="fa-skull-crossbones" color="#dc2626" />
-                <StatCard label="High (60-79)" value={churn.high} icon="fa-exclamation-triangle" color="#f59e0b" />
-                <StatCard label="Medium (40-59)" value={churn.medium} icon="fa-eye" color="#3b82f6" />
-                <StatCard label="Low (<40)" value={churn.low} icon="fa-check-circle" color="#10b981" />
+                <StatCard label="Critical (80+)" value={churn.critical} icon="fa-skull-crossbones" />
+                <StatCard label="High (60-79)" value={churn.high} icon="fa-exclamation-triangle" />
+                <StatCard label="Medium (40-59)" value={churn.medium} icon="fa-eye" />
+                <StatCard label="Low (<40)" value={churn.low} icon="fa-check-circle" />
               </div>
 
               {churn.at_risk_businesses?.length > 0 && (

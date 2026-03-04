@@ -13,10 +13,14 @@ from bson import ObjectId
 from database import get_database
 import logging
 from middleware.tenant import set_user_tenant_context, TenantContext
+from middleware.auth import get_current_admin
 
 logger = logging.getLogger("outreach.routes")
 
-router = APIRouter(prefix="/outreach", tags=["Email Outreach"])
+router = APIRouter(prefix="/outreach", tags=["Email Outreach"], dependencies=[Depends(get_current_admin)])
+
+# Separate public router for webhooks (Resend calls these — no auth)
+webhook_router = APIRouter(prefix="/outreach", tags=["Outreach Webhooks"])
 
 
 # ═══ Request Models ═══
@@ -862,7 +866,7 @@ async def get_sentiment_breakdown(days: int = 30):
 # RESEND WEBHOOKS
 # ═══════════════════════════════════════════════════════════
 
-@router.post("/webhooks/resend")
+@webhook_router.post("/webhooks/resend")
 async def resend_webhook(request: Request):
     """
     Handle Resend webhook events: delivered, opened, clicked, bounced, complained.
@@ -919,7 +923,7 @@ async def resend_webhook(request: Request):
     return {"received": True, "event": event_type, "send_id": str(send["_id"])}
 
 
-@router.post("/webhooks/resend/inbound")
+@webhook_router.post("/webhooks/resend/inbound")
 async def resend_inbound_webhook(request: Request):
     """
     Handle inbound email (reply detection) via Resend inbound webhook.

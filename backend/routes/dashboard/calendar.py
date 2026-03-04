@@ -308,44 +308,4 @@ async def get_calendar_restaurant(
     }
 
 
-@router.get("/business/{business_id}/debug-bookings")
-async def debug_bookings(
-    business_id: str,
-    date_param: str = Query("", alias="date"),
-):
-    """Debug: show all bookings for a business, regardless of field name format."""
-    db = get_database()
-
-    bid_values = [business_id]
-    try:
-        bid_values.append(ObjectId(business_id))
-    except Exception:
-        pass
-
-    results = []
-    for coll_name in ["bookings", "appointments"]:
-        coll = db[coll_name]
-        for field in ["business_id", "businessId"]:
-            query = {field: {"$in": bid_values}}
-            if date_param:
-                query["date"] = date_param
-            try:
-                docs = await coll.find(query).to_list(length=50)
-                for d in docs:
-                    nb = normalize_booking(d)
-                    results.append({
-                        "collection": coll_name,
-                        "field_matched": field,
-                        "id": nb["id"],
-                        "businessId": nb["businessId"],
-                        "date": nb["date"],
-                        "time": nb["time"],
-                        "customer": nb["customer"]["name"],
-                        "partySize": nb["partySize"],
-                        "status": nb["status"],
-                        "tableId": nb["tableId"],
-                    })
-            except Exception as e:
-                results.append({"error": str(e), "collection": coll_name, "field": field})
-
-    return {"business_id": business_id, "date_filter": date_param, "total": len(results), "bookings": results}
+# debug-bookings endpoint REMOVED — security audit VULN-010

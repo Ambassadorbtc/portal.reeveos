@@ -1,10 +1,11 @@
 """Studio API Routes"""
 import logging
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from middleware.auth import get_current_admin
 from pydantic import BaseModel
 
 logger = logging.getLogger("studio")
-router = APIRouter(prefix="/api/studio", tags=["studio"])
+router = APIRouter(prefix="/api/studio", tags=["studio"], dependencies=[Depends(get_current_admin)])
 
 
 class CaptureRequest(BaseModel):

@@ -44,6 +44,7 @@ from routes import (
     linkedin_router,
     agent_router,
     outreach_router,
+    outreach_webhook_router,
     admin_router,
     command_centre_router,
     admin_extended_router,
@@ -94,14 +95,26 @@ async def lifespan(app: FastAPI):
     await database.close_mongo_connection()
 
 
+import os
+
+_is_prod = os.getenv("ENVIRONMENT", "production") == "production"
+
 app = FastAPI(
     title="ReeveOS API",
     description="Your High Street, Booked - Multi-vertical booking platform for UK restaurants, barbers, salons, and spas",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    docs_url=None if _is_prod else "/docs",
+    redoc_url=None if _is_prod else "/redoc",
+    openapi_url=None if _is_prod else "/openapi.json",
 )
 
 setup_cors(app)
+
+# Security headers middleware (VULN-013)
+from middleware.security import SecurityMiddleware
+app.add_middleware(SecurityMiddleware)
+
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -231,6 +244,7 @@ app.include_router(email_webhooks_router)
 app.include_router(linkedin_router)
 app.include_router(agent_router)
 app.include_router(outreach_router)
+app.include_router(outreach_webhook_router)  # Public — Resend webhooks (no auth)
 app.include_router(admin_router)
 app.include_router(command_centre_router)
 app.include_router(admin_extended_router)

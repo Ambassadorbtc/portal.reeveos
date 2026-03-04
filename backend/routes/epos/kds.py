@@ -4,7 +4,7 @@ ReeveOS EPOS — Kitchen Display System (KDS) API
 Real-time kitchen ticket management with station routing,
 course firing, prep timers, and fulfillment tracking.
 """
-from fastapi import Depends,  APIRouter, HTTPException, Body
+from fastapi import Depends, APIRouter, HTTPException, Body, Query
 from typing import Optional, List
 from datetime import datetime, timedelta
 from bson import ObjectId
@@ -114,11 +114,11 @@ async def get_all_day_view(business_id: str, tenant: TenantContext = Depends(ver
 # ─── Ticket Actions ─── #
 
 @router.put("/tickets/{ticket_id}/start")
-async def start_ticket(ticket_id: str):
+async def start_ticket(ticket_id: str, business_id: str = Query(...)):
     """Mark ticket as in progress (chef started working)."""
     db = get_database()
     result = await db.kds_tickets.update_one(
-        {"_id": ObjectId(ticket_id), "status": "new"},
+        {"_id": ObjectId(ticket_id), "business_id": business_id, "status": "new"},
         {"$set": {"status": "in_progress", "started_at": datetime.utcnow()}}
     )
     if result.modified_count == 0:
@@ -127,10 +127,10 @@ async def start_ticket(ticket_id: str):
 
 
 @router.put("/tickets/{ticket_id}/item/{item_index}/done")
-async def mark_item_done(ticket_id: str, item_index: int):
+async def mark_item_done(ticket_id: str, item_index: int, business_id: str = Query(...)):
     """Mark individual item as prepared."""
     db = get_database()
-    ticket = await db.kds_tickets.find_one({"_id": ObjectId(ticket_id)})
+    ticket = await db.kds_tickets.find_one({"_id": ObjectId(ticket_id), "business_id": business_id})
     if not ticket:
         raise HTTPException(404, "Ticket not found")
     if item_index >= len(ticket["items"]):
@@ -156,11 +156,11 @@ async def mark_item_done(ticket_id: str, item_index: int):
 
 
 @router.put("/tickets/{ticket_id}/ready")
-async def mark_ticket_ready(ticket_id: str):
+async def mark_ticket_ready(ticket_id: str, business_id: str = Query(...)):
     """Bump ticket — mark entire ticket as ready for service."""
     db = get_database()
     now = datetime.utcnow()
-    ticket = await db.kds_tickets.find_one({"_id": ObjectId(ticket_id)})
+    ticket = await db.kds_tickets.find_one({"_id": ObjectId(ticket_id), "business_id": business_id})
     if not ticket:
         raise HTTPException(404, "Ticket not found")
 
@@ -191,22 +191,22 @@ async def mark_ticket_ready(ticket_id: str):
 
 
 @router.put("/tickets/{ticket_id}/served")
-async def mark_ticket_served(ticket_id: str):
+async def mark_ticket_served(ticket_id: str, business_id: str = Query(...)):
     """Mark ticket as served to customer (removes from KDS)."""
     db = get_database()
     await db.kds_tickets.update_one(
-        {"_id": ObjectId(ticket_id)},
+        {"_id": ObjectId(ticket_id), "business_id": business_id},
         {"$set": {"status": "served", "served_at": datetime.utcnow()}}
     )
     return {"message": "Ticket served"}
 
 
 @router.put("/tickets/{ticket_id}/recall")
-async def recall_ticket(ticket_id: str):
+async def recall_ticket(ticket_id: str, business_id: str = Query(...)):
     """Recall last bumped ticket back to screen."""
     db = get_database()
     result = await db.kds_tickets.update_one(
-        {"_id": ObjectId(ticket_id), "status": {"$in": ["ready", "served"]}},
+        {"_id": ObjectId(ticket_id), "business_id": business_id, "status": {"$in": ["ready", "served"]}},
         {"$set": {"status": "in_progress", "recalled_at": datetime.utcnow()}}
     )
     if result.modified_count == 0:
@@ -215,13 +215,13 @@ async def recall_ticket(ticket_id: str):
 
 
 @router.put("/tickets/{ticket_id}/priority")
-async def set_priority(ticket_id: str, priority: str = Body(..., embed=True)):
+async def set_priority(ticket_id: str, business_id: str = Query(...), priority: str = Body(..., embed=True)):
     """Set ticket priority (normal, rush, vip)."""
     db = get_database()
     if priority not in ("normal", "rush", "vip"):
         raise HTTPException(400, "Priority must be normal, rush, or vip")
     await db.kds_tickets.update_one(
-        {"_id": ObjectId(ticket_id)},
+        {"_id": ObjectId(ticket_id), "business_id": business_id},
         {"$set": {"priority": priority}}
     )
     return {"message": f"Priority set to {priority}"}

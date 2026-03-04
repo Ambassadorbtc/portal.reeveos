@@ -14,8 +14,9 @@ import logging
 
 import database
 from middleware.tenant import set_user_tenant_context, TenantContext
+from middleware.auth import get_current_admin
 
-router = APIRouter(prefix="/admin/library", tags=["library"])
+router = APIRouter(prefix="/admin/library", tags=["library"], dependencies=[Depends(get_current_admin)])
 logger = logging.getLogger("library")
 
 CATEGORIES = [

@@ -3,14 +3,15 @@ Command Centre API — Project board for founder admin panel.
 MongoDB collection: project_features
 Full CRUD + stage moves + checklist toggles + notes thread + history log.
 """
-from fastapi import APIRouter, Query, Body, HTTPException
+from fastapi import APIRouter, Query, Body, HTTPException, Depends
 from pydantic import BaseModel, Field
 from database import get_database as get_db, safe_object_id
+from middleware.auth import get_current_admin
 from datetime import datetime
 from bson import ObjectId
 from typing import Optional, List
 
-router = APIRouter(prefix="/admin/command-centre", tags=["command-centre"])
+router = APIRouter(prefix="/admin/command-centre", tags=["command-centre"], dependencies=[Depends(get_current_admin)])
 
 
 # ─── Helpers ──────────────────────────────────────────

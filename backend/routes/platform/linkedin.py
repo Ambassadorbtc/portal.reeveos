@@ -19,8 +19,9 @@ from bson import ObjectId
 from config import Settings
 from database import get_database
 from middleware.tenant import set_user_tenant_context, TenantContext
+from middleware.auth import get_current_admin
 
-router = APIRouter(prefix="/linkedin", tags=["linkedin"])
+router = APIRouter(prefix="/linkedin", tags=["linkedin"], dependencies=[Depends(get_current_admin)])
 logger = logging.getLogger(__name__)
 settings = Settings()
 

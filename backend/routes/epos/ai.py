@@ -18,6 +18,7 @@ from bson import ObjectId
 from database import get_database
 import logging
 from middleware.tenant import verify_business_access, TenantContext
+from middleware.auth import get_current_user
 
 logger = logging.getLogger("epos_ai")
 router = APIRouter(prefix="/epos", tags=["EPOS AI + Loyalty + Kiosk"])
@@ -432,7 +433,7 @@ async def update_loyalty_config(business_id: str, tenant: TenantContext = Depend
 
 
 @router.get("/loyalty/customer/{customer_id}")
-async def get_customer_loyalty(customer_id: str):
+async def get_customer_loyalty(customer_id: str, user: dict = Depends(get_current_user)):
     """Get customer loyalty balance and history."""
     db = get_database()
     customer = await db.clients.find_one({"_id": ObjectId(customer_id)})
@@ -470,6 +471,7 @@ async def earn_points(
     business_id: str = Body(...),
     order_id: str = Body(...),
     amount: float = Body(...),
+    user: dict = Depends(get_current_user),
 ):
     """Award loyalty points for a purchase."""
     db = get_database()
@@ -515,6 +517,7 @@ async def redeem_points(
     customer_id: str = Body(...),
     business_id: str = Body(...),
     points: int = Body(...),
+    user: dict = Depends(get_current_user),
 ):
     """Redeem points for a discount."""
     db = get_database()

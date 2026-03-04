@@ -95,6 +95,7 @@ from .epos.accounting import router as accounting_router
 # ─── Platform ───
 from .platform.agent import router as agent_router
 from .platform.outreach import router as outreach_router
+from .platform.outreach import webhook_router as outreach_webhook_router
 from .platform.linkedin import router as linkedin_router
 
 
@@ -114,5 +115,5 @@ __all__ = [
     "labour_router", "online_ordering_router", "pay_at_table_router",
     "cash_and_tax_router", "ops_router", "table_management_router", "tronc_router",
     "delivery_aggregation_router", "allergen_management_router", "accounting_router",
-    "agent_router", "outreach_router", "linkedin_router",
+    "agent_router", "outreach_router", "outreach_webhook_router", "linkedin_router",
 ]

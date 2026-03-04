@@ -11,6 +11,7 @@ from bson import ObjectId
 from database import get_database
 import logging
 from middleware.tenant import verify_business_access, TenantContext
+from middleware.auth import get_current_user
 
 logger = logging.getLogger("tax_multisite")
 router = APIRouter(prefix="/ops", tags=["Tax, Cash Drawer & Multi-Site"])
@@ -308,9 +309,12 @@ async def close_cash_drawer(
 # ═══════════════════════════════════════════════════════════════
 
 @router.get("/multi-site/{owner_id}/overview")
-async def multi_site_overview(owner_id: str):
+async def multi_site_overview(owner_id: str, user: dict = Depends(get_current_user)):
     """Cross-location dashboard for multi-site operators.
     NO competitor gives real-time multi-site comparison free."""
+    # Verify the caller IS the owner (or super_admin)
+    if str(user["_id"]) != owner_id and user.get("role") not in ("super_admin", "platform_admin"):
+        raise HTTPException(403, "Access denied")
     db = get_database()
 
     # Get all businesses owned by this user
@@ -368,8 +372,10 @@ async def multi_site_overview(owner_id: str):
 
 
 @router.get("/multi-site/{owner_id}/compare")
-async def multi_site_compare(owner_id: str, days_back: int = 30):
+async def multi_site_compare(owner_id: str, days_back: int = 30, user: dict = Depends(get_current_user)):
     """Compare performance across all locations."""
+    if str(user["_id"]) != owner_id and user.get("role") not in ("super_admin", "platform_admin"):
+        raise HTTPException(403, "Access denied")
     db = get_database()
     cutoff = datetime.utcnow() - timedelta(days=days_back)
 

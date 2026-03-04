@@ -825,7 +825,7 @@ async def update_booking(business_slug: str, booking_id: str, payload: dict):
 
 
 @router.delete("/{business_slug}/booking/{booking_id}")
-async def cancel_booking(business_slug: str, booking_id: str):
+async def cancel_booking(business_slug: str, booking_id: str, email: str = Query(..., description="Customer email for ownership verification")):
     db = get_database()
     business = await db.businesses.find_one({"slug": business_slug})
     if not business:
@@ -834,6 +834,11 @@ async def cancel_booking(business_slug: str, booking_id: str):
     bkg = await db.bookings.find_one({"_id": booking_id, "businessId": str(business["_id"])})
     if not bkg:
         raise HTTPException(404, "Booking not found")
+
+    # Ownership check — customer must provide their email
+    booking_email = (bkg.get("customer") or {}).get("email", "").lower().strip()
+    if not booking_email or email.lower().strip() != booking_email:
+        raise HTTPException(403, "Email does not match booking")
 
     await db.bookings.update_one(
         {"_id": booking_id},

@@ -106,12 +106,28 @@ async def main():
     peter = await db.users.find_one({"email": "peter.griffin8222@gmail.com"})
     if peter:
         current_biz = peter.get("business_ids", [])
+        stale_biz_id = peter.get("business_id", "")
+        needs_fix = False
+        update_fields = {}
+
+        # Fix business_ids array
         if ORIGINAL_MICHO not in [str(b) for b in current_biz]:
+            update_fields["business_ids"] = [ORIGINAL_MICHO]
+            needs_fix = True
+
+        # Fix stale business_id (singular) — must match or be removed
+        if str(stale_biz_id) != ORIGINAL_MICHO:
+            update_fields["business_id"] = ORIGINAL_MICHO
+            needs_fix = True
+
+        if needs_fix:
             await db.users.update_one(
                 {"_id": peter["_id"]},
-                {"$set": {"business_ids": [ORIGINAL_MICHO]}}
+                {"$set": update_fields}
             )
             print(f"  ✅ Relinked peter → {ORIGINAL_MICHO}")
+            if "business_id" in update_fields:
+                print(f"     Fixed stale business_id: {stale_biz_id} → {ORIGINAL_MICHO}")
         else:
             print(f"  ✅ Already linked to original Micho")
 

@@ -49,6 +49,13 @@ ACCOUNTS = {
         "expected_biz": None,
         "login_endpoint": "/auth/admin-login",
     },
+    "mo": {
+        "email": "mo.jalloh@me.com",
+        "password": "Reeve@Mo2026",
+        "expected_role": "super_admin",
+        "expected_biz": None,
+        "login_endpoint": "/auth/admin-login",
+    },
 }
 
 # ─── Test infrastructure ──────────────────────────

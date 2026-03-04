@@ -12,6 +12,7 @@ ACCOUNTS = [
     ("peter.griffin8222@gmail.com", "Rezvo2024!"),
     ("grantwoods@live.com", "Reeve@Grant2026"),
     ("ibbyonline@gmail.com", "Reeve@Micho2026"),
+    ("mo.jalloh@me.com", "Reeve@Mo2026"),
 ]
 
 ORIGINAL_MICHO = "699bdb20a2ccbc6589c1d0f8"
@@ -29,9 +30,10 @@ async def main():
         
         user = await db.users.find_one({"email": email})
         if not user:
-            if email == "ibbyonline@gmail.com":
+            if email in ("ibbyonline@gmail.com", "mo.jalloh@me.com"):
+                name = "Ambassador" if email == "ibbyonline@gmail.com" else "Mo Jalloh"
                 await db.users.insert_one({
-                    "email": email, "name": "Ambassador", "role": "super_admin",
+                    "email": email, "name": name, "role": "super_admin",
                     "password_hash": hashed, "phone": None, "avatar": None,
                     "saved_businesses": [], "business_ids": [], "booking_history": [],
                     "review_history": [], "stripe_connected": False,
@@ -83,13 +85,14 @@ async def main():
     if peter and peter.get("role") == "business_owner":
         print(f"  ⚠️  Peter role is 'business_owner' — frontend now supports this")
     
-    # Ensure ibby is super_admin
-    ibby = await db.users.find_one({"email": "ibbyonline@gmail.com"})
-    if ibby and ibby.get("role") != "super_admin":
-        await db.users.update_one({"_id": ibby["_id"]}, {"$set": {"role": "super_admin"}})
-        print(f"  ✅ ibbyonline@gmail.com promoted to super_admin (was {ibby.get('role')})")
-    elif ibby:
-        print(f"  ✅ ibbyonline@gmail.com already super_admin")
+    # Ensure ibby and mo are super_admin
+    for sa_email in ("ibbyonline@gmail.com", "mo.jalloh@me.com"):
+        sa = await db.users.find_one({"email": sa_email})
+        if sa and sa.get("role") != "super_admin":
+            await db.users.update_one({"_id": sa["_id"]}, {"$set": {"role": "super_admin"}})
+            print(f"  ✅ {sa_email} promoted to super_admin (was {sa.get('role')})")
+        elif sa:
+            print(f"  ✅ {sa_email} already super_admin")
     
     print("\n═══ DONE ═══")
     client.close()

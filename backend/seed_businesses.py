@@ -112,7 +112,7 @@ MICHO = {
     "claimed": True,
     "description": "Authentic Turkish cuisine in the heart of Sheffield. From sizzling kebabs and mezes to fresh-baked pide and baklava. Live entertainment weekends.",
     "phone": "01onal 123 4567",
-    "email": "peter.griffin8222@gmail.com",
+    "email": "james111trader@gmail.com",
     "website": "https://michoturkishbarandgrill.co.uk",
     "address": {
         "line1": "Ecclesall Road",
@@ -163,7 +163,7 @@ MICHO = {
 }
 
 MICHO_STAFF = [
-    {"id": "mic-staff-1", "name": "Sakine Kizilkya", "role": "owner", "email": "peter.griffin8222@gmail.com", "color": "#D62828", "active": True},
+    {"id": "mic-staff-1", "name": "Sakine Kizilkya", "role": "owner", "email": "james111trader@gmail.com", "color": "#D62828", "active": True},
     {"id": "mic-staff-2", "name": "Ahmet", "role": "manager", "email": "ahmet@micho.co.uk", "color": "#003049", "active": True},
     {"id": "mic-staff-3", "name": "Yusuf", "role": "chef", "email": "yusuf@micho.co.uk", "color": "#F77F00", "active": True},
     {"id": "mic-staff-4", "name": "Elif", "role": "waitress", "email": "elif@micho.co.uk", "color": "#81B29A", "active": True},
@@ -252,7 +252,7 @@ async def main():
     db = client[DB_NAME]
 
     print("🗑️  Cleaning existing demo data...")
-    for email in ["levelambassador@gmail.com", "peter.griffin8222@gmail.com"]:
+    for email in ["levelambassador@gmail.com", "james111trader@gmail.com"]:
         user = await db.users.find_one({"email": email})
         if user:
             biz_ids = user.get("business_ids", [])
@@ -271,7 +271,7 @@ async def main():
     # ============================================================
     print("👤 Creating user accounts...")
     
-    pw_hash = bcrypt.hashpw("Rezvo2024!".encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    pw_hash = bcrypt.hashpw("Reeve@James2026".encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
     
     natalie_user = {
         "name": "Natalie Price",
@@ -292,7 +292,7 @@ async def main():
     
     sakine_user = {
         "name": "Sakine Kizilkya",
-        "email": "peter.griffin8222@gmail.com",
+        "email": "james111trader@gmail.com",
         "password_hash": pw_hash,
         "role": "business_owner",
         "account_type": "business_owner",
@@ -697,7 +697,7 @@ async def main():
     
     print(f"\n📍 Micho Turkish Bar & Grill (Sheffield)")
     print(f"   Business ID: {mic_id}")
-    print(f"   Owner: Sakine Kizilkya (peter.griffin8222@gmail.com)")
+    print(f"   Owner: James (james111trader@gmail.com)")
     print(f"   Clients: {len(mic_clients)}")
     print(f"   Bookings: {len(mic_bookings)}")
     print(f"   Sales: {len(mic_sales)}")
@@ -705,8 +705,8 @@ async def main():
     print(f"   Tables: {len(MICHO_TABLES)}")
     
     print(f"\n🔑 Login credentials:")
-    print(f"   Rejuvenate: levelambassador@gmail.com / Rezvo2024!")
-    print(f"   Micho: peter.griffin8222@gmail.com / Rezvo2024!")
+    print(f"   Rejuvenate: levelambassador@gmail.com / Reeve@James2026")
+    print(f"   Micho: james111trader@gmail.com / Reeve@James2026")
     print(f"\n   ⚠️  Note: password is SHA256 hashed. If your auth uses bcrypt, update the password_hash manually.")
 
 asyncio.run(main())

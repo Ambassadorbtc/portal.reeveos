@@ -38,7 +38,7 @@ BIZ_ID = str(micho["_id"])
 print(f"Found Micho: {micho['name']} (ID: {BIZ_ID})")
 
 # Find owner user
-owner = db.users.find_one({"email": "peter.griffin8222@gmail.com"})
+owner = db.users.find_one({"email": "james111trader@gmail.com"})
 OWNER_ID = str(owner["_id"]) if owner else "owner"
 
 # Today's date

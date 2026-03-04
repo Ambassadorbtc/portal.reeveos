@@ -31,6 +31,7 @@ const PRIS = {
 }
 
 const CATS = {
+  sales_marketing: { icon: '○', c: '#C9A84C', label: 'Sales & Marketing' },
   'E-Commerce': { icon: '○', c: '#10B981' },
   CRM: { icon: '○', c: '#6366F1' },
   Reviews: { icon: '○', c: '#F59E0B' },
@@ -38,6 +39,8 @@ const CATS = {
   EPOS: { icon: '○', c: '#EC4899' },
   Payments: { icon: '○', c: '#14B8A6' },
   Platform: { icon: '○', c: '#8B5CF6' },
+  Integrations: { icon: '○', c: '#0EA5E9' },
+  Security: { icon: '○', c: '#EF4444' },
 }
 
 const EFF_C = { Low: '#10B981', Medium: '#F59E0B', High: '#EF4444' }
@@ -313,7 +316,7 @@ export default function CommandCentre() {
           </select>
           <select value={filters.cat} onChange={e => setFilters(f => ({ ...f, cat: e.target.value }))} className="admin-select px-2.5 py-1.5 rounded-lg bg-gray-800/60 border border-gray-700/50 text-xs text-gray-300 focus:outline-none">
             <option value="">All Categories</option>
-            {Object.entries(CATS).map(([k, v]) => <option key={k} value={k}>{v.icon} {k}</option>)}
+            {Object.entries(CATS).map(([k, v]) => <option key={k} value={k}>{v.icon} {v.label || k}</option>)}
           </select>
           <div className="ml-auto flex items-center gap-0.5 bg-gray-800/60 rounded-lg p-0.5">
             {[{ id: 'kanban', icon: LayoutGrid, label: 'Board' }, { id: 'tree', icon: GitBranch, label: 'Tree' }, { id: 'list', icon: List, label: 'List' }].map(v => (
@@ -511,7 +514,7 @@ function ListView({ features, onSelect, selected }) {
               <tr key={f._id} onClick={() => onSelect(f)} className={`cursor-pointer border-b border-gray-800/50 transition-colors ${selected?._id === f._id ? 'bg-gray-800/60' : 'hover:bg-gray-800/30'}`}>
                 <td className="py-2 px-2"><Badge text={f.pri} color={pri?.color} bg={pri?.bg} /></td>
                 <td className="py-2 px-2 text-xs text-gray-300 font-medium max-w-xs truncate">{f.name}</td>
-                <td className="py-2 px-2 text-xs"><span>{cat?.icon} {f.cat}</span></td>
+                <td className="py-2 px-2 text-xs"><span>{cat?.icon} {cat?.label || f.cat}</span></td>
                 <td className="py-2 px-2"><StagePill stage={f.stage} /></td>
                 <td className="py-2 px-2"><span className="text-[10px] font-medium" style={{ color: EFF_C[f.effort] }}>{f.effort}</span></td>
                 <td className="py-2 px-2 w-32"><Progress checks={f.checks} /></td>
@@ -557,7 +560,7 @@ function DetailPanel({ feature: f, onClose, onToggleCheck, onAddNote, onAddCheck
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Badge text={f.pri} color={pri?.color} bg={pri?.bg} />
-            <span className="text-xs text-gray-500">{cat?.icon} {f.cat}</span>
+            <span className="text-xs text-gray-500">{cat?.icon} {cat?.label || f.cat}</span>
           </div>
           <div className="flex items-center gap-1">
             <button onClick={() => onDelete(f._id)} className="p-1 rounded text-gray-600 hover:text-red-400 hover:bg-gray-800 transition-colors" title="Delete">
@@ -771,7 +774,7 @@ function AddFeatureModal({ onClose, onCreate }) {
             <div>
               <label className="block text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1">Category</label>
               <select value={form.cat} onChange={e => setForm(f => ({ ...f, cat: e.target.value }))} className="admin-select w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-xs text-gray-200">
-                {Object.entries(CATS).map(([k, v]) => <option key={k} value={k}>{v.icon} {k}</option>)}
+                {Object.entries(CATS).map(([k, v]) => <option key={k} value={k}>{v.icon} {v.label || k}</option>)}
               </select>
             </div>
             <div>

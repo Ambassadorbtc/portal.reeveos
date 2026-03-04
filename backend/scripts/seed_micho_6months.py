@@ -368,16 +368,16 @@ async def main():
             booking = {
                 "_id": booking_id,
                 "businessId": biz_id,
-                "business_id": biz_id,
-                "customerName": cust["name"],
-                "email": cust["email"],
-                "phone": cust["phone"],
+                "customer": {
+                    "name": cust["name"],
+                    "phone": cust["phone"],
+                    "email": cust["email"],
+                },
                 "date": day_str,
                 "time": slot,
                 "partySize": party,
-                "guests": party,
                 "tableId": table,
-                "table": table,
+                "tableName": table,
                 "staffId": staff_id,
                 "duration": duration,
                 "status": status,
@@ -387,8 +387,8 @@ async def main():
                 "service": {"name": f"Table for {party}", "duration": duration, "price": order_total},
                 "tags": [occasion] if occasion else [],
                 "price": order_total,
-                "created_at": created_at,
-                "createdAt": created_at.isoformat(),
+                "isVip": False,
+                "createdAt": created_at,
                 "updatedAt": datetime.combine(current, time(int(slot.split(":")[0]), int(slot.split(":")[1]))).isoformat(),
             }
             booking_docs.append(booking)

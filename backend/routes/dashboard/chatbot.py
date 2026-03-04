@@ -12,6 +12,7 @@ import re
 from datetime import datetime, timedelta
 from middleware.rate_limit import limiter
 from config import Settings
+from models.normalize import normalize_booking
 
 router = APIRouter(prefix="/chatbot", tags=["chatbot"])
 logger = logging.getLogger(__name__)
@@ -178,56 +179,54 @@ async def build_business_snapshot(business_id: str) -> str:
         today_str = today.strftime("%Y-%m-%d")
 
         biz_match = {"$or": [{"businessId": biz_id}, {"business_id": biz_id}]}
-        today_bookings = await db.bookings.find({**biz_match, "date": today_str}).to_list(500)
+        today_bookings_raw = await db.bookings.find({**biz_match, "date": today_str}).to_list(500)
+        today_bookings = [normalize_booking(b) for b in today_bookings_raw]
 
-        def covers(b):
-            return b.get("partySize", b.get("party_size", b.get("covers", b.get("guests", 2))))
-
-        def guest_name(b):
-            c = b.get("customer") or {}
-            return c.get("name", b.get("guest_name", b.get("customerName", "Guest")))
-
-        total_covers = sum(covers(b) for b in today_bookings)
+        total_covers = sum(b["partySize"] for b in today_bookings)
 
         statuses = {}
         for b in today_bookings:
-            st = b.get("status", "unknown")
+            st = b["status"]
             statuses[st] = statuses.get(st, 0) + 1
 
         lunch_c = dinner_c = 0
         for b in today_bookings:
             try:
-                hour = int(str(b.get("time", "18:00")).split(":")[0])
+                hour = int(str(b["time"] or "18:00").split(":")[0])
             except Exception:
                 hour = 18
             if hour < 15:
-                lunch_c += covers(b)
+                lunch_c += b["partySize"]
             else:
-                dinner_c += covers(b)
+                dinner_c += b["partySize"]
 
         week_start = today - timedelta(days=today.weekday())
         week_dates = [(week_start + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
-        week_bookings = await db.bookings.find({**biz_match, "date": {"$in": week_dates}}).to_list(2000)
-        week_covers = sum(covers(b) for b in week_bookings)
+        week_bookings_raw = await db.bookings.find({**biz_match, "date": {"$in": week_dates}}).to_list(2000)
+        week_bookings = [normalize_booking(b) for b in week_bookings_raw]
+        week_covers = sum(b["partySize"] for b in week_bookings)
 
         total_alltime = await db.bookings.count_documents(biz_match)
-        all_bookings = await db.bookings.find(
+        all_bookings_raw = await db.bookings.find(
             biz_match,
-            {"partySize": 1, "party_size": 1, "status": 1, "customerId": 1, "user_id": 1, "customer": 1, "covers": 1, "guests": 1}
+            {"partySize": 1, "party_size": 1, "status": 1, "customerId": 1, "user_id": 1, "customer": 1, "covers": 1, "guests": 1, "customerName": 1}
         ).to_list(10000)
+        all_bookings = [normalize_booking(b) for b in all_bookings_raw]
 
-        covers_alltime = sum(covers(b) for b in all_bookings)
+        covers_alltime = sum(b["partySize"] for b in all_bookings)
 
         cust_ids = set()
         for b in all_bookings:
-            uid = b.get("customerId") or b.get("user_id") or (b.get("customer") or {}).get("email")
+            uid = b["customerId"]
+            if not uid:
+                uid = b["customer"].get("email")
             if uid:
                 cust_ids.add(str(uid))
         total_customers = len(cust_ids) if cust_ids else total_alltime
 
-        ns_count = sum(1 for b in all_bookings if b.get("status") == "no_show")
-        ok_count = sum(1 for b in all_bookings if b.get("status") in ("completed", "seated", "confirmed"))
-        cx_count = sum(1 for b in all_bookings if b.get("status") == "cancelled")
+        ns_count = sum(1 for b in all_bookings if b["status"] == "no_show")
+        ok_count = sum(1 for b in all_bookings if b["status"] in ("completed", "seated", "confirmed"))
+        cx_count = sum(1 for b in all_bookings if b["status"] == "cancelled")
         ns_pct = f"{(ns_count / max(ok_count + ns_count, 1)) * 100:.0f}%"
 
         tables = biz.get("tables", [])
@@ -239,12 +238,12 @@ async def build_business_snapshot(business_id: str) -> str:
         total_seats = sum(t.get("seats", t.get("capacity", 4)) for t in tables) if tables else 0
 
         upcoming = sorted(
-            [b for b in today_bookings if b.get("status") in ("confirmed", "pending")],
-            key=lambda b: str(b.get("time", ""))
+            [b for b in today_bookings if b["status"] in ("confirmed", "pending")],
+            key=lambda b: str(b["time"] or "")
         )
         up_lines = []
         for b in upcoming[:6]:
-            up_lines.append(f"  - {b.get('time','?')}: {guest_name(b)} (party of {covers(b)}) [{b.get('status','?')}]")
+            up_lines.append(f"  - {b['time'] or '?'}: {b['customer']['name'] or 'Guest'} (party of {b['partySize']}) [{b['status']}]")
 
         now = datetime.utcnow()
 

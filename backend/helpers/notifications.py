@@ -51,16 +51,17 @@ async def notify_booking_created(booking: dict, business: dict):
     try:
         tasks = []
 
-        cust = booking.get("customer", {})
-        cust_name = cust.get("name", "Guest")
-        cust_email = cust.get("email")
-        cust_phone = cust.get("phone")
+        from models.normalize import normalize_booking
+        nb = normalize_booking(booking)
+        cust_name = nb["customer"]["name"] or "Guest"
+        cust_email = nb["customer"]["email"]
+        cust_phone = nb["customer"]["phone"]
         biz_name = business.get("name", "")
-        date_str = booking.get("date", "")
-        time_str = booking.get("time", "")
-        party_size = booking.get("partySize", 0)
-        reference = booking.get("reference", "")
-        status = booking.get("status", "confirmed")
+        date_str = nb["date"]
+        time_str = nb["time"]
+        party_size = nb["partySize"]
+        reference = nb["reference"]
+        status = nb["status"]
         formatted_date = _format_date(date_str)
         formatted_time = _format_time(time_str)
         manage_url = f"https://portal.reeveos.app/book/{business.get('slug', '')}/booking/{booking.get('_id', '')}"

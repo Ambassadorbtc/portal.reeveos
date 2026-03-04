@@ -9,6 +9,7 @@ from middleware.auth import get_current_user, get_current_staff
 from middleware.tenant import verify_business_access, TenantContext
 from datetime import datetime, date, time, timedelta
 from typing import List, Optional
+from models.normalize import normalize_booking, booking_to_list_item, booking_to_detail
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
@@ -248,7 +249,6 @@ async def list_bookings(
     if search:
         search_or = [
             {"customer.name": {"$regex": search, "$options": "i"}},
-            {"client_name": {"$regex": search, "$options": "i"}},
             {"reference": {"$regex": search, "$options": "i"}},
             {"customer.phone": {"$regex": search, "$options": "i"}},
             {"customer.email": {"$regex": search, "$options": "i"}},
@@ -262,39 +262,7 @@ async def list_bookings(
 
     staff_map = {st.get("id"): st for st in business.get("staff", [])}
 
-    bookings = []
-    for d in docs:
-        staff = staff_map.get(d.get("staffId") or d.get("server_id"), {})
-        svc = d.get("service") or {}
-        # Normalize customer name from ALL formats (seeded, API-created, legacy)
-        if d.get("customer") and isinstance(d["customer"], dict):
-            cust_name = d["customer"].get("name", "")
-            cust_phone = d["customer"].get("phone", "")
-            cust_email = d["customer"].get("email", "")
-        else:
-            cust_name = d.get("customerName") or d.get("client_name") or d.get("guest_name") or ""
-            cust_phone = d.get("customerPhone") or d.get("client_phone") or d.get("phone") or ""
-            cust_email = d.get("customerEmail") or d.get("client_email") or d.get("email") or ""
-        bookings.append({
-            "id": str(d.get("_id", "")),
-            "reference": d.get("reference", ""),
-            "customerName": cust_name,
-            "customerPhone": cust_phone,
-            "customerEmail": cust_email,
-            "service": svc.get("name") or d.get("service_period") or "Booking",
-            "staff": staff.get("name", ""),
-            "date": d.get("date"),
-            "time": d.get("time") or d.get("start_time", ""),
-            "partySize": d.get("partySize") or d.get("party_size"),
-            "duration": svc.get("duration") or d.get("duration") or d.get("turn_time") or 60,
-            "status": d.get("status", "confirmed"),
-            "source": d.get("source") or d.get("channel") or "online",
-            "occasion": d.get("occasion"),
-            "tableName": d.get("table_name", ""),
-            "isVip": d.get("is_vip") or d.get("isVip", False),
-            "depositPaid": (d.get("deposit") or {}).get("status") == "paid" or d.get("deposit_paid", False),
-            "createdAt": d.get("createdAt") or d.get("created_at"),
-        })
+    bookings = [booking_to_list_item(d, staff_map) for d in docs]
 
     # Count bookings (TenantScopedDB auto-filters by businessId)
     counts = {}
@@ -336,47 +304,9 @@ async def get_booking_detail(
     if not b:
         raise HTTPException(404, "Booking not found")
 
-    staff = next((st for st in business.get("staff", []) if st.get("id") in [b.get("staffId"), b.get("server_id")]), {})
-    svc = b.get("service") or {}
+    staff_map = {st.get("id"): st for st in business.get("staff", [])}
 
-    # Normalize customer from ALL formats (seeded, API-created, legacy)
-    if b.get("customer") and isinstance(b["customer"], dict):
-        cust = b["customer"]
-    else:
-        cust = {
-            "name": b.get("customerName") or b.get("client_name") or b.get("guest_name") or "",
-            "phone": b.get("customerPhone") or b.get("client_phone") or b.get("phone") or "",
-            "email": b.get("customerEmail") or b.get("client_email") or b.get("email") or "",
-        }
-
-    return {
-        "booking": {
-            "id": str(b.get("_id", "")),
-            "reference": b.get("reference", ""),
-            "status": b.get("status"),
-            "type": b.get("type", "restaurant" if b.get("table_id") or b.get("tableId") else "services"),
-            "customer": {
-                "name": cust.get("name", ""),
-                "phone": cust.get("phone", ""),
-                "email": cust.get("email", ""),
-                "isNew": b.get("is_new_client", True),
-                "totalBookings": 1,
-            },
-            "service": {"name": svc.get("name") or b.get("service_period"), "duration": svc.get("duration") or b.get("turn_time", 60), "price": svc.get("price")},
-            "staff": {"id": b.get("staffId") or b.get("server_id"), "name": staff.get("name", "")},
-            "date": b.get("date"),
-            "time": b.get("time") or b.get("start_time"),
-            "endTime": b.get("endTime") or b.get("end_time"),
-            "partySize": b.get("partySize") or b.get("party_size"),
-            "tableName": b.get("table_name", ""),
-            "occasion": b.get("occasion"),
-            "isVip": b.get("is_vip") or b.get("isVip", False),
-            "notes": b.get("notes"),
-            "source": b.get("source") or b.get("channel", "online"),
-            "deposit": b.get("deposit", {}),
-            "history": [{"action": "created", "timestamp": b.get("createdAt") or b.get("created_at"), "by": "customer"}],
-        }
-    }
+    return {"booking": booking_to_detail(b, staff_map)}
 
 
 @router.patch("/business/{business_id}/detail/{booking_id}/status")
@@ -421,31 +351,17 @@ async def update_booking_status(
     )
 
     # Log to activity
-    cust_name = ""
-    if b.get("customer") and isinstance(b["customer"], dict):
-        cust_name = b["customer"].get("name", "Customer")
-    else:
-        cust_name = b.get("client_name", "Customer")
+    nb = normalize_booking(b)
     await sdb.activity_log.insert_one({
         "type": f"booking_{new_status}" if new_status != "cancelled" else "booking_cancelled",
-        "message": f"Booking {b.get('reference', '')} {new_status}: {cust_name}",
+        "message": f"Booking {nb['reference']} {new_status}: {nb['customer']['name'] or 'Customer'}",
         "bookingId": str(doc_id),
         "timestamp": datetime.utcnow(),
     })
 
     updated = await sdb.bookings.find_one({"_id": doc_id})
-    staff = next((st for st in business.get("staff", []) if st.get("id") == updated.get("staffId")), {})
-    svc = updated.get("service") or {}
-    return {
-        "id": updated.get("_id"),
-        "reference": updated.get("reference"),
-        "status": updated.get("status"),
-        "customerName": (updated.get("customer") or {}).get("name"),
-        "service": svc.get("name"),
-        "staff": staff.get("name"),
-        "date": updated.get("date"),
-        "time": updated.get("time"),
-    }
+    staff_map = {st.get("id"): st for st in business.get("staff", [])}
+    return booking_to_list_item(updated, staff_map)
 
 
 @router.get("/business/{business_id}/availability")
@@ -594,20 +510,22 @@ async def edit_booking_details(
     if not b:
         raise HTTPException(404, "Booking not found")
 
-    # Allowed fields for edit
-    allowed = {
-        "customerName", "phone", "email", "notes", "partySize",
-        "tags", "tableId", "time", "date", "duration", "specialRequests",
-        "dietaryRequirements", "occasion",
-    }
+    # Allowed fields for edit (accept both legacy and canonical names)
     update = {"updatedAt": datetime.utcnow()}
     for k, v in payload.items():
-        if k in allowed:
+        if k == "customerName":
+            update["customer.name"] = v
+        elif k == "phone":
+            update["customer.phone"] = v
+        elif k == "email":
+            update["customer.email"] = v
+        elif k in {"notes", "partySize", "tags", "tableId", "tableName",
+                    "time", "date", "duration", "specialRequests",
+                    "dietaryRequirements", "occasion"}:
             update[k] = v
 
     await sdb.bookings.update_one({"_id": b["_id"]}, {"$set": update})
 
     updated = await sdb.bookings.find_one({"_id": b["_id"]})
-    if updated and "_id" in updated:
-        updated["_id"] = str(updated["_id"])
-    return {"detail": "Booking updated", "booking": updated}
+    staff_map = {st.get("id"): st for st in (await sdb.db.businesses.find_one({"_id": tenant.business_id}) or {}).get("staff", [])}
+    return {"detail": "Booking updated", "booking": booking_to_detail(updated, staff_map)}

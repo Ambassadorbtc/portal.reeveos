@@ -7,6 +7,7 @@ from database import get_database
 from middleware.auth import get_current_staff
 from datetime import datetime, date, timedelta
 from middleware.tenant import verify_business_access, TenantContext
+from models.normalize import normalize_booking
 
 router = APIRouter(prefix="/calendar", tags=["calendar"])
 
@@ -79,17 +80,17 @@ async def get_calendar(
 
     bookings = []
     for b in docs:
-        svc = b.get("service") or {}
+        nb = normalize_booking(b)
         bookings.append({
-            "id": b.get("_id"),
-            "staffId": b.get("staffId"),
-            "time": b.get("time", "00:00"),
-            "endTime": b.get("endTime", ""),
-            "duration": svc.get("duration", 60),
-            "customerName": (b.get("customer") or {}).get("name", ""),
-            "service": svc.get("name", "Booking"),
-            "status": b.get("status", "confirmed"),
-            "colour": STATUS_COLOURS.get(b.get("status", "confirmed"), "#22C55E"),
+            "id": nb["id"],
+            "staffId": nb["staffId"],
+            "time": nb["time"] or "00:00",
+            "endTime": nb["endTime"],
+            "duration": nb["service"].get("duration", 60) if isinstance(nb["service"], dict) else 60,
+            "customerName": nb["customer"]["name"],
+            "service": nb["service"].get("name", "Booking") if isinstance(nb["service"], dict) else "Booking",
+            "status": nb["status"],
+            "colour": STATUS_COLOURS.get(nb["status"], "#22C55E"),
         })
 
     return {

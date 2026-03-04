@@ -8,6 +8,7 @@ from middleware.tenant_db import get_scoped_db
 from middleware.auth import get_current_staff
 from middleware.tenant import verify_business_access, TenantContext
 from datetime import datetime, date, timedelta
+from models.normalize import normalize_booking
 from bson import ObjectId
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -56,40 +57,21 @@ async def _query_all_bookings(db, business_id: str):
 
 
 def _extract_booking_fields(b):
-    """Normalize booking fields from both seed data and form data formats."""
-    customer_name = ""
-    if b.get("customer") and isinstance(b["customer"], dict):
-        customer_name = b["customer"].get("name", "")
-    elif b.get("client_name"):
-        customer_name = b["client_name"]
-    elif b.get("guest_name"):
-        customer_name = b["guest_name"]
-
+    """Normalize booking fields using the canonical normaliser."""
+    nb = normalize_booking(b)
     service_name = "Booking"
-    if b.get("service") and isinstance(b["service"], dict):
-        service_name = b["service"].get("name", "Booking")
-    elif b.get("service_name"):
-        service_name = b["service_name"]
-    elif isinstance(b.get("service"), str):
-        service_name = b["service"]
-
     price = 0
-    if b.get("service") and isinstance(b["service"], dict):
-        price = b["service"].get("price", 0)
-    elif b.get("price"):
-        price = b["price"]
-
-    time_val = b.get("time") or b.get("start_time") or ""
-    staff_id = b.get("staffId") or b.get("staff_id") or ""
-    staff_name = b.get("staffName") or b.get("staff_name") or ""
+    if isinstance(nb["service"], dict):
+        service_name = nb["service"].get("name", "Booking")
+        price = nb["service"].get("price", 0)
 
     return {
-        "customer_name": customer_name,
+        "customer_name": nb["customer"]["name"],
         "service_name": service_name,
         "price": price,
-        "time": time_val,
-        "staff_id": staff_id,
-        "staff_name": staff_name,
+        "time": nb["time"],
+        "staff_id": nb["staffId"],
+        "staff_name": b.get("staffName") or b.get("staff_name") or "",
     }
 
 

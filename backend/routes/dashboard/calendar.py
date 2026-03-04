@@ -1,6 +1,6 @@
 """
 Calendar API — queries both appointments (services) and bookings (restaurants)
-Handles both snake_case (seed data) and camelCase (form data) field names.
+Uses normalize_booking() for consistent field access regardless of storage format.
 """
 
 from fastapi import APIRouter, HTTPException, Depends, Query
@@ -8,6 +8,7 @@ from database import get_database
 from middleware.tenant_db import get_scoped_db
 from middleware.auth import get_current_staff
 from middleware.tenant import verify_business_access, TenantContext
+from models.normalize import normalize_booking
 from middleware.encryption import TenantEncryption
 from datetime import datetime, timedelta
 from bson import ObjectId
@@ -115,51 +116,35 @@ async def get_calendar(
 
     bookings = []
     for b in bookings_raw:
-        staff_id = b.get("staffId") or b.get("staff_id") or "default"
-        time_val = b.get("time") or b.get("start_time") or "09:00"
-        end_time = b.get("endTime") or b.get("end_time")
-        duration = b.get("duration", 60)
-
-        customer_name = ""
-        if b.get("customer") and isinstance(b["customer"], dict):
-            customer_name = b["customer"].get("name", "")
-        elif b.get("client_name"):
-            customer_name = b["client_name"]
-        elif b.get("customerName"):
-            customer_name = b["customerName"]
+        nb = normalize_booking(b)
 
         service_name = "Booking"
-        if b.get("service") and isinstance(b["service"], dict):
-            service_name = b["service"].get("name", "Booking")
-        elif b.get("service_name"):
-            service_name = b["service_name"]
-        elif isinstance(b.get("service"), str):
-            service_name = b["service"]
+        if isinstance(nb["service"], dict):
+            service_name = nb["service"].get("name", "Booking")
 
-        svc_duration = duration
-        if b.get("service") and isinstance(b["service"], dict):
-            svc_duration = b["service"].get("duration", duration)
+        svc_duration = nb["duration"]
+        if isinstance(nb["service"], dict):
+            svc_duration = nb["service"].get("duration", nb["duration"])
 
-        status = b.get("status", "confirmed")
-        price = b.get("price", 0)
-        if b.get("service") and isinstance(b["service"], dict):
-            price = b["service"].get("price", price)
+        price = 0
+        if isinstance(nb["service"], dict):
+            price = nb["service"].get("price", 0)
 
         bookings.append({
-            "id": _safe_str(b.get("_id")),
-            "staffId": _safe_str(staff_id),
+            "id": nb["id"],
+            "staffId": nb["staffId"] or "default",
             "staffName": b.get("staff_name") or b.get("staffName", ""),
-            "time": time_val,
-            "endTime": end_time,
+            "time": nb["time"] or "09:00",
+            "endTime": nb["endTime"],
             "duration": svc_duration,
-            "customerName": customer_name,
+            "customerName": nb["customer"]["name"],
             "service": service_name,
-            "status": status,
-            "colour": STATUS_COLOURS.get(status, "#22C55E"),
+            "status": nb["status"],
+            "colour": STATUS_COLOURS.get(nb["status"], "#22C55E"),
             "isNewClient": b.get("is_new_client", False),
             "price": price,
-            "notes": b.get("notes", ""),
-            "channel": b.get("channel", ""),
+            "notes": nb["notes"],
+            "channel": nb["source"],
         })
 
     bookings.sort(key=lambda x: x.get("time", ""))
@@ -225,28 +210,18 @@ async def get_calendar_restaurant(
     # First pass: collect all bookings with their data
     booking_list = []
     for b in bookings_raw:
-        customer_name = ""
-        if b.get("customer") and isinstance(b["customer"], dict):
-            customer_name = b["customer"].get("name", "")
-        elif b.get("client_name"):
-            customer_name = b["client_name"]
-        elif b.get("guest_name"):
-            customer_name = b["guest_name"]
+        nb = normalize_booking(b)
 
-        table_id = b.get("tableId") or b.get("table_id")
-        party = b.get("partySize") or b.get("party_size") or 2
-        time_str = b.get("time") or b.get("start_time") or "12:00"
-        duration = b.get("duration") or b.get("turn_time") or 90
-        start_min = _parse_time(time_str)
-        end_min = start_min + duration
+        start_min = _parse_time(nb["time"] or "12:00")
+        end_min = start_min + (nb["duration"] or 90)
 
         booking_list.append({
             "raw": b,
-            "customer_name": customer_name,
-            "table_id": table_id,
-            "party": party,
-            "time_str": time_str,
-            "duration": duration,
+            "customer_name": nb["customer"]["name"],
+            "table_id": nb["tableId"],
+            "party": nb["partySize"],
+            "time_str": nb["time"] or "12:00",
+            "duration": nb["duration"] or 90,
             "start_min": start_min,
             "end_min": end_min,
         })
@@ -295,15 +270,15 @@ async def get_calendar_restaurant(
         bookings.append({
             "id": _safe_str(b.get("_id")),
             "time": bl["time_str"],
-            "endTime": b.get("endTime") or _mins_to_time(bl["start_min"] + bl["duration"]),
+            "endTime": normalize_booking(b)["endTime"] or _mins_to_time(bl["start_min"] + bl["duration"]),
             "partySize": bl["party"],
             "customerName": bl["customer_name"],
             "tableId": bl["table_id"],
-            "tableName": b.get("tableName") or b.get("table_name") or table_id_map.get(bl["table_id"], {}).get("name", ""),
-            "status": b.get("status", "confirmed"),
-            "occasion": b.get("occasion"),
-            "isVip": b.get("is_vip") or b.get("isVip", False),
-            "notes": b.get("notes", ""),
+            "tableName": normalize_booking(b)["tableName"] or table_id_map.get(bl["table_id"], {}).get("name", ""),
+            "status": normalize_booking(b)["status"],
+            "occasion": normalize_booking(b)["occasion"],
+            "isVip": normalize_booking(b)["isVip"],
+            "notes": normalize_booking(b)["notes"],
             "duration": bl["duration"],
             "allergens": b.get("allergens", []),
             "deposit": b.get("deposit", {}),
@@ -357,17 +332,18 @@ async def debug_bookings(
             try:
                 docs = await coll.find(query).to_list(length=50)
                 for d in docs:
+                    nb = normalize_booking(d)
                     results.append({
                         "collection": coll_name,
                         "field_matched": field,
-                        "id": _safe_str(d.get("_id")),
-                        "businessId": _safe_str(d.get("businessId", d.get("business_id"))),
-                        "date": d.get("date"),
-                        "time": d.get("time") or d.get("start_time"),
-                        "customer": d.get("customer", {}).get("name") if isinstance(d.get("customer"), dict) else d.get("client_name"),
-                        "partySize": d.get("partySize") or d.get("party_size"),
-                        "status": d.get("status"),
-                        "tableId": d.get("tableId") or d.get("table_id"),
+                        "id": nb["id"],
+                        "businessId": nb["businessId"],
+                        "date": nb["date"],
+                        "time": nb["time"],
+                        "customer": nb["customer"]["name"],
+                        "partySize": nb["partySize"],
+                        "status": nb["status"],
+                        "tableId": nb["tableId"],
                     })
             except Exception as e:
                 results.append({"error": str(e), "collection": coll_name, "field": field})

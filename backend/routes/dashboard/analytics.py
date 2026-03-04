@@ -8,6 +8,7 @@ from middleware.tenant import verify_business_access, TenantContext
 from datetime import datetime, date, timedelta
 from typing import Optional
 from bson import ObjectId
+from models.normalize import normalize_booking
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 
@@ -119,9 +120,9 @@ async def get_full_analytics(
     slots_per_day = 12
     max_daily_covers = num_tables * slots_per_day
     active_days = max((today - period_start).days, 1)
-    total_covers = sum((b.get("partySize") or b.get("guests") or 1) for b in current_bookings if b.get("status") in active_statuses)
+    total_covers = sum(normalize_booking(b)["partySize"] for b in current_bookings if b.get("status") in active_statuses)
     occupancy_rate = min(round((total_covers / (max_daily_covers * active_days)) * 100), 100) if max_daily_covers > 0 else 0
-    prev_covers = sum((b.get("partySize") or b.get("guests") or 1) for b in prev_bookings if b.get("status") in active_statuses)
+    prev_covers = sum(normalize_booking(b)["partySize"] for b in prev_bookings if b.get("status") in active_statuses)
     prev_occ = min(round((prev_covers / (max_daily_covers * active_days)) * 100), 100) if max_daily_covers > 0 else 0
     occupancy_trend_pct = round(occupancy_rate - prev_occ, 1)
 

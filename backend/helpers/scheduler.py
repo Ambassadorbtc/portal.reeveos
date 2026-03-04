@@ -100,20 +100,28 @@ async def _send_booking_reminders():
     }).to_list(100)
 
     for booking in bookings_24h:
-        email = booking.get("client_email")
+        from models.normalize import normalize_booking
+        nb = normalize_booking(booking)
+        email = nb["customer"]["email"]
         if not email:
             continue
 
         # Get business name
-        business = await db.businesses.find_one({"_id": booking.get("business_id")})
+        business = await db.businesses.find_one({"_id": nb["businessId"]})
+        if not business:
+            from bson import ObjectId
+            try:
+                business = await db.businesses.find_one({"_id": ObjectId(nb["businessId"])})
+            except Exception:
+                pass
         business_name = business.get("name", "") if business else ""
 
         await send_booking_reminder(
             to=email,
-            client_name=booking.get("client_name", "there"),
+            client_name=nb["customer"]["name"] or "there",
             business_name=business_name,
-            booking_date=booking.get("date", ""),
-            booking_time=booking.get("time", ""),
+            booking_date=nb["date"],
+            booking_time=nb["time"],
             hours_until=24,
             manage_url=f"https://reeveos.app/bookings/{booking['_id']}",
         )

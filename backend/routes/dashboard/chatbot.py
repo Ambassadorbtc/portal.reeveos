@@ -2,7 +2,7 @@
 ReeveOS AI Chatbot — Claude-powered with REAL database access + bulletproof fallback
 Never shows errors to users. If API fails, falls back to local knowledge.
 """
-from fastapi import APIRouter, HTTPException, Request as FastAPIRequest
+from fastapi import APIRouter, HTTPException, Request as FastAPIRequest, Depends
 from pydantic import BaseModel
 from typing import List, Optional
 import httpx
@@ -11,6 +11,7 @@ import traceback
 import re
 from datetime import datetime, timedelta
 from middleware.rate_limit import limiter
+from middleware.auth import get_current_user
 from config import Settings
 from models.normalize import normalize_booking
 
@@ -330,8 +331,16 @@ async def health():
 
 @router.post("/chat", response_model=ChatResponse)
 @limiter.limit("20/minute")
-async def chat(http_request: FastAPIRequest, request: ChatRequest):
+async def chat(http_request: FastAPIRequest, request: ChatRequest, user: dict = Depends(get_current_user)):
     """AI chat — Claude if available, local fallback if not. NEVER fails."""
+
+    # Verify caller has access to the requested business
+    if request.business_id:
+        user_role = user.get("role", "")
+        if user_role not in ("super_admin", "platform_admin"):
+            user_biz_ids = [str(b) for b in user.get("business_ids", [])]
+            if request.business_id not in user_biz_ids:
+                raise HTTPException(403, "Access denied to this business")
 
     # Build DB snapshot regardless of AI mode
     snapshot = ""

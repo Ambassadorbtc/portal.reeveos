@@ -113,8 +113,8 @@ async def get_all_day_view(business_id: str, tenant: TenantContext = Depends(ver
 
 # ─── Ticket Actions ─── #
 
-@router.put("/tickets/{ticket_id}/start")
-async def start_ticket(ticket_id: str, business_id: str = Query(...)):
+@router.put("/business/{business_id}/tickets/{ticket_id}/start")
+async def start_ticket(ticket_id: str, business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Mark ticket as in progress (chef started working)."""
     db = get_database()
     result = await db.kds_tickets.update_one(
@@ -126,8 +126,8 @@ async def start_ticket(ticket_id: str, business_id: str = Query(...)):
     return {"message": "Ticket started"}
 
 
-@router.put("/tickets/{ticket_id}/item/{item_index}/done")
-async def mark_item_done(ticket_id: str, item_index: int, business_id: str = Query(...)):
+@router.put("/business/{business_id}/tickets/{ticket_id}/item/{item_index}/done")
+async def mark_item_done(ticket_id: str, item_index: int, business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Mark individual item as prepared."""
     db = get_database()
     ticket = await db.kds_tickets.find_one({"_id": ObjectId(ticket_id), "business_id": business_id})
@@ -155,8 +155,8 @@ async def mark_item_done(ticket_id: str, item_index: int, business_id: str = Que
     return {"message": "Item marked done", "all_done": all_done}
 
 
-@router.put("/tickets/{ticket_id}/ready")
-async def mark_ticket_ready(ticket_id: str, business_id: str = Query(...)):
+@router.put("/business/{business_id}/tickets/{ticket_id}/ready")
+async def mark_ticket_ready(ticket_id: str, business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Bump ticket — mark entire ticket as ready for service."""
     db = get_database()
     now = datetime.utcnow()
@@ -190,8 +190,8 @@ async def mark_ticket_ready(ticket_id: str, business_id: str = Query(...)):
     return {"message": "Ticket ready", "prep_time_minutes": prep_time}
 
 
-@router.put("/tickets/{ticket_id}/served")
-async def mark_ticket_served(ticket_id: str, business_id: str = Query(...)):
+@router.put("/business/{business_id}/tickets/{ticket_id}/served")
+async def mark_ticket_served(ticket_id: str, business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Mark ticket as served to customer (removes from KDS)."""
     db = get_database()
     await db.kds_tickets.update_one(
@@ -201,8 +201,8 @@ async def mark_ticket_served(ticket_id: str, business_id: str = Query(...)):
     return {"message": "Ticket served"}
 
 
-@router.put("/tickets/{ticket_id}/recall")
-async def recall_ticket(ticket_id: str, business_id: str = Query(...)):
+@router.put("/business/{business_id}/tickets/{ticket_id}/recall")
+async def recall_ticket(ticket_id: str, business_id: str, tenant: TenantContext = Depends(verify_business_access)):
     """Recall last bumped ticket back to screen."""
     db = get_database()
     result = await db.kds_tickets.update_one(
@@ -214,8 +214,8 @@ async def recall_ticket(ticket_id: str, business_id: str = Query(...)):
     return {"message": "Ticket recalled"}
 
 
-@router.put("/tickets/{ticket_id}/priority")
-async def set_priority(ticket_id: str, business_id: str = Query(...), priority: str = Body(..., embed=True)):
+@router.put("/business/{business_id}/tickets/{ticket_id}/priority")
+async def set_priority(ticket_id: str, business_id: str, tenant: TenantContext = Depends(verify_business_access), priority: str = Body(..., embed=True)):
     """Set ticket priority (normal, rush, vip)."""
     db = get_database()
     if priority not in ("normal", "rush", "vip"):

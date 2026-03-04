@@ -833,12 +833,12 @@ async def cancel_booking(business_slug: str, booking_id: str, email: str = Query
 
     bkg = await db.bookings.find_one({"_id": booking_id, "businessId": str(business["_id"])})
     if not bkg:
-        raise HTTPException(404, "Booking not found")
+        raise HTTPException(404, "Booking not found or email does not match")
 
     # Ownership check — customer must provide their email
     booking_email = (bkg.get("customer") or {}).get("email", "").lower().strip()
     if not booking_email or email.lower().strip() != booking_email:
-        raise HTTPException(403, "Email does not match booking")
+        raise HTTPException(404, "Booking not found or email does not match")
 
     await db.bookings.update_one(
         {"_id": booking_id},

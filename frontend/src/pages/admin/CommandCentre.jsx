@@ -254,7 +254,7 @@ export default function CommandCentre() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(201,168,76,0.15)' }}>
-              <Crosshair size={18} style={{ color: '#C9A84C' }} />
+              <Target size={18} style={{ color: '#C9A84C' }} />
             </div>
             <div>
               <h1 className="text-lg font-bold text-white">Command Centre</h1>

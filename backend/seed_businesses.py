@@ -10,12 +10,11 @@ from bson import ObjectId
 from datetime import datetime, timedelta
 import random
 import bcrypt
-
-
-
-# MongoDB connection — reads from .env if available, falls back to local
-import os
+import os, sys
 from pathlib import Path
+
+sys.path.insert(0, os.path.dirname(__file__))
+from accounts_config import get_account_password
 try:
     from dotenv import load_dotenv
     load_dotenv(Path(__file__).parent / ".env")
@@ -271,7 +270,7 @@ async def main():
     # ============================================================
     print("👤 Creating user accounts...")
     
-    pw_hash = bcrypt.hashpw("Reeve@James2026".encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    pw_hash = bcrypt.hashpw(get_account_password("james").encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
     
     natalie_user = {
         "name": "Natalie Price",
@@ -705,8 +704,8 @@ async def main():
     print(f"   Tables: {len(MICHO_TABLES)}")
     
     print(f"\n🔑 Login credentials:")
-    print(f"   Rejuvenate: levelambassador@gmail.com / Reeve@James2026")
-    print(f"   Micho: james111trader@gmail.com / Reeve@James2026")
+    print(f"   Rejuvenate: levelambassador@gmail.com / <from env>")
+    print(f"   Micho: james111trader@gmail.com / <from env>")
     print(f"\n   ⚠️  Note: password is SHA256 hashed. If your auth uses bcrypt, update the password_hash manually.")
 
 asyncio.run(main())

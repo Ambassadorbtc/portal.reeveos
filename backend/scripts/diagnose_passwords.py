@@ -5,15 +5,12 @@ Shows exactly what's in the DB and why logins fail.
 import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
 import bcrypt
-import os
+import os, sys
 
-ACCOUNTS = [
-    ("james111trader@gmail.com",     "Reeve@James2026"),
-    ("grantwoods@live.com",         "Reeve@Grant2026"),
-    ("ibbyonline@gmail.com",        "Reeve@Micho2026"),
-    ("mo.jalloh@me.com",            "Reeve@Mo2026"),
-    ("levelambassador@gmail.com",   "Reeve@Salon2026"),
-]
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from accounts_config import get_system_accounts
+
+ACCOUNTS = [(email, pw) for email, pw, _role in get_system_accounts()]
 
 async def main():
     mongo_url = os.environ.get("MONGODB_URL", "mongodb://localhost:27017")

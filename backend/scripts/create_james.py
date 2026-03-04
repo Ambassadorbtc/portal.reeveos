@@ -5,12 +5,15 @@ Run ONCE on VPS. Safe to re-run — checks for existing account first.
 import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
 import bcrypt
-import os
+import os, sys
 from datetime import datetime
 from bson import ObjectId
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from accounts_config import get_account_password
+
 JAMES_EMAIL = "james111trader@gmail.com"
-JAMES_PASSWORD = "Reeve@James2026"
+JAMES_PASSWORD = get_account_password("james")
 JAMES_NAME = "James"
 MICHO_ID = "699bdb20a2ccbc6589c1d0f8"
 
@@ -79,7 +82,7 @@ async def main():
     print(f"  ✅ Created {JAMES_EMAIL} (id={result.inserted_id})")
     print(f"     role=business_owner")
     print(f"     linked to Micho ({MICHO_ID})")
-    print(f"     password=Reeve@James2026")
+    print(f"     password=<from env ACCOUNT_PW_JAMES>")
 
     # Verify round-trip: can we read it back and check password?
     check = await db.users.find_one({"_id": result.inserted_id})

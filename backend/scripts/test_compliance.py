@@ -35,11 +35,15 @@ from datetime import datetime
 API = sys.argv[1] if len(sys.argv) > 1 else "https://portal.rezvo.app/api"
 ctx = ssl.create_default_context()
 
+# Add backend/ to path for accounts_config
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from accounts_config import get_account_password
+
 # ── Accounts ──
 ACCOUNTS = {
-    "james": {"email": "james111trader@gmail.com", "password": "Reeve@James2026", "role": "business_owner"},
-    "grant": {"email": "grantwoods@live.com", "password": "Reeve@Grant2026", "role": "platform_admin"},
-    "ibby":  {"email": "ibbyonline@gmail.com", "password": "Reeve@Micho2026", "role": "super_admin"},
+    "james": {"email": "james111trader@gmail.com", "password": get_account_password("james"), "role": "business_owner"},
+    "grant": {"email": "grantwoods@live.com", "password": get_account_password("grant"), "role": "platform_admin"},
+    "ibby":  {"email": "ibbyonline@gmail.com", "password": get_account_password("ibby"), "role": "super_admin"},
 }
 ADMIN_PIN = "rezvo2024"
 
@@ -102,7 +106,7 @@ def login(account_key):
     return data.get("access_token") if code == 200 else None
 
 def admin_login():
-    code, data = api_post("/auth/admin-login", {"email": "ibbyonline@gmail.com", "password": "Reeve@Micho2026"})
+    code, data = api_post("/auth/admin-login", {"email": "ibbyonline@gmail.com", "password": get_account_password("ibby")})
     return data.get("access_token") if code == 200 else None
 
 

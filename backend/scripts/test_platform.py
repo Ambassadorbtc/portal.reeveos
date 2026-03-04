@@ -14,7 +14,7 @@ Exit codes:
 """
 import asyncio
 import json
-import sys
+import os, sys
 import time
 import urllib.request
 import urllib.error
@@ -24,11 +24,15 @@ from datetime import datetime
 API = sys.argv[1] if len(sys.argv) > 1 else "https://portal.rezvo.app/api"
 ctx = ssl.create_default_context()
 
+# Add backend/ to path for accounts_config
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from accounts_config import get_account_password
+
 # ─── Config ───────────────────────────────────────
 ACCOUNTS = {
     "james": {
         "email": "james111trader@gmail.com",
-        "password": "Reeve@James2026",
+        "password": get_account_password("james"),
         "expected_role": "business_owner",
         "expected_biz": "699bdb20a2ccbc6589c1d0f8",
         "expected_biz_name": "Micho Turkish Bar & Grill",
@@ -37,21 +41,21 @@ ACCOUNTS = {
     },
     "grant": {
         "email": "grantwoods@live.com",
-        "password": "Reeve@Grant2026",
+        "password": get_account_password("grant"),
         "expected_role": "platform_admin",
         "expected_biz": None,
         "login_endpoint": "/auth/admin-login",
     },
     "ibby": {
         "email": "ibbyonline@gmail.com",
-        "password": "Reeve@Micho2026",
+        "password": get_account_password("ibby"),
         "expected_role": "super_admin",
         "expected_biz": None,
         "login_endpoint": "/auth/admin-login",
     },
     "mo": {
         "email": "mo.jalloh@me.com",
-        "password": "Reeve@Mo2026",
+        "password": get_account_password("mo"),
         "expected_role": "super_admin",
         "expected_biz": None,
         "login_endpoint": "/auth/admin-login",

@@ -69,34 +69,6 @@ from routes import (
 async def lifespan(app: FastAPI):
     await database.connect_to_mongo()
 
-    # ── Verify critical account passwords on every startup ──
-    import logging as _logging  # local alias avoids UnboundLocalError from later 'import logging'
-    try:
-        import bcrypt as _bc
-        _slog = _logging.getLogger("startup")
-        _db = database.get_database()
-        _ACCOUNTS = [
-            ("james111trader@gmail.com",     "Reeve@James2026"),
-            ("grantwoods@live.com",          "Reeve@Grant2026"),
-            ("ibbyonline@gmail.com",         "Reeve@Micho2026"),
-            ("mo.jalloh@me.com",             "Reeve@Mo2026"),
-            ("levelambassador@gmail.com",    "Reeve@Salon2026"),
-        ]
-        for _email, _pw in _ACCOUNTS:
-            _u = await _db.users.find_one({"email": _email})
-            if not _u:
-                continue
-            _h = _u.get("password_hash", "")
-            try:
-                _ok = _bc.checkpw(_pw.encode("utf-8"), _h.encode("utf-8"))
-            except Exception:
-                _ok = False
-            if not _ok:
-                _new = _bc.hashpw(_pw.encode("utf-8"), _bc.gensalt()).decode("utf-8")
-                await _db.users.update_one({"_id": _u["_id"]}, {"$set": {"password_hash": _new}})
-                _slog.warning(f"STARTUP: Fixed wrong password hash for {_email}")
-    except Exception as _e:
-        _logging.getLogger("startup").error(f"Startup password check failed: {_e}")
 
     # Create audit log indexes
     from middleware.audit import ensure_audit_indexes

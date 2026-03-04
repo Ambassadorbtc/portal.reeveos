@@ -11,19 +11,16 @@ Standards enforced:
 import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
 import bcrypt
-import os
+import os, sys
 from datetime import datetime
 from bson import ObjectId
 
-# ─── ACCOUNT REGISTRY (single source of truth) ───────────────────
-ACCOUNTS = [
-    # email, password, expected_role
-    ("james111trader@gmail.com",     "Reeve@James2026",   "business_owner"),
-    ("grantwoods@live.com",         "Reeve@Grant2026",   "platform_admin"),
-    ("ibbyonline@gmail.com",        "Reeve@Micho2026",   "super_admin"),
-    ("mo.jalloh@me.com",            "Reeve@Mo2026",      "super_admin"),
-    ("levelambassador@gmail.com",   "Reeve@Salon2026",   "business_owner"),
-]
+# Add backend/ to path so we can import accounts_config
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from accounts_config import get_system_accounts
+
+# ─── ACCOUNT REGISTRY (reads from env vars via accounts_config) ──
+ACCOUNTS = get_system_accounts()
 
 # Valid roles — anything else gets corrected
 VALID_ROLES = {"super_admin", "platform_admin", "business_owner", "staff", "diner"}

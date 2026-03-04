@@ -230,14 +230,14 @@ const LinkedIn = () => {
         {/* Quick Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
           {[
-            { label: 'Drafts', value: draftPosts.length, color: '#f59e0b', icon: 'fa-pen' },
-            { label: 'Approved', value: approvedPosts.length, color: '#10b981', icon: 'fa-check' },
-            { label: 'Posted', value: postedPosts.length, color: '#0A66C2', icon: 'fa-paper-plane' },
-            { label: 'Total Impressions', value: analytics?.performance?.total_impressions?.toLocaleString() || '0', color: '#8b5cf6', icon: 'fa-eye' },
+            { label: 'Drafts', value: draftPosts.length, icon: 'fa-pen' },
+            { label: 'Approved', value: approvedPosts.length, icon: 'fa-check' },
+            { label: 'Posted', value: postedPosts.length, icon: 'fa-paper-plane' },
+            { label: 'Total Impressions', value: analytics?.performance?.total_impressions?.toLocaleString() || '0', icon: 'fa-eye' },
           ].map((s, i) => (
             <div key={i} className="bg-gray-900 rounded-xl border border-gray-800 p-3 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: s.color + '15' }}>
-                <i className={`fa-solid ${s.icon} text-sm`} style={{ color: s.color }} />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(201,168,76,0.1)' }}>
+                <i className={`fa-solid ${s.icon} text-sm`} style={{ color: '#C9A84C' }} />
               </div>
               <div>
                 <div className="text-lg font-bold text-white">{s.value}</div>
@@ -791,14 +791,14 @@ const LinkedIn = () => {
           {/* KPI Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {[
-              { label: 'Total Impressions', value: analytics.performance?.total_impressions?.toLocaleString() || '0', icon: 'fa-eye', color: '#8b5cf6' },
-              { label: 'Total Likes', value: analytics.performance?.total_likes?.toLocaleString() || '0', icon: 'fa-thumbs-up', color: '#0A66C2' },
-              { label: 'Total Comments', value: analytics.performance?.total_comments?.toLocaleString() || '0', icon: 'fa-comment', color: '#10b981' },
-              { label: 'Leads Generated', value: analytics.performance?.total_leads?.toLocaleString() || '0', icon: 'fa-user-plus', color: '#f59e0b' },
+              { label: 'Total Impressions', value: analytics.performance?.total_impressions?.toLocaleString() || '0', icon: 'fa-eye' },
+              { label: 'Total Likes', value: analytics.performance?.total_likes?.toLocaleString() || '0', icon: 'fa-thumbs-up' },
+              { label: 'Total Comments', value: analytics.performance?.total_comments?.toLocaleString() || '0', icon: 'fa-comment' },
+              { label: 'Leads Generated', value: analytics.performance?.total_leads?.toLocaleString() || '0', icon: 'fa-user-plus' },
             ].map((kpi, i) => (
               <div key={i} className="bg-gray-900 rounded-xl border border-gray-800 p-5">
                 <div className="flex items-center gap-2 mb-2">
-                  <i className={`fa-solid ${kpi.icon}`} style={{ color: kpi.color }} />
+                  <i className={`fa-solid ${kpi.icon}`} style={{ color: '#C9A84C' }} />
                   <span className="text-xs text-gray-500">{kpi.label}</span>
                 </div>
                 <div className="text-2xl font-bold text-white">{kpi.value}</div>

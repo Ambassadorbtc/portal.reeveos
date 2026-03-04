@@ -100,8 +100,8 @@ export default function AdminBookings() {
             <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-all">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
-                    <CalendarCheck size={16} className="text-blue-400" />
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(201,168,76,0.1)' }}>
+                    <CalendarCheck size={16} style={{ color: '#C9A84C' }} />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-white truncate">

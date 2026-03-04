@@ -16,20 +16,20 @@ import {
 const API = import.meta.env.VITE_API_URL || ''
 
 const CATEGORY_META = {
-  'research':        { icon: Search,        color: '#3B82F6', label: 'Research' },
-  'design':          { icon: Palette,       color: '#EC4899', label: 'Design' },
-  'decision':        { icon: CheckCircle2,  color: '#10B981', label: 'Decision' },
-  'code-summary':    { icon: Code,          color: '#8B5CF6', label: 'Code Summary' },
-  'competitor':      { icon: Target,        color: '#F97316', label: 'Competitor' },
-  'meeting-note':    { icon: MessageSquare, color: '#6366F1', label: 'Meeting Note' },
-  'specification':   { icon: FileText,      color: '#14B8A6', label: 'Specification' },
-  'iteration':       { icon: GitBranch,     color: '#F59E0B', label: 'Iteration' },
-  'chat-transcript': { icon: MessageSquare, color: '#6B7280', label: 'Chat Transcript' },
+  'research':        { icon: Search,        color: '#C9A84C', label: 'Research' },
+  'design':          { icon: Palette,       color: '#C9A84C', label: 'Design' },
+  'decision':        { icon: CheckCircle2,  color: '#C9A84C', label: 'Decision' },
+  'code-summary':    { icon: Code,          color: '#C9A84C', label: 'Code Summary' },
+  'competitor':      { icon: Target,        color: '#C9A84C', label: 'Competitor' },
+  'meeting-note':    { icon: MessageSquare, color: '#C9A84C', label: 'Meeting Note' },
+  'specification':   { icon: FileText,      color: '#C9A84C', label: 'Specification' },
+  'iteration':       { icon: GitBranch,     color: '#C9A84C', label: 'Iteration' },
+  'chat-transcript': { icon: MessageSquare, color: '#C9A84C', label: 'Chat Transcript' },
   'strategy':        { icon: Zap,           color: '#C9A84C', label: 'Strategy' },
-  'bug-fix':         { icon: AlertTriangle, color: '#EF4444', label: 'Bug Fix' },
-  'feature-request': { icon: Plus,          color: '#22D3EE', label: 'Feature Request' },
-  'architecture':    { icon: GitBranch,     color: '#A855F7', label: 'Architecture' },
-  'brand':           { icon: Palette,       color: '#E11D48', label: 'Brand' },
+  'bug-fix':         { icon: AlertTriangle, color: '#C9A84C', label: 'Bug Fix' },
+  'feature-request': { icon: Plus,          color: '#C9A84C', label: 'Feature Request' },
+  'architecture':    { icon: GitBranch,     color: '#C9A84C', label: 'Architecture' },
+  'brand':           { icon: Palette,       color: '#C9A84C', label: 'Brand' },
 }
 
 const STATUS_COLORS = {
@@ -212,7 +212,7 @@ export default function Library() {
   }
 
   /* ═══════════════ RENDER ═══════════════ */
-  const catMeta = (cat) => CATEGORY_META[cat] || { icon: FileText, color: '#6B7280', label: cat }
+  const catMeta = (cat) => CATEGORY_META[cat] || { icon: FileText, color: '#C9A84C', label: cat }
 
   return (
     <div className="p-6 max-w-[1400px] mx-auto" style={{ fontFamily: "'Figtree', sans-serif" }}>

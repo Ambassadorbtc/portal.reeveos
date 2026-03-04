@@ -219,11 +219,11 @@ export default function EmailOutreach() {
 
   // ─── Sub-Components ─── //
 
-  const MetricCard = ({ label, value, icon, color = '#111111', subtitle }) => (
+  const MetricCard = ({ label, value, icon, subtitle }) => (
     <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5">
       <div className="flex justify-between items-start mb-3">
         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{label}</span>
-        <div className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{ background: color }}>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(201,168,76,0.1)', color: '#C9A84C' }}>
           <i className={`fas ${icon} text-xs`} />
         </div>
       </div>
@@ -299,8 +299,8 @@ export default function EmailOutreach() {
               <i className="fas fa-inbox" /> {stats.unread_replies} Unread
             </span>
           )}
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-green-900/20 text-green-400 border border-green-700">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> Engine Active
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border" style={{ background: 'rgba(201,168,76,0.1)', color: '#C9A84C', borderColor: 'rgba(201,168,76,0.3)' }}>
+            <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#C9A84C' }} /> Engine Active
           </span>
         </div>
       </div>
@@ -328,10 +328,10 @@ export default function EmailOutreach() {
         <div>
           {/* Metrics */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-            <MetricCard label="Sent Today" value={stats?.sent_today || 0} icon="fa-paper-plane" color="#3b82f6" />
-            <MetricCard label="Delivery Rate" value={`${((stats?.delivery_rate || 0) * 100).toFixed(1)}%`} icon="fa-check-double" color="#22c55e" />
-            <MetricCard label="Reply Rate" value={`${((stats?.reply_rate || 0) * 100).toFixed(1)}%`} icon="fa-reply" color="#8b5cf6" />
-            <MetricCard label="Warm Leads" value={stats?.warm_leads_this_week || 0} icon="fa-fire" color="#f97316" subtitle="This week" />
+            <MetricCard label="Sent Today" value={stats?.sent_today || 0} icon="fa-paper-plane" />
+            <MetricCard label="Delivery Rate" value={`${((stats?.delivery_rate || 0) * 100).toFixed(1)}%`} icon="fa-check-double" />
+            <MetricCard label="Reply Rate" value={`${((stats?.reply_rate || 0) * 100).toFixed(1)}%`} icon="fa-reply" />
+            <MetricCard label="Warm Leads" value={stats?.warm_leads_this_week || 0} icon="fa-fire" subtitle="This week" />
             <MetricCard label="Bounce Rate" value={`${((stats?.bounce_rate || 0) * 100).toFixed(1)}%`} icon="fa-exclamation"
               color={(stats?.bounce_rate || 0) > 0.02 ? '#dc2626' : '#22c55e'}
               subtitle={(stats?.bounce_rate || 0) <= 0.02 ? 'Under 2% limit' : 'Above threshold'}

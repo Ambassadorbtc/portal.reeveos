@@ -34,10 +34,10 @@ export default function AdminChurn() {
         </div>
         <div className="grid grid-cols-4 gap-3">
           {[
-            {label:'Healthy',count:businesses.filter(b=>riskLevel(b.churn_score)==='low'||riskLevel(b.churn_score)==='none').length,color:'#10B981',icon:Shield},
-            {label:'Medium Risk',count:businesses.filter(b=>riskLevel(b.churn_score)==='medium').length,color:'#F59E0B',icon:Activity},
-            {label:'High Risk',count:businesses.filter(b=>riskLevel(b.churn_score)==='high').length,color:'#EF4444',icon:AlertTriangle},
-            {label:'Avg Score',count:businesses.length?Math.round(businesses.reduce((s,b)=>s+(b.churn_score||0),0)/businesses.length):'—',color:'#6B7280',icon:TrendingDown},
+            {label:'Healthy',count:businesses.filter(b=>riskLevel(b.churn_score)==='low'||riskLevel(b.churn_score)==='none').length,color:'#C9A84C',icon:Shield},
+            {label:'Medium Risk',count:businesses.filter(b=>riskLevel(b.churn_score)==='medium').length,color:'#C9A84C',icon:Activity},
+            {label:'High Risk',count:businesses.filter(b=>riskLevel(b.churn_score)==='high').length,color:'#C9A84C',icon:AlertTriangle},
+            {label:'Avg Score',count:businesses.length?Math.round(businesses.reduce((s,b)=>s+(b.churn_score||0),0)/businesses.length):'—',color:'#C9A84C',icon:TrendingDown},
           ].map((s,i)=>(
             <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-3">
               <div className="flex items-center gap-2 mb-2"><s.icon size={14} style={{color:s.color}}/><span className="text-[10px] text-gray-500 uppercase font-semibold">{s.label}</span></div>

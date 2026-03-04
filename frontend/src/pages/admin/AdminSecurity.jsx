@@ -85,7 +85,7 @@ export default function AdminSecurity() {
             { label:'Data Issues', value: r.data_integrity?.issues_found ?? (r.auth_anomalies?.anomalies_found ?? '0'), icon: Database, color: (r.data_integrity?.issues_found || 0) > 0 || (r.auth_anomalies?.anomalies_found || 0) > 0 ? '#F59E0B' : '#10B981' },
           ].map((s,i)=>(
             <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-3">
-              <div className="flex items-center gap-2 mb-2"><s.icon size={14} style={{color:s.color}}/><span className="text-[10px] text-gray-500 uppercase font-semibold">{s.label}</span></div>
+              <div className="flex items-center gap-2 mb-2"><s.icon size={14} style={{color:'#C9A84C'}}/><span className="text-[10px] text-gray-500 uppercase font-semibold">{s.label}</span></div>
               <p className="text-lg font-bold" style={{color:s.color}}>{s.value}</p>
             </div>
           ))}

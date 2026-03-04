@@ -44,13 +44,13 @@ export default function AdminSEO() {
         </div>
         <div className="grid grid-cols-4 gap-3">
           {[
-            {label:'Total Pages',value:stats.total,icon:FileText,color:'#6B7280'},
-            {label:'Indexed',value:stats.indexed,icon:CheckCircle2,color:'#10B981'},
-            {label:'Pending',value:stats.pending,icon:Clock,color:'#F59E0B'},
-            {label:'Errors',value:stats.errors||0,icon:AlertTriangle,color:'#EF4444'},
+            {label:'Total Pages',value:stats.total,icon:FileText},
+            {label:'Indexed',value:stats.indexed,icon:CheckCircle2},
+            {label:'Pending',value:stats.pending,icon:Clock},
+            {label:'Errors',value:stats.errors||0,icon:AlertTriangle},
           ].map((s,i)=>(
             <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-3">
-              <div className="flex items-center gap-2 mb-2"><s.icon size={14} style={{color:s.color}}/><span className="text-[10px] text-gray-500 uppercase font-semibold">{s.label}</span></div>
+              <div className="flex items-center gap-2 mb-2"><s.icon size={14} style={{color:'#C9A84C'}}/><span className="text-[10px] text-gray-500 uppercase font-semibold">{s.label}</span></div>
               <p className="text-xl font-bold text-white">{s.value}</p>
             </div>
           ))}

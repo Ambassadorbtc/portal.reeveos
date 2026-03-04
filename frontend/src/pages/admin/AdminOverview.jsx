@@ -9,11 +9,11 @@ import {
 const api = (path) => { const t = sessionStorage.getItem('rezvo_admin_token'); return fetch(`/api${path}`, { headers: t ? { Authorization: `Bearer ${t}` } : {} }).then(r => r.ok ? r.json() : null).catch(() => null) }
 
 // Metric card component
-const KPI = ({ label, value, change, icon: Icon, trend, color = 'emerald', onClick }) => (
+const KPI = ({ label, value, change, icon: Icon, trend, onClick }) => (
   <button onClick={onClick} className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-left hover:border-gray-700 transition-all group">
     <div className="flex items-center justify-between mb-3">
-      <div className={`w-9 h-9 rounded-lg bg-${color}-500/10 flex items-center justify-center`}>
-        <Icon size={16} className={`text-${color}-400`} />
+      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(201,168,76,0.1)' }}>
+        <Icon size={16} style={{ color: '#C9A84C' }} />
       </div>
       {change !== undefined && (
         <span className={`text-xs font-medium flex items-center gap-0.5 ${trend === 'up' ? 'text-emerald-400' : trend === 'down' ? 'text-red-400' : 'text-gray-500'}`}>
@@ -28,10 +28,10 @@ const KPI = ({ label, value, change, icon: Icon, trend, color = 'emerald', onCli
 )
 
 // Quick action button
-const QAction = ({ icon: Icon, label, desc, onClick, color = 'emerald' }) => (
+const QAction = ({ icon: Icon, label, desc, onClick }) => (
   <button onClick={onClick} className="flex items-center gap-3 p-3 bg-gray-900/60 border border-gray-800 rounded-xl hover:border-gray-700 transition-all text-left group w-full">
-    <div className={`w-10 h-10 rounded-lg bg-${color}-500/10 flex items-center justify-center shrink-0`}>
-      <Icon size={16} className={`text-${color}-400`} />
+    <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(201,168,76,0.1)' }}>
+      <Icon size={16} style={{ color: '#C9A84C' }} />
     </div>
     <div className="min-w-0 flex-1">
       <p className="text-sm font-medium text-white truncate">{label}</p>
@@ -108,12 +108,12 @@ export default function AdminOverview() {
 
       {/* KPI Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-        <KPI label="MRR" value={s.mrr} change={s.mrr_change} trend={s.mrr_trend} icon={CreditCard} color="emerald" />
-        <KPI label="Active Businesses" value={s.active_businesses} change={s.biz_change} icon={Building2} color="blue" />
-        <KPI label="Total Users" value={s.total_users} icon={Users} color="purple" />
-        <KPI label="Bookings Today" value={s.bookings_today} icon={CalendarCheck} color="amber" />
-        <KPI label="Open Tickets" value={s.open_tickets} icon={MessageSquare} color="orange" />
-        <KPI label="Churn Risk" value={s.churn_risk} icon={AlertTriangle} color="red" />
+        <KPI label="MRR" value={s.mrr} change={s.mrr_change} trend={s.mrr_trend} icon={CreditCard} />
+        <KPI label="Active Businesses" value={s.active_businesses} change={s.biz_change} icon={Building2} />
+        <KPI label="Total Users" value={s.total_users} icon={Users} />
+        <KPI label="Bookings Today" value={s.bookings_today} icon={CalendarCheck} />
+        <KPI label="Open Tickets" value={s.open_tickets} icon={MessageSquare} />
+        <KPI label="Churn Risk" value={s.churn_risk} icon={AlertTriangle} />
       </div>
 
       {/* AI Briefing + System Health */}
@@ -178,11 +178,11 @@ export default function AdminOverview() {
         <h2 className="text-sm font-bold text-white mb-3">Quick Actions</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
           <QAction icon={Send} label="Email Outreach" desc="Manage campaigns, warmup & inbox" onClick={() => navigate('/admin/outreach')} />
-          <QAction icon={Bot} label="AI Ops Centre" desc="Agent daemon, guardrails, tasks" onClick={() => navigate('/admin/ai-ops')} color="purple" />
-          <QAction icon={TrendingUp} label="Sales Pipeline" desc="Leads, scoring & conversions" onClick={() => navigate('/admin/pipeline')} color="blue" />
-          <QAction icon={Building2} label="Manage Businesses" desc="2 active businesses" onClick={() => navigate('/admin/businesses')} color="amber" />
+          <QAction icon={Bot} label="AI Ops Centre" desc="Agent daemon, guardrails, tasks" onClick={() => navigate('/admin/ai-ops')} />
+          <QAction icon={TrendingUp} label="Sales Pipeline" desc="Leads, scoring & conversions" onClick={() => navigate('/admin/pipeline')} />
+          <QAction icon={Building2} label="Manage Businesses" desc="2 active businesses" onClick={() => navigate('/admin/businesses')} />
           <QAction icon={Globe} label="SEO Pages" desc="Programmatic content & indexing" onClick={() => navigate('/admin/seo')} color="cyan" />
-          <QAction icon={Activity} label="Error Logs" desc="Monitor & triage errors" onClick={() => navigate('/admin/errors')} color="red" />
+          <QAction icon={Activity} label="Error Logs" desc="Monitor & triage errors" onClick={() => navigate('/admin/errors')} />
         </div>
       </div>
 

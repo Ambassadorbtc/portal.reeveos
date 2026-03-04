@@ -69,7 +69,7 @@ export default function AdminHealth() {
             {label:'Error Rate',value:h.error_rate||'0%',icon:AlertTriangle,color:'#6B7280'},
           ].map((s,i)=>(
             <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-3">
-              <div className="flex items-center gap-2 mb-2"><s.icon size={14} style={{color:s.color}}/><span className="text-[10px] text-gray-500 uppercase font-semibold">{s.label}</span></div>
+              <div className="flex items-center gap-2 mb-2"><s.icon size={14} style={{color:'#C9A84C'}}/><span className="text-[10px] text-gray-500 uppercase font-semibold">{s.label}</span></div>
               <p className="text-lg font-bold capitalize" style={{color:s.color}}>{s.value}</p>
             </div>
           ))}

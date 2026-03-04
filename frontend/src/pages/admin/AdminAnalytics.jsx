@@ -4,10 +4,10 @@ import { BarChart3, RefreshCw, Users, Building2, CalendarCheck, CreditCard, Tren
 
 const API = import.meta.env.VITE_API_URL || ''
 
-const KPI = ({ label, value, change, icon: Icon, color = 'emerald' }) => (
+const KPI = ({ label, value, change, icon: Icon }) => (
   <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
     <div className="flex items-center justify-between mb-3">
-      <div className={`w-9 h-9 rounded-lg bg-${color}-500/10 flex items-center justify-center`}><Icon size={16} className={`text-${color}-400`}/></div>
+      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(201,168,76,0.1)' }}><Icon size={16} style={{ color: '#C9A84C' }}/></div>
       {change&&<span className={`text-xs font-medium ${change.startsWith('+')?'text-emerald-400':'text-red-400'}`}>{change}</span>}
     </div>
     <p className="text-2xl font-bold text-white">{value}</p>
@@ -48,12 +48,12 @@ export default function AdminAnalytics() {
       </div>
       <div className="flex-1 overflow-y-auto p-5 space-y-5">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          <KPI label="MRR" value={d.mrr||'£0'} change={d.mrr_change} icon={CreditCard} color="emerald"/>
-          <KPI label="Active Businesses" value={d.businesses||0} change={d.biz_change} icon={Building2} color="blue"/>
-          <KPI label="Total Users" value={d.users||0} change={d.user_change} icon={Users} color="purple"/>
-          <KPI label="Bookings" value={d.bookings||0} change={d.booking_change} icon={CalendarCheck} color="amber"/>
-          <KPI label="Page Views" value={d.page_views||0} icon={Globe} color="cyan"/>
-          <KPI label="Avg Session" value={d.avg_session||'0s'} icon={Clock} color="gray"/>
+          <KPI label="MRR" value={d.mrr||'£0'} change={d.mrr_change} icon={CreditCard}/>
+          <KPI label="Active Businesses" value={d.businesses||0} change={d.biz_change} icon={Building2}/>
+          <KPI label="Total Users" value={d.users||0} change={d.user_change} icon={Users}/>
+          <KPI label="Bookings" value={d.bookings||0} change={d.booking_change} icon={CalendarCheck}/>
+          <KPI label="Page Views" value={d.page_views||0} icon={Globe}/>
+          <KPI label="Avg Session" value={d.avg_session||'0s'} icon={Clock}/>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-4">

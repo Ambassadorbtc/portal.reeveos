@@ -29,40 +29,131 @@ def _ser(doc):
 # PIPELINE
 # ═══════════════════════════════════════════════════════
 
+class LeadBiz(BaseModel):
+    name: str = ""; type: str = "Other"; city: str = ""
+
+class LeadDeal(BaseModel):
+    stage: str = "interested"; val: float = 0; created: str = ""
+
 class LeadCreate(BaseModel):
-    name: str; email: str = ""; phone: str = ""; city: str = "Nottingham"
-    source: str = "Outreach"; stage: str = "cold"; est_value: int = 0; score: int = 50
+    name: str; email: str = ""; phone: str = ""
+    biz: dict = {}
+    lc: str = "lead"          # lifecycle: visitor/lead/engaged/demo_booked/trial/customer
+    score: int = 50
+    src: str = "Outreach"
+    deal: dict = {}
+    tags: List[str] = []
+    monthlyCardVolume: str = ""
+    currentProvider: str = ""
+    hasSwitchingStatement: bool = False
+    ltrAmount: str = ""
+    dojoMID: str = ""
+    fundingAmount: str = ""
+    fundingCommission: str = ""
+    reeveOSTier: str = ""
+    dateSigned: str = ""
+    dateLive: str = ""
+    owner: str = "ambassador"   # ambassador | grant
+
+class LeadUpdate(BaseModel):
+    name: Optional[str] = None; email: Optional[str] = None; phone: Optional[str] = None
+    biz: Optional[dict] = None; lc: Optional[str] = None; score: Optional[int] = None
+    src: Optional[str] = None; deal: Optional[dict] = None; tags: Optional[List[str]] = None
+    monthlyCardVolume: Optional[str] = None; currentProvider: Optional[str] = None
+    hasSwitchingStatement: Optional[bool] = None; ltrAmount: Optional[str] = None
+    dojoMID: Optional[str] = None; fundingAmount: Optional[str] = None
+    fundingCommission: Optional[str] = None; reeveOSTier: Optional[str] = None
+    dateSigned: Optional[str] = None; dateLive: Optional[str] = None
 
 class LeadMove(BaseModel):
-    stage: str
+    stage: str   # deal stage
+
+class LeadActivity(BaseModel):
+    t: str = "note"    # note/call/email_open/email_click/form/content/page_visit
+    d: str = ""
+    by: str = "Ambassador"
 
 class LeadNote(BaseModel):
     text: str; author: str = "Founder"
 
+class LeadSeed(BaseModel):
+    owner: str
+    leads: List[dict]
+
 @router.get("/pipeline/leads")
-async def list_leads(stage: str = "", search: str = ""):
+async def list_leads(owner: str = "", stage: str = "", lc: str = "", search: str = ""):
     db = get_db()
-    q = {}
-    if stage: q["stage"] = stage
-    if search: q["$or"] = [{"name": {"$regex": search, "$options": "i"}}, {"email": {"$regex": search, "$options": "i"}}]
+    q: dict = {}
+    if owner: q["owner"] = owner
+    if stage: q["deal.stage"] = stage
+    if lc: q["lc"] = lc
+    if search: q["$or"] = [
+        {"name": {"$regex": search, "$options": "i"}},
+        {"email": {"$regex": search, "$options": "i"}},
+        {"biz.name": {"$regex": search, "$options": "i"}},
+    ]
     cursor = db.pipeline_leads.find(q).sort("updated_at", -1)
     leads = [_ser(doc) async for doc in cursor]
-    return {"leads": leads}
+    # Stats
+    total = len(leads)
+    won = sum(1 for l in leads if l.get("deal", {}).get("stage") == "won")
+    pipeline_val = sum(float(l.get("deal", {}).get("val", 0) or 0) for l in leads if l.get("deal", {}).get("stage") not in ("won", "lost"))
+    return {"leads": leads, "stats": {"total": total, "won": won, "pipeline_value": pipeline_val}}
+
+@router.get("/pipeline/leads/{lead_id}")
+async def get_lead(lead_id: str):
+    db = get_db()
+    doc = await db.pipeline_leads.find_one({"_id": safe_object_id(lead_id, "lead")})
+    if not doc: raise HTTPException(404, "Lead not found")
+    return _ser(doc)
 
 @router.post("/pipeline/leads")
 async def create_lead(data: LeadCreate):
     db = get_db()
     now = datetime.utcnow()
-    doc = {**data.dict(), "notes": [], "created_at": now, "updated_at": now}
+    deal = data.deal or {}
+    if not deal.get("created"): deal["created"] = now.isoformat()
+    doc = {
+        **data.dict(exclude={"deal"}),
+        "deal": deal,
+        "acts": [],
+        "created_at": now,
+        "updated_at": now,
+        "date_added": now.isoformat(),
+    }
     result = await db.pipeline_leads.insert_one(doc)
     doc["_id"] = result.inserted_id
     return _ser(doc)
+
+@router.put("/pipeline/leads/{lead_id}")
+async def update_lead(lead_id: str, data: LeadUpdate):
+    db = get_db()
+    oid = safe_object_id(lead_id, "lead")
+    updates = {k: v for k, v in data.dict().items() if v is not None}
+    updates["updated_at"] = datetime.utcnow()
+    await db.pipeline_leads.update_one({"_id": oid}, {"$set": updates})
+    return _ser(await db.pipeline_leads.find_one({"_id": oid}))
+
+@router.delete("/pipeline/leads/{lead_id}")
+async def delete_lead(lead_id: str):
+    db = get_db()
+    await db.pipeline_leads.delete_one({"_id": safe_object_id(lead_id, "lead")})
+    return {"deleted": True}
 
 @router.post("/pipeline/leads/{lead_id}/move")
 async def move_lead(lead_id: str, data: LeadMove):
     db = get_db()
     oid = safe_object_id(lead_id, "lead")
-    await db.pipeline_leads.update_one({"_id": oid}, {"$set": {"stage": data.stage, "updated_at": datetime.utcnow()}})
+    await db.pipeline_leads.update_one({"_id": oid}, {"$set": {"deal.stage": data.stage, "updated_at": datetime.utcnow()}})
+    return _ser(await db.pipeline_leads.find_one({"_id": oid}))
+
+@router.post("/pipeline/leads/{lead_id}/activity")
+async def add_activity(lead_id: str, act: LeadActivity):
+    db = get_db()
+    oid = safe_object_id(lead_id, "lead")
+    now = datetime.utcnow()
+    entry = {"t": act.t, "d": act.d, "by": act.by, "at": now.isoformat()}
+    await db.pipeline_leads.update_one({"_id": oid}, {"$push": {"acts": entry}, "$set": {"updated_at": now}})
     return _ser(await db.pipeline_leads.find_one({"_id": oid}))
 
 @router.post("/pipeline/leads/{lead_id}/notes")
@@ -70,8 +161,31 @@ async def add_lead_note(lead_id: str, note: LeadNote):
     db = get_db()
     oid = safe_object_id(lead_id, "lead")
     now = datetime.utcnow()
-    await db.pipeline_leads.update_one({"_id": oid}, {"$push": {"notes": {"text": note.text, "author": note.author, "at": now}}, "$set": {"updated_at": now}})
+    entry = {"t": "note", "d": note.text, "by": note.author, "at": now.isoformat()}
+    await db.pipeline_leads.update_one({"_id": oid}, {"$push": {"acts": entry}, "$set": {"updated_at": now}})
     return _ser(await db.pipeline_leads.find_one({"_id": oid}))
+
+@router.post("/pipeline/seed")
+async def seed_leads(data: LeadSeed):
+    """Seed leads for an owner (only inserts if owner has 0 leads)."""
+    db = get_db()
+    existing = await db.pipeline_leads.count_documents({"owner": data.owner})
+    if existing > 0:
+        return {"skipped": True, "reason": f"{existing} leads already exist for {data.owner}"}
+    now = datetime.utcnow()
+    docs = []
+    for l in data.leads:
+        l.setdefault("owner", data.owner)
+        l.setdefault("acts", [])
+        l.setdefault("created_at", now)
+        l.setdefault("updated_at", now)
+        l.setdefault("date_added", now.isoformat())
+        if "deal" in l and not l["deal"].get("created"):
+            l["deal"]["created"] = now.isoformat()
+        docs.append(l)
+    if docs:
+        await db.pipeline_leads.insert_many(docs)
+    return {"seeded": len(docs), "owner": data.owner}
 
 
 # ═══════════════════════════════════════════════════════

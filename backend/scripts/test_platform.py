@@ -26,9 +26,9 @@ ctx = ssl.create_default_context()
 
 # ─── Config ───────────────────────────────────────
 ACCOUNTS = {
-    "peter": {
-        "email": "peter.griffin8222@gmail.com",
-        "password": "Rezvo2024!",
+    "james": {
+        "email": "james111trader@gmail.com",
+        "password": "Reeve@James2026",
         "expected_role": "business_owner",
         "expected_biz": "699bdb20a2ccbc6589c1d0f8",
         "expected_biz_name": "Micho Turkish Bar & Grill",
@@ -177,12 +177,12 @@ for path in admin_paths:
             fail(f"ADMIN AUTH {path}", f"HTTP {status}")
 
 # Business owner should NOT access admin
-if tokens.get("peter"):
-    status, _ = api_call("/admin/users", token=tokens["peter"])
+if tokens.get("james"):
+    status, _ = api_call("/admin/users", token=tokens["james"])
     if status in (401, 403):
-        ok("peter BLOCKED from /admin/users", f"HTTP {status}")
+        ok("james BLOCKED from /admin/users", f"HTTP {status}")
     else:
-        fail("peter BLOCKED from /admin/users", f"HTTP {status} — OWNER CAN ACCESS ADMIN!")
+        fail("james BLOCKED from /admin/users", f"HTTP {status} — OWNER CAN ACCESS ADMIN!")
 
 
 # ═══════════════════════════════════════════════════
@@ -190,10 +190,10 @@ if tokens.get("peter"):
 # ═══════════════════════════════════════════════════
 section("3. BUSINESS TYPE ISOLATION")
 
-if tokens.get("peter"):
-    peter_acct = ACCOUNTS["peter"]
-    biz_id = peter_acct["expected_biz"]
-    tok = tokens["peter"]
+if tokens.get("james"):
+    james_acct = ACCOUNTS["james"]
+    biz_id = james_acct["expected_biz"]
+    tok = tokens["james"]
     
     # Check /users/me works
     status, me = api_call("/users/me", token=tok)
@@ -214,10 +214,10 @@ if tokens.get("peter"):
         else:
             fail(f"Micho business type", f"type={biz_type} category={biz_cat} — WILL LOAD AS SALON!")
         
-        if biz_name == peter_acct["expected_biz_name"]:
+        if biz_name == james_acct["expected_biz_name"]:
             ok(f"Business name correct", biz_name)
         else:
-            fail(f"Business name", f"got '{biz_name}', expected '{peter_acct['expected_biz_name']}'")
+            fail(f"Business name", f"got '{biz_name}', expected '{james_acct['expected_biz_name']}'")
     else:
         fail(f"GET /businesses/{biz_id}", f"HTTP {status}")
 

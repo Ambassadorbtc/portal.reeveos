@@ -18,7 +18,7 @@ from bson import ObjectId
 # ─── ACCOUNT REGISTRY (single source of truth) ───────────────────
 ACCOUNTS = [
     # email, password, expected_role
-    ("peter.griffin8222@gmail.com",  "Rezvo2024!",        "business_owner"),
+    ("james111trader@gmail.com",     "Reeve@James2026",   "business_owner"),
     ("grantwoods@live.com",         "Reeve@Grant2026",   "platform_admin"),
     ("ibbyonline@gmail.com",        "Reeve@Micho2026",   "super_admin"),
     ("mo.jalloh@me.com",            "Reeve@Mo2026",      "super_admin"),
@@ -111,13 +111,13 @@ async def main():
             print(f"  ⚠️  {u.get('email')}: unknown role '{role}' — review manually")
 
     # ═══════════════════════════════════════════════════════════════
-    # 3. PETER → ORIGINAL MICHO
+    # 3. JAMES → ORIGINAL MICHO
     # ═══════════════════════════════════════════════════════════════
-    print("\n═══ 3. FIX PETER → ORIGINAL MICHO ═══")
-    peter = await db.users.find_one({"email": "peter.griffin8222@gmail.com"})
-    if peter:
-        current_biz = peter.get("business_ids", [])
-        stale_biz_id = peter.get("business_id", "")
+    print("\n═══ 3. FIX JAMES → ORIGINAL MICHO ═══")
+    james = await db.users.find_one({"email": "james111trader@gmail.com"})
+    if james:
+        current_biz = james.get("business_ids", [])
+        stale_biz_id = james.get("business_id", "")
         needs_fix = False
         update_fields = {}
 
@@ -133,10 +133,10 @@ async def main():
 
         if needs_fix:
             await db.users.update_one(
-                {"_id": peter["_id"]},
+                {"_id": james["_id"]},
                 {"$set": update_fields}
             )
-            print(f"  ✅ Relinked peter → {ORIGINAL_MICHO}")
+            print(f"  ✅ Relinked james → {ORIGINAL_MICHO}")
             if "business_id" in update_fields:
                 print(f"     Fixed stale business_id: {stale_biz_id} → {ORIGINAL_MICHO}")
         else:

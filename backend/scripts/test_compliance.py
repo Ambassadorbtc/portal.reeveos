@@ -37,7 +37,7 @@ ctx = ssl.create_default_context()
 
 # ── Accounts ──
 ACCOUNTS = {
-    "peter": {"email": "peter.griffin8222@gmail.com", "password": "Rezvo2024!", "role": "business_owner"},
+    "james": {"email": "james111trader@gmail.com", "password": "Reeve@James2026", "role": "business_owner"},
     "grant": {"email": "grantwoods@live.com", "password": "Reeve@Grant2026", "role": "platform_admin"},
     "ibby":  {"email": "ibbyonline@gmail.com", "password": "Reeve@Micho2026", "role": "super_admin"},
 }
@@ -305,49 +305,49 @@ async def test_tenant_isolation_db():
 def test_cross_tenant_api():
     section("4. CROSS-TENANT API LEAKAGE")
 
-    peter_token = login("peter")
+    james_token = login("james")
     ibby_token = login("ibby")
 
-    if not peter_token or not ibby_token:
+    if not james_token or not ibby_token:
         log("Login tokens obtained", False, "could not authenticate")
         return
 
     # Get Peter's business ID — try API first, then DB fallback
-    code, me = api_get("/users/me", token=peter_token)
-    peter_biz = me.get("business_id") or me.get("businessId") or ""
+    code, me = api_get("/users/me", token=james_token)
+    james_biz = me.get("business_id") or me.get("businessId") or ""
     # Check business_ids array
-    if not peter_biz and me.get("business_ids"):
+    if not james_biz and me.get("business_ids"):
         biz_ids = me["business_ids"]
         if isinstance(biz_ids, list) and len(biz_ids) > 0:
-            peter_biz = str(biz_ids[0])
+            james_biz = str(biz_ids[0])
     # DB fallback — API might not serialize all fields
-    if not peter_biz:
+    if not james_biz:
         try:
             from pymongo import MongoClient
             _db = MongoClient(os.environ.get("MONGODB_URL", "mongodb://localhost:27017")).rezvo
-            peter_doc = _db.users.find_one({"email": "peter.griffin8222@gmail.com"})
-            if peter_doc:
-                biz_ids = peter_doc.get("business_ids", [])
+            james_doc = _db.users.find_one({"email": "james111trader@gmail.com"})
+            if james_doc:
+                biz_ids = james_doc.get("business_ids", [])
                 if biz_ids and len(biz_ids) > 0:
-                    peter_biz = str(biz_ids[0])
+                    james_biz = str(biz_ids[0])
         except Exception:
             pass
-    log("Peter has business ID", bool(peter_biz), peter_biz[:12] if peter_biz else "MISSING")
+    log("James has business ID", bool(james_biz), james_biz[:12] if james_biz else "MISSING")
 
-    if not peter_biz:
+    if not james_biz:
         return
 
     # Peter should see his own bookings
-    code, data = api_get(f"/bookings/business/{peter_biz}?limit=5", token=peter_token)
+    code, data = api_get(f"/bookings/business/{james_biz}?limit=5", token=james_token)
     log("Peter CAN access own bookings", code == 200)
 
     # Fabricated business ID — Peter should NOT see it
     fake_biz = "000000000000000000000000"
-    code, data = api_get(f"/bookings/business/{fake_biz}?limit=5", token=peter_token)
+    code, data = api_get(f"/bookings/business/{fake_biz}?limit=5", token=james_token)
     log("Peter BLOCKED from fake business", code in (403, 404), f"HTTP {code}")
 
     # Peter should NOT access admin endpoints (role-based, not token-based)
-    code, _ = api_get("/admin/users", token=peter_token)
+    code, _ = api_get("/admin/users", token=james_token)
     log("Peter BLOCKED from admin/users (business_owner role)", code == 403, f"HTTP {code}")
 
     # Ibby (super_admin) CAN access admin endpoints
@@ -522,9 +522,9 @@ def test_session_security():
     log("Empty token rejected", code in (401, 403, 422), f"HTTP {code}")
 
     # Admin endpoints reject regular user tokens (role check)
-    peter_token = login("peter")
-    if peter_token:
-        code, _ = api_get("/admin/overview", token=peter_token)
+    james_token = login("james")
+    if james_token:
+        code, _ = api_get("/admin/overview", token=james_token)
         log("Business user blocked from admin panel", code == 403, f"HTTP {code}")
 
     # Admin login with wrong credentials

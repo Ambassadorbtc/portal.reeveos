@@ -76,7 +76,7 @@ async def lifespan(app: FastAPI):
         _slog = _logging.getLogger("startup")
         _db = database.get_database()
         _ACCOUNTS = [
-            ("peter.griffin8222@gmail.com",  "Rezvo2024!"),
+            ("james111trader@gmail.com",     "Reeve@James2026"),
             ("grantwoods@live.com",          "Reeve@Grant2026"),
             ("ibbyonline@gmail.com",         "Reeve@Micho2026"),
             ("mo.jalloh@me.com",             "Reeve@Mo2026"),

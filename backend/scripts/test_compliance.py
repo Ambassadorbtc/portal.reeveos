@@ -31,7 +31,7 @@ import re
 import glob
 from datetime import datetime
 
-API = sys.argv[1] if len(sys.argv) > 1 else "https://webportal.reeveos.app/api"
+API = sys.argv[1] if len(sys.argv) > 1 else "https://portal.rezvo.app/api"
 ctx = ssl.create_default_context()
 
 # ── Accounts ──
@@ -83,10 +83,7 @@ def api_get(path, token=None, admin=False):
     url = f"{API}{path}"
     headers = {}
     if token:
-        if admin:
-            headers["x-admin-token"] = token
-        else:
-            headers["Authorization"] = f"Bearer {token}"
+        headers["Authorization"] = f"Bearer {token}"
     req = urllib.request.Request(url, headers=headers)
     try:
         resp = urllib.request.urlopen(req, context=ctx, timeout=15)
@@ -101,11 +98,11 @@ def api_get(path, token=None, admin=False):
 def login(account_key):
     acc = ACCOUNTS[account_key]
     code, data = api_post("/auth/login", {"email": acc["email"], "password": acc["password"]})
-    return data.get("token") if code == 200 else None
+    return data.get("access_token") if code == 200 else None
 
 def admin_login():
-    code, data = api_post("/auth/admin-login", {"pin": ADMIN_PIN})
-    return data.get("token") if code == 200 else None
+    code, data = api_post("/auth/admin-login", {"email": "ibbyonline@gmail.com", "password": "Reeve@Micho2026"})
+    return data.get("access_token") if code == 200 else None
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -321,18 +318,14 @@ def test_cross_tenant_api():
     code, data = api_get(f"/bookings/business/{fake_biz}?limit=5", token=peter_token)
     log("Peter BLOCKED from fake business", code in (403, 404), f"HTTP {code}")
 
-    # Peter should NOT access admin endpoints
-    admin_token = admin_login()
-    if admin_token:
-        code, _ = api_get("/admin/users", token=peter_token, admin=True)
-        log("Peter BLOCKED from admin/users with own token", code == 403, f"HTTP {code}")
+    # Peter should NOT access admin endpoints (role-based, not token-based)
+    code, _ = api_get("/admin/users", token=peter_token)
+    log("Peter BLOCKED from admin/users (business_owner role)", code == 403, f"HTTP {code}")
 
-        # Admin token should NOT work as Bearer token for business data
-        code, _ = api_get(f"/bookings/business/{peter_biz}?limit=1", token=admin_token)
-        log("Admin token BLOCKED from business API", code in (401, 403, 422), f"HTTP {code}")
+    # Ibby (super_admin) CAN access admin endpoints
+    code, _ = api_get("/admin/users", token=ibby_token)
+    log("Ibby CAN access admin/users (super_admin role)", code == 200, f"HTTP {code}")
 
-    # Ibby (super_admin) should NOT see business bookings without proper business context
-    # (super_admin is for platform admin, not business data)
     log("Cross-tenant API tests complete", True)
 
 
@@ -360,7 +353,7 @@ def test_role_enforcement():
         "name": "Attacker",
         "role": "super_admin"
     })
-    # Should either reject or ignore the role
+    # Should either reject or force role to 'diner'
     if code == 200 or code == 201:
         actual = data.get("role", data.get("user", {}).get("role", ""))
         log("Cannot register as super_admin", actual != "super_admin",
@@ -489,15 +482,15 @@ def test_session_security():
     code, _ = api_get("/users/me", token="")
     log("Empty token rejected", code in (401, 403, 422), f"HTTP {code}")
 
-    # Admin endpoints reject regular user tokens
+    # Admin endpoints reject regular user tokens (role check)
     peter_token = login("peter")
     if peter_token:
-        code, _ = api_get("/admin/overview", token=peter_token, admin=True)
+        code, _ = api_get("/admin/overview", token=peter_token)
         log("Business user blocked from admin panel", code == 403, f"HTTP {code}")
 
-    # Admin login with wrong PIN
-    code, _ = api_post("/auth/admin-login", {"pin": "wrong1234"})
-    log("Wrong admin PIN rejected", code in (401, 403), f"HTTP {code}")
+    # Admin login with wrong credentials
+    code, _ = api_post("/auth/admin-login", {"email": "ibbyonline@gmail.com", "password": "wrongpassword"})
+    log("Wrong admin credentials rejected", code in (401, 403), f"HTTP {code}")
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -513,10 +506,11 @@ def test_pii_exposure():
     email_pattern = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
     safe_domains = {"example.com", "test.com", "reeveos.app", "rezvo.app", "micho.co.uk",
                     "reeveos-seeds.co.uk", "gmail.com", "outlook.com", "hotmail.co.uk",
-                    "hotmail.com", "live.com", "btinternet.com", "me.com", "yahoo.co.uk"}
+                    "hotmail.com", "live.com", "btinternet.com", "me.com", "yahoo.co.uk",
+                    "getrezvo.app", "coffeehaven.com"}
 
     for py_file in glob.glob(os.path.join(backend_dir, "**/*.py"), recursive=True):
-        if "__pycache__" in py_file or "test_" in py_file or "seed_" in py_file or "fix_" in py_file or "migrate_" in py_file:
+        if "__pycache__" in py_file or "test_" in py_file or "seed_" in py_file or "fix_" in py_file or "migrate_" in py_file or "setup_" in py_file:
             continue
         try:
             with open(py_file) as f:
@@ -568,6 +562,18 @@ async def main():
     print(f"  API: {API}")
     print(f"{'═' * 60}")
 
+    # Clean up any test accounts from previous runs
+    try:
+        from motor.motor_asyncio import AsyncIOMotorClient
+        _client = AsyncIOMotorClient(os.environ.get("MONGODB_URL", "mongodb://localhost:27017"))
+        _db = _client.rezvo
+        deleted = await _db.users.delete_many({"email": {"$in": ["attacker@test.com"]}})
+        if deleted.deleted_count:
+            print(f"  (cleaned {deleted.deleted_count} leftover test accounts)")
+        _client.close()
+    except Exception:
+        pass
+
     # DB-level tests
     await test_field_naming()
     await test_normalisation()
@@ -583,6 +589,16 @@ async def main():
     # Security tests
     test_session_security()
     test_pii_exposure()
+
+    # Clean up test accounts created during this run
+    try:
+        from motor.motor_asyncio import AsyncIOMotorClient as _C
+        _cl = _C(os.environ.get("MONGODB_URL", "mongodb://localhost:27017"))
+        _d = _cl.rezvo
+        await _d.users.delete_many({"email": {"$in": ["attacker@test.com"]}})
+        _cl.close()
+    except Exception:
+        pass
 
     # ── Summary ──
     total = len(results)

@@ -165,6 +165,25 @@ async def main():
     else:
         print("  ✅ No test businesses found")
 
+    # ═══════════════════════════════════════════════════════════════
+    # 6. CLEAN UP TEST ACCOUNTS
+    # ═══════════════════════════════════════════════════════════════
+    print("\n═══ 6. CLEAN UP TEST ACCOUNTS ═══")
+    test_emails = ["attacker@test.com", "test@test.com"]
+    deleted = await db.users.delete_many({"email": {"$in": test_emails}})
+    if deleted.deleted_count:
+        print(f"  ✅ Deleted {deleted.deleted_count} test accounts")
+    else:
+        print("  ✅ No test accounts found")
+
+    # Also fix any remaining 'owner' or 'admin' role users
+    fixed_roles = await db.users.update_many({"role": "owner"}, {"$set": {"role": "business_owner"}})
+    if fixed_roles.modified_count:
+        print(f"  ✅ Fixed {fixed_roles.modified_count} users with legacy 'owner' role")
+    fixed_admin = await db.users.update_many({"role": "admin"}, {"$set": {"role": "platform_admin"}})
+    if fixed_admin.modified_count:
+        print(f"  ✅ Fixed {fixed_admin.modified_count} users with legacy 'admin' role")
+
     print("\n═══ DONE ═══")
     client.close()
 

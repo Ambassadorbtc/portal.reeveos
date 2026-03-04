@@ -56,11 +56,16 @@ async def register(user_data: UserCreate):
             detail="Email already registered"
         )
     
+    # SECURITY: Force role to 'diner' on public registration.
+    # Admin/owner roles are assigned by super_admins only, never self-selected.
+    ALLOWED_SELF_REGISTRATION_ROLES = {"diner"}
+    safe_role = user_data.role.value if user_data.role.value in ALLOWED_SELF_REGISTRATION_ROLES else "diner"
+
     user_dict = {
         "email": user_data.email,
         "name": user_data.name,
         "phone": user_data.phone,
-        "role": user_data.role.value,
+        "role": safe_role,
         "password_hash": get_password_hash(user_data.password),
         "avatar": None,
         "saved_businesses": [],

@@ -13,7 +13,16 @@ import {
   Pencil, Trash2, ChevronDown, Check, Phone, Mail, FileText, Link2,
   Eye, StickyNote, RefreshCw
 } from 'lucide-react'
-import adminFetch from '../../../utils/adminFetch'
+// Inline admin fetch — uses sessionStorage token
+async function adminFetch(url, options = {}) {
+  const token = sessionStorage.getItem('reeveos_admin_token')
+  const headers = { ...options.headers }
+  if (token) headers.Authorization = `Bearer ${token}`
+  if (options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json'
+  const res = await fetch(url, { ...options, headers })
+  if (res.status === 401) { sessionStorage.removeItem('reeveos_admin_token'); sessionStorage.removeItem('reeveos_admin_user'); window.location.reload(); throw new Error('Session expired') }
+  return res
+}
 
 const STAGES = ['interested','demo_scheduled','trial_active','negotiating','won','lost']
 const SL = {interested:'Interested',demo_scheduled:'Demo Scheduled',trial_active:'Trial Active',negotiating:'Negotiating',won:'Won',lost:'Lost'}

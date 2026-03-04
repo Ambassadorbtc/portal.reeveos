@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-REZVO PLATFORM TEST SUITE
+REEVEOS PLATFORM TEST SUITE
 =========================
 Run before EVERY deploy. Tests every login, endpoint, role gate, and business type.
 

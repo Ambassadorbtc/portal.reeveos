@@ -335,9 +335,9 @@ export default function AdminLayout() {
   const [dark, setDark] = useState(() => {
     try { return localStorage.getItem('admin_theme') === 'dark' } catch { return false }
   })
-  const [authed, setAuthed] = useState(() => !!sessionStorage.getItem('rezvo_admin_token'))
+  const [authed, setAuthed] = useState(() => !!sessionStorage.getItem('reeveos_admin_token'))
   const [adminUser, setAdminUser] = useState(() => {
-    try { return JSON.parse(sessionStorage.getItem('rezvo_admin_user') || 'null') } catch { return null }
+    try { return JSON.parse(sessionStorage.getItem('reeveos_admin_user') || 'null') } catch { return null }
   })
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -371,8 +371,8 @@ export default function AdminLayout() {
         setLoginError(data.detail || 'Login failed')
         return
       }
-      sessionStorage.setItem('rezvo_admin_token', data.access_token)
-      sessionStorage.setItem('rezvo_admin_user', JSON.stringify(data.user))
+      sessionStorage.setItem('reeveos_admin_token', data.access_token)
+      sessionStorage.setItem('reeveos_admin_user', JSON.stringify(data.user))
       setAdminUser(data.user)
       setAuthed(true)
     } catch (err) {
@@ -383,8 +383,8 @@ export default function AdminLayout() {
   }
 
   const handleLogout = () => {
-    sessionStorage.removeItem('rezvo_admin_token')
-    sessionStorage.removeItem('rezvo_admin_user')
+    sessionStorage.removeItem('reeveos_admin_token')
+    sessionStorage.removeItem('reeveos_admin_user')
     setAuthed(false)
     setAdminUser(null)
     setEmail('')
@@ -408,7 +408,7 @@ export default function AdminLayout() {
               <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Email</label>
               <input
                 type="email" value={email} onChange={e => { setEmail(e.target.value); setLoginError('') }}
-                placeholder="admin@rezvo.co.uk" autoFocus autoComplete="email"
+                placeholder="admin@reeveos.app" autoFocus autoComplete="email"
                 style={{ width: '100%', padding: '12px 16px', borderRadius: 12, border: '1px solid #333', background: '#1a1a1a', color: '#FFF', fontSize: 14, fontFamily: FIG, outline: 'none', boxSizing: 'border-box' }}
                 onFocus={e => e.target.style.borderColor = '#C9A84C'} onBlur={e => e.target.style.borderColor = '#333'}
               />

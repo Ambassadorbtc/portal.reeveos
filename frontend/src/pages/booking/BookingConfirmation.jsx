@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { CheckCircle, Copy, Calendar, MapPin, Mail, Clock } from 'lucide-react'
-import RezvoLoader from '../../components/shared/RezvoLoader'
+import AppLoader from '../../components/shared/AppLoader'
 import { getBooking } from '../../utils/bookingApi'
 
 const BookingConfirmation = () => {
@@ -40,7 +40,7 @@ const BookingConfirmation = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FEFBF4]">
-        <RezvoLoader message="Loading confirmation..." />
+        <AppLoader message="Loading confirmation..." />
       </div>
     )
   }

@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { getBookingPage, createBooking } from '../../utils/bookingApi'
-import RezvoLoader from '../../components/shared/RezvoLoader'
+import AppLoader from '../../components/shared/AppLoader'
 import PickService from './steps/services/PickService'
 import PickDateTime from './steps/services/PickDateTime'
 import YourDetails from './steps/services/YourDetails'
@@ -76,7 +76,7 @@ const BookingFlow = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FEFBF4]">
-        <RezvoLoader message="Loading booking..." />
+        <AppLoader message="Loading booking..." />
       </div>
     )
   }

@@ -311,7 +311,7 @@ class InsightsReport(BaseModel):
         recs = []
 
         if not self.website.has_online_booking:
-            recs.append("Add online booking to your website — Rezvo's free plan gets you started in 5 minutes")
+            recs.append("Add online booking to your website — ReeveOS's free plan gets you started in 5 minutes")
 
         if self.ordering.on_deliveroo or self.ordering.on_ubereats or self.ordering.on_justeat:
             if not self.ordering.has_own_ordering:
@@ -331,7 +331,7 @@ class InsightsReport(BaseModel):
             recs.append("Add a booking button to your Facebook page")
 
         if not self.website.has_website:
-            recs.append("Get a website — even a simple booking page on Rezvo gives you an online presence")
+            recs.append("Get a website — even a simple booking page on ReeveOS gives you an online presence")
 
         if self.website.has_website and not self.website.has_ssl:
             recs.append("Secure your website with SSL — it's often free and stops browser warnings")

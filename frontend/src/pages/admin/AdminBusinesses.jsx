@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Building2, Search, RefreshCw, MapPin, Calendar, Users, ChevronRight, Globe, Star, ExternalLink } from 'lucide-react'
 
-const api = (path) => { const t = sessionStorage.getItem('rezvo_admin_token'); return fetch(`/api${path}`, { headers: t ? { Authorization: `Bearer ${t}` } : {} }).then(r => r.ok ? r.json() : null).catch(() => null) }
+const api = (path) => { const t = sessionStorage.getItem('reeveos_admin_token'); return fetch(`/api${path}`, { headers: t ? { Authorization: `Bearer ${t}` } : {} }).then(r => r.ok ? r.json() : null).catch(() => null) }
 
 export default function AdminBusinesses() {
   const [data, setData] = useState(null)

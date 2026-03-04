@@ -1,5 +1,5 @@
 """
-Rezvo Audit Logger
+ReeveOS Audit Logger
 ===================
 Logs every data access for compliance (UK GDPR) and breach detection.
 Append-only — no updates or deletes on audit records.

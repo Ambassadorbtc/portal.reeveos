@@ -1,5 +1,5 @@
 """
-Rezvo Outreach Engine — Scheduled Agent Tasks
+ReeveOS Outreach Engine — Scheduled Agent Tasks
 ===============================================
 Tasks that run on cron schedules to power the outreach engine:
 - Warmup cycle (every 2h during warming)

@@ -1,5 +1,5 @@
 """
-Rezvo Tenant Isolation Layer
+ReeveOS Tenant Isolation Layer
 ============================
 Makes cross-tenant data leakage STRUCTURALLY IMPOSSIBLE.
 

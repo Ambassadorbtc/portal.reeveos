@@ -1,4 +1,4 @@
-import RezvoLoader from "../../components/shared/RezvoLoader"
+import AppLoader from "../../components/shared/AppLoader"
 /**
  * Services / Menu — styled to match 7-Brand Design - Services/Menu.html
  * Two-pane: categorized service list (left) + editor form (right)
@@ -76,7 +76,7 @@ const Services = () => {
   }
 
   if (loading) {
-    return <RezvoLoader message="Loading menu..." />
+    return <AppLoader message="Loading menu..." />
   }
 
   return (

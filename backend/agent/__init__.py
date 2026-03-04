@@ -1,5 +1,5 @@
 """
-Rezvo AI Operations Agent
+ReeveOS AI Operations Agent
 =========================
 Autonomous platform management daemon.
 Claude API with tool-use for orchestration.

@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
-import RezvoLoader from '../../components/shared/RezvoLoader'
+import AppLoader from '../../components/shared/AppLoader'
 import RoomSetupModal from '../../components/dashboard/RoomSetupModal'
 
 /* ═══════════════ CONSTANTS ═══════════════ */
@@ -795,7 +795,7 @@ const FloorPlan = ({ embedded = false }) => {
     showToast(`Room set: ${config.width_m}m × ${config.height_m}m ✓`)
   }
 
-  if (loading) return <RezvoLoader message="Loading floor plan..." />
+  if (loading) return <AppLoader message="Loading floor plan..." />
   if (!isFood) return <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center shadow-sm"><h2 className="font-bold text-xl text-gray-900 mb-2">Floor Plan</h2><p className="text-gray-500">Floor plans are available for restaurant businesses.</p></div>
 
   return (

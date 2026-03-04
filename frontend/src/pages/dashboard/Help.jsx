@@ -11,7 +11,7 @@ const FAQS = [
   { q: 'How do deposits work?', a: 'When enabled, clients are required to pay a deposit when booking. The deposit is automatically deducted from the final bill. You can configure the deposit percentage and minimum threshold in Settings > Payments.' },
   { q: 'Can I connect my Google Business profile?', a: 'Yes! Go to Booking Link > Booking Channels and click "Connect" next to Reserve with Google. This allows clients to book directly from Google Search and Maps.' },
   { q: 'How do I manage staff availability?', a: 'Go to Settings > Team Permissions to add staff members. Each staff member can set their own working hours and services they offer. You can also manage this from the Calendar view.' },
-  { q: 'What payment methods are supported?', a: 'Rezvo uses Stripe Connect to process payments. This supports all major credit/debit cards (Visa, Mastercard, Amex), Apple Pay, and Google Pay. Payouts are sent directly to your bank account.' },
+  { q: 'What payment methods are supported?', a: 'ReeveOS uses Stripe Connect to process payments. This supports all major credit/debit cards (Visa, Mastercard, Amex), Apple Pay, and Google Pay. Payouts are sent directly to your bank account.' },
   { q: 'How do I handle no-shows?', a: 'Enable No-Show Protection in Payments > Settings. This captures card details at booking time and allows you to charge a cancellation fee for late cancellations or no-shows.' },
   { q: 'Can I import my existing client list?', a: 'Yes, you can import clients via CSV from the Clients page. Click the "Import" button and follow the steps to map your columns. We support bulk imports of up to 10,000 clients.' },
   { q: 'How do I customise my booking page?', a: 'Go to Online Booking settings to upload your logo, cover image, and set your accent colour. You can also write a short business description that appears on your booking page.' },
@@ -149,7 +149,7 @@ const Help = () => {
                 <p className="text-xs text-gray-400">Watch step-by-step guides</p>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mb-3">Over 20 video tutorials covering every feature of Rezvo.</p>
+            <p className="text-xs text-gray-500 mb-3">Over 20 video tutorials covering every feature of ReeveOS.</p>
             <button className="text-xs font-bold text-gray-700 border border-gray-200 px-4 py-1.5 rounded-full hover:bg-gray-50 flex items-center gap-2 shadow-sm transition-all" style={{ fontFamily: "'Figtree', sans-serif" }}>
               <Play className="w-3.5 h-3.5" /> Watch Tutorials
             </button>

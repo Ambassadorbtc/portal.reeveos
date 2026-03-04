@@ -1,5 +1,5 @@
 """
-Rezvo SMS Service
+ReeveOS SMS Service
 =================
 SMS notifications via Sendly (sendly.live).
 Simple REST API — no SDK needed, just HTTP POST.
@@ -102,7 +102,7 @@ def booking_confirmation_sms(
         f"Hi {client_name}! Your booking at {business_name} is confirmed.\n"
         f"{booking_date} at {booking_time}{party}\n"
         f"Ref: {reference}\n"
-        f"- Rezvo"
+        f"- ReeveOS"
     )
 
 
@@ -119,7 +119,7 @@ def new_booking_alert_sms(
         f"New booking: {client_name}{party}\n"
         f"{booking_date} at {booking_time}\n"
         f"Via: {channel}\n"
-        f"- Rezvo"
+        f"- ReeveOS"
     )
 
 
@@ -133,7 +133,7 @@ def booking_cancelled_sms(
     return (
         f"Hi {client_name}, your booking at {business_name} on "
         f"{booking_date} at {booking_time} has been cancelled.\n"
-        f"- Rezvo"
+        f"- ReeveOS"
     )
 
 
@@ -147,5 +147,5 @@ def booking_reminder_sms(
     return (
         f"Reminder: {client_name}, your booking at {business_name} is "
         f"tomorrow at {booking_time}.\n"
-        f"See you there! - Rezvo"
+        f"See you there! - ReeveOS"
     )

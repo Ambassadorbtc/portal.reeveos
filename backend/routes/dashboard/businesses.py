@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from database import get_database
-from models.business import BusinessCreate, BusinessUpdate, BusinessResponse, RezvoTier
+from models.business import BusinessCreate, BusinessUpdate, BusinessResponse, PlatformTier
 from middleware.auth import get_current_owner
 from datetime import datetime
 from bson import ObjectId
@@ -65,7 +65,7 @@ async def create_business(
         "slug": slug,
         "claimed": True,
         "owner_id": str(current_user["_id"]),
-        "rezvo_tier": RezvoTier.FREE.value,
+        "rezvo_tier": PlatformTier.FREE.value,
         "promoted": False,
         "notify_count": 0,
         "rating": None,
@@ -233,7 +233,7 @@ async def update_business(
         price_level=updated_business.get("price_level"),
         photo_refs=updated_business.get("photo_refs", []),
         claimed=updated_business["claimed"],
-        rezvo_tier=RezvoTier(updated_business["rezvo_tier"]),
+        rezvo_tier=PlatformTier(updated_business["rezvo_tier"]),
         tier=updated_business.get("tier"),
         promoted=updated_business.get("promoted", False),
         opening_hours=updated_business.get("opening_hours")

@@ -179,7 +179,7 @@ REVIEW_TEXTS = {
 
 # ─── Occasions ─── #
 OCCASIONS = [None, None, None, None, None, None, "Birthday", "Anniversary", "Business Dinner", "Date Night", "Family Gathering", "Celebration"]
-SOURCES = ["rezvo", "rezvo", "rezvo", "phone", "phone", "walk_in", "google"]
+SOURCES = ["reeveos", "reeveos", "reeveos", "phone", "phone", "walk_in", "google"]
 TABLES = ["T-01", "T-02", "T-03", "T-04", "T-05", "T-06", "T-07", "T-08", "T-09", "T-10", "T-11", "T-12"]
 TIME_SLOTS = ["12:00", "12:30", "13:00", "13:30", "14:00", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00"]
 SERVICE_STAFF = ["staff_serhat", "staff_yaren"]
@@ -507,7 +507,7 @@ async def main():
             "categories": [random.choice(["Food", "Service", "Atmosphere", "Value"])],
             "photos": [],
             "helpful_count": random.randint(0, 8),
-            "source": random.choice(["Rezvo", "Rezvo", "Google"]),
+            "source": random.choice(["ReeveOS", "ReeveOS", "Google"]),
             "created_at": datetime.combine(review_date, time(random.randint(10, 22), random.randint(0, 59))),
             "updated_at": datetime.combine(review_date, time(random.randint(10, 22), random.randint(0, 59))),
         }

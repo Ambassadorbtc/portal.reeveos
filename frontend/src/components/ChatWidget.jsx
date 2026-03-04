@@ -1,5 +1,5 @@
 /**
- * Rezvo AI Dashboard Chat — wired to real database
+ * ReeveOS AI Dashboard Chat — wired to real database
  * Calls /api/chatbot/chat with business_id so Claude can query MongoDB
  */
 import { useState, useRef, useEffect, useCallback } from 'react'
@@ -10,7 +10,7 @@ const FOREST = '#111111'
 const MINT = '#52B788'
 const GOLD = '#D4A373'
 
-const GREETING = "Hey! 👋 I'm your Rezvo AI assistant. I can see your live booking data — ask me about today's covers, upcoming reservations, customer stats, or anything about the platform."
+const GREETING = "Hey! 👋 I'm your ReeveOS AI assistant. I can see your live booking data — ask me about today's covers, upcoming reservations, customer stats, or anything about the platform."
 
 function escapeHtml(text) {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -162,7 +162,7 @@ const ChatWidget = () => {
             fontWeight: 700, fontSize: 16, color: FOREST, boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
           }}>R.</div>
           <div style={{ flex: 1 }}>
-            <div style={{ color: '#fff', fontSize: 15, fontWeight: 700 }}>Rezvo AI</div>
+            <div style={{ color: '#fff', fontSize: 15, fontWeight: 700 }}>ReeveOS AI</div>
             <div style={{ color: MINT, fontSize: 11, fontWeight: 600, marginTop: 2, opacity: 0.9 }}>
               ● Live — connected to your data
             </div>
@@ -243,7 +243,7 @@ const ChatWidget = () => {
         </div>
 
         <div style={{ textAlign: 'center', padding: 6, fontSize: 9, color: '#bbb', background: '#fff', borderTop: '1px solid #f0f0f0' }}>
-          Powered by Rezvo AI · Live data
+          Powered by ReeveOS AI · Live data
         </div>
       </div>
 

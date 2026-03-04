@@ -1,5 +1,5 @@
 """
-Rezvo Outreach Engine — Service Layer
+ReeveOS Outreach Engine — Service Layer
 ======================================
 Core business logic: warmup, sender rotation, campaign execution,
 AI personalisation via Claude Haiku, health scoring, reply processing.
@@ -30,11 +30,11 @@ WARMUP_SCHEDULE = [
 # Warmup seed contacts — these are accounts that open + reply to warmup emails
 # In production, use a warmup provider like Warmup Inbox, Instantly, or Lemwarm
 WARMUP_SEED_POOL = [
-    "warmup-a@rezvo-seeds.co.uk",
-    "warmup-b@rezvo-seeds.co.uk",
-    "warmup-c@rezvo-seeds.co.uk",
-    "warmup-d@rezvo-seeds.co.uk",
-    "warmup-e@rezvo-seeds.co.uk",
+    "warmup-a@reeveos-seeds.co.uk",
+    "warmup-b@reeveos-seeds.co.uk",
+    "warmup-c@reeveos-seeds.co.uk",
+    "warmup-d@reeveos-seeds.co.uk",
+    "warmup-e@reeveos-seeds.co.uk",
 ]
 
 WARMUP_SUBJECTS = [
@@ -358,7 +358,7 @@ async def personalise_email(
     est_weekly_cost = lead.get("estimated_weekly_commission", "300+")
     est_monthly_savings = lead.get("estimated_monthly_savings", "800+")
 
-    prompt = f"""You are writing a cold outreach email for Rezvo, a restaurant booking and delivery platform.
+    prompt = f"""You are writing a cold outreach email for ReeveOS, a restaurant booking and delivery platform.
 Personalise this email template for the specific restaurant below.
 
 RESTAURANT DATA:
@@ -370,7 +370,7 @@ RESTAURANT DATA:
 - Website: {website}
 - Currently on: {current_platform}
 - Estimated weekly commission cost: £{est_weekly_cost}
-- Estimated monthly savings with Rezvo: £{est_monthly_savings}
+- Estimated monthly savings with ReeveOS: £{est_monthly_savings}
 
 OUTREACH ANGLE: {angle}
 
@@ -554,7 +554,7 @@ async def process_single_campaign(campaign: dict) -> dict:
                 body_html = body.replace("\n", "<br>") if "<" not in body else body
                 msg_id = await send_email_via_resend(
                     from_email=sender["email"],
-                    from_name=sender.get("display_name", "Rezvo Team"),
+                    from_name=sender.get("display_name", "ReeveOS Team"),
                     to_email=lead["email"],
                     subject=subject,
                     body_html=f"<div style='font-family:sans-serif;font-size:14px;color:#333;line-height:1.6'>{body_html}</div>",
@@ -649,7 +649,7 @@ async def process_single_campaign(campaign: dict) -> dict:
                 body_html = body.replace("\n", "<br>") if "<" not in body else body
                 msg_id = await send_email_via_resend(
                     from_email=sender["email"],
-                    from_name=sender.get("display_name", "Rezvo Team"),
+                    from_name=sender.get("display_name", "ReeveOS Team"),
                     to_email=lead["email"],
                     subject=subject,
                     body_html=f"<div style='font-family:sans-serif;font-size:14px;color:#333;line-height:1.6'>{body_html}</div>",
@@ -704,7 +704,7 @@ async def classify_reply(reply_text: str, original_subject: str = "") -> Tuple[s
     if not api_key:
         return rule_based_classify(reply_text)
 
-    prompt = f"""Classify this email reply to a cold outreach from Rezvo (a restaurant booking/delivery platform).
+    prompt = f"""Classify this email reply to a cold outreach from ReeveOS (a restaurant booking/delivery platform).
 
 ORIGINAL SUBJECT: {original_subject}
 REPLY TEXT: {reply_text}

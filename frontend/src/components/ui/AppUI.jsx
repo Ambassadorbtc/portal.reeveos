@@ -1,9 +1,9 @@
 /**
- * Rezvo UI — Branded component library
+ * ReeveOS UI — Branded component library
  * Import these everywhere. No more default browser styles.
  * 
  * Usage:
- *   import { PillTabs, SearchBar, ActionButton, Select, Badge } from '../../components/ui/RezvoUI'
+ *   import { PillTabs, SearchBar, ActionButton, Select, Badge } from '../../components/ui/AppUI'
  */
 import { Search, ChevronDown, Check } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'

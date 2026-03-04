@@ -1,5 +1,5 @@
 /**
- * Analytics & Payments — Rezvo branded
+ * Analytics & Payments — ReeveOS branded
  * Polished pill tabs, gradient charts, Lucide icons, Figtree everywhere
  */
 import { useState, useEffect, useMemo } from 'react'
@@ -10,7 +10,7 @@ import {
 } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
-import RezvoLoader from '../../components/shared/RezvoLoader'
+import AppLoader from '../../components/shared/AppLoader'
 
 /* ═══ KPI Card ═══ */
 const KpiCard = ({ label, value, Icon, iconColor, iconBg, trend, trendLabel, trendUp }) => (
@@ -108,7 +108,7 @@ const Payments = () => {
 
   const displayTx = transactions
 
-  if (bizLoading || loading) return <RezvoLoader message="Loading analytics..." />
+  if (bizLoading || loading) return <AppLoader message="Loading analytics..." />
 
   return (
     <div className="space-y-6" style={{ fontFamily: "'Figtree', sans-serif" }}>

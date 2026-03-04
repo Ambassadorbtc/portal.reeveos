@@ -5,7 +5,7 @@
 
 import { useState } from 'react'
 import { ArrowLeft, Users, Calendar, Clock, MapPin, CheckCircle, MessageSquare, ExternalLink, ArrowRight } from 'lucide-react'
-import RezvoLoader from '../../../../components/shared/RezvoLoader'
+import AppLoader from '../../../../components/shared/AppLoader'
 import BookingHeader from '../../components/BookingHeader'
 import StepIndicator from '../../components/StepIndicator'
 import StickyFooter from '../../components/StickyFooter'
@@ -201,7 +201,7 @@ const YourDetailsRestaurant = ({ data, onBack, onCreate }) => {
         >
           {submitting ? (
             <span className="flex items-center justify-center gap-2">
-              <RezvoLoader size="sm" inline message="" /> Confirming...
+              <AppLoader size="sm" inline message="" /> Confirming...
             </span>
           ) : 'Confirm Booking'}
         </button>

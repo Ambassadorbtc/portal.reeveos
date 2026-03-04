@@ -467,7 +467,7 @@ async def export_business_data(business_id: str, tenant: TenantContext = Depends
         zf.writestr("business.csv", out.getvalue())
 
     buf.seek(0)
-    return StreamingResponse(buf, media_type="application/zip", headers={"Content-Disposition": "attachment; filename=rezvo-export.zip"})
+    return StreamingResponse(buf, media_type="application/zip", headers={"Content-Disposition": "attachment; filename=reeveos-export.zip"})
 
 
 @router.delete("/business/{business_id}")

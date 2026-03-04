@@ -1,5 +1,5 @@
 """
-Rezvo Security Monitoring Tools
+ReeveOS Security Monitoring Tools
 ================================
 Tools the AI agent uses to monitor and police the platform.
 Covers: tenant isolation, cross-tenant violations, route coverage,

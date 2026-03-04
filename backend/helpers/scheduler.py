@@ -1,5 +1,5 @@
 """
-Rezvo Background Scheduler
+ReeveOS Background Scheduler
 ============================
 Runs periodic tasks:
 - Process drip email queue (every 15 min)
@@ -115,7 +115,7 @@ async def _send_booking_reminders():
             booking_date=booking.get("date", ""),
             booking_time=booking.get("time", ""),
             hours_until=24,
-            manage_url=f"https://rezvo.app/bookings/{booking['_id']}",
+            manage_url=f"https://reeveos.app/bookings/{booking['_id']}",
         )
 
         await db.bookings.update_one(
@@ -179,7 +179,7 @@ async def _send_insights_drip_emails():
             continue
 
         slug = report.get("slug", "")
-        report_url = f"https://rezvo.app/insights/{slug}"
+        report_url = f"https://reeveos.app/insights/{slug}"
 
         await send_insights_reminder(
             to=report["owner_email"],

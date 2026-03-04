@@ -1,4 +1,4 @@
-import RezvoLoader from "../../components/shared/RezvoLoader"
+import AppLoader from "../../components/shared/AppLoader"
 /**
  * Bookings — Card-based browse view matching UXPilot Browse design
  */
@@ -194,7 +194,7 @@ const Bookings = () => {
         <h3 className="text-sm font-bold text-gray-500 mb-4">Showing {displayBookings.length} result{displayBookings.length !== 1 ? 's' : ''}</h3>
 
         {loading ? (
-          <RezvoLoader message="Loading bookings..." />
+          <AppLoader message="Loading bookings..." />
         ) : displayBookings.length === 0 ? (
           <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"><Users className="w-8 h-8 text-gray-400" /></div>
@@ -293,7 +293,7 @@ const Bookings = () => {
               </div>
               <button className="w-8 h-8 rounded hover:bg-gray-200 flex items-center justify-center text-gray-400" onClick={closeDetail}><X className="w-4 h-4" /></button>
             </div>
-            {detailLoading ? <RezvoLoader message="Loading..." size="sm" /> : (
+            {detailLoading ? <AppLoader message="Loading..." size="sm" /> : (
               <>
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
                   <div className="flex items-start gap-4">

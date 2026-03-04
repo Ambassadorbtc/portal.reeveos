@@ -6,7 +6,7 @@
 
 import { useState, useEffect } from 'react'
 import { Clock, Users, Calendar, ArrowLeft } from 'lucide-react'
-import RezvoLoader from '../../../../components/shared/RezvoLoader'
+import AppLoader from '../../../../components/shared/AppLoader'
 import BookingHeader from '../../components/BookingHeader'
 import StepIndicator from '../../components/StepIndicator'
 import StickyFooter from '../../components/StickyFooter'
@@ -141,7 +141,7 @@ const PickTimeSlot = ({ data, onContinue, onBack }) => {
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <RezvoLoader size="sm" message="" />
+          <AppLoader size="sm" message="" />
         </div>
       ) : isClosed || slots.length === 0 ? (
         <div className="text-center py-8">

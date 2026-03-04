@@ -1,1 +1,1 @@
-"""Rezvo helper modules."""
+"""ReeveOS helper modules."""

@@ -1,5 +1,5 @@
 """
-Rezvo Scheduled Tasks — SMART GUARDS
+ReeveOS Scheduled Tasks — SMART GUARDS
 ======================================
 Every task checks if there's actual work before calling AI.
 Zero AI calls on empty queues. Only burns tokens when needed.

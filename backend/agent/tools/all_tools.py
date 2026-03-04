@@ -1,5 +1,5 @@
 """
-Rezvo Agent Tools — Complete tool registry
+ReeveOS Agent Tools — Complete tool registry
 ==========================================
 All tools the agent can call via Claude tool-use.
 Each tool is a simple async function + schema.
@@ -161,7 +161,7 @@ def register_all_tools():
             "to": {"type": "string", "description": "Recipient email"},
             "subject": {"type": "string", "description": "Email subject"},
             "body_html": {"type": "string", "description": "HTML email body"},
-            "from_name": {"type": "string", "description": "Sender name (default: Rezvo)"},
+            "from_name": {"type": "string", "description": "Sender name (default: ReeveOS)"},
             "reply_to": {"type": "string", "description": "Reply-to address"},
         }, "required": ["to", "subject", "body_html"]},
         _send_email, tier="review"
@@ -482,7 +482,7 @@ async def _trigger_dunning_email(business_id, attempt_number=1):
     
     subjects = {
         1: "Quick heads up — your payment didn't go through",
-        2: "Your Rezvo subscription needs attention",
+        2: "Your ReeveOS subscription needs attention",
         3: "Action needed — update your payment method",
         4: "Final notice — your account will be paused",
     }
@@ -491,11 +491,11 @@ async def _trigger_dunning_email(business_id, attempt_number=1):
     name = biz.get("name", "there")
     
     body = f"""<p>Hi {name},</p>
-<p>We tried to process your Rezvo subscription payment but it didn't go through.</p>
+<p>We tried to process your ReeveOS subscription payment but it didn't go through.</p>
 <p>This usually happens when a card expires or there's a temporary issue with your bank.</p>
 <p><a href="https://rezvo.app/dashboard/payments" style="background:#1B4332;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;">Update Payment Method</a></p>
 <p>If you need any help, just reply to this email.</p>
-<p>Cheers,<br>The Rezvo Team</p>"""
+<p>Cheers,<br>The ReeveOS Team</p>"""
     
     result = await _send_email(to=email, subject=subject, body_html=body)
     
@@ -524,12 +524,12 @@ async def _send_upgrade_nudge(business_id, reason, current_plan=None, suggested_
 <p>{reason}</p>
 <p>Your current {current_plan or 'plan'} has been working well — upgrading to {suggested_plan or 'the next tier'} would unlock everything you need to keep growing.</p>
 <p><a href="https://rezvo.app/dashboard/settings" style="background:#1B4332;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;">View Plans</a></p>
-<p>Cheers,<br>The Rezvo Team</p>"""
+<p>Cheers,<br>The ReeveOS Team</p>"""
     
     return await _send_email(to=email, subject="You're outgrowing your plan 🚀", body_html=body)
 
 
-async def _send_email(to, subject, body_html, from_name="Rezvo", reply_to=None):
+async def _send_email(to, subject, body_html, from_name="ReeveOS", reply_to=None):
     try:
         import resend
         resend.api_key = settings.resend_api_key

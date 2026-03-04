@@ -38,7 +38,7 @@ const Reviews = () => {
         replied: !!r.owner_reply,
         reply: r.owner_reply || '',
         replyDate: r.owner_reply_at ? new Date(r.owner_reply_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '',
-        source: r.source || 'Rezvo',
+        source: r.source || 'ReeveOS',
         helpful: r.helpful_count || 0,
       }))
       setReviews(list)

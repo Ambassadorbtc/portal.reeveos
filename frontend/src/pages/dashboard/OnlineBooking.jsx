@@ -1,4 +1,4 @@
-import RezvoLoader from "../../components/shared/RezvoLoader"
+import AppLoader from "../../components/shared/AppLoader"
 /**
  * Run 6: Online Booking Editor — split-screen, live preview
  */
@@ -192,7 +192,7 @@ const OnlineBooking = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <RezvoLoader message="Loading..." />
+        <AppLoader message="Loading..." />
       </div>
     )
   }

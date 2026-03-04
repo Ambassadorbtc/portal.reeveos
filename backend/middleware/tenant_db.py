@@ -1,5 +1,5 @@
 """
-Rezvo Tenant-Scoped Database
+ReeveOS Tenant-Scoped Database
 ==============================
 Wraps Motor collections to AUTOMATICALLY inject businessId/tenant_id
 into every query. A developer using this wrapper CANNOT accidentally

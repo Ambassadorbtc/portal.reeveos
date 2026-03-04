@@ -8,7 +8,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { ChevronLeft, ChevronRight, Clock, Users, LayoutGrid, List, CalendarDays, MapPin, Search, Plus, Star, AlertTriangle, Crown, Wine, Cake, CreditCard, IceCream, ChevronDown, ChevronUp, Maximize2, Minimize2, X, Phone, Mail, Edit3, RotateCcw, UserX, MoreHorizontal } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
-import RezvoLoader from '../../components/shared/RezvoLoader'
+import AppLoader from '../../components/shared/AppLoader'
 import FloorPlanEmbed from './FloorPlan'
 
 /* ── Design Tokens (from UXPilot polished HTML) ── */
@@ -375,7 +375,7 @@ export default function RestaurantCalendar() {
   /* ── FAB shift when panel open ── */
   useEffect(() => {
     if (selectedBooking) {
-      document.body.classList.add('rezvo-fab-shifted')
+      document.body.classList.add('reeveos-fab-shifted')
       setEditMode(false)
       setShowDeleteConfirm(false)
       setShowTagInput(false)
@@ -391,9 +391,9 @@ export default function RestaurantCalendar() {
         email: selectedBooking.email || 'guest@email.com',
       })
     } else {
-      document.body.classList.remove('rezvo-fab-shifted')
+      document.body.classList.remove('reeveos-fab-shifted')
     }
-    return () => document.body.classList.remove('rezvo-fab-shifted')
+    return () => document.body.classList.remove('reeveos-fab-shifted')
   }, [selectedBooking])
 
   const ROW_H = 54
@@ -409,7 +409,7 @@ export default function RestaurantCalendar() {
   /* ═══════════════════════ RENDER ═══════════════════════ */
 
   if (loading && (data.tables || []).length === 0) {
-    return <RezvoLoader message="Loading reservations..." size="md" />
+    return <AppLoader message="Loading reservations..." size="md" />
   }
 
   return (
@@ -711,8 +711,8 @@ export default function RestaurantCalendar() {
 
         {/* FAB shift style — push FAB left when panel is open */}
         <style>{`
-          .rezvo-chat-bubble { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important; }
-          .rezvo-fab-shifted .rezvo-chat-bubble { transform: translateX(-440px) !important; }
+          .reeveos-chat-bubble { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important; }
+          .reeveos-fab-shifted .reeveos-chat-bubble { transform: translateX(-440px) !important; }
           @keyframes panelSlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
         `}</style>
 

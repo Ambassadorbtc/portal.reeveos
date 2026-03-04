@@ -50,7 +50,7 @@ const Login = () => {
           <div className="w-11 h-11 bg-[#D4A373] rounded-xl flex items-center justify-center shadow-md">
             <span className="text-[#111111] font-bold text-xl">R.</span>
           </div>
-          <span className="font-extrabold text-2xl tracking-tight text-white">Rezvo</span>
+          <span className="font-extrabold text-2xl tracking-tight text-white">ReeveOS</span>
         </a>
 
         {/* Testimonial */}
@@ -59,7 +59,7 @@ const Login = () => {
             {[1,2,3,4,5].map(i => <Star key={i} className="w-5 h-5 fill-current" />)}
           </div>
           <h2 className="text-4xl xl:text-5xl font-extrabold leading-tight mb-6">
-            "Rezvo transformed how we manage our restaurant. Bookings are up 40% and we've saved thousands in commissions."
+            "ReeveOS transformed how we manage our restaurant. Bookings are up 40% and we've saved thousands in commissions."
           </h2>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-[#D4A373]/30 flex items-center justify-center text-white font-bold text-lg">MB</div>
@@ -88,7 +88,7 @@ const Login = () => {
               <div className="w-10 h-10 bg-[#D4A373] rounded-xl flex items-center justify-center shadow-md">
                 <span className="text-[#111111] font-bold text-lg">R.</span>
               </div>
-              <span className="font-extrabold text-2xl tracking-tight text-[#111111]">Rezvo</span>
+              <span className="font-extrabold text-2xl tracking-tight text-[#111111]">ReeveOS</span>
             </div>
           </div>
 

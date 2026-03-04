@@ -1,5 +1,5 @@
 """
-Rezvo Email Service
+ReeveOS Email Service
 ====================
 Core email engine using Resend API.
 Handles: transactional emails, campaign blasts, drip sequences, tracking.
@@ -24,17 +24,17 @@ logger = logging.getLogger(__name__)
 resend.api_key = settings.resend_api_key
 
 # Sending domains & from addresses
-DEFAULT_FROM = "Rezvo <bookings@mail.rezvo.app>"
-CAMPAIGNS_FROM = "Rezvo <campaigns@mail.rezvo.app>"
-INSIGHTS_FROM = "Rezvo Website Review <reviews@mail.rezvo.app>"
-NOREPLY_FROM = "Rezvo <noreply@mail.rezvo.app>"
+DEFAULT_FROM = "ReeveOS <bookings@mail.reeveos.app>"
+CAMPAIGNS_FROM = "ReeveOS <campaigns@mail.reeveos.app>"
+INSIGHTS_FROM = "ReeveOS Website Review <reviews@mail.reeveos.app>"
+NOREPLY_FROM = "ReeveOS <noreply@mail.reeveos.app>"
 
 # For multi-domain strategy (future)
 DOMAIN_MAP = {
-    "transactional": "mail.rezvo.app",        # booking confirmations, password resets
-    "campaigns": "mail.rezvo.app",            # owner marketing campaigns
-    "insights": "mail.rezvo.app",             # audit reports, drip campaigns
-    "growth": "mail.rezvo.app",               # warm lead outreach, diner notifications
+    "transactional": "mail.reeveos.app",        # booking confirmations, password resets
+    "campaigns": "mail.reeveos.app",            # owner marketing campaigns
+    "insights": "mail.reeveos.app",             # audit reports, drip campaigns
+    "growth": "mail.reeveos.app",               # warm lead outreach, diner notifications
 }
 
 
@@ -49,14 +49,14 @@ def render_template(template: str, variables: Dict[str, Any]) -> str:
 
 
 def wrap_html(body_html: str, preheader: str = "") -> str:
-    """Wrap content in a responsive email template with Rezvo branding."""
+    """Wrap content in a responsive email template with ReeveOS branding."""
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>Rezvo</title>
+<title>ReeveOS</title>
 <!--[if mso]><style>body,table,td{{font-family:Arial,Helvetica,sans-serif!important;}}</style><![endif]-->
 <style>
   body {{ margin:0; padding:0; background:#f4f4f5; -webkit-font-smoothing:antialiased; }}
@@ -85,14 +85,14 @@ def wrap_html(body_html: str, preheader: str = "") -> str:
 <div class="wrapper">
   <div class="container">
     <div class="header">
-      <h1>Rezvo</h1>
+      <h1>ReeveOS</h1>
     </div>
     <div class="body">
       {body_html}
     </div>
     <div class="footer">
-      <p>&copy; {datetime.now().year} Rezvo &middot; Your High Street, Booked</p>
-      <p><a href="{{{{unsubscribe_url}}}}">Unsubscribe</a> &middot; <a href="https://rezvo.app/privacy">Privacy</a></p>
+      <p>&copy; {datetime.now().year} ReeveOS &middot; Your High Street, Booked</p>
+      <p><a href="{{{{unsubscribe_url}}}}">Unsubscribe</a> &middot; <a href="https://reeveos.app/privacy">Privacy</a></p>
     </div>
   </div>
 </div>
@@ -302,16 +302,16 @@ async def send_password_reset(to: str, name: str, reset_url: str):
     body = f"""
     <h2>Reset your password</h2>
     <p>Hi {name},</p>
-    <p>We received a request to reset your Rezvo password. Click the button below to choose a new one:</p>
+    <p>We received a request to reset your ReeveOS password. Click the button below to choose a new one:</p>
     <p style="text-align:center;"><a href="{reset_url}" class="cta">Reset Password</a></p>
     <p style="font-size:13px; color:#6b7280;">This link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>
     """
 
-    html = wrap_html(body, preheader="Reset your Rezvo password")
+    html = wrap_html(body, preheader="Reset your ReeveOS password")
 
     return await send_email(
         to=to,
-        subject="Reset your Rezvo password",
+        subject="Reset your ReeveOS password",
         html=html,
         from_email=NOREPLY_FROM,
         tags=[{"name": "type", "value": "password_reset"}],
@@ -325,21 +325,21 @@ async def send_warm_lead_email(
     restaurant_name: str,
     notify_count: int,
     owner_name: str = "there",
-    signup_url: str = "https://rezvo.app/for-business",
+    signup_url: str = "https://reeveos.app/for-business",
 ):
     """Warm lead email sent when enough diners request a restaurant."""
     body = f"""
     <h2>{notify_count} people want to book at {restaurant_name}</h2>
     <p>Hi {owner_name},</p>
-    <p><strong>{notify_count} local diners</strong> have tried to book a table at {restaurant_name} through Rezvo, but you're not listed yet.</p>
+    <p><strong>{notify_count} local diners</strong> have tried to book a table at {restaurant_name} through ReeveOS, but you're not listed yet.</p>
     <p>These are real customers, ready to book — and you're missing out on every single one.</p>
     <div style="background:#fef3c7; border-left:4px solid #f59e0b; padding:16px; border-radius:0 8px 8px 0; margin:16px 0;">
-      <p style="margin:0; font-weight:600;">Unlike Deliveroo or UberEats, Rezvo charges zero commission.</p>
+      <p style="margin:0; font-weight:600;">Unlike Deliveroo or UberEats, ReeveOS charges zero commission.</p>
       <p style="margin:8px 0 0; font-size:13px;">No hidden fees. No percentage of orders. Customers book direct with you.</p>
     </div>
     <p>It takes 5 minutes to get listed:</p>
     <p style="text-align:center;"><a href="{signup_url}" class="cta">Claim Your Listing — Free</a></p>
-    <p style="font-size:13px; color:#6b7280;">Rezvo is a Nottingham-based platform helping independent restaurants take back control from high-commission delivery apps. Questions? Reply to this email.</p>
+    <p style="font-size:13px; color:#6b7280;">ReeveOS is a Nottingham-based platform helping independent restaurants take back control from high-commission delivery apps. Questions? Reply to this email.</p>
     """
 
     html = wrap_html(body, preheader=f"{notify_count} diners want to book at {restaurant_name}")
@@ -349,7 +349,7 @@ async def send_warm_lead_email(
         subject=f"{notify_count} customers are trying to book {restaurant_name}",
         html=html,
         from_email=CAMPAIGNS_FROM,
-        reply_to="hello@rezvo.app",
+        reply_to="hello@reeveos.app",
         tags=[
             {"name": "type", "value": "warm_lead"},
             {"name": "restaurant", "value": restaurant_name},
@@ -363,20 +363,20 @@ async def send_diner_notification(
     restaurant_name: str,
     booking_url: str,
 ):
-    """Notify diners when a restaurant they wanted joins Rezvo."""
+    """Notify diners when a restaurant they wanted joins ReeveOS."""
     body = f"""
-    <h2>Great news! {restaurant_name} is now on Rezvo &#127881;</h2>
+    <h2>Great news! {restaurant_name} is now on ReeveOS &#127881;</h2>
     <p>Hi {diner_name},</p>
-    <p>Remember when you tried to book at <strong>{restaurant_name}</strong>? They've just joined Rezvo, and you can now book a table directly!</p>
+    <p>Remember when you tried to book at <strong>{restaurant_name}</strong>? They've just joined ReeveOS, and you can now book a table directly!</p>
     <p style="text-align:center;"><a href="{booking_url}" class="cta">Book a Table</a></p>
-    <p style="font-size:13px; color:#6b7280;">You're receiving this because you asked to be notified when {restaurant_name} joined Rezvo.</p>
+    <p style="font-size:13px; color:#6b7280;">You're receiving this because you asked to be notified when {restaurant_name} joined ReeveOS.</p>
     """
 
-    html = wrap_html(body, preheader=f"{restaurant_name} just joined Rezvo — book now!")
+    html = wrap_html(body, preheader=f"{restaurant_name} just joined ReeveOS — book now!")
 
     return await send_email(
         to=to,
-        subject=f"{restaurant_name} is now on Rezvo — book your table!",
+        subject=f"{restaurant_name} is now on ReeveOS — book your table!",
         html=html,
         tags=[
             {"name": "type", "value": "diner_notification"},
@@ -433,7 +433,7 @@ async def send_insights_report(
         subject=f"{business_name} — Your Free Digital Health Score: {score}/100",
         html=html,
         from_email=INSIGHTS_FROM,
-        reply_to="hello@rezvo.app",
+        reply_to="hello@reeveos.app",
         tags=[
             {"name": "type", "value": "insights_report"},
             {"name": "score", "value": str(score)},
@@ -477,7 +477,7 @@ async def send_insights_reminder(
         subject=subject,
         html=html,
         from_email=INSIGHTS_FROM,
-        reply_to="hello@rezvo.app",
+        reply_to="hello@reeveos.app",
         tags=[
             {"name": "type", "value": "insights_reminder"},
             {"name": "days_left", "value": str(days_left)},
@@ -688,7 +688,7 @@ async def send_cancellation_confirmation(
       <p style="margin:4px 0 0;"><strong>Ref:</strong> {booking_ref}</p>
     </div>
     <p>Would you like to rebook?</p>
-    <p><a href="https://rezvo.co.uk" class="cta">Find a Table</a></p>
+    <p><a href="https://reeveos.co.uk" class="cta">Find a Table</a></p>
     """
 
     html = wrap_html(body, preheader=f"Booking at {business_name} on {booking_date} has been cancelled")
@@ -705,7 +705,7 @@ async def send_welcome_business(
     to: str,
     owner_name: str,
     business_name: str,
-    dashboard_url: str = "https://portal.rezvo.app",
+    dashboard_url: str = "https://portal.reeveos.app",
 ):
     """Welcome email for newly registered businesses."""
     body = f"""
@@ -729,7 +729,7 @@ async def send_welcome_business(
         to=to,
         subject=f"Welcome to ReeveOS — Let's get {business_name} live!",
         html=html,
-        reply_to="hello@rezvo.app",
+        reply_to="hello@reeveos.app",
         tags=[{"name": "type", "value": "welcome_business"}],
     )
 

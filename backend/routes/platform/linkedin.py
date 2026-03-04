@@ -1,5 +1,5 @@
 """
-Rezvo LinkedIn Autopilot — AI-powered content engine
+ReeveOS LinkedIn Autopilot — AI-powered content engine
 Follows Lara Acosta's proven LinkedIn playbook:
 - SLAY framework (Story → Lesson → Actionable → You)
 - PAS framework (Problem → Agitate → Solution)
@@ -24,16 +24,16 @@ router = APIRouter(prefix="/linkedin", tags=["linkedin"])
 logger = logging.getLogger(__name__)
 settings = Settings()
 
-# ─── Rezvo Brand Context for Claude ─── #
-REZVO_BRAND_CONTEXT = """
+# ─── ReeveOS Brand Context for Claude ─── #
+REEVEOS_BRAND_CONTEXT = """
 ═══════════════════════════════════════════
 YOUR IDENTITY — WHO IS WRITING THESE POSTS
 ═══════════════════════════════════════════
 
-You are writing LinkedIn posts AS the founder of Rezvo. Here's the founder's story and voice:
+You are writing LinkedIn posts AS the founder of ReeveOS. Here's the founder's story and voice:
 
 **The Founder:**
-- Built Rezvo as a solo founder — the ultimate underdog story
+- Built ReeveOS as a solo founder — the ultimate underdog story
 - Background as a Payment Consultant — saw firsthand how restaurants get fleeced by platforms
 - Based in Nottingham, UK — launching city by city starting here
 - Working with his son who's building a complementary EPOS system to take on EPOS Now
@@ -58,10 +58,10 @@ You are writing LinkedIn posts AS the founder of Rezvo. Here's the founder's sto
 - City-by-city growth strategy starting with Nottingham
 
 ═══════════════════════════════════════════
-THE BUSINESS — REZVO
+THE BUSINESS — REEVEOS
 ═══════════════════════════════════════════
 
-**What Rezvo Does:**
+**What ReeveOS Does:**
 - Zero-commission booking platform for UK restaurants and service businesses
 - Online ordering with Uber Direct delivery (5-8% vs Deliveroo's 25-35%)
 - Full CRM, floor plan management, staff scheduling, deposit collection
@@ -85,7 +85,7 @@ THE BUSINESS — REZVO
 - ResDiary charges £89-£299/month
 - Average UK restaurant profit margin: 3-9%
 - A restaurant doing £10K/month on Deliveroo at 30% = £3,000/month in commission = £36,000/year
-- That same restaurant on Rezvo Growth plan: £29/month + 5-8% on delivery only
+- That same restaurant on ReeveOS Growth plan: £29/month + 5-8% on delivery only
 
 **Competitors to Reference:**
 - Deliveroo, UberEats, JustEat (delivery commission)
@@ -94,7 +94,7 @@ THE BUSINESS — REZVO
 - Yelp, TripAdvisor (directory/reviews)
 
 **Current Milestones:**
-- Platform live at rezvo.app
+- Platform live at reeveos.app
 - AI chatbot live and answering questions
 - First partner restaurants onboarding in Nottingham
 - Full email marketing suite built
@@ -104,7 +104,7 @@ THE BUSINESS — REZVO
 # ─── Content Generation System Prompt ─── #
 LINKEDIN_SYSTEM_PROMPT = f"""You are an expert LinkedIn ghostwriter who has studied Lara Acosta's exact methodology. You write viral LinkedIn posts that get thousands of impressions and generate B2B leads.
 
-{REZVO_BRAND_CONTEXT}
+{REEVEOS_BRAND_CONTEXT}
 
 ═══════════════════════════════════════════
 LINKEDIN WRITING RULES (NON-NEGOTIABLE)
@@ -139,14 +139,14 @@ A = Agitate: Make it worse — show the real cost of inaction
 S = Solution: Present the solution with specifics
 
 **THE 3 CONTENT PILLARS:**
-1. GROWTH content — Rezvo-specific. Building the platform, features, behind-the-scenes, milestones, partner stories
+1. GROWTH content — ReeveOS-specific. Building the platform, features, behind-the-scenes, milestones, partner stories
 2. TAM content — Broad restaurant/hospitality industry. Commission exploitation, high street decline, restaurant economics, food delivery trends, AI in hospitality
 3. SALES content — Direct pitch with social proof. Savings calculator, competitor comparisons, case studies, "here's what we built for X"
 
 **BROAD→NARROW→NICHE STRUCTURE:**
 - Hook: Broad enough that any business person stops scrolling
 - Body: Narrow to restaurant/hospitality specifically
-- Detail: Ultra-niche with Rezvo-specific data and solutions
+- Detail: Ultra-niche with ReeveOS-specific data and solutions
 
 **WHAT MAKES POSTS VIRAL ON LINKEDIN:**
 - Personal stories with business lessons
@@ -184,22 +184,22 @@ Return your response as valid JSON with this structure:
 }}
 """
 
-TREND_SYSTEM_PROMPT = f"""You are a LinkedIn trend analyst for Rezvo, a zero-commission restaurant booking platform. Your job is to identify trending topics in the restaurant, food delivery, hospitality, and high street business space that can be turned into viral LinkedIn posts.
+TREND_SYSTEM_PROMPT = f"""You are a LinkedIn trend analyst for ReeveOS, a zero-commission restaurant booking platform. Your job is to identify trending topics in the restaurant, food delivery, hospitality, and high street business space that can be turned into viral LinkedIn posts.
 
-{REZVO_BRAND_CONTEXT}
+{REEVEOS_BRAND_CONTEXT}
 
 Given a news article or trending topic, generate a LinkedIn post that:
 1. Trend-jacks the topic (reference it in the hook)
-2. Adds the founder's unique perspective as a payment consultant building Rezvo
+2. Adds the founder's unique perspective as a payment consultant building ReeveOS
 3. Ties it back to the mission of saving independent restaurants
 4. Uses 8-word hooks and the SLAY or PAS framework
 
 Return as valid JSON with the same structure as the content generation system.
 """
 
-WEEKLY_CALENDAR_PROMPT = f"""You are generating a full week's LinkedIn content calendar for Rezvo's founder. Create exactly 4 posts following the 4-3-2-1 system:
+WEEKLY_CALENDAR_PROMPT = f"""You are generating a full week's LinkedIn content calendar for ReeveOS's founder. Create exactly 4 posts following the 4-3-2-1 system:
 
-{REZVO_BRAND_CONTEXT}
+{REEVEOS_BRAND_CONTEXT}
 
 THE 4-3-2-1 SYSTEM:
 - 4 posts per week (Monday, Tuesday, Thursday, Friday)
@@ -209,7 +209,7 @@ THE 4-3-2-1 SYSTEM:
 
 WEEKLY SCHEDULE:
 - Monday: TAM content (broad industry topic) using SLAY framework
-- Tuesday: Growth content (Rezvo-specific story) using PAS framework  
+- Tuesday: Growth content (ReeveOS-specific story) using PAS framework  
 - Thursday: Growth content (behind-the-scenes, feature, partner story) using SLAY framework
 - Friday: Sales content (pitch, comparison, case study) using PAS framework
 
@@ -321,9 +321,9 @@ async def generate_post(req: GeneratePostRequest):
     
     prompt = f"""Generate a single LinkedIn post.
 
-Pillar: {req.pillar.upper()} ({'Rezvo-specific growth story' if req.pillar == 'growth' else 'Broad restaurant/hospitality industry' if req.pillar == 'tam' else 'Direct sales/pitch content'})
+Pillar: {req.pillar.upper()} ({'ReeveOS-specific growth story' if req.pillar == 'growth' else 'Broad restaurant/hospitality industry' if req.pillar == 'tam' else 'Direct sales/pitch content'})
 Framework: {req.framework.upper()} ({'Story → Lesson → Actionable → You' if req.framework == 'slay' else 'Problem → Agitate → Solution'})
-{f'Specific topic/angle: {req.topic}' if req.topic else 'Choose the most compelling topic based on current Rezvo milestones and industry trends'}
+{f'Specific topic/angle: {req.topic}' if req.topic else 'Choose the most compelling topic based on current ReeveOS milestones and industry trends'}
 {f'Additional instructions: {req.custom_prompt}' if req.custom_prompt else ''}
 {tone_instructions.get(req.tone, '')}
 
@@ -411,7 +411,7 @@ Follow the 4-3-2-1 system exactly. Return as a JSON array of 4 post objects."""
 async def trend_jack_post(req: TrendJackRequest):
     """Generate a trend-jacking post from a news topic"""
     
-    prompt = f"""A trending topic has emerged that can be turned into a viral LinkedIn post for Rezvo's founder.
+    prompt = f"""A trending topic has emerged that can be turned into a viral LinkedIn post for ReeveOS's founder.
 
 Trending topic: {req.trend_topic}
 {f'Source URL: {req.news_url}' if req.news_url else ''}
@@ -421,7 +421,7 @@ Trending topic: {req.trend_topic}
 Write a trend-jacking LinkedIn post that:
 1. References the trending topic in the hook (8 words max)
 2. Shows the founder's unique perspective as someone building against the establishment
-3. Ties back to Rezvo's mission
+3. Ties back to ReeveOS's mission
 4. Uses either SLAY or PAS framework (pick whichever fits better)
 
 This needs to feel timely and reactive — like the founder just saw this news and had to share their take. Return as valid JSON."""
@@ -709,7 +709,7 @@ Return a JSON array of 5 trending topics, each with:
 {
   "topic": "The trending topic",
   "why_trending": "Brief explanation",
-  "rezvo_angle": "How Rezvo's founder could uniquely comment on this",
+  "reeveos_angle": "How ReeveOS's founder could uniquely comment on this",
   "suggested_hook": "An 8-word hook for a potential post",
   "urgency": "high/medium/low (how time-sensitive is this)"
 }"""

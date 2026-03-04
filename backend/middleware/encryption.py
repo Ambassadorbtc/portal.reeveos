@@ -1,5 +1,5 @@
 """
-Rezvo Application-Level Encryption (ALE)
+ReeveOS Application-Level Encryption (ALE)
 ==========================================
 Encrypts PII fields BEFORE they hit MongoDB. The database never sees plaintext
 for customer names, emails, phones, or booking notes.

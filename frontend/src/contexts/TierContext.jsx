@@ -71,7 +71,7 @@ export const TierProvider = ({ children }) => {
     isPro,
     isPremium,
     tier: business?.tier,
-    rezvoTier: business?.rezvo_tier
+    platformTier: business?.rezvo_tier
   }
 
   return <TierContext.Provider value={value}>{children}</TierContext.Provider>

@@ -1,4 +1,4 @@
-import RezvoLoader from "../../components/shared/RezvoLoader"
+import AppLoader from "../../components/shared/AppLoader"
 /**
  * Run 13: Settings — Business, Opening Hours, Notifications, Integrations, Subscription, Team, Danger Zone
  */
@@ -327,7 +327,7 @@ const Settings = () => {
       const blob = await r.blob()
       const a = document.createElement('a')
       a.href = URL.createObjectURL(blob)
-      a.download = 'rezvo-export.zip'
+      a.download = 'reeveos-export.zip'
       a.click()
       showToast('Export downloaded ✓')
     } catch (err) {
@@ -357,7 +357,7 @@ const Settings = () => {
   if (loading && !settings) {
     return (
       <div className="text-center py-12">
-        <RezvoLoader message="Loading settings..." />
+        <AppLoader message="Loading settings..." />
         <p className="mt-4 text-gray-500">Loading settings...</p>
       </div>
     )

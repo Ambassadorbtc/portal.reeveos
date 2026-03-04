@@ -1,8 +1,8 @@
-import RezvoLoader from "../../components/shared/RezvoLoader"
+import AppLoader from "../../components/shared/AppLoader"
 /**
- * Rezvo Email Marketing Suite — V10 FULLY AUTO
+ * ReeveOS Email Marketing Suite — V10 FULLY AUTO
  * ================================================
- * Campaign Monitor killer built into Rezvo dashboard.
+ * Campaign Monitor killer built into ReeveOS dashboard.
  *
  * Tabs: Overview | Campaigns | Automations | Templates | Sequences | Audience | Analytics
  *
@@ -210,7 +210,7 @@ const Preview = ({ blocks, subject, biz }) => {
       <div className="bg-gray-900 rounded-t-[2rem] pt-3 pb-2 px-4"><div className="flex justify-center"><div className="w-20 h-5 bg-gray-800 rounded-full" /></div></div>
       <div className="bg-white rounded-[1.75rem] overflow-hidden" style={{ maxHeight: '520px', overflowY: 'auto' }}>
         <div className="bg-primary px-5 py-4">
-          <p className="text-white/70 text-[10px] font-bold uppercase tracking-wider">From: {biz} via Rezvo</p>
+          <p className="text-white/70 text-[10px] font-bold uppercase tracking-wider">From: {biz} via ReeveOS</p>
           <p className="text-white font-bold text-sm mt-1">{rv(subject) || 'Email subject'}</p>
         </div>
         <div className="px-5 py-5 space-y-4">
@@ -225,7 +225,7 @@ const Preview = ({ blocks, subject, biz }) => {
           </div>)}
         </div>
         <div className="px-5 py-4 bg-gray-50 border-t border-gray-100 text-center">
-          <p className="text-[10px] text-gray-400">Powered by Rezvo · <span className="underline">Unsubscribe</span></p>
+          <p className="text-[10px] text-gray-400">Powered by ReeveOS · <span className="underline">Unsubscribe</span></p>
         </div>
       </div>
     </div>
@@ -403,7 +403,7 @@ const Marketing = () => {
   const clickData = useMemo(() => analytics?.timeline?.map(d => d.clicked) || [], [analytics])
   const enabledAutoCount = autoCamps.filter(a => a.enabled).length
 
-  if (loading) return <RezvoLoader message="Loading marketing suite..." />
+  if (loading) return <AppLoader message="Loading marketing suite..." />
 
   /* ─── AI GENERATOR MODAL ─── */
   const AIModal = () => aiOpen ? (

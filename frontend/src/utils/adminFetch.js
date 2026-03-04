@@ -1,10 +1,10 @@
 /**
  * Authenticated fetch for admin panel.
  * Drop-in replacement for fetch() — adds JWT auth header.
- * Admin panel stores token in sessionStorage as 'rezvo_admin_token'.
+ * Admin panel stores token in sessionStorage as 'reeveos_admin_token'.
  */
 export default async function adminFetch(url, options = {}) {
-  const token = sessionStorage.getItem('rezvo_admin_token')
+  const token = sessionStorage.getItem('reeveos_admin_token')
   const headers = {
     ...options.headers,
   }
@@ -20,8 +20,8 @@ export default async function adminFetch(url, options = {}) {
 
   // If 401, session expired — clear and reload to show login
   if (response.status === 401) {
-    sessionStorage.removeItem('rezvo_admin_token')
-    sessionStorage.removeItem('rezvo_admin_user')
+    sessionStorage.removeItem('reeveos_admin_token')
+    sessionStorage.removeItem('reeveos_admin_user')
     window.location.reload()
     throw new Error('Session expired')
   }

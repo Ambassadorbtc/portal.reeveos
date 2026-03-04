@@ -1,5 +1,5 @@
 """
-Rezvo Outreach Engine — API Routes
+ReeveOS Outreach Engine — API Routes
 ====================================
 Full CRUD for outreach domains, accounts, campaigns, templates,
 unified inbox, analytics, Resend webhooks.
@@ -289,7 +289,7 @@ async def create_account(body: AccountCreate):
     doc = {
         "email": body.email,
         "domain": body.domain,
-        "display_name": body.display_name or body.email.split("@")[0].title() + " from Rezvo",
+        "display_name": body.display_name or body.email.split("@")[0].title() + " from ReeveOS",
         "persona": body.persona,
         "status": "warming",
         "health_score": 50,
@@ -317,11 +317,11 @@ async def create_accounts_bulk(domain: str):
         raise HTTPException(404, "Domain not found")
 
     personas = [
-        ("alex", "founder", "Alex from Rezvo"),
-        ("team", "team", "Rezvo Team"),
-        ("hello", "hello", "Hello from Rezvo"),
-        ("support", "support", "Rezvo Support"),
-        ("founders", "founder", "The Rezvo Founders"),
+        ("alex", "founder", "Alex from ReeveOS"),
+        ("team", "team", "ReeveOS Team"),
+        ("hello", "hello", "Hello from ReeveOS"),
+        ("support", "support", "ReeveOS Support"),
+        ("founders", "founder", "The ReeveOS Founders"),
     ]
     created = []
     for prefix, persona, display_name in personas:
@@ -644,7 +644,7 @@ async def send_reply(reply_id: str, body: ReplyCompose):
     from agent.services.outreach import send_email_via_resend
     msg_id = await send_email_via_resend(
         from_email=account["email"],
-        from_name=account.get("display_name", "Rezvo"),
+        from_name=account.get("display_name", "ReeveOS"),
         to_email=original["from_email"],
         subject=subject,
         body_html=f"<div style='font-family:sans-serif;font-size:14px;color:#333;line-height:1.6'>{body.body}</div>",
@@ -1070,7 +1070,7 @@ async def seed_default_templates():
 
 I noticed {restaurant_name} is on {current_platform} for deliveries. Most {cuisine} restaurants in {city} are paying 25-35% commission on every order — which on a busy week probably costs you £{estimated_weekly_cost}.
 
-We built Rezvo specifically to fix this. Our restaurants keep 92-95% of every order.
+We built ReeveOS specifically to fix this. Our restaurants keep 92-95% of every order.
 
 I put together a quick breakdown of what {restaurant_name} could save. Want me to send it over?
 
@@ -1125,7 +1125,7 @@ Want me to send you the link?
             "subject": "Re: How {restaurant_name} could fill 20+ more covers a week",
             "body_text": """Hi {first_name},
 
-Quick follow-up on this — your free Rezvo booking page for {restaurant_name} is ready to go. No cost, no contract, takes about 2 minutes.
+Quick follow-up on this — your free ReeveOS booking page for {restaurant_name} is ready to go. No cost, no contract, takes about 2 minutes.
 
 It goes live on Google within 48 hours and diners can book directly without calling.
 
@@ -1136,18 +1136,18 @@ Shall I send the setup link?
             "variables": ["restaurant_name", "first_name", "sender_name"],
         },
         {
-            "name": "Rezvo Restaurant Minute — Newsletter",
+            "name": "ReeveOS Restaurant Minute — Newsletter",
             "category": "newsletter",
             "angle": None,
             "step_number": 1,
-            "subject": "Rezvo Restaurant Minute #{issue}: {hook}",
+            "subject": "ReeveOS Restaurant Minute #{issue}: {hook}",
             "body_text": """\"{opening_quote}\"
 
 {tactical_nugget_200_words}
 
 {cta_text}
 
-— The Rezvo Team
+— The ReeveOS Team
 
 PS: {ps_statement}""",
             "body_html": "",

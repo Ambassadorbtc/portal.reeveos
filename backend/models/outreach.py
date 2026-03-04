@@ -1,5 +1,5 @@
 """
-Rezvo Outreach Engine — MongoDB Models
+ReeveOS Outreach Engine — MongoDB Models
 =======================================
 Collection schemas for cold email outreach system.
 Six collections: domains, accounts, campaigns, sends, replies, warmup_log
@@ -109,7 +109,7 @@ class OutreachAccount(BaseModel):
     """
     email: str                                      # e.g. "alex@getrezvo.app"
     domain: str                                     # parent domain
-    display_name: str = ""                          # e.g. "Alex from Rezvo"
+    display_name: str = ""                          # e.g. "Alex from ReeveOS"
     resend_api_key: Optional[str] = None            # Per-domain Resend key
 
     status: AccountStatus = AccountStatus.warming

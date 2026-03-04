@@ -95,7 +95,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Rezvo API",
+    title="ReeveOS API",
     description="Your High Street, Booked - Multi-vertical booking platform for UK restaurants, barbers, salons, and spas",
     version="1.0.0",
     lifespan=lifespan
@@ -261,7 +261,7 @@ app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 @app.get("/")
 async def root():
     return {
-        "message": "Rezvo API",
+        "message": "ReeveOS API",
         "version": "1.0.0",
         "status": "operational"
     }

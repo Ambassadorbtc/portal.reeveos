@@ -15,7 +15,7 @@ DB_NAME = os.getenv("DB_NAME", "rezvo")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ADMIN_EMAIL = "james111trader@gmail.com"
-ADMIN_PASSWORD = "rezvo2024"
+ADMIN_PASSWORD = "reeveos2024"
 ADMIN_NAME = "James"
 
 

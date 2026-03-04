@@ -1,5 +1,5 @@
 """
-Rezvo Seed Script — Real User Flow
+ReeveOS Seed Script — Real User Flow
 ====================================
 Creates a full week of realistic restaurant booking data for Micho Turkish Bar & Grill.
 Designed to show the complete lifecycle: booked → confirmed → seated → completed.

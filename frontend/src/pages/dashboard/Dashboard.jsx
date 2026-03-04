@@ -1,4 +1,4 @@
-import RezvoLoader from "../../components/shared/RezvoLoader"
+import AppLoader from "../../components/shared/AppLoader"
 /**
  * Restaurant Home Dashboard — wired to real API data
  * /dashboard/business/{id}/summary — stats
@@ -281,7 +281,7 @@ const Dashboard = () => {
     loadFallback()
   }, [bid, activity.length, summary, todayBookings.length])
 
-  if (loading) return <RezvoLoader message="Loading dashboard..." />
+  if (loading) return <AppLoader message="Loading dashboard..." />
 
   const t = summary?.today || {}
   const totalCovers = t.bookings || 0

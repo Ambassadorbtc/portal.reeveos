@@ -6,17 +6,17 @@ import api from "../utils/api";
 const API_BASE = import.meta.env.VITE_API_URL || "https://webportal.reeveos.app/api";
 // AI calls routed through backend — never expose API keys client-side
 
-const REZVO_KNOWLEDGE = `You are Rezvo's AI support assistant. You help restaurant owners, salon owners, barbers, spa owners and their customers with questions about the Rezvo booking platform.
+const REEVEOS_KNOWLEDGE = `You are ReeveOS's AI support assistant. You help restaurant owners, salon owners, barbers, spa owners and their customers with questions about the ReeveOS booking platform.
 
-ABOUT REZVO:
-- Rezvo is a UK-based booking platform for independent service businesses — restaurants, barbers, salons, spas, and more
+ABOUT REEVEOS:
+- ReeveOS is a UK-based booking platform for independent service businesses — restaurants, barbers, salons, spas, and more
 - Tagline: "Your High Street, Booked."
 - Founded and operated in the UK
 - We are NOT a marketplace that takes commission. We are a SaaS tool that empowers business owners.
 
 KEY DIFFERENTIATORS:
 - 0% commission on bookings (competitors like Fresha charge 20% on new clients, Treatwell charges 25-50%)
-- Payments go DIRECTLY to the business owner's own Stripe Connect account — Rezvo never holds customer funds
+- Payments go DIRECTLY to the business owner's own Stripe Connect account — ReeveOS never holds customer funds
 - All plans include unlimited bookings — no per-booking fees
 - Full data ownership — business owners own their customer data, can export anytime
 - UK-based support via email and this AI assistant
@@ -29,11 +29,11 @@ PRICING PLANS:
 
 PAYMENTS & DEPOSITS:
 - Powered by Stripe Connect — each business connects their own Stripe account
-- Deposits flow directly to the business owner's bank account, not through Rezvo
+- Deposits flow directly to the business owner's bank account, not through ReeveOS
 - Stripe's standard transaction fees apply (1.5% + 20p per transaction in the UK)
-- Rezvo does NOT add any additional transaction fees on top of Stripe's rates
+- ReeveOS does NOT add any additional transaction fees on top of Stripe's rates
 - Businesses can set custom deposit amounts, cancellation policies, and no-show fees
-- PCI compliant — all card data handled by Stripe, never touches Rezvo servers
+- PCI compliant — all card data handled by Stripe, never touches ReeveOS servers
 
 FEATURES:
 - Online booking page (shareable link, embeddable on website)
@@ -62,12 +62,12 @@ Q: Is there a setup fee? A: No, there is never a setup fee. Start free and upgra
 Q: Can I import existing client data? A: Yes, you can import client data via CSV upload from most other platforms.
 Q: What happens if I want to cancel? A: Cancel anytime, no long-term contracts. Your data remains exportable for 30 days after cancellation.
 Q: Do my clients need to download an app? A: No, clients book through your personalised web booking page — no app download required.
-Q: How is Rezvo different from Fresha? A: Fresha charges 20% commission on new marketplace clients and controls your payment flow. Rezvo charges 0% commission, and payments go directly to your Stripe account. You own your data and your customer relationships.
-Q: How is Rezvo different from Booksy? A: Booksy charges £40/month plus £20 per additional staff member, and limits marketplace visibility behind a 30% "Boost" fee. Rezvo's pricing is simpler with no per-staff surcharges on most plans and no marketplace commission.
-Q: How is Rezvo different from Treatwell? A: Treatwell is a marketplace that takes 25-50% commission per booking and owns the customer relationship. Rezvo is your own booking system — you keep 100% of your revenue and own all your customer data.
+Q: How is Rezvo different from Fresha? A: Fresha charges 20% commission on new marketplace clients and controls your payment flow. ReeveOS charges 0% commission, and payments go directly to your Stripe account. You own your data and your customer relationships.
+Q: How is Rezvo different from Booksy? A: Booksy charges £40/month plus £20 per additional staff member, and limits marketplace visibility behind a 30% "Boost" fee. ReeveOS's pricing is simpler with no per-staff surcharges on most plans and no marketplace commission.
+Q: How is Rezvo different from Treatwell? A: Treatwell is a marketplace that takes 25-50% commission per booking and owns the customer relationship. ReeveOS is your own booking system — you keep 100% of your revenue and own all your customer data.
 Q: Is my data secure? A: Yes. All data is encrypted, stored on secure UK/EU servers, and fully GDPR compliant. Payment data is handled by Stripe (PCI DSS Level 1 certified).
 Q: Do you offer a free trial? A: The Starter plan is free forever. For Growth and Unlimited plans, we offer a 14-day free trial.
-Q: Can I use Rezvo for multiple locations? A: Yes, on the Unlimited plan (£59/month) you can manage multiple locations from one dashboard.
+Q: Can I use ReeveOS for multiple locations? A: Yes, on the Unlimited plan (£59/month) you can manage multiple locations from one dashboard.
 
 SUPPORT ESCALATION:
 - If you cannot answer a question confidently, suggest the user emails support@reeveos.app
@@ -91,7 +91,7 @@ const SUGGESTED_QUESTIONS = [
   "Any special occasions tonight?",
 ];
 
-export default function RezvoSupportBot() {
+export default function SupportBot() {
   const { business } = useBusiness()
   const { user } = useAuth()
   const bid = business?.id ?? business?._id
@@ -130,7 +130,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
       .catch(() => {})
   }, [bid, business?.name, user?.name])
 
-  const dynamicSystemPrompt = REZVO_KNOWLEDGE + restaurantContext
+  const dynamicSystemPrompt = REEVEOS_KNOWLEDGE + restaurantContext
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -161,14 +161,14 @@ Use this data to answer questions about today's bookings, covers, availability, 
       if (!document.getElementById('fab-shift-style')) {
         const style = document.createElement('style');
         style.id = 'fab-shift-style';
-        style.textContent = `.rezvo-chat-bubble { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important; } .rezvo-fab-shifted .rezvo-chat-bubble { transform: translateX(-440px) !important; }`;
+        style.textContent = `.reeveos-chat-bubble { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important; } .reeveos-fab-shifted .reeveos-chat-bubble { transform: translateX(-440px) !important; }`;
         document.head.appendChild(style);
       }
-      document.body.classList.add('rezvo-fab-shifted');
+      document.body.classList.add('reeveos-fab-shifted');
     } else {
-      document.body.classList.remove('rezvo-fab-shifted');
+      document.body.classList.remove('reeveos-fab-shifted');
     }
-    return () => document.body.classList.remove('rezvo-fab-shifted');
+    return () => document.body.classList.remove('reeveos-fab-shifted');
   }, [activePanel]);
 
   /* ── Save booking handler ── */
@@ -384,7 +384,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap');
         
-        .rezvo-chat-bubble {
+        .reeveos-chat-bubble {
           position: fixed;
           bottom: 20px;
           right: 20px;
@@ -402,11 +402,11 @@ Use this data to answer questions about today's bookings, covers, availability, 
           box-shadow: 0 8px 32px rgba(17, 17, 17, 0.35), 0 2px 8px rgba(0,0,0,0.1);
           transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .rezvo-chat-bubble:hover {
+        .reeveos-chat-bubble:hover {
           transform: scale(1.1);
           box-shadow: 0 12px 40px rgba(17, 17, 17, 0.45);
         }
-        .rezvo-chat-bubble.open {
+        .reeveos-chat-bubble.open {
           transform: rotate(180deg) scale(1);
         }
         
@@ -512,7 +512,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
 
       {/* FAB Button */}
       <button
-        className={`rezvo-chat-bubble ${(isOpen || fabOpen || activePanel) ? "open" : ""}`}
+        className={`reeveos-chat-bubble ${(isOpen || fabOpen || activePanel) ? "open" : ""}`}
         onClick={() => {
           if (isOpen) { setIsOpen(false); return; }
           if (activePanel) { setActivePanel(null); return; }
@@ -811,7 +811,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                     letterSpacing: "0.02em",
                   }}
                 >
-                  REZVO Assistant
+                  ReeveOS Assistant
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
                   <div
@@ -859,7 +859,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                   }}
                 >
                   <span style={{ fontSize: 20, display: "block", marginBottom: 6 }}>👋</span>
-                  <strong style={{ color: "#111111" }}>Hey! I'm your Rezvo assistant.</strong>
+                  <strong style={{ color: "#111111" }}>Hey! I'm your ReeveOS assistant.</strong>
                   <br />
                   I can help with tonight's bookings, table availability, covers, and managing your restaurant. What do you need?
                 </div>

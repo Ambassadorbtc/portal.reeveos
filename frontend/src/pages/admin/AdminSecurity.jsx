@@ -4,7 +4,7 @@ import { Shield, RefreshCw, CheckCircle2, AlertTriangle, XCircle, Lock, Users, D
 
 const API = import.meta.env.VITE_API_URL || ''
 const SEV_C = { ok:'#10B981', warning:'#F59E0B', critical:'#EF4444' }
-const getToken = () => sessionStorage.getItem('rezvo_admin_token')
+const getToken = () => sessionStorage.getItem('reeveos_admin_token')
 
 export default function AdminSecurity() {
   const [report, setReport] = useState(null)

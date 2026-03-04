@@ -3,7 +3,7 @@ from typing import Optional
 
 
 class Settings(BaseSettings):
-    app_name: str = "Rezvo"
+    app_name: str = "ReeveOS"
     app_version: str = "1.0.0"
     
     mongodb_url: str

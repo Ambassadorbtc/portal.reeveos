@@ -46,7 +46,7 @@ async def parse_voice_search(request: Request, voice_data: VoiceSearchRequest):
         client = anthropic.Anthropic(api_key=api_key)
         
         today = datetime.now().strftime("%Y-%m-%d")
-        system_prompt = f"""You are a booking search parser for Rezvo, a UK booking platform.
+        system_prompt = f"""You are a booking search parser for ReeveOS, a UK booking platform.
 Extract structured booking intent from the user's voice transcript.
 Today's date is {today}. The user is in the UK.
 

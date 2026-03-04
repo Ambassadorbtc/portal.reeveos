@@ -32,7 +32,7 @@ const RestaurantWelcome = () => {
           <div className="w-11 h-11 bg-[#D4A373] rounded-xl flex items-center justify-center shadow-md">
             <span className="text-[#111111] font-bold text-xl">R.</span>
           </div>
-          <span className="font-extrabold text-2xl tracking-tight text-white">Rezvo</span>
+          <span className="font-extrabold text-2xl tracking-tight text-white">ReeveOS</span>
         </div>
 
         {/* Features */}
@@ -80,7 +80,7 @@ const RestaurantWelcome = () => {
               <div className="w-10 h-10 bg-[#D4A373] rounded-xl flex items-center justify-center shadow-md">
                 <span className="text-[#111111] font-bold text-lg">R.</span>
               </div>
-              <span className="font-extrabold text-2xl tracking-tight text-[#111111]">Rezvo</span>
+              <span className="font-extrabold text-2xl tracking-tight text-[#111111]">ReeveOS</span>
             </div>
           </div>
 
@@ -90,7 +90,7 @@ const RestaurantWelcome = () => {
               <UtensilsCrossed className="w-4 h-4" /> For Restaurants
             </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-[#111111]">
-              Welcome to Rezvo
+              Welcome to ReeveOS
             </h1>
             <p className="text-gray-500 text-lg">
               Get your restaurant online in minutes. No contracts, no commission.

@@ -1,5 +1,5 @@
 /**
- * Rezvo Calendar v9 — Drag & Drop
+ * ReeveOS Calendar v9 — Drag & Drop
  * Full drag-to-move (across time + staff columns) and drag-to-resize.
  * Built on top of v8 (polished Fresha-level design with live API data).
  */
@@ -8,7 +8,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
 import RestaurantCalendar from './RestaurantCalendar'
-import RezvoLoader from '../../components/shared/RezvoLoader'
+import AppLoader from '../../components/shared/AppLoader'
 
 /* ───────────────────── Constants ───────────────────── */
 const SH = 8, EH = 20, HH = 80, TCW = 52
@@ -87,7 +87,7 @@ const Calendar = () => {
 
   /* ── Still loading business context ── */
   if (bizLoading) {
-    return <RezvoLoader message="Loading..." size="md" />
+    return <AppLoader message="Loading..." size="md" />
   }
 
   /* ── SAFEGUARD: If user is logged in but got demo fallback, something failed.

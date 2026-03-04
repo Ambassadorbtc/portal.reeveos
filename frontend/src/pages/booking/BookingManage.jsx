@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, Calendar, Clock, MapPin, XCircle, RotateCcw } from 'lucide-react'
-import RezvoLoader from '../../components/shared/RezvoLoader'
+import AppLoader from '../../components/shared/AppLoader'
 import { getBooking, cancelBooking } from '../../utils/bookingApi'
 
 const BookingManage = () => {
@@ -46,7 +46,7 @@ const BookingManage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FEFBF4]">
-        <RezvoLoader message="Loading booking..." />
+        <AppLoader message="Loading booking..." />
       </div>
     )
   }

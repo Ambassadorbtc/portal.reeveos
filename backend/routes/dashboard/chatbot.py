@@ -1,5 +1,5 @@
 """
-Rezvo AI Chatbot — Claude-powered with REAL database access
+ReeveOS AI Chatbot — Claude-powered with REAL database access
 """
 from fastapi import APIRouter, HTTPException, Request as FastAPIRequest
 from pydantic import BaseModel
@@ -170,7 +170,7 @@ These are REAL numbers. Quote them exactly. If 0, say 0. NEVER invent data.
         return f"[Database error: {e}. Tell the user you couldn't pull live data and suggest checking the dashboard.]"
 
 
-SYSTEM_PROMPT = """You are Rezvo's AI assistant for restaurant owners, embedded in their dashboard. You have REAL business data below from the live database.
+SYSTEM_PROMPT = """You are ReeveOS's AI assistant for restaurant owners, embedded in their dashboard. You have REAL business data below from the live database.
 
 PERSONALITY: Friendly, warm, British, concise. 2-3 short paragraphs max.
 
@@ -180,7 +180,7 @@ RULES:
 3. If asked something not in the data, say you can see bookings but they'd need the dashboard for that detail.
 4. Keep it SHORT. Use **bold** for key numbers. British English.
 
-REZVO BASICS:
+REEVEOS BASICS:
 - Zero commission platform, flat monthly fee
 - Pricing: Free (£0), Starter (£8.99), Growth (£29), Scale (£59), Enterprise (custom)
 - Delivery via Uber Direct at 5-8% (vs Deliveroo 25-35%)

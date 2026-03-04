@@ -66,7 +66,7 @@ class TenantErrorBoundary extends Component {
           fontFamily: 'Figtree, system-ui, sans-serif',
           padding: '2rem',
         }}>
-          {/* Rezvo branded loading/error state */}
+          {/* ReeveOS branded loading/error state */}
           <div style={{
             background: 'white',
             borderRadius: '16px',
@@ -76,7 +76,7 @@ class TenantErrorBoundary extends Component {
             textAlign: 'center',
             boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
           }}>
-            {/* Safe Rezvo logo — no tenant data */}
+            {/* Safe ReeveOS logo — no tenant data */}
             <div style={{
               width: '48px',
               height: '48px',

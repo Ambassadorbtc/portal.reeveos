@@ -1,5 +1,5 @@
 """
-Rezvo Security Watchdog
+ReeveOS Security Watchdog
 ========================
 Scheduled tasks that use the AI agent to actively monitor
 and police the platform's security posture.
@@ -72,7 +72,7 @@ async def security_full_audit():
     Uses Sonnet for deeper analysis.
     """
     result = await run_agent(
-        task="""Run a COMPLETE security audit of the Rezvo platform. This is the daily compliance check.
+        task="""Run a COMPLETE security audit of the ReeveOS platform. This is the daily compliance check.
 
 1. Use scan_tenant_isolation to check code-level tenant guard coverage across all API routes
 2. Use scan_cross_tenant_violations with 24 hours lookback

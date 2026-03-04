@@ -1,5 +1,5 @@
 """
-Rezvo Data Seeding Script
+ReeveOS Data Seeding Script
 Creates two demo businesses with 6 months of realistic data:
 1. Rejuvenate - Skin care salon in Cardiff
 2. Micho - Turkish restaurant in Sheffield

@@ -17,7 +17,7 @@ const BusinessTypeSelector = () => {
           <div className="w-10 h-10 bg-[#D4A373] rounded-xl flex items-center justify-center shadow-md">
             <span className="text-[#111111] font-bold text-lg">R.</span>
           </div>
-          <span className="font-extrabold text-xl tracking-tight text-[#111111]">Rezvo</span>
+          <span className="font-extrabold text-xl tracking-tight text-[#111111]">ReeveOS</span>
         </a>
         <a href="https://reeveos.app" className="text-sm text-gray-500 hover:text-[#111111] flex items-center gap-2 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to website
@@ -33,7 +33,7 @@ const BusinessTypeSelector = () => {
               What type of business are you?
             </h1>
             <p className="text-gray-500 text-lg">
-              Choose your industry to get started with Rezvo
+              Choose your industry to get started with ReeveOS
             </p>
           </div>
 
@@ -93,7 +93,7 @@ const BusinessTypeSelector = () => {
 
       {/* Footer */}
       <div className="p-6 text-center text-xs text-gray-400">
-        © {new Date().getFullYear()} Rezvo · Save the High Street
+        © {new Date().getFullYear()} ReeveOS · Save the High Street
       </div>
     </div>
   )

@@ -11,9 +11,9 @@ import { getNavItems } from '../config/navigation'
 import Sidebar from '../components/layout/Sidebar'
 import TopBar from '../components/layout/TopBar'
 import UpgradeModal from '../components/layout/UpgradeModal'
-import RezvoSupportBot from '../components/RezvoSupportBot'
+import SupportBot from '../components/SupportBot'
 import WelcomeBanner from '../components/shared/WelcomeBanner'
-import RezvoLoader from '../components/shared/RezvoLoader'
+import AppLoader from '../components/shared/AppLoader'
 import { TIERS } from '../config/tiers'
 import { useEffect } from 'react'
 
@@ -42,7 +42,7 @@ const DashboardLayout = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <RezvoLoader message="Loading dashboard..." size="lg" />
+        <AppLoader message="Loading dashboard..." size="lg" />
       </div>
     )
   }
@@ -76,7 +76,7 @@ const DashboardLayout = () => {
           onViewPlans={() => setUpgradeModal(null)}
         />
       )}
-      <RezvoSupportBot />
+      <SupportBot />
       <WelcomeBanner />
     </div>
   )

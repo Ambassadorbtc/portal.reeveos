@@ -1,9 +1,9 @@
-import RezvoLoader from "../shared/RezvoLoader"
+import AppLoader from "../shared/AppLoader"
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTier } from '../../contexts/TierContext'
 import { useEffect } from 'react'
-import { isRezvoApp } from '../../utils/domain'
+import { isPortalDomain } from '../../utils/domain'
 
 const AppLayout = () => {
   const { user, logout } = useAuth()
@@ -14,8 +14,8 @@ const AppLayout = () => {
   useEffect(() => {
     if (!user) {
       navigate('/login')
-    } else if (!isRezvoApp() && !['business_owner', 'staff', 'platform_admin', 'super_admin'].includes(user.role)) {
-      navigate('/') // rezvo.app: diners go to directory
+    } else if (!isPortalDomain() && !['business_owner', 'staff', 'platform_admin', 'super_admin'].includes(user.role)) {
+      navigate('/') // portal: diners go to directory
     }
   }, [user, navigate])
 
@@ -40,7 +40,7 @@ const AppLayout = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream">
         <div className="text-center">
-          <RezvoLoader message="Loading Rezvo..." size="lg" />
+          <AppLoader message="Loading ReeveOS..." size="lg" />
         </div>
       </div>
     )
@@ -51,7 +51,7 @@ const AppLayout = () => {
       <aside className="w-64 bg-white border-r border-border flex flex-col">
         <div className="p-6 border-b border-border">
           <Link to="/dashboard" className="flex items-center">
-            <span className="text-2xl font-heading font-bold text-forest">Rezvo</span>
+            <span className="text-2xl font-heading font-bold text-forest">ReeveOS</span>
           </Link>
           {business && (
             <div className="mt-4">

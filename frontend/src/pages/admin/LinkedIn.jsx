@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from 'react'
 import api from '../../utils/api'
 
 const PILLARS = {
-  growth: { label: 'Growth', color: '#111111', bg: '#d1fae5', desc: 'Rezvo-specific stories' },
+  growth: { label: 'Growth', color: '#111111', bg: '#d1fae5', desc: 'ReeveOS-specific stories' },
   tam: { label: 'TAM', color: '#1e40af', bg: '#dbeafe', desc: 'Broad industry content' },
   sales: { label: 'Sales', color: '#9333ea', bg: '#f3e8ff', desc: 'Direct pitch / CTA' },
 }
@@ -519,7 +519,7 @@ const LinkedIn = () => {
               <h4 className="font-semibold text-white mb-3">Quick Topic Ideas</h4>
               <div className="flex flex-wrap gap-2">
                 {[
-                  'Deliveroo commission vs Rezvo flat fee',
+                  'Deliveroo commission vs ReeveOS flat fee',
                   'Building with my son — the EPOS play',
                   'Why I left payments consulting',
                   'Burg Burgers paying 48% to platforms',
@@ -589,8 +589,8 @@ const LinkedIn = () => {
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-12 h-12 rounded-full bg-[#111111] flex items-center justify-center text-white font-bold text-lg">R</div>
                     <div>
-                      <div className="font-semibold text-white text-sm">Rezvo Founder</div>
-                      <div className="text-xs text-gray-500">Save the High Street • Building @Rezvo</div>
+                      <div className="font-semibold text-white text-sm">ReeveOS Founder</div>
+                      <div className="text-xs text-gray-500">Save the High Street • Building @ReeveOS</div>
                     </div>
                   </div>
                   <div className="whitespace-pre-line text-sm text-gray-300 leading-relaxed">
@@ -696,7 +696,7 @@ const LinkedIn = () => {
                       </div>
                       <h4 className="font-bold text-white">{trend.topic}</h4>
                       <p className="text-sm text-gray-600 mt-1">{trend.why_trending}</p>
-                      <p className="text-sm text-[#111111] mt-1 font-medium">{trend.rezvo_angle}</p>
+                      <p className="text-sm text-[#111111] mt-1 font-medium">{trend.reeveos_angle}</p>
                       {trend.suggested_hook && (
                         <div className="mt-2 p-2 bg-gray-800 rounded-lg text-sm font-medium text-gray-300">
                           Hook: "{trend.suggested_hook}"
@@ -894,8 +894,8 @@ const LinkedIn = () => {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-14 h-14 rounded-full bg-[#111111] flex items-center justify-center text-white font-bold text-xl">R</div>
                 <div>
-                  <div className="font-semibold text-white">Rezvo Founder</div>
-                  <div className="text-xs text-gray-500">Save the High Street • Building @Rezvo • Nottingham, UK</div>
+                  <div className="font-semibold text-white">ReeveOS Founder</div>
+                  <div className="text-xs text-gray-500">Save the High Street • Building @ReeveOS • Nottingham, UK</div>
                   <div className="text-xs text-gray-400">Just now • <i className="fa-solid fa-earth-americas" /></div>
                 </div>
               </div>

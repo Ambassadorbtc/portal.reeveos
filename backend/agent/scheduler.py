@@ -1,5 +1,5 @@
 """
-Rezvo Agent Scheduler
+ReeveOS Agent Scheduler
 =====================
 Integrates with the existing helpers/scheduler.py pattern.
 Registers all agent tasks on their intervals.

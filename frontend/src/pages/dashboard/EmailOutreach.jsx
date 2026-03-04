@@ -14,7 +14,7 @@ const ANGLES = [
   { id: 'commission_pain', label: 'Commission Pain', desc: 'Save on delivery fees', icon: 'fa-percent' },
   { id: 'booking_friction', label: 'Booking Friction', desc: 'Free booking page', icon: 'fa-calendar-check' },
   { id: 'epos_upgrade', label: 'EPOS Upgrade', desc: 'Modern restaurant tech', icon: 'fa-cash-register' },
-  { id: 'visibility_gap', label: 'Visibility Gap', desc: 'Get found on Rezvo', icon: 'fa-eye' },
+  { id: 'visibility_gap', label: 'Visibility Gap', desc: 'Get found on ReeveOS', icon: 'fa-eye' },
 ]
 
 const CLASSIFICATION_STYLES = {

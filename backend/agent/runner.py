@@ -1,5 +1,5 @@
 """
-Rezvo Agent Runner — Claude tool-use orchestration loop
+ReeveOS Agent Runner — Claude tool-use orchestration loop
 ========================================================
 Sends tasks to Claude with tool definitions, executes tool calls
 through the guardrails layer, returns results, loops until done.
@@ -81,7 +81,7 @@ async def run_agent(
         available_tools = get_tool_definitions()
 
     if not system_prompt:
-        system_prompt = """You are Rezvo's AI operations agent. You manage the platform autonomously.
+        system_prompt = """You are ReeveOS's AI operations agent. You manage the platform autonomously.
 Be concise and action-oriented. Use tools to gather data and take actions.
 Always explain what you did and why. If something needs human attention, say so clearly."""
 

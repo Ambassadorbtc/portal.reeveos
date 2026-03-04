@@ -16,8 +16,8 @@
 
 const host = typeof window !== 'undefined' ? window.location.hostname : ''
 
-export const isRezvoApp = () => true
-export const isRezvoCoUk = () => false
+export const isPortalDomain = () => true
+export const isDirectoryDomain = () => false
 
 /** Are we running on a booking subdomain? */
 export const isBookingDomain = () =>

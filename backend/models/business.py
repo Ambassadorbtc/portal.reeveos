@@ -11,7 +11,7 @@ class BusinessCategory(str, Enum):
     SPA = "spa"
 
 
-class RezvoTier(str, Enum):
+class PlatformTier(str, Enum):
     FREE = "free"
     PRO = "pro"
     PREMIUM = "premium"
@@ -101,7 +101,7 @@ class Business(BusinessBase):
     
     claimed: bool = False
     owner_id: Optional[str] = None
-    rezvo_tier: RezvoTier = RezvoTier.FREE
+    rezvo_tier: PlatformTier = PlatformTier.FREE
     tier: Optional[BusinessTier] = None
     promoted: bool = False
     notify_count: int = 0
@@ -135,7 +135,7 @@ class BusinessResponse(BaseModel):
     price_level: Optional[int] = None
     photo_refs: List[str] = []
     claimed: bool = False
-    rezvo_tier: RezvoTier = RezvoTier.FREE
+    rezvo_tier: PlatformTier = PlatformTier.FREE
     tier: Optional[str] = None
     promoted: bool = False
     opening_hours: Optional[OpeningHours] = None

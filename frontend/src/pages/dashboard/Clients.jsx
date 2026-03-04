@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
-import RezvoLoader from '../../components/shared/RezvoLoader'
+import AppLoader from '../../components/shared/AppLoader'
 
 const AVATAR_COLORS = [
   'from-[#111111] to-[#1a1a1a]', 'from-purple-600 to-purple-800',
@@ -110,7 +110,7 @@ const Clients = () => {
     return true
   })
 
-  if (loading) return <RezvoLoader message="Loading guests..." />
+  if (loading) return <AppLoader message="Loading guests..." />
 
   /* ── GUEST PROFILE VIEW ── */
   if (selectedGuest) {

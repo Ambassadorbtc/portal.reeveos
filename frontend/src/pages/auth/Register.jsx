@@ -64,7 +64,7 @@ const Register = () => {
           <div className="w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm">
             <span className="text-[#D4A017] font-extrabold text-2xl" style={{fontFamily:'Figtree,sans-serif'}}>R</span>
           </div>
-          <span className="font-heading font-extrabold text-2xl tracking-tight text-white">Rezvo</span>
+          <span className="font-heading font-extrabold text-2xl tracking-tight text-white">ReeveOS</span>
         </a>
 
         {/* Testimonial */}
@@ -112,7 +112,7 @@ const Register = () => {
             <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
               <span className="text-background font-heading font-bold text-sm">R</span>
             </div>
-            <span className="font-heading font-bold text-primary text-xl">Rezvo</span>
+            <span className="font-heading font-bold text-primary text-xl">ReeveOS</span>
           </div>
 
           <h1 className="text-3xl font-heading font-extrabold text-primary mb-1">Create your account</h1>

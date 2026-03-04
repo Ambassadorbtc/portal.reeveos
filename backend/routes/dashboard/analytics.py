@@ -32,7 +32,7 @@ def _day_label(d):
 
 
 SOURCE_LABELS = {
-    "rezvo": "Online Booking",
+    "reeveos": "Online Booking",
     "phone": "Phone",
     "walk_in": "Direct / Walk-in",
     "google": "Google Reserve",

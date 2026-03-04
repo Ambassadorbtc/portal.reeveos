@@ -1,10 +1,10 @@
 /**
- * RezvoLoader — Branded loading animation
+ * AppLoader — Branded loading animation
  * Four black squares that bounce in sequence
  * Used globally across all loading states
  */
 
-export default function RezvoLoader({ message = 'Loading...', size = 'md', inline = false }) {
+export default function AppLoader({ message = 'Loading...', size = 'md', inline = false }) {
   const sizes = {
     sm: { sq: 6, gap: 3, msgSize: 11 },
     md: { sq: 10, gap: 4, msgSize: 13 },
@@ -19,7 +19,7 @@ export default function RezvoLoader({ message = 'Loading...', size = 'md', inlin
           width: s.sq, height: s.sq,
           borderRadius: s.sq * 0.2,
           background: '#111111',
-          animation: `rezvo-bounce 1.2s ease-in-out ${i * 0.15}s infinite`,
+          animation: `reeveos-bounce 1.2s ease-in-out ${i * 0.15}s infinite`,
         }} />
       ))}
     </div>
@@ -30,7 +30,7 @@ export default function RezvoLoader({ message = 'Loading...', size = 'md', inlin
       <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
         {squares}
         {message && <span style={{ fontSize: s.msgSize, fontWeight: 500, color: '#6B7280', fontFamily: "'Figtree', sans-serif" }}>{message}</span>}
-        <style>{rezvoStyles}</style>
+        <style>{appLoaderStyles}</style>
       </div>
     )
   }
@@ -44,13 +44,13 @@ export default function RezvoLoader({ message = 'Loading...', size = 'md', inlin
       {message && (
         <span style={{ marginTop: 14, fontSize: s.msgSize, fontWeight: 500, color: '#6B7280' }}>{message}</span>
       )}
-      <style>{rezvoStyles}</style>
+      <style>{appLoaderStyles}</style>
     </div>
   )
 }
 
-const rezvoStyles = `
-  @keyframes rezvo-bounce {
+const appLoaderStyles = `
+  @keyframes reeveos-bounce {
     0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
     40% { transform: translateY(-12px); opacity: 1; }
   }

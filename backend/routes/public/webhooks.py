@@ -1,5 +1,5 @@
 """
-Rezvo Email Webhooks
+ReeveOS Email Webhooks
 =====================
 Handles Resend webhook events for delivery tracking.
 Register webhook URL in Resend dashboard: https://rezvo.app/api/webhooks/resend

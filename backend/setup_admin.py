@@ -1,5 +1,5 @@
 """
-Rezvo Admin Setup
+ReeveOS Admin Setup
 Ensures admin account exists with full enterprise access.
 Safe to run multiple times — only updates, never duplicates.
 """
@@ -23,7 +23,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # ── Admin account (from environment — NEVER hardcode credentials) ──
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "levelambassador@gmail.com")
-ADMIN_NAME = os.getenv("ADMIN_NAME", "Rezvo Admin")
+ADMIN_NAME = os.getenv("ADMIN_NAME", "ReeveOS Admin")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 if not ADMIN_PASSWORD:
     import secrets
@@ -36,7 +36,7 @@ async def main():
     client = AsyncIOMotorClient(MONGO_URL)
     db = client[DB_NAME]
 
-    print("🔧 Rezvo Admin Setup")
+    print("🔧 ReeveOS Admin Setup")
     print("=" * 50)
 
     # ── 1. Ensure admin user exists ──
@@ -127,14 +127,14 @@ async def main():
     if not has_business:
         # Create a default business
         biz_doc = {
-            "name": "Rezvo Demo Restaurant",
-            "slug": "rezvo-demo",
+            "name": "ReeveOS Demo Restaurant",
+            "slug": "reeveos-demo",
             "type": "restaurant",
             "category": "restaurant",
             "tier": "enterprise",
             "rezvo_tier": "enterprise",
             "claimed": True,
-            "description": "Rezvo platform demo restaurant with full enterprise features enabled.",
+            "description": "ReeveOS platform demo restaurant with full enterprise features enabled.",
             "phone": "",
             "email": ADMIN_EMAIL,
             "address": {

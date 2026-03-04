@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useBusiness } from '../../contexts/BusinessContext'
 
-const SESSION_KEY = 'rezvo_welcome_shown'
+const SESSION_KEY = 'reeveos_welcome_shown'
 
 const WelcomeBanner = () => {
   const { user } = useAuth()

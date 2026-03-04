@@ -7,7 +7,7 @@ import {
   ArrowRight, Zap, Star, RefreshCw, Clock, Mail
 } from 'lucide-react'
 
-const api = (path) => { const t = sessionStorage.getItem('rezvo_admin_token'); return fetch(`/api${path}`, { headers: t ? { Authorization: `Bearer ${t}` } : {} }).then(r => r.ok ? r.json() : null).catch(() => null) }
+const api = (path) => { const t = sessionStorage.getItem('reeveos_admin_token'); return fetch(`/api${path}`, { headers: t ? { Authorization: `Bearer ${t}` } : {} }).then(r => r.ok ? r.json() : null).catch(() => null) }
 
 // Metric card component
 const KPI = ({ label, value, change, icon: Icon, trend, onClick }) => (

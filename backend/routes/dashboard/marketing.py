@@ -1,5 +1,5 @@
 """
-Rezvo Marketing Campaigns
+ReeveOS Marketing Campaigns
 ===========================
 Campaign CRUD, audience segmentation, drip sequences, actual sending via Resend.
 Used by business owners to email their customers from the dashboard.

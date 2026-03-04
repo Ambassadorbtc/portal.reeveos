@@ -1,5 +1,5 @@
 """
-Rezvo Agent API Routes
+ReeveOS Agent API Routes
 ======================
 Dashboard endpoints for monitoring the AI operations layer.
 Manual task triggers, approval queue, audit log, stats.

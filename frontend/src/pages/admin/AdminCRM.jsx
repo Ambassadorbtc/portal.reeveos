@@ -6,7 +6,7 @@
  * Shared: Team ReeveOS signup target
  * 
  * Data stored in localStorage (per-user key).
- * Detects logged-in admin from sessionStorage('rezvo_admin_user').
+ * Detects logged-in admin from sessionStorage('reeveos_admin_user').
  */
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import {
@@ -133,7 +133,7 @@ function Bar({ pct, color }) {
 export default function AdminCRM() {
   // Detect logged-in user from admin session
   const adminUser = useMemo(() => {
-    try { return JSON.parse(sessionStorage.getItem('rezvo_admin_user') || 'null') } catch { return null }
+    try { return JSON.parse(sessionStorage.getItem('reeveos_admin_user') || 'null') } catch { return null }
   }, [])
 
   const profileId = useMemo(() => {

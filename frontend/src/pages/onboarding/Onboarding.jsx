@@ -128,7 +128,7 @@ export default function Onboarding() {
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
             <span className="text-background font-heading font-bold text-sm">R.</span>
           </div>
-          <span className="font-heading font-bold text-primary text-lg">Rezvo</span>
+          <span className="font-heading font-bold text-primary text-lg">ReeveOS</span>
         </div>
         {step < 4 && (
           <div className="ml-auto text-sm text-gray-400">
@@ -391,7 +391,7 @@ export default function Onboarding() {
                 You're all set!
               </h1>
               <p className="text-gray-500 text-lg mb-2 font-body">
-                <strong className="text-primary">{form.name || 'Your business'}</strong> is now live on Rezvo.
+                <strong className="text-primary">{form.name || 'Your business'}</strong> is now live on ReeveOS.
               </p>
               <p className="text-gray-400 text-sm mb-10 font-body">
                 Head to your dashboard to add services, manage bookings, and customise your listing.

@@ -282,7 +282,7 @@ const Bookings = () => {
         )}
       </div>
 
-      {detail && <div className="fixed inset-0 bg-black/20 z-30 lg:hidden" onClick={closeDetail} />}
+      {detail && <div className="fixed inset-0 bg-black/20 z-30" onClick={closeDetail} />}
       <div className={`fixed inset-y-0 right-0 w-full sm:w-[450px] bg-white shadow-2xl transform transition-transform duration-300 z-40 border-l border-gray-200 flex flex-col ${detail ? 'translate-x-0' : 'translate-x-full'}`}>
         {detail && (
           <>

@@ -266,15 +266,15 @@ async def list_bookings(
     for d in docs:
         staff = staff_map.get(d.get("staffId") or d.get("server_id"), {})
         svc = d.get("service") or {}
-        # Normalize customer name from both formats
+        # Normalize customer name from ALL formats (seeded, API-created, legacy)
         if d.get("customer") and isinstance(d["customer"], dict):
             cust_name = d["customer"].get("name", "")
             cust_phone = d["customer"].get("phone", "")
             cust_email = d["customer"].get("email", "")
         else:
-            cust_name = d.get("client_name", "")
-            cust_phone = d.get("client_phone", "")
-            cust_email = d.get("client_email", "")
+            cust_name = d.get("customerName") or d.get("client_name") or d.get("guest_name") or ""
+            cust_phone = d.get("customerPhone") or d.get("client_phone") or d.get("phone") or ""
+            cust_email = d.get("customerEmail") or d.get("client_email") or d.get("email") or ""
         bookings.append({
             "id": str(d.get("_id", "")),
             "reference": d.get("reference", ""),
@@ -339,11 +339,15 @@ async def get_booking_detail(
     staff = next((st for st in business.get("staff", []) if st.get("id") in [b.get("staffId"), b.get("server_id")]), {})
     svc = b.get("service") or {}
 
-    # Normalize customer from both formats
+    # Normalize customer from ALL formats (seeded, API-created, legacy)
     if b.get("customer") and isinstance(b["customer"], dict):
         cust = b["customer"]
     else:
-        cust = {"name": b.get("client_name", ""), "phone": b.get("client_phone", ""), "email": b.get("client_email", "")}
+        cust = {
+            "name": b.get("customerName") or b.get("client_name") or b.get("guest_name") or "",
+            "phone": b.get("customerPhone") or b.get("client_phone") or b.get("phone") or "",
+            "email": b.get("customerEmail") or b.get("client_email") or b.get("email") or "",
+        }
 
     return {
         "booking": {

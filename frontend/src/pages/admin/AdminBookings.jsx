@@ -110,7 +110,7 @@ export default function AdminBookings() {
                     <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5 flex-wrap">
                       <span className="flex items-center gap-1"><Building2 size={10} />{b.business_name || 'Unknown'}</span>
                       <span className="flex items-center gap-1"><Clock size={10} />{b.date} {b.time && `at ${b.time}`}</span>
-                      {b.party_size && <span className="flex items-center gap-1"><User size={10} />{b.party_size} guests</span>}
+                      {(b.partySize || b.party_size) && <span className="flex items-center gap-1"><User size={10} />{b.partySize || b.party_size} guests</span>}
                       {b.service_name && <span>{b.service_name}</span>}
                     </div>
                   </div>

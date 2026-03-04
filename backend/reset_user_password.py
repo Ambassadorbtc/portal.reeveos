@@ -6,7 +6,7 @@ import asyncio
 import os
 from pathlib import Path
 from motor.motor_asyncio import AsyncIOMotorClient
-from passlib.context import CryptContext
+import bcrypt as _bcrypt
 from datetime import datetime
 
 try:
@@ -17,7 +17,7 @@ except ImportError:
 
 MONGO_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017/rezvo")
 DB_NAME = os.getenv("MONGODB_DB_NAME", "rezvo")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 # The new temporary password — user should change immediately after login
 TARGET_EMAIL = "peter.griffin8222@gmail.com"
@@ -34,7 +34,7 @@ async def main():
         client.close()
         return
 
-    new_hash = pwd_context.hash(TEMP_PASSWORD)
+    new_hash = _bcrypt.hashpw(TEMP_PASSWORD.encode("utf-8"), _bcrypt.gensalt()).decode("utf-8")
     await db.users.update_one(
         {"_id": user["_id"]},
         {"$set": {"password_hash": new_hash, "updated_at": datetime.utcnow()}}

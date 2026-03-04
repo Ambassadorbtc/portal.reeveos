@@ -343,7 +343,7 @@ class AdminPasswordReset(BaseModel):
 async def admin_reset_password(payload: AdminPasswordReset):
     """Reset any user's password. Requires ADMIN_PASSWORD env var as management_key."""
     import os
-    from passlib.context import CryptContext
+    import bcrypt as _bcrypt
     
     admin_pw = os.getenv("ADMIN_PASSWORD", "")
     if not admin_pw or payload.management_key != admin_pw:
@@ -354,8 +354,7 @@ async def admin_reset_password(payload: AdminPasswordReset):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    new_hash = pwd_ctx.hash(payload.new_password)
+    new_hash = _bcrypt.hashpw(payload.new_password.encode("utf-8"), _bcrypt.gensalt()).decode("utf-8")
     
     await db.users.update_one(
         {"_id": user["_id"]},

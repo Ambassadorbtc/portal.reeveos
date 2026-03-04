@@ -84,7 +84,7 @@ async def get_booking_page(business_id: str, tenant: TenantContext = Depends(ver
     slug = business.get("slug", "your-business")
     bp = _merge_defaults(business.get("bookingPage"))
     base = _base_url()
-    api_base = os.environ.get("REZVO_API_URL", "http://localhost:8000")
+    api_base = os.environ.get("REZVO_API_URL", "https://portal.rezvo.app/api")
     url = f"{base}/book/{slug}"
     return {
         **bp,
@@ -116,7 +116,7 @@ async def update_booking_page(business_id: str, payload: dict = Body(default={})
     )
     slug = business.get("slug", "your-business")
     base = _base_url()
-    api_base = os.environ.get("REZVO_API_URL", "http://localhost:8000")
+    api_base = os.environ.get("REZVO_API_URL", "https://portal.rezvo.app/api")
     return {
         **_merge_defaults(new_bp),
         "share": {"slug": slug, "url": f"{base}/book/{slug}", "qrCodeUrl": f"{api_base}/booking-page/{business_id}/qr"},

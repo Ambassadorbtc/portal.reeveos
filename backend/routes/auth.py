@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Request
-from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from bson import ObjectId
 from database import get_database

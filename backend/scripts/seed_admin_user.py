@@ -7,12 +7,12 @@ Run: python3 backend/scripts/seed_admin_user.py
 import asyncio
 from datetime import datetime
 from motor.motor_asyncio import AsyncIOMotorClient
-from passlib.context import CryptContext
+import bcrypt as _bcrypt
 import os
 
 MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
 DB_NAME = os.getenv("DB_NAME", "rezvo")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 ADMIN_EMAIL = "james111trader@gmail.com"
 ADMIN_PASSWORD = "reeveos2024"
@@ -26,13 +26,13 @@ async def main():
     existing = await db.users.find_one({"email": ADMIN_EMAIL})
 
     if existing:
-        # Update to admin role if not already
-        if existing.get("role") != "admin":
+        # Update to super_admin role if not already
+        if existing.get("role") != "super_admin":
             await db.users.update_one(
                 {"_id": existing["_id"]},
                 {"$set": {
                     "role": "super_admin",
-                    "password_hash": pwd_context.hash(ADMIN_PASSWORD),
+                    "password_hash": _bcrypt.hashpw(ADMIN_PASSWORD.encode("utf-8"), _bcrypt.gensalt()).decode("utf-8"),
                     "updated_at": datetime.utcnow(),
                 }},
             )
@@ -42,7 +42,7 @@ async def main():
             await db.users.update_one(
                 {"_id": existing["_id"]},
                 {"$set": {
-                    "password_hash": pwd_context.hash(ADMIN_PASSWORD),
+                    "password_hash": _bcrypt.hashpw(ADMIN_PASSWORD.encode("utf-8"), _bcrypt.gensalt()).decode("utf-8"),
                     "updated_at": datetime.utcnow(),
                 }},
             )
@@ -54,7 +54,7 @@ async def main():
             "name": ADMIN_NAME,
             "phone": "",
             "role": "super_admin",
-            "password_hash": pwd_context.hash(ADMIN_PASSWORD),
+            "password_hash": _bcrypt.hashpw(ADMIN_PASSWORD.encode("utf-8"), _bcrypt.gensalt()).decode("utf-8"),
             "avatar": None,
             "saved_businesses": [],
             "booking_history": [],
@@ -69,7 +69,7 @@ async def main():
 
     print(f"   Email: {ADMIN_EMAIL}")
     print(f"   Password: {ADMIN_PASSWORD}")
-    print(f"   Role: admin")
+    print(f"   Role: super_admin")
     print(f"\n🔒 Change password after first login!")
 
     client.close()

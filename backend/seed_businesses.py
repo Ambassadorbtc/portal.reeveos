@@ -9,9 +9,9 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 from datetime import datetime, timedelta
 import random
-from passlib.context import CryptContext
+import bcrypt
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 # MongoDB connection — reads from .env if available, falls back to local
 import os
@@ -271,7 +271,7 @@ async def main():
     # ============================================================
     print("👤 Creating user accounts...")
     
-    pw_hash = pwd_context.hash("Rezvo2024!")
+    pw_hash = bcrypt.hashpw("Rezvo2024!".encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
     
     natalie_user = {
         "name": "Natalie Price",

@@ -9,7 +9,7 @@ from pathlib import Path
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 from datetime import datetime
-from passlib.context import CryptContext
+import bcrypt as _bcrypt
 
 try:
     from dotenv import load_dotenv
@@ -19,7 +19,7 @@ except ImportError:
 
 MONGO_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017/rezvo")
 DB_NAME = os.getenv("MONGODB_DB_NAME", "rezvo")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 # ── Admin account (from environment — NEVER hardcode credentials) ──
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "levelambassador@gmail.com")
@@ -47,7 +47,7 @@ async def main():
         user_doc = {
             "name": ADMIN_NAME,
             "email": ADMIN_EMAIL,
-            "password_hash": pwd_context.hash(ADMIN_PASSWORD),
+            "password_hash": _bcrypt.hashpw(ADMIN_PASSWORD.encode("utf-8"), _bcrypt.gensalt()).decode("utf-8"),
             "role": "business_owner",
             "account_type": "business_owner",
             "business_ids": [],

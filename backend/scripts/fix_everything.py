@@ -45,9 +45,6 @@ async def main():
     # ═══════════════════════════════════════════════════════════════
     print("═══ 1. FIX PASSWORDS (direct bcrypt, no passlib) ═══")
     for email, password, expected_role in ACCOUNTS:
-        hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-        assert bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
-
         user = await db.users.find_one({"email": email})
         if not user:
             if expected_role in ("super_admin", "platform_admin"):
@@ -56,6 +53,7 @@ async def main():
                     "mo.jalloh@me.com": "Mo Jalloh",
                     "grantwoods@live.com": "Grant Woods",
                 }
+                hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
                 await db.users.insert_one({
                     "email": email, "name": name_map.get(email, email.split("@")[0]),
                     "role": expected_role, "password_hash": hashed,
@@ -69,10 +67,22 @@ async def main():
                 print(f"  ❌ {email} — NOT FOUND (business_owner accounts must exist)")
             continue
 
-        await db.users.update_one({"_id": user["_id"]}, {"$set": {"password_hash": hashed}})
-        user2 = await db.users.find_one({"_id": user["_id"]})
-        ok = bcrypt.checkpw(password.encode("utf-8"), user2["password_hash"].encode("utf-8"))
-        print(f"  {'✅' if ok else '❌'} {email} — {'verified' if ok else 'FAILED'}")
+        # CHECK first — only rewrite if the existing hash doesn't match
+        existing_hash = user.get("password_hash", "")
+        already_correct = False
+        if existing_hash:
+            try:
+                already_correct = bcrypt.checkpw(password.encode("utf-8"), existing_hash.encode("utf-8"))
+            except Exception:
+                pass
+
+        if already_correct:
+            print(f"  ✅ {email} — already correct (no write needed)")
+        else:
+            hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+            assert bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
+            await db.users.update_one({"_id": user["_id"]}, {"$set": {"password_hash": hashed}})
+            print(f"  ⚠️  {email} — HASH WAS WRONG, rewrote it")
 
     # ═══════════════════════════════════════════════════════════════
     # 2. ROLE STANDARDISATION — no more 'owner', enforce registry

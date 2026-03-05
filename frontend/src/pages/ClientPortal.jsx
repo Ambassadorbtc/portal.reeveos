@@ -130,7 +130,10 @@ export default function ClientPortal(){
   const submitForm=async()=>{setLoading(true);try{await apiFetch(`/consultation/public/${slug}/submit`,{method:'POST',body:JSON.stringify({form_data:fd,alerts})});setCs({status:'submitted'});setView('submitted')}catch(e){setErr(e.message)}setLoading(false)}
   const canProceed=()=>{if(step===0)return fd.fullName&&fd.dob&&fd.mobile&&fd.email&&fd.emergencyName&&fd.emergencyPhone&&fd.gpName;if(step===5)return fd.consent1&&fd.consent2&&fd.consent3&&fd.consent4&&fd.signed;return true}
   const goStep=n=>{setStep(n);topRef.current?.scrollIntoView({behavior:'smooth'})}
-  const navTo=t=>{setActiveTab(t);if(t==='home')setView('home');if(t==='form'){setStep(0);setView('form')}}
+  const[msgTab,setMsgTab]=useState('chat'),[msgs,setMsgs]=useState([]),[msgText,setMsgText]=useState('')
+  const navTo=t=>{setActiveTab(t);if(t==='home')setView('home');else if(t==='form'){setStep(0);setView('form')}else setView(t)}
+  const sendMsg=()=>{if(!msgText.trim())return;setMsgs(p=>[...p,{from:'me',text:msgText,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}]);setMsgText('')}
+  const pastBookings=myData?.past_bookings||[]
 
   // Shared: page shell for logged-in views (sidebar + main)
   const Shell=({tab,children})=>(
@@ -213,7 +216,7 @@ export default function ClientPortal(){
   // HOME (Figma 2:849 / 2:674) — sidebar + main
   // ═══════════════════════════════════════════════════════════════
   if(view==='home'){
-    const qa=[{icon:'cal',label:'Book Visit',sub:'Past & upcoming',action:()=>navTo('bookings'),show:true},{icon:'form',label:hasForm?'View Form':'Fill Form',sub:hasForm?'Review details':'Complete paperwork',action:()=>{setStep(0);setView('form')},show:isSalon},{icon:'user',label:'My Profile',sub:'History & settings',action:()=>{},show:true},{icon:'msg',label:'Message Us',sub:'Talk to experts',action:()=>{},show:true}].filter(a=>a.show)
+    const qa=[{icon:'cal',label:'Book Visit',sub:'Past & upcoming',action:()=>navTo('bookings'),show:true},{icon:'form',label:hasForm?'View Form':'Fill Form',sub:hasForm?'Review details':'Complete paperwork',action:()=>{setStep(0);setView('form')},show:isSalon},{icon:'user',label:'My Profile',sub:'History & settings',action:()=>navTo('profile'),show:true},{icon:'msg',label:'Message Us',sub:'Talk to experts',action:()=>navTo('messages'),show:true}].filter(a=>a.show)
     return(
       <Shell tab="home">
         <TopBar/>
@@ -398,6 +401,216 @@ export default function ClientPortal(){
           {step>0?<button onClick={()=>goStep(step-1)} style={{padding:desk?'8px 20px':'12px 24px',borderRadius:99,border:`1px solid ${$.bdr}`,background:$.card,fontSize:desk?12:15,fontWeight:600,color:$.acc,cursor:'pointer',fontFamily:$.f,display:'flex',alignItems:'center',gap:5}}>{I.back($.acc,12)} Previous</button>:<div/>}
           {step<5?<button onClick={()=>canProceed()&&goStep(step+1)} disabled={!canProceed()} style={{padding:desk?'8px 24px':'12px 28px',borderRadius:99,border:'none',background:canProceed()?$.acc:$.bdr,color:canProceed()?'#fff':$.txtL,fontSize:desk?12:15,fontWeight:700,cursor:canProceed()?'pointer':'not-allowed',fontFamily:$.f,display:'flex',alignItems:'center',gap:5}}>Continue {I.arr('#fff',12)}</button>
           :<button onClick={()=>canProceed()&&submitForm()} disabled={!canProceed()||loading} style={{padding:desk?'8px 24px':'12px 28px',borderRadius:99,border:'none',background:canProceed()&&!loading?$.acc:$.bdr,color:canProceed()?'#fff':$.txtL,fontSize:desk?12:15,fontWeight:700,cursor:canProceed()?'pointer':'not-allowed',fontFamily:$.f}}>{loading?'Submitting...':'Submit Form'}</button>}
+        </div>
+      </div>
+    </Shell>
+  )
+
+  // ═══════════════════════════════════════════════════════════════
+  // BOOKINGS — past visits + upcoming + book again
+  // ═══════════════════════════════════════════════════════════════
+  if(view==='bookings')return(
+    <Shell tab="bookings">
+      <TopBar/>
+      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:80}}>
+        <div style={{maxWidth:1000,margin:'0 auto',padding:desk?'24px 24px 32px':'16px 12px'}}>
+          <h1 style={{fontSize:desk?24:22,fontWeight:700,color:$.h,margin:'0 0 4px'}}>My Bookings</h1>
+          <p style={{fontSize:desk?13:15,color:$.txtM,margin:'0 0 20px'}}>View your appointment history and book new treatments.</p>
+
+          {/* Upcoming */}
+          <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'0 0 10px'}}>Upcoming</h3>
+          {upcoming.length>0?upcoming.map((b,i)=>(
+            <div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:desk?16:14,marginBottom:10,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div style={{display:'flex',gap:14,alignItems:'center'}}>
+                <div style={{width:48,height:48,borderRadius:10,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                  <span style={{fontSize:10,fontWeight:700,color:$.txtM,textTransform:'uppercase'}}>{b.month||'TBC'}</span>
+                  <span style={{fontSize:17,fontWeight:700,color:$.h,lineHeight:1}}>{b.day||'—'}</span>
+                </div>
+                <div>
+                  <p style={{fontSize:desk?14:16,fontWeight:600,color:$.h,margin:0}}>{b.service}</p>
+                  <div style={{display:'flex',gap:10,marginTop:2}}>
+                    <span style={{fontSize:desk?12:13,color:$.txtM,display:'flex',alignItems:'center',gap:3}}>{I.clock($.txtM,11)} {b.time}</span>
+                    {b.staff&&<span style={{fontSize:desk?12:13,color:$.txtM,display:'flex',alignItems:'center',gap:3}}>{I.user($.txtM,11)} {b.staff}</span>}
+                  </div>
+                </div>
+              </div>
+              <span style={{padding:'3px 8px',borderRadius:99,fontSize:10,fontWeight:700,background:hasForm?'rgba(16,185,129,0.08)':'rgba(245,158,11,0.08)',color:hasForm?'#10B981':'#F59E0B',border:`1px solid ${hasForm?'rgba(16,185,129,0.15)':'rgba(245,158,11,0.15)'}`}}>{hasForm?'All set':'Form needed'}</span>
+            </div>
+          )):(
+            <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:desk?24:20,textAlign:'center',marginBottom:20}}>
+              <div style={{width:40,height:40,borderRadius:10,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}>{I.cal($.acc,20)}</div>
+              <p style={{fontSize:desk?14:16,fontWeight:600,color:$.h}}>No upcoming appointments</p>
+              <p style={{fontSize:desk?12:14,color:$.txtM,margin:'4px 0 0'}}>Your next booking will appear here.</p>
+            </div>
+          )}
+
+          {/* Past visits */}
+          <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'24px 0 10px'}}>Treatment History</h3>
+          {pastBookings.length>0?pastBookings.map((b,i)=>(
+            <div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:desk?'12px 16px':'14px 16px',marginBottom:8,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div style={{display:'flex',gap:12,alignItems:'center'}}>
+                <div style={{width:40,height:40,borderRadius:10,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{I.shield($.txtL,18)}</div>
+                <div>
+                  <p style={{fontSize:desk?14:16,fontWeight:600,color:$.h,margin:0}}>{b.service}</p>
+                  <p style={{fontSize:desk?12:13,color:$.txtM,margin:'2px 0 0'}}>{b.staff?`${b.staff} · `:''}{ b.date}</p>
+                </div>
+              </div>
+              <div style={{textAlign:'right'}}>
+                {b.price&&<p style={{fontSize:desk?14:15,fontWeight:700,color:$.h,margin:0}}>£{b.price}</p>}
+                <span style={{fontSize:10,fontWeight:700,color:$.ok,textTransform:'uppercase'}}>Completed</span>
+              </div>
+            </div>
+          )):(
+            <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:20,textAlign:'center'}}>
+              <p style={{fontSize:desk?13:15,color:$.txtM,margin:0}}>No past appointments yet. Your treatment history will appear here.</p>
+            </div>
+          )}
+
+          {/* Book new */}
+          <div style={{marginTop:24,textAlign:'center'}}>
+            <button onClick={()=>{/* TODO: wire to booking flow */}} style={{padding:desk?'10px 28px':'12px 32px',borderRadius:99,border:'none',background:$.acc,color:'#fff',fontSize:desk?13:15,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book New Appointment</button>
+          </div>
+        </div>
+      </div>
+    </Shell>
+  )
+
+  // ═══════════════════════════════════════════════════════════════
+  // MESSAGES — ticketing + AI support
+  // ═══════════════════════════════════════════════════════════════
+  if(view==='messages')return(
+    <Shell tab="messages">
+      <TopBar/>
+      <div style={{flex:1,display:'flex',flexDirection:'column',paddingBottom:desk?0:80}}>
+        {/* Tab bar: Chat / AI Support */}
+        <div style={{display:'flex',borderBottom:`1px solid ${$.bdr}`,background:$.card,flexShrink:0}}>
+          {[{id:'chat',label:'Messages'},{id:'ai',label:'AI Support'}].map(t=>(
+            <button key={t.id} onClick={()=>setMsgTab(t.id)} style={{flex:1,padding:desk?'10px 0':'12px 0',border:'none',borderBottom:msgTab===t.id?`2px solid ${$.acc}`:'2px solid transparent',background:'none',fontSize:desk?13:15,fontWeight:msgTab===t.id?700:500,color:msgTab===t.id?$.h:$.txtM,cursor:'pointer',fontFamily:$.f}}>{t.label}</button>
+          ))}
+        </div>
+
+        {msgTab==='chat'?(
+          <div style={{flex:1,display:'flex',flexDirection:'column'}}>
+            {/* Messages list */}
+            <div style={{flex:1,overflowY:'auto',padding:desk?'16px 24px':'12px'}}>
+              {msgs.length===0?(
+                <div style={{textAlign:'center',paddingTop:48}}>
+                  <div style={{width:48,height:48,borderRadius:12,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px'}}>{I.msg($.acc,22)}</div>
+                  <p style={{fontSize:desk?14:16,fontWeight:600,color:$.h}}>No messages yet</p>
+                  <p style={{fontSize:desk?12:14,color:$.txtM,margin:'4px 0 0'}}>Send a message to {biz?.name} and they'll reply here.</p>
+                </div>
+              ):msgs.map((m,i)=>(
+                <div key={i} style={{display:'flex',justifyContent:m.from==='me'?'flex-end':'flex-start',marginBottom:8}}>
+                  <div style={{maxWidth:'75%',background:m.from==='me'?$.acc:'rgba(200,163,76,0.08)',color:m.from==='me'?'#fff':$.h,padding:desk?'10px 14px':'12px 16px',borderRadius:m.from==='me'?'16px 16px 4px 16px':'16px 16px 16px 4px'}}>
+                    <p style={{fontSize:desk?13:15,margin:0,lineHeight:1.5}}>{m.text}</p>
+                    <p style={{fontSize:10,margin:'4px 0 0',opacity:0.7,textAlign:'right'}}>{m.time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Input */}
+            <div style={{borderTop:`1px solid ${$.bdr}`,background:$.card,padding:desk?'12px 24px':'10px 12px',display:'flex',gap:8,flexShrink:0}}>
+              <input value={msgText} onChange={e=>setMsgText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&sendMsg()} placeholder="Type a message..." style={{flex:1,padding:desk?'10px 14px':'12px 16px',borderRadius:99,border:`1px solid ${$.bdr}`,fontSize:desk?13:15,outline:'none',background:$.bg,color:$.h,fontFamily:$.f}}/>
+              <button onClick={sendMsg} style={{width:desk?40:44,height:desk?40:44,borderRadius:99,border:'none',background:$.acc,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}}>{I.arr('#fff',16)}</button>
+            </div>
+          </div>
+        ):(
+          <div style={{flex:1,overflowY:'auto',padding:desk?'24px':'16px 12px'}}>
+            <div style={{maxWidth:600,margin:'0 auto',textAlign:'center',paddingTop:32}}>
+              <div style={{width:56,height:56,borderRadius:14,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}>{I.shield($.acc,28)}</div>
+              <h2 style={{fontSize:desk?20:22,fontWeight:700,color:$.h,margin:'0 0 8px'}}>AI Support</h2>
+              <p style={{fontSize:desk?13:15,color:$.txtM,lineHeight:1.6,margin:'0 0 20px'}}>Get instant answers about treatments, aftercare, booking policies, and more. Our AI assistant is trained specifically for {biz?.name}.</p>
+              <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:desk?20:16,textAlign:'left'}}>
+                <p style={{fontSize:desk?13:15,fontWeight:600,color:$.h,margin:'0 0 10px'}}>Common questions:</p>
+                {['What should I do before my appointment?','How do I reschedule a booking?','What are the aftercare instructions?','What treatments do you offer?'].map((q,i)=>(
+                  <button key={i} style={{display:'block',width:'100%',textAlign:'left',padding:desk?'8px 0':'10px 0',border:'none',borderBottom:i<3?`1px solid ${$.bdr}`:'none',background:'none',fontSize:desk?12:14,color:$.acc,cursor:'pointer',fontFamily:$.f,fontWeight:500}}>{q}</button>
+                ))}
+              </div>
+              <p style={{fontSize:11,color:$.txtL,marginTop:16}}>AI responses are based on {biz?.name}'s services and policies.</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </Shell>
+  )
+
+  // ═══════════════════════════════════════════════════════════════
+  // PROFILE — history, spend, treatments, settings
+  // ═══════════════════════════════════════════════════════════════
+  if(view==='profile')return(
+    <Shell tab="profile">
+      <TopBar/>
+      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:80}}>
+        <div style={{maxWidth:800,margin:'0 auto',padding:desk?'24px 24px 32px':'16px 12px'}}>
+          {/* Profile header */}
+          <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:24}}>
+            <div style={{width:desk?64:56,height:desk?64:56,borderRadius:99,border:`3px solid ${$.acc}`,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:desk?24:20,fontWeight:700,color:$.acc,flexShrink:0}}>{(user?.name||'?').charAt(0)}</div>
+            <div>
+              <h1 style={{fontSize:desk?22:20,fontWeight:700,color:$.h,margin:0}}>{user?.name||'User'}</h1>
+              <p style={{fontSize:desk?13:14,color:$.txtM,margin:'2px 0 0'}}>{user?.email||''}</p>
+              {user?.phone&&<p style={{fontSize:desk?12:13,color:$.txtM,margin:'1px 0 0'}}>{user.phone}</p>}
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:desk?12:8,marginBottom:24}}>
+            {[
+              {label:'Total Visits',value:pastBookings.length},
+              {label:'Upcoming',value:upcoming.length},
+              {label:'Total Spent',value:pastBookings.reduce((s,b)=>s+(parseFloat(b.price)||0),0).toFixed(2),prefix:'£'},
+            ].map((s,i)=>(
+              <div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:desk?16:12,textAlign:'center'}}>
+                <p style={{fontSize:desk?22:20,fontWeight:700,color:$.h,margin:0}}>{s.prefix||''}{s.value}</p>
+                <p style={{fontSize:desk?11:12,color:$.txtM,margin:'2px 0 0'}}>{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* My details */}
+          <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'0 0 12px'}}>My Details</h3>
+          <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,marginBottom:24}}>
+            {[
+              {label:'Full Name',value:user?.name},
+              {label:'Email',value:user?.email},
+              {label:'Phone',value:user?.phone||'Not set'},
+            ].map((d,i)=>(
+              <div key={i} style={{padding:desk?'14px 16px':'14px 16px',borderBottom:i<2?`1px solid ${$.bdr}`:'none'}}>
+                <p style={{fontSize:desk?11:12,color:$.txtM,margin:'0 0 2px'}}>{d.label}</p>
+                <p style={{fontSize:desk?14:16,fontWeight:500,color:$.h,margin:0}}>{d.value||'—'}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Recent treatments */}
+          <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'0 0 12px'}}>Recent Treatments</h3>
+          {pastBookings.length>0?pastBookings.slice(0,5).map((b,i)=>(
+            <div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:'12px 16px',marginBottom:8,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div>
+                <p style={{fontSize:desk?14:15,fontWeight:600,color:$.h,margin:0}}>{b.service}</p>
+                <p style={{fontSize:desk?12:13,color:$.txtM,margin:'2px 0 0'}}>{b.date}{b.staff?` · ${b.staff}`:''}</p>
+              </div>
+              {b.price&&<span style={{fontSize:desk?14:15,fontWeight:700,color:$.h}}>£{b.price}</span>}
+            </div>
+          )):(
+            <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:20,textAlign:'center'}}>
+              <p style={{fontSize:desk?13:15,color:$.txtM,margin:0}}>No treatments yet.</p>
+            </div>
+          )}
+
+          {/* Notification settings */}
+          <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'24px 0 12px'}}>Notification Settings</h3>
+          <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12}}>
+            {['Appointment reminders','Treatment aftercare','Promotional offers','Booking confirmations'].map((n,i)=>(
+              <div key={i} style={{padding:'12px 16px',borderBottom:i<3?`1px solid ${$.bdr}`:'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <span style={{fontSize:desk?13:15,color:$.h}}>{n}</span>
+                <Toggle value={i<2?'yes':'no'} onChange={()=>{}} d={desk}/>
+              </div>
+            ))}
+          </div>
+
+          {/* Sign out */}
+          <button onClick={logout} style={{width:'100%',marginTop:24,padding:desk?'10px 0':'14px 0',borderRadius:99,border:`1px solid ${$.bdr}`,background:'transparent',fontSize:desk?13:16,fontWeight:600,color:$.txtM,cursor:'pointer',fontFamily:$.f}}>Sign Out</button>
+          <p style={{textAlign:'center',fontSize:11,color:$.txtL,marginTop:12}}>Powered by <b style={{color:$.acc}}>ReeveOS</b></p>
         </div>
       </div>
     </Shell>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 const API='/api'
+const IMG={login:'/portal-assets/hero-login.png',appt:'/portal-assets/appointment-card.png',hero:'/portal-assets/consultation-hero.png',form:'/portal-assets/form-complete.jpg'}
 const apiFetch=async(path,opts={})=>{const token=sessionStorage.getItem('client_token');const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};const res=await fetch(`${API}${path}`,{...opts,headers});if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.detail||`HTTP ${res.status}`)}return res.json()}
 const DC={pregnant:{microneedling:'BLOCK',peel:'BLOCK',rf:'BLOCK',polynucleotides:'BLOCK',lymphatic:'FLAG'},pacemaker:{rf:'BLOCK',microneedling:'FLAG'},metalImplants:{rf:'BLOCK'},bloodClotting:{microneedling:'BLOCK',peel:'FLAG',rf:'FLAG',polynucleotides:'FLAG'},activeCancer:{microneedling:'BLOCK',peel:'BLOCK',rf:'BLOCK',polynucleotides:'BLOCK',lymphatic:'BLOCK'},keloid:{microneedling:'BLOCK',rf:'FLAG',peel:'FLAG',polynucleotides:'FLAG'},skinInfection:{microneedling:'BLOCK',peel:'BLOCK',rf:'BLOCK',polynucleotides:'BLOCK',lymphatic:'BLOCK'},autoimmune:{microneedling:'BLOCK',peel:'FLAG',rf:'FLAG',polynucleotides:'FLAG'},epilepsy:{microneedling:'FLAG',peel:'FLAG',rf:'FLAG',polynucleotides:'FLAG',lymphatic:'FLAG'},herpes:{microneedling:'FLAG',peel:'FLAG'},roaccutane:{microneedling:'BLOCK',peel:'BLOCK',rf:'BLOCK',polynucleotides:'FLAG'},bloodThinners:{microneedling:'BLOCK',rf:'FLAG',polynucleotides:'FLAG'},retinoids:{peel:'BLOCK',microneedling:'FLAG'},photosensitising:{peel:'BLOCK',microneedling:'FLAG'},immunosuppressants:{microneedling:'BLOCK',peel:'FLAG',rf:'FLAG',polynucleotides:'FLAG'},sunburn:{microneedling:'BLOCK',peel:'BLOCK',rf:'BLOCK',polynucleotides:'FLAG'},sunbed:{peel:'BLOCK',microneedling:'FLAG',rf:'FLAG'},fishAllergy:{polynucleotides:'BLOCK'},fillersRecent:{rf:'BLOCK',polynucleotides:'FLAG'}}
 const TL={microneedling:'Microneedling',peel:'Chemical Peels',rf:'RF Needling',polynucleotides:'Polynucleotides',lymphatic:'Lymphatic Lift'}
@@ -179,15 +180,29 @@ export default function ClientPortal(){
   if(view==='login')return(
     <div style={{minHeight:'100vh',background:$.bg,fontFamily:$.f}}>
       {FONT}
-      <div style={{background:$.card,borderBottom:`1px solid ${$.bdr}`,padding:'10px 32px'}}>
+      {/* Desktop header */}
+      {desk&&<div style={{background:$.card,borderBottom:`1px solid ${$.bdr}`,padding:'10px 32px'}}>
         <div style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{width:32,height:32,borderRadius:10,background:$.acc,display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{fontSize:13,fontWeight:800,color:'#111'}}>R.</span></div><span style={{fontSize:15,fontWeight:700,color:$.h}}>{biz?.name||'Rejuvenate Skin Experts'}</span></div>
-          {desk&&<div style={{display:'flex',gap:28}}>{['Treatments','Products','Locations'].map(l=><button key={l} style={{background:'none',border:'none',fontSize:12,fontWeight:500,color:$.txtM,cursor:'pointer',fontFamily:$.f,textTransform:'uppercase',letterSpacing:'0.5px'}}>{l}</button>)}</div>}
+          <div style={{display:'flex',gap:28}}>{['Treatments','Products','Locations'].map(l=><button key={l} style={{background:'none',border:'none',fontSize:12,fontWeight:500,color:$.txtM,cursor:'pointer',fontFamily:$.f,textTransform:'uppercase',letterSpacing:'0.5px'}}>{l}</button>)}</div>
         </div>
-      </div>
-      <div style={{maxWidth:1100,margin:'0 auto',padding:desk?'20px 32px':'12px'}}>
-        <div style={{width:'100%',height:desk?320:160,borderRadius:12,background:'linear-gradient(135deg,#D1D5DB,#E5E7EB,#D1D5DB)',display:'flex',alignItems:'flex-end',padding:desk?40:20,boxSizing:'border-box'}}><p style={{fontSize:desk?32:20,fontWeight:300,color:$.txtM,margin:0,fontStyle:'italic'}}>Radiance redefined.</p></div>
-      </div>
+      </div>}
+      {/* Hero — mobile: full image with gradient + centered branding; desktop: banner */}
+      {!desk?<div style={{position:'relative',width:'100%',height:340,overflow:'hidden'}}>
+        <img src={IMG.login} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+        <div style={{position:'absolute',inset:0,background:'linear-gradient(to bottom,rgba(244,245,247,0) 20%,rgba(244,245,247,0.6) 60%,#F4F5F7 100%)'}}/>
+        <div style={{position:'absolute',bottom:40,left:0,right:0,textAlign:'center'}}>
+          <div style={{width:64,height:64,borderRadius:99,border:`2px solid ${$.acc}40`,background:'rgba(255,255,255,0.9)',display:'inline-flex',alignItems:'center',justifyContent:'center',marginBottom:8}}><span style={{fontSize:30,fontWeight:700,color:$.acc}}>R</span></div>
+          <p style={{fontSize:28,fontWeight:700,color:$.acc,margin:'0 0 2px',letterSpacing:'-0.5px'}}>{biz?.name?.split(' ')[0]||'Rejuvenate'}</p>
+          <p style={{fontSize:10,fontWeight:600,color:$.txtM,textTransform:'uppercase',letterSpacing:2,margin:0}}>{biz?.name?.includes(' ')?biz.name.split(' ').slice(1).join(' '):'Skin Experts'}</p>
+        </div>
+      </div>:<div style={{maxWidth:1100,margin:'0 auto',padding:'20px 32px'}}>
+        <div style={{width:'100%',height:320,borderRadius:12,overflow:'hidden',position:'relative'}}>
+          <img src={IMG.login} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+          <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(244,245,247,0.7),rgba(244,245,247,0.2))'}}/>
+          <p style={{position:'absolute',bottom:40,left:40,fontSize:32,fontWeight:300,color:$.txtM,margin:0,fontStyle:'italic'}}>Radiance redefined.</p>
+        </div>
+      </div>}
       <div style={{maxWidth:1100,margin:'0 auto',padding:desk?'0 32px 32px':'0 12px 20px'}}>
         <div style={desk?{display:'flex',gap:40,alignItems:'flex-start'}:{}}>
           {desk&&<div style={{flex:1,paddingTop:28}}><h2 style={{fontSize:22,fontWeight:700,color:$.acc,margin:'0 0 16px'}}>Welcome Back</h2><p style={{fontSize:13,color:$.txtM,lineHeight:'22px',margin:'0 0 16px',maxWidth:380}}>Access your personalized skincare dashboard, manage appointments, and explore exclusive member treatments designed for your unique glow.</p><div style={{display:'flex',alignItems:'center',gap:8}}>{I.shield($.acc,14)}<span style={{fontSize:11,fontWeight:700,color:$.acc,textTransform:'uppercase',letterSpacing:'0.5px'}}>Secure Luxury Gateway</span></div></div>}
@@ -242,7 +257,7 @@ export default function ClientPortal(){
                   {hasForm&&<button style={{padding:desk?'8px 18px':'10px 22px',borderRadius:99,border:`1px solid ${$.acc}40`,background:'transparent',color:$.acc,fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Download PDF</button>}
                 </div>
               </div>
-              {desk&&<div style={{width:240,height:140,borderRadius:10,background:$.bg,border:`1px solid ${$.bdr}`,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>{I.form($.bdr2,36)}</div>}
+              <div style={{width:desk?240:64,height:desk?140:64,borderRadius:desk?10:12,overflow:'hidden',flexShrink:0}}><img src={IMG.form} alt="" style={{width:'100%',height:'100%',objectFit:'cover',opacity:0.85}}/></div>
             </div>}
             <div style={desk?{display:'flex',gap:24,alignItems:'flex-start'}:{}}>
               <div style={{flex:1,minWidth:0}}>
@@ -250,6 +265,24 @@ export default function ClientPortal(){
                 <div style={{display:'grid',gridTemplateColumns:desk?`repeat(${qa.length},1fr)`:'1fr 1fr',gap:10,marginBottom:20}}>
                   {qa.map((a,i)=><button key={i} onClick={a.action} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:desk?10:14,padding:desk?14:18,cursor:'pointer',textAlign:'left',transition:'border-color 0.15s'}} onMouseEnter={e=>e.currentTarget.style.borderColor=$.acc+'50'} onMouseLeave={e=>e.currentTarget.style.borderColor=$.bdr}><div style={{width:36,height:36,borderRadius:8,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8}}>{I[a.icon]($.acc,16)}</div><p style={{fontSize:desk?13:16,fontWeight:600,color:$.h,margin:0}}>{a.label}</p><p style={{fontSize:desk?11:14,color:$.txtM,margin:'2px 0 0'}}>{a.sub}</p></button>)}
                 </div>
+                
+                {/* Next Appointment Card with Image */}
+                {upcoming.length>0&&<div style={{borderRadius:16,overflow:'hidden',border:`1px solid ${$.bdr}`,marginBottom:16,background:$.card}}>
+                  <div style={{position:'relative',height:desk?160:120,overflow:'hidden'}}>
+                    <img src={IMG.appt} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+                    <div style={{position:'absolute',inset:0,background:'linear-gradient(to top,rgba(0,0,0,0.5),transparent)'}}/>
+                    <div style={{position:'absolute',bottom:10,left:14,display:'flex',alignItems:'center',gap:6}}>
+                      <div style={{width:8,height:8,borderRadius:99,background:$.ok}}/><span style={{fontSize:11,fontWeight:700,color:$.ok,textTransform:'uppercase',letterSpacing:1}}>Ready</span>
+                    </div>
+                  </div>
+                  <div style={{padding:'14px 16px'}}>
+                    <p style={{fontSize:11,fontWeight:600,color:$.acc,textTransform:'uppercase',letterSpacing:'0.5px',margin:'0 0 2px'}}>{upcoming[0].date} {upcoming[0].time&&`• ${upcoming[0].time}`}</p>
+                    <p style={{fontSize:desk?18:17,fontWeight:700,color:$.h,margin:'0 0 2px'}}>Next Appointment</p>
+                    <p style={{fontSize:desk?13:14,color:$.txtM,margin:'0 0 1px'}}>{upcoming[0].service}{upcoming[0].staff?` with ${upcoming[0].staff}`:''}</p>
+                    <p style={{fontSize:12,color:$.txtL,margin:0}}>Ready for your session</p>
+                  </div>
+                </div>}
+
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><h3 style={{fontSize:15,fontWeight:700,color:$.h,margin:0}}>Upcoming Bookings</h3>{upcoming.length>0&&<button style={{background:'none',border:'none',color:$.acc,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:$.f}}>View All</button>}</div>
                 {upcoming.length>0?upcoming.map((b,i)=><div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:14,marginBottom:8,display:'flex',alignItems:'center',justifyContent:'space-between'}}><div style={{display:'flex',gap:14,alignItems:'center'}}><div style={{width:48,height:48,borderRadius:10,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flexShrink:0}}><span style={{fontSize:10,fontWeight:700,color:$.txtM,textTransform:'uppercase'}}>{b.month||'TBC'}</span><span style={{fontSize:17,fontWeight:700,color:$.h,lineHeight:1}}>{b.day||'—'}</span></div><div><p style={{fontSize:desk?14:17,fontWeight:600,color:$.h,margin:0}}>{b.service}</p><div style={{display:'flex',gap:12,marginTop:2}}><span style={{display:'flex',alignItems:'center',gap:3,fontSize:12,color:$.txtM}}>{I.clock($.txtM,11)} {b.time}</span>{b.staff&&<span style={{display:'flex',alignItems:'center',gap:3,fontSize:12,color:$.txtM}}>{I.user($.txtM,11)} {b.staff}</span>}</div></div></div><span style={{padding:'3px 8px',borderRadius:99,fontSize:10,fontWeight:700,background:hasForm?'rgba(16,185,129,0.08)':'rgba(245,158,11,0.08)',color:hasForm?'#10B981':'#F59E0B',border:`1px solid ${hasForm?'rgba(16,185,129,0.15)':'rgba(245,158,11,0.15)'}`}}>{hasForm?'All set':'Form needed'}</span></div>):<div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:28,textAlign:'center'}}><div style={{width:40,height:40,borderRadius:10,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}>{I.cal($.acc,20)}</div><p style={{fontSize:desk?13:17,fontWeight:600,color:$.h}}>No upcoming appointments</p><p style={{fontSize:desk?12:15,color:$.txtM,margin:desk?'3px 0 12px':'6px 0 16px'}}>Book your first treatment to get started</p><button onClick={()=>navTo('bookings')} style={{padding:desk?'7px 18px':'10px 22px',borderRadius:99,border:'none',background:$.acc,color:'#fff',fontSize:desk?12:14,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book Appointment</button></div>}
                 {myData?.past_bookings?.length>0&&<div style={{marginTop:16}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><h3 style={{fontSize:15,fontWeight:700,color:$.h,margin:0}}>Treatment History</h3><button style={{background:'none',border:'none',color:$.acc,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:$.f}}>View All</button></div>{myData.past_bookings.slice(0,4).map((b,i)=><div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',alignItems:'center',justifyContent:'space-between'}}><div style={{display:'flex',gap:10,alignItems:'center'}}><div style={{width:36,height:36,borderRadius:8,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{I.shield($.txtL,16)}</div><div><p style={{fontSize:13,fontWeight:600,color:$.h,margin:0}}>{b.service}</p><p style={{fontSize:11,color:$.txtM,margin:'1px 0 0'}}>{b.staff?`${b.staff} · `:''}{ b.date}</p></div></div><span style={{fontSize:10,fontWeight:700,color:$.ok,textTransform:'uppercase'}}>Completed</span></div>)}</div>}

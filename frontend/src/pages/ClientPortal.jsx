@@ -53,7 +53,7 @@ const I={
   phone:(c='currentColor',s=14)=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>,
 }
 // Light palette — mapped from Figma dark tokens
-const L={bg:'#F1F5F9',card:'#FFFFFF',bdr:'#E2E8F0',bdr2:'#CBD5E1',h:'#111111',txt:'#334155',txtM:'#64748B',txtL:'#94A3B8',acc:'#C8A34C',ok:'#22C55E',err:'#EF4444',wrn:'#F59E0B',f:"'Figtree',-apple-system,sans-serif"}
+const L={bg:'#F4F5F7',card:'#FFFFFF',bdr:'#E5E7EB',bdr2:'#D1D5DB',h:'#111111',txt:'#374151',txtM:'#6B7280',txtL:'#9CA3AF',acc:'#C9A84C',ok:'#22C55E',err:'#EF4444',wrn:'#F59E0B',f:"'Figtree',-apple-system,sans-serif"}
 const STEPS=['Personal','Medical','Medications','Skin','Lifestyle','Consent']
 // ═══ SHARED COMPONENTS (matching Figma patterns) ═══
 
@@ -78,8 +78,8 @@ const ProgressBar = ({step,total=6,title,desk}) => {
       <div style={{maxWidth:800,margin:'0 auto'}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:8}}>
           <div>
-            <p style={{fontSize:13,fontWeight:700,color:L.acc,margin:0,textTransform:'uppercase',letterSpacing:'0.5px'}}>Step {step+1} of {total}</p>
-            <p style={{fontSize:22,fontWeight:700,color:L.h,margin:'2px 0 0'}}>{title}</p>
+            <p style={{fontSize:12,fontWeight:700,color:L.acc,margin:0,textTransform:'uppercase',letterSpacing:'0.5px'}}>Step {step+1} of {total}</p>
+            <p style={{fontSize:18,fontWeight:700,color:L.h,margin:'2px 0 0'}}>{title}</p>
           </div>
           <span style={{fontSize:14,color:L.txtM}}>{pct}% Complete</span>
         </div>
@@ -95,27 +95,27 @@ const ProgressBar = ({step,total=6,title,desk}) => {
 const Toggle = ({value,onChange}) => {
   const on = value==='yes'
   return (
-    <button type="button" onClick={()=>onChange(on?'no':'yes')} style={{width:56,height:32,borderRadius:16,background:on?L.acc:L.bdr,border:'none',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0}}>
-      <div style={{width:24,height:24,borderRadius:12,background:'#fff',position:'absolute',top:4,left:on?28:4,transition:'left 0.2s',boxShadow:'0 1px 3px rgba(0,0,0,0.15)'}}/>
+    <button type="button" onClick={()=>onChange(on?'no':'yes')} style={{width:52,height:28,borderRadius:14,background:on?L.acc:L.bdr,border:'none',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0}}>
+      <div style={{width:22,height:22,borderRadius:11,background:'#fff',position:'absolute',top:3,left:on?27:3,transition:'left 0.2s',boxShadow:'0 1px 3px rgba(0,0,0,0.2)'}}/>
     </button>
   )
 }
 
 // Figma question card (from 2:2 — bordered card with question + toggle)
 const QCard = ({label,sub,name,value,onChange,detail,detailLabel,detailValue,onDetailChange}) => (
-  <div style={{background:L.card,border:`1px solid ${value==='yes'?L.acc+'60':L.bdr}`,borderRadius:24,padding:25,marginBottom:16,transition:'border-color 0.2s'}}>
-    <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:16}}>
+  <div style={{background:L.card,border:`1px solid ${value==='yes'?L.acc+'50':L.bdr}`,borderRadius:12,padding:'14px 16px',marginBottom:12,transition:'border-color 0.2s'}}>
+    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
       <div style={{flex:1}}>
-        <p style={{fontSize:16,fontWeight:700,color:L.h,margin:0}}>{label}</p>
-        {sub&&<p style={{fontSize:14,color:L.txtM,margin:'4px 0 0',lineHeight:'22px'}}>{sub}</p>}
+        <p style={{fontSize:14,fontWeight:600,color:L.h,margin:0,lineHeight:1.4}}>{label}</p>
+        {sub&&<p style={{fontSize:13,color:L.txtM,margin:'3px 0 0',lineHeight:1.4}}>{sub}</p>}
       </div>
       <Toggle value={value} onChange={v=>onChange(name,v)}/>
     </div>
     {value==='yes'&&detail&&(
-      <div style={{marginTop:16}}>
-        <p style={{fontSize:14,fontWeight:600,color:L.h,margin:'0 0 8px'}}>{detailLabel||'Treatment Details'}</p>
+      <div style={{marginTop:12}}>
+        <p style={{fontSize:13,fontWeight:600,color:L.txt,margin:'0 0 6px'}}>{detailLabel||'Details'}</p>
         <textarea placeholder="Please provide details..." value={detailValue||''} onChange={e=>onDetailChange(name+'Detail',e.target.value)}
-          style={{width:'100%',minHeight:96,padding:14,borderRadius:16,border:`1px solid ${L.bdr}`,fontSize:14,outline:'none',background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f,resize:'vertical'}}/>
+          style={{width:'100%',minHeight:80,padding:'10px 12px',borderRadius:10,border:`1px solid ${L.bdr}`,fontSize:13,outline:'none',background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f,resize:'vertical'}}/>
       </div>
     )}
   </div>
@@ -123,25 +123,25 @@ const QCard = ({label,sub,name,value,onChange,detail,detailLabel,detailValue,onD
 
 // Figma input field with icon (from 2:303 signup)
 const Field = ({label,icon,type='text',value,onChange,placeholder,name}) => (
-  <div style={{marginBottom:20}}>
-    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
-      {icon&&icon}{label&&<label style={{fontSize:14,fontWeight:600,color:L.h}}>{label}</label>}
+  <div style={{marginBottom:16}}>
+    <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:5}}>
+      {icon&&icon}{label&&<label style={{fontSize:13,fontWeight:600,color:L.txt}}>{label}</label>}
     </div>
     <input type={type} value={value||''} placeholder={placeholder} onChange={e=>onChange(name,e.target.value)}
-      style={{width:'100%',padding:'14px 17px',borderRadius:16,border:`1px solid ${L.bdr}`,fontSize:14,outline:'none',background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f}}
+      style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1px solid ${L.bdr}`,fontSize:13,outline:'none',background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f}}
       onFocus={e=>e.target.style.borderColor=L.acc} onBlur={e=>e.target.style.borderColor=L.bdr}/>
   </div>
 )
 
 // Figma consent checkbox (from 2:540)
 const Consent = ({label,sub,checked,onChange}) => (
-  <div style={{display:'flex',gap:16,padding:'16px 0',borderBottom:`1px solid ${L.bdr}22`}}>
-    <button type="button" onClick={onChange} style={{width:24,height:24,borderRadius:8,border:checked?'none':`2px solid ${L.bdr}`,background:checked?L.acc:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0,marginTop:2}}>
-      {checked&&I.chk('#fff',14)}
+  <div style={{display:'flex',gap:12,padding:'12px 0',borderBottom:`1px solid ${L.bdr}20`}}>
+    <button type="button" onClick={onChange} style={{width:22,height:22,borderRadius:6,border:checked?'none':`2px solid ${L.bdr}`,background:checked?L.acc:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0,marginTop:1}}>
+      {checked&&I.chk('#fff',12)}
     </button>
     <div>
-      <p style={{fontSize:16,fontWeight:700,color:L.h,margin:0}}>{label}</p>
-      <p style={{fontSize:14,color:L.txtM,margin:'4px 0 0',lineHeight:'22px'}}>{sub}</p>
+      <p style={{fontSize:14,fontWeight:600,color:L.h,margin:0}}>{label}</p>
+      <p style={{fontSize:13,color:L.txtM,margin:'2px 0 0',lineHeight:1.5}}>{sub}</p>
     </div>
   </div>
 )
@@ -150,22 +150,22 @@ const Consent = ({label,sub,checked,onChange}) => (
 const Alerts = ({blocks,flags}) => {
   if(!blocks.length&&!flags.length) return null
   return (
-    <div style={{marginTop:20}}>
+    <div style={{marginTop:16}}>
       {blocks.length>0&&(
-        <div style={{background:'rgba(239,68,68,0.06)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:24,padding:20,marginBottom:12,display:'flex',gap:16,alignItems:'flex-start'}}>
-          <div style={{width:40,height:40,borderRadius:99,background:'rgba(239,68,68,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{I.block(L.err,20)}</div>
+        <div style={{background:'rgba(239,68,68,0.05)',border:'1px solid rgba(239,68,68,0.15)',borderRadius:12,padding:16,marginBottom:10,display:'flex',gap:12,alignItems:'flex-start'}}>
+          <div style={{width:36,height:36,borderRadius:99,background:'rgba(239,68,68,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{I.block(L.err,16)}</div>
           <div>
-            <p style={{fontSize:16,fontWeight:700,color:L.err,margin:'0 0 4px'}}>Treatments Blocked</p>
-            {blocks.map((b,i)=><p key={i} style={{fontSize:14,color:'#B91C1C',margin:'2px 0'}}>{b.treatment} — {b.condition}</p>)}
+            <p style={{fontSize:14,fontWeight:700,color:L.err,margin:'0 0 2px'}}>Treatments Blocked</p>
+            {blocks.map((b,i)=><p key={i} style={{fontSize:13,color:'#B91C1C',margin:'2px 0'}}>{b.treatment} — {b.condition}</p>)}
           </div>
         </div>
       )}
       {flags.length>0&&(
-        <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.2)',borderRadius:24,padding:20,display:'flex',gap:16,alignItems:'flex-start'}}>
-          <div style={{width:40,height:40,borderRadius:99,background:'rgba(245,158,11,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{I.warn(L.wrn,20)}</div>
+        <div style={{background:'rgba(245,158,11,0.05)',border:'1px solid rgba(245,158,11,0.15)',borderRadius:12,padding:16,display:'flex',gap:12,alignItems:'flex-start'}}>
+          <div style={{width:36,height:36,borderRadius:99,background:'rgba(245,158,11,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{I.warn(L.wrn,16)}</div>
           <div>
-            <p style={{fontSize:16,fontWeight:700,color:'#B45309',margin:'0 0 4px'}}>Therapist Review Required</p>
-            {flags.map((f,i)=><p key={i} style={{fontSize:14,color:'#92400E',margin:'2px 0'}}>{f.treatment} — {f.condition}</p>)}
+            <p style={{fontSize:14,fontWeight:700,color:'#B45309',margin:'0 0 2px'}}>Therapist Review Required</p>
+            {flags.map((f,i)=><p key={i} style={{fontSize:13,color:'#92400E',margin:'2px 0'}}>{f.treatment} — {f.condition}</p>)}
           </div>
         </div>
       )}
@@ -182,10 +182,10 @@ const SigPad = ({onSign}) => {
   return (
     <div>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-        <p style={{fontSize:18,fontWeight:700,color:L.h,margin:0}}>Digital Signature</p>
+        <p style={{fontSize:15,fontWeight:700,color:L.h,margin:0}}>Digital Signature</p>
         <button type="button" onClick={()=>{ref.current.getContext('2d').clearRect(0,0,600,180);onSign(null)}} style={{background:'none',border:'none',color:L.acc,fontSize:14,fontWeight:600,cursor:'pointer'}}>Clear Signature</button>
       </div>
-      <div style={{border:`2px dashed ${L.bdr}`,borderRadius:24,overflow:'hidden',position:'relative'}}>
+      <div style={{border:`2px dashed ${L.bdr}`,borderRadius:12,overflow:'hidden',position:'relative'}}>
         <canvas ref={ref} width={600} height={180} style={{width:'100%',height:160,cursor:'crosshair',background:L.bg,touchAction:'none',display:'block'}}
           onMouseDown={s} onMouseMove={d} onMouseUp={u} onMouseLeave={u} onTouchStart={s} onTouchMove={d} onTouchEnd={u}/>
         <p style={{position:'absolute',bottom:12,right:20,fontSize:11,color:L.txtL,letterSpacing:'0.15em',textTransform:'uppercase',margin:0}}>Electronic Record</p>
@@ -197,7 +197,7 @@ const SigPad = ({onSign}) => {
 
 // Figma footer (from all pages)
 const Footer = ({biz,desk}) => (
-  <div style={{borderTop:`1px solid ${L.bdr}`,padding:desk?'32px 40px':'20px 16px',marginTop:32}}>
+  <div style={{borderTop:`1px solid ${L.bdr}`,padding:desk?'24px 40px':'16px 16px',marginTop:24}}>
     <div style={{maxWidth:1200,margin:'0 auto',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
       <p style={{fontSize:13,color:L.txtM,margin:0}}>&copy; {new Date().getFullYear()} {biz?.name}. All rights reserved.</p>
       <div style={{display:'flex',gap:20,alignItems:'center'}}>
@@ -210,16 +210,16 @@ const Footer = ({biz,desk}) => (
 
 // Figma form nav buttons (from 2:2, 2:206, 2:381, 2:540)
 const FormNav = ({step,canProceed,onBack,onNext,onSubmit,loading,desk}) => (
-  <div style={{borderTop:`1px solid ${L.bdr}`,padding:'24px 0',marginTop:32}}>
+  <div style={{borderTop:`1px solid ${L.bdr}`,padding:'20px 0',marginTop:24}}>
     <div style={{maxWidth:800,margin:'0 auto',padding:'0 24px',display:'flex',justifyContent:'space-between'}}>
-      {step>0?<button onClick={onBack} style={{padding:'14px 32px',borderRadius:16,border:`1px solid ${L.bdr}`,background:L.card,fontSize:14,fontWeight:600,color:L.acc,cursor:'pointer',fontFamily:L.f,display:'flex',alignItems:'center',gap:8}}>
+      {step>0?<button onClick={onBack} style={{padding:'10px 24px',borderRadius:10,border:`1px solid ${L.bdr}`,background:L.card,fontSize:13,fontWeight:600,color:L.acc,cursor:'pointer',fontFamily:L.f,display:'flex',alignItems:'center',gap:8}}>
         {I.back(L.acc,14)} Previous Step
       </button>:<div/>}
       {onSubmit?
-        <button onClick={onSubmit} disabled={!canProceed||loading} style={{padding:'14px 32px',borderRadius:16,border:'none',background:canProceed&&!loading?L.acc:L.bdr,color:canProceed?'#fff':L.txtL,fontSize:14,fontWeight:700,cursor:canProceed?'pointer':'not-allowed',fontFamily:L.f,display:'flex',alignItems:'center',gap:8}}>
+        <button onClick={onSubmit} disabled={!canProceed||loading} style={{padding:'10px 28px',borderRadius:10,border:'none',background:canProceed&&!loading?L.acc:L.bdr,color:canProceed?'#fff':L.txtL,fontSize:14,fontWeight:700,cursor:canProceed?'pointer':'not-allowed',fontFamily:L.f,display:'flex',alignItems:'center',gap:8}}>
           Submit Form {I.chk('#fff',14)}
         </button>
-      :<button onClick={onNext} disabled={!canProceed} style={{padding:'14px 32px',borderRadius:16,border:'none',background:canProceed?L.acc:L.bdr,color:canProceed?'#fff':L.txtL,fontSize:14,fontWeight:700,cursor:canProceed?'pointer':'not-allowed',fontFamily:L.f,display:'flex',alignItems:'center',gap:8}}>
+      :<button onClick={onNext} disabled={!canProceed} style={{padding:'10px 28px',borderRadius:10,border:'none',background:canProceed?L.acc:L.bdr,color:canProceed?'#fff':L.txtL,fontSize:14,fontWeight:700,cursor:canProceed?'pointer':'not-allowed',fontFamily:L.f,display:'flex',alignItems:'center',gap:8}}>
           {step===STEPS.length-2?'Continue to Final Step':'Save and Continue'} {I.arr('#fff',14)}
         </button>}
     </div>
@@ -245,7 +245,7 @@ const ClientSidebar = ({biz,user,activeTab,onNav,desk,onLogout}) => {
       <div style={{width:RAIL,background:'#111111',display:'flex',flexDirection:'column',zIndex:20,flexShrink:0}}>
         {/* Logo */}
         <div style={{height:64,display:'flex',alignItems:'center',justifyContent:'center',borderBottom:'1px solid rgba(255,255,255,0.08)',flexShrink:0}}>
-          <div style={{width:34,height:34,borderRadius:10,background:'#D4A373',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 2px 8px rgba(0,0,0,0.15)'}}>
+          <div style={{width:34,height:34,borderRadius:10,background:'#C9A84C',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 2px 8px rgba(0,0,0,0.15)'}}>
             <span style={{color:'#111111',fontWeight:700,fontSize:15}}>R.</span>
           </div>
         </div>
@@ -356,7 +356,7 @@ export default function ClientPortal() {
       </Header>
       {/* Hero banner (Figma: 2:134) */}
       <div style={{maxWidth:1200,margin:'0 auto',padding:desk?'32px 40px':'16px 16px'}}>
-        <div style={{width:'100%',height:desk?400:200,borderRadius:24,background:'linear-gradient(135deg,#E2E8F0 0%,#CBD5E1 50%,#E2E8F0 100%)',display:'flex',alignItems:'flex-end',padding:48,boxSizing:'border-box',marginBottom:desk?0:24,position:'relative',overflow:'hidden'}}>
+        <div style={{width:'100%',height:desk?400:200,borderRadius:12,background:'linear-gradient(135deg,#E2E8F0 0%,#CBD5E1 50%,#E2E8F0 100%)',display:'flex',alignItems:'flex-end',padding:48,boxSizing:'border-box',marginBottom:desk?0:24,position:'relative',overflow:'hidden'}}>
           <p style={{fontSize:desk?40:24,fontWeight:300,color:L.txtM,margin:0,fontStyle:'italic'}}>Radiance redefined.</p>
         </div>
       </div>
@@ -374,8 +374,8 @@ export default function ClientPortal() {
           </div>}
           {/* Right: Login card (Figma: 2:151) */}
           <div style={{width:desk?480:'100%',flexShrink:0}}>
-            <div style={{background:L.card,borderRadius:24,border:`1px solid ${L.bdr}`,padding:33,boxShadow:'0 10px 40px rgba(0,0,0,0.06)'}}>
-              <h2 style={{fontSize:24,fontWeight:700,color:L.h,margin:'0 0 8px'}}>{authMode==='login'?'Member Login':'Create Account'}</h2>
+            <div style={{background:L.card,borderRadius:12,border:`1px solid ${L.bdr}`,padding:28,boxShadow:'0 10px 40px rgba(0,0,0,0.06)'}}>
+              <h2 style={{fontSize:18,fontWeight:700,color:L.h,margin:'0 0 6px'}}>{authMode==='login'?'Member Login':'Create Account'}</h2>
               <p style={{fontSize:14,color:L.txtM,margin:'0 0 28px'}}>{authMode==='login'?'Please enter your credentials to continue.':'Start your journey to radiant skin today.'}</p>
 
               {authMode==='signup'&&<Field label="Full Name" icon={I.user(L.txtL,14)} name="signupName" value={signupName} onChange={(_,v)=>setSignupName(v)} placeholder="Enter your full name"/>}
@@ -393,14 +393,14 @@ export default function ClientPortal() {
                 </div>
                 <div style={{position:'relative'}}>
                   <input type={showPw?'text':'password'} value={password} onChange={e=>setPassword(e.target.value)} placeholder={authMode==='login'?'••••••••':'Create a strong password'}
-                    style={{width:'100%',padding:'14px 50px 14px 17px',borderRadius:16,border:`1px solid ${L.bdr}`,fontSize:14,outline:'none',background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f}}/>
+                    style={{width:'100%',padding:'10px 44px 10px 14px',borderRadius:10,border:`1px solid ${L.bdr}`,fontSize:14,outline:'none',background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f}}/>
                   <button type="button" onClick={()=>setShowPw(!showPw)} style={{position:'absolute',right:17,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer'}}>{I.eye(L.txtL)}</button>
                 </div>
               </div>
 
               {err&&<p style={{fontSize:13,color:L.err,margin:'0 0 16px'}}>{err}</p>}
 
-              <button onClick={doAuth} disabled={loading} style={{width:'100%',padding:'16px 0',borderRadius:16,border:'none',background:L.acc,color:'#fff',fontSize:16,fontWeight:700,cursor:loading?'wait':'pointer',fontFamily:L.f,letterSpacing:'0.3px',opacity:loading?0.6:1,textTransform:'uppercase',marginBottom:20}}>
+              <button onClick={doAuth} disabled={loading} style={{width:'100%',padding:'12px 0',borderRadius:10,border:'none',background:L.acc,color:'#fff',fontSize:14,fontWeight:700,cursor:loading?'wait':'pointer',fontFamily:L.f,letterSpacing:'0.3px',opacity:loading?0.6:1,textTransform:'uppercase',marginBottom:20}}>
                 {loading?'Please wait...':authMode==='login'?'Log In':'Create Account'}
               </button>
 
@@ -459,31 +459,31 @@ export default function ClientPortal() {
           {/* Welcome heading (Figma 2:674) */}
           {hasForm&&<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
             <div>
-              <h1 style={{fontSize:desk?36:24,fontWeight:700,color:L.h,margin:0}}>Welcome back, {(user?.name||'').split(' ')[0]}!</h1>
+              <h1 style={{fontSize:desk?28:22,fontWeight:700,color:L.h,margin:0}}>Welcome back, {(user?.name||'').split(' ')[0]}!</h1>
               <p style={{fontSize:16,color:L.txtM,margin:'4px 0 0'}}>Your skin health journey is progressing perfectly.</p>
             </div>
-            {desk&&<button onClick={()=>window.open(`/${slug}`,'_blank')} style={{padding:'12px 28px',borderRadius:16,border:`1px solid ${L.bdr}`,background:L.card,fontSize:14,fontWeight:600,color:L.h,cursor:'pointer',fontFamily:L.f}}>Book Appointment</button>}
+            {desk&&<button onClick={()=>window.open(`/${slug}`,'_blank')} style={{padding:'8px 20px',borderRadius:10,border:`1px solid ${L.bdr}`,background:L.card,fontSize:14,fontWeight:600,color:L.h,cursor:'pointer',fontFamily:L.f}}>Book Appointment</button>}
           </div>}
 
           {/* Alert card (Figma: 2:882 / 2:723) */}
           {isSalon&&(
-            <div style={{background:hasForm?'rgba(34,197,94,0.04)':'rgba(200,163,76,0.06)',border:hasForm?'2px solid rgba(34,197,94,0.25)':'2px solid rgba(200,163,76,0.3)',borderRadius:24,padding:26,marginBottom:32,display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:32,boxShadow:'0 10px 15px -3px rgba(0,0,0,0.04)'}}>
+            <div style={{background:hasForm?'rgba(34,197,94,0.04)':'rgba(200,163,76,0.06)',border:hasForm?'2px solid rgba(34,197,94,0.25)':'2px solid rgba(200,163,76,0.3)',borderRadius:12,padding:20,marginBottom:24,display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:32,boxShadow:'0 10px 15px -3px rgba(0,0,0,0.04)'}}>
               <div style={{flex:1}}>
                 <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
                   {hasForm?I.shield(L.ok,16):I.warn(L.acc,16)}
                   <span style={{fontSize:14,fontWeight:700,color:hasForm?L.ok:L.acc,textTransform:'uppercase',letterSpacing:'0.7px'}}>{hasForm?'Status: Complete':'Action Required'}</span>
                 </div>
-                <h3 style={{fontSize:24,fontWeight:700,color:L.h,margin:'0 0 8px'}}>{hasForm?'Consultation Form Complete':'Consultation Form Needed'}</h3>
-                <p style={{fontSize:16,color:L.txtM,margin:0,lineHeight:'24px',maxWidth:600}}>
+                <h3 style={{fontSize:18,fontWeight:700,color:L.h,margin:'0 0 6px'}}>{hasForm?'Consultation Form Complete':'Consultation Form Needed'}</h3>
+                <p style={{fontSize:14,color:L.txtM,margin:0,lineHeight:'22px',maxWidth:600}}>
                   {hasForm?'Thank you for providing your details. Our clinical experts have finished reviewing your profile and your personalized treatment plan is ready.'
                   :'Please complete your comprehensive skin assessment form before your next visit to ensure the best results.'}
                 </p>
                 <div style={{display:'flex',gap:12,marginTop:16}}>
-                  <button onClick={()=>{setStep(0);setView('form')}} style={{padding:'12px 24px',borderRadius:16,border:'none',background:L.acc,color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:L.f}}>{hasForm?'View Form':'Fill Form Now'}</button>
-                  {hasForm&&<button style={{padding:'12px 24px',borderRadius:16,border:`1px solid ${L.acc}40`,background:'transparent',color:L.acc,fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:L.f}}>Download PDF</button>}
+                  <button onClick={()=>{setStep(0);setView('form')}} style={{padding:'10px 22px',borderRadius:10,border:'none',background:L.acc,color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:L.f}}>{hasForm?'View Form':'Fill Form Now'}</button>
+                  {hasForm&&<button style={{padding:'10px 22px',borderRadius:10,border:`1px solid ${L.acc}40`,background:'transparent',color:L.acc,fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:L.f}}>Download PDF</button>}
                 </div>
               </div>
-              {desk&&<div style={{width:300,height:180,borderRadius:24,background:'linear-gradient(135deg,#E2E8F0,#F1F5F9)',border:`1px solid ${hasForm?'rgba(34,197,94,0.15)':'rgba(200,163,76,0.15)'}`,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>{I.form(L.bdr2,48)}</div>}
+              {desk&&<div style={{width:300,height:180,borderRadius:12,background:'linear-gradient(135deg,#E2E8F0,#F1F5F9)',border:`1px solid ${hasForm?'rgba(34,197,94,0.15)':'rgba(200,163,76,0.15)'}`,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>{I.form(L.bdr2,48)}</div>}
             </div>
           )}
 
@@ -491,12 +491,12 @@ export default function ClientPortal() {
           <div style={desk?{display:'flex',gap:32,alignItems:'flex-start'}:{}}>
             <div style={{flex:1,minWidth:0}}>
               {/* Quick Actions (Figma: 2:900) */}
-              <h3 style={{fontSize:22,fontWeight:700,color:L.h,margin:'0 0 16px'}}>Quick Actions</h3>
+              <h3 style={{fontSize:16,fontWeight:700,color:L.h,margin:'0 0 12px'}}>Quick Actions</h3>
               <div style={{display:'grid',gridTemplateColumns:desk?`repeat(${qa.length},1fr)`:'1fr 1fr',gap:16,marginBottom:32}}>
                 {qa.map((a,i)=>(
-                  <button key={i} onClick={a.action} style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:24,padding:17,cursor:'pointer',textAlign:'left',transition:'border-color 0.2s',boxShadow:'0 1px 2px rgba(0,0,0,0.04)'}}
+                  <button key={i} onClick={a.action} style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:12,padding:14,cursor:'pointer',textAlign:'left',transition:'border-color 0.2s',boxShadow:'0 1px 2px rgba(0,0,0,0.04)'}}
                     onMouseEnter={e=>e.currentTarget.style.borderColor=L.acc+'60'} onMouseLeave={e=>e.currentTarget.style.borderColor=L.bdr}>
-                    <div style={{width:48,height:48,borderRadius:16,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:12}}>{I[a.icon](L.acc,20)}</div>
+                    <div style={{width:40,height:40,borderRadius:10,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:12}}>{I[a.icon](L.acc,20)}</div>
                     <p style={{fontSize:14,fontWeight:700,color:L.h,margin:0}}>{a.label}</p>
                     <p style={{fontSize:12,color:L.txtM,margin:'2px 0 0'}}>{a.sub}</p>
                   </button>
@@ -505,18 +505,18 @@ export default function ClientPortal() {
 
               {/* Upcoming (Figma: 2:940) */}
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-                <h3 style={{fontSize:22,fontWeight:700,color:L.h,margin:0}}>Upcoming Bookings</h3>
+                <h3 style={{fontSize:16,fontWeight:700,color:L.h,margin:0}}>Upcoming Bookings</h3>
                 {upcoming.length>0&&<button style={{background:'none',border:'none',color:L.acc,fontSize:14,fontWeight:500,cursor:'pointer',fontFamily:L.f}}>View All</button>}
               </div>
               {upcoming.length>0?upcoming.map((b,i)=>(
-                <div key={i} style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:24,padding:21,marginBottom:12,boxShadow:'0 1px 2px rgba(0,0,0,0.04)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <div key={i} style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:12,padding:16,marginBottom:10,boxShadow:'0 1px 2px rgba(0,0,0,0.04)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div style={{display:'flex',gap:20,alignItems:'center'}}>
-                    <div style={{width:64,height:64,borderRadius:24,background:L.bg,border:`1px solid ${L.bdr}`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <div style={{width:52,height:52,borderRadius:12,background:L.bg,border:`1px solid ${L.bdr}`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flexShrink:0}}>
                       <span style={{fontSize:12,fontWeight:700,color:L.txtM,textTransform:'uppercase'}}>{b.month||'TBC'}</span>
                       <span style={{fontSize:20,fontWeight:700,color:L.h,lineHeight:1}}>{b.day||'—'}</span>
                     </div>
                     <div>
-                      <p style={{fontSize:18,fontWeight:700,color:L.h,margin:0}}>{b.service}</p>
+                      <p style={{fontSize:15,fontWeight:600,color:L.h,margin:0}}>{b.service}</p>
                       <div style={{display:'flex',gap:16,marginTop:4}}>
                         <span style={{display:'flex',alignItems:'center',gap:4,fontSize:14,color:L.txtM}}>{I.clock(L.txtM,13)} {b.time}</span>
                         {b.staff&&<span style={{display:'flex',alignItems:'center',gap:4,fontSize:14,color:L.txtM}}>{I.user(L.txtM,11)} {b.staff}</span>}
@@ -524,16 +524,16 @@ export default function ClientPortal() {
                     </div>
                   </div>
                   <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:8}}>
-                    <span style={{padding:'5px 13px',borderRadius:99,fontSize:12,fontWeight:700,background:hasForm?'rgba(16,185,129,0.08)':'rgba(245,158,11,0.08)',color:hasForm?'#10B981':'#F59E0B',border:`1px solid ${hasForm?'rgba(16,185,129,0.2)':'rgba(245,158,11,0.2)'}`}}>{hasForm?'All set':'Form needed'}</span>
+                    <span style={{padding:'4px 10px',borderRadius:99,fontSize:12,fontWeight:700,background:hasForm?'rgba(16,185,129,0.08)':'rgba(245,158,11,0.08)',color:hasForm?'#10B981':'#F59E0B',border:`1px solid ${hasForm?'rgba(16,185,129,0.2)':'rgba(245,158,11,0.2)'}`}}>{hasForm?'All set':'Form needed'}</span>
                     <button style={{background:'none',border:'none',cursor:'pointer',padding:4,display:'flex',flexDirection:'column',gap:2}}><div style={{width:4,height:4,borderRadius:2,background:L.txtL}}/><div style={{width:4,height:4,borderRadius:2,background:L.txtL}}/><div style={{width:4,height:4,borderRadius:2,background:L.txtL}}/></button>
                   </div>
                 </div>
               )):(
-                <div style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:24,padding:40,textAlign:'center'}}>
-                  <div style={{width:56,height:56,borderRadius:16,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px'}}>{I.cal(L.acc,24)}</div>
+                <div style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:12,padding:32,textAlign:'center'}}>
+                  <div style={{width:44,height:44,borderRadius:10,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px'}}>{I.cal(L.acc,24)}</div>
                   <p style={{fontSize:14,fontWeight:600,color:L.h}}>No upcoming appointments</p>
                   <p style={{fontSize:14,color:L.txtM,margin:'4px 0 16px'}}>Book your first treatment to get started</p>
-                  <button onClick={()=>window.open(`/${slug}`,'_blank')} style={{padding:'10px 24px',borderRadius:16,border:'none',background:L.acc,color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:L.f}}>Book Appointment</button>
+                  <button onClick={()=>window.open(`/${slug}`,'_blank')} style={{padding:'10px 22px',borderRadius:10,border:'none',background:L.acc,color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:L.f}}>Book Appointment</button>
                 </div>
               )}
 
@@ -541,11 +541,11 @@ export default function ClientPortal() {
               {myData?.past_bookings?.length>0&&(
                 <div style={{marginTop:24}}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-                    <h3 style={{fontSize:22,fontWeight:700,color:L.h,margin:0}}>Treatment History</h3>
+                    <h3 style={{fontSize:16,fontWeight:700,color:L.h,margin:0}}>Treatment History</h3>
                     <button style={{background:'none',border:'none',color:L.acc,fontSize:14,fontWeight:500,cursor:'pointer',fontFamily:L.f}}>View All</button>
                   </div>
                   {myData.past_bookings.slice(0,5).map((b,i)=>(
-                    <div key={i} style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:24,padding:'17px 21px',marginBottom:8,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                    <div key={i} style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:12,padding:'12px 16px',marginBottom:8,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                       <div style={{display:'flex',gap:16,alignItems:'center'}}>
                         <div style={{width:48,height:48,borderRadius:16,background:L.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{I.shield(L.txtL,20)}</div>
                         <div>
@@ -566,7 +566,7 @@ export default function ClientPortal() {
             {desk&&(
               <div style={{width:363,flexShrink:0,display:'flex',flexDirection:'column',gap:24}}>
                 {/* Membership (Figma: 2:1002) */}
-                <div style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:24,padding:25,position:'relative',overflow:'hidden'}}>
+                <div style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:12,padding:20,position:'relative',overflow:'hidden'}}>
                   <div style={{position:'absolute',top:-16,right:-16,width:96,height:96,borderRadius:99,background:'rgba(200,163,76,0.12)',filter:'blur(32px)',pointerEvents:'none'}}/>
                   <div style={{position:'relative'}}>
                     <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
@@ -581,7 +581,7 @@ export default function ClientPortal() {
                   </div>
                 </div>
                 {/* Skin Tip (Figma: 2:1021) */}
-                <div style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:24,padding:25}}>
+                <div style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:12,padding:20}}>
                   <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>{I.shield(L.acc,16)}<p style={{fontSize:16,fontWeight:700,color:L.h,margin:0}}>Skin Tip of the Week</p></div>
                   <div style={{width:'100%',aspectRatio:'16/9',borderRadius:16,background:'linear-gradient(135deg,#E2E8F0,#CBD5E1)',marginBottom:12,display:'flex',alignItems:'center',justifyContent:'center'}}>{I.shield(L.bdr2,32)}</div>
                   <p style={{fontSize:14,color:L.txtM,lineHeight:'20px',margin:'0 0 12px'}}>"Consistency is key! Hydrate daily and never skip your SPF, even on cloudy days."</p>
@@ -609,13 +609,13 @@ export default function ClientPortal() {
   if(view==='submitted') return (
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:16,background:L.bg,fontFamily:L.f}}>
       <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-      <div style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:24,maxWidth:480,width:'100%',textAlign:'center',padding:40,boxShadow:'0 10px 40px rgba(0,0,0,0.06)'}}>
-        <div style={{width:64,height:64,borderRadius:99,background:'rgba(34,197,94,0.08)',border:'2px solid rgba(34,197,94,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 24px'}}>{I.chk(L.ok,28)}</div>
+      <div style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:12,maxWidth:440,width:'100%',textAlign:'center',padding:40,boxShadow:'0 10px 40px rgba(0,0,0,0.06)'}}>
+        <div style={{width:52,height:52,borderRadius:99,background:'rgba(34,197,94,0.08)',border:'2px solid rgba(34,197,94,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 24px'}}>{I.chk(L.ok,28)}</div>
         <h2 style={{fontSize:24,fontWeight:700,color:L.h,marginBottom:8}}>Form Submitted</h2>
         <p style={{fontSize:16,color:L.txtM,marginBottom:24}}>Thank you, {fd.fullName}. Your consultation form has been received by {biz?.name}.</p>
         {(alerts.blocks.length>0||alerts.flags.length>0)&&<div style={{textAlign:'left',marginBottom:24}}><Alerts blocks={alerts.blocks} flags={alerts.flags}/></div>}
         <p style={{fontSize:14,color:L.txtL,marginBottom:24}}>Your therapist will review before your appointment.</p>
-        <button onClick={()=>setView('home')} style={{width:'100%',padding:'16px 0',borderRadius:16,border:'none',background:L.acc,color:'#fff',fontSize:16,fontWeight:700,cursor:'pointer',fontFamily:L.f}}>Back to Home</button>
+        <button onClick={()=>setView('home')} style={{width:'100%',padding:'12px 0',borderRadius:10,border:'none',background:L.acc,color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:L.f}}>Back to Home</button>
       </div>
     </div>
   )
@@ -642,8 +642,8 @@ export default function ClientPortal() {
 
         {/* Step 0: Personal (Figma structure) */}
         {step===0&&(<div>
-          <h2 style={{fontSize:desk?36:24,fontWeight:700,color:L.h,margin:'0 0 8px'}}>Personal Details</h2>
-          <p style={{fontSize:16,color:L.txtM,margin:'0 0 32px',lineHeight:'26px'}}>Used for your treatment records and emergency contact information.</p>
+          <h2 style={{fontSize:desk?28:22,fontWeight:700,color:L.h,margin:'0 0 8px'}}>Personal Details</h2>
+          <p style={{fontSize:14,color:L.txtM,margin:'0 0 24px',lineHeight:'26px'}}>Used for your treatment records and emergency contact information.</p>
           <Field label="Full Name" icon={I.user(L.txtL,14)} name="fullName" value={fd.fullName} onChange={set} placeholder="Your full name"/>
           <div style={{display:'grid',gridTemplateColumns:desk?'1fr 1fr':'1fr',gap:16}}>
             <Field label="Date of Birth" type="date" name="dob" value={fd.dob} onChange={set}/>
@@ -661,7 +661,7 @@ export default function ClientPortal() {
           <Field label="GP Surgery (optional)" name="gpAddress" value={fd.gpAddress} onChange={set} placeholder="Surgery name and address"/>
           <div style={{marginBottom:20}}>
             <label style={{display:'block',fontSize:14,fontWeight:600,color:L.h,marginBottom:6}}>How did you hear about us?</label>
-            <select value={fd.referral||''} onChange={e=>set('referral',e.target.value)} style={{width:'100%',padding:'14px 17px',borderRadius:16,border:`1px solid ${L.bdr}`,fontSize:14,background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f}}>
+            <select value={fd.referral||''} onChange={e=>set('referral',e.target.value)} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1px solid ${L.bdr}`,fontSize:13,background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f}}>
               <option value="">Select...</option>
               {['Instagram','TikTok','Google','Friend / Referral','Returning Client','Other'].map(o=><option key={o}>{o}</option>)}
             </select>
@@ -676,8 +676,8 @@ export default function ClientPortal() {
 
         {/* Step 1: Medical (Figma: 2:2) */}
         {step===1&&(<div>
-          <h2 style={{fontSize:desk?36:24,fontWeight:700,color:L.h,margin:'0 0 8px'}}>General Health Questionnaire</h2>
-          <p style={{fontSize:16,color:L.txtM,margin:'0 0 32px',lineHeight:'26px'}}>Your safety is our priority. Please provide accurate details regarding your medical history.</p>
+          <h2 style={{fontSize:desk?28:22,fontWeight:700,color:L.h,margin:'0 0 8px'}}>General Health Questionnaire</h2>
+          <p style={{fontSize:14,color:L.txtM,margin:'0 0 24px',lineHeight:'26px'}}>Your safety is our priority. Please provide accurate details regarding your medical history.</p>
           <QCard label="Pregnant, breastfeeding, or trying to conceive?" sub="Some treatments are not suitable during pregnancy." name="pregnant" value={fd.pregnant} onChange={set}/>
           <QCard label="Do you have a heart pacemaker?" sub="Electronic implants can interfere with certain aesthetic technologies." name="pacemaker" value={fd.pacemaker} onChange={set}/>
           <QCard label="Heart condition or high blood pressure?" name="heartCondition" value={fd.heartCondition} onChange={set} detail detailLabel="Controlled or uncontrolled?" detailValue={fd.heartConditionDetail} onDetailChange={set}/>
@@ -696,7 +696,7 @@ export default function ClientPortal() {
 
         {/* Step 2: Medications (Figma: 2:206) */}
         {step===2&&(<div>
-          <h2 style={{fontSize:desk?36:24,fontWeight:700,color:L.h,margin:'0 0 8px'}}>Medication History</h2>
+          <h2 style={{fontSize:desk?28:22,fontWeight:700,color:L.h,margin:'0 0 8px'}}>Medication History</h2>
           <p style={{fontSize:16,color:L.txtM,margin:'0 0 8px',lineHeight:'26px',fontStyle:'italic'}}>"Your safety is our priority. Please be as detailed as possible."</p>
           <div style={{height:1,background:L.bdr,margin:'16px 0 32px'}}/>
           <QCard label="Roaccutane / Accutane" sub="Have you taken Roaccutane or any Isotretinoin medication in the last 6 months?" name="roaccutane" value={fd.roaccutane} onChange={set} detail detailLabel="Please specify your dosage and the exact date you stopped the treatment..." detailValue={fd.roaccutaneDetail} onDetailChange={set}/>
@@ -712,18 +712,18 @@ export default function ClientPortal() {
 
         {/* Step 3: Skin History (Figma: 2:381) */}
         {step===3&&(<div>
-          <h2 style={{fontSize:desk?36:24,fontWeight:700,color:L.h,margin:'0 0 8px'}}>Skin History</h2>
-          <p style={{fontSize:16,color:L.txtM,margin:'0 0 32px',lineHeight:'26px'}}>Tell us about your natural skin type and specific concerns to help us personalize your treatment plan.</p>
+          <h2 style={{fontSize:desk?28:22,fontWeight:700,color:L.h,margin:'0 0 8px'}}>Skin History</h2>
+          <p style={{fontSize:14,color:L.txtM,margin:'0 0 24px',lineHeight:'26px'}}>Tell us about your natural skin type and specific concerns to help us personalize your treatment plan.</p>
 
           {/* Fitzpatrick (Figma: 2:421) */}
           <div style={{marginBottom:32}}>
-            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>{I.shield(L.acc,18)}<p style={{fontSize:18,fontWeight:700,color:L.h,margin:0}}>Fitzpatrick Skin Type</p></div>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>{I.shield(L.acc,18)}<p style={{fontSize:15,fontWeight:600,color:L.h,margin:0}}>Fitzpatrick Skin Type</p></div>
             <p style={{fontSize:14,color:L.txtM,margin:'0 0 16px'}}>Select the tone that most closely matches your natural reaction to sun exposure.</p>
             <div style={{display:'grid',gridTemplateColumns:'repeat(6,1fr)',gap:desk?16:8}}>
               {[{v:'I',bg:'#FDEBD0',x:'Always Burns'},{v:'II',bg:'#F5CBA7',x:'Usually Burns'},{v:'III',bg:'#E0B88A',x:'Sometimes Burns'},{v:'IV',bg:'#C4956A',x:'Rarely Burns'},{v:'V',bg:'#8B6914',x:'Very Rarely'},{v:'VI',bg:'#5C4033',x:'Never Burns'}].map(t=>(
                 <button key={t.v} type="button" onClick={()=>set('fitzpatrick',t.v)}
-                  style={{padding:desk?16:8,borderRadius:16,border:fd.fitzpatrick===t.v?`2px solid ${L.acc}`:`2px solid ${L.bdr}`,background:L.card,cursor:'pointer',textAlign:'center',transition:'all 0.2s'}}>
-                  <div style={{width:desk?64:40,height:desk?64:40,borderRadius:99,margin:'0 auto 8px',background:t.bg,border:fd.fitzpatrick===t.v?`3px solid ${L.acc}`:'3px solid transparent'}}/>
+                  style={{padding:desk?12:6,borderRadius:10,border:fd.fitzpatrick===t.v?`2px solid ${L.acc}`:`2px solid ${L.bdr}`,background:L.card,cursor:'pointer',textAlign:'center',transition:'all 0.2s'}}>
+                  <div style={{width:desk?48:32,height:desk?48:32,borderRadius:99,margin:'0 auto 8px',background:t.bg,border:fd.fitzpatrick===t.v?`3px solid ${L.acc}`:'3px solid transparent'}}/>
                   <p style={{fontSize:desk?14:11,fontWeight:700,color:L.h,margin:0}}>Type {t.v}</p>
                   <p style={{fontSize:desk?11:9,color:L.txtM,margin:'2px 0 0',textTransform:'uppercase'}}>{t.x}</p>
                 </button>
@@ -733,19 +733,19 @@ export default function ClientPortal() {
 
           {/* Skin Concerns (Figma: 2:479) */}
           <div style={{marginBottom:32}}>
-            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>{I.warn(L.acc,18)}<p style={{fontSize:18,fontWeight:700,color:L.h,margin:0}}>Main Skin Concerns</p></div>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>{I.warn(L.acc,18)}<p style={{fontSize:15,fontWeight:600,color:L.h,margin:0}}>Main Skin Concerns</p></div>
             <p style={{fontSize:14,color:L.txtM,margin:'0 0 16px'}}>Select all that apply to you. We'll prioritize these in your routine.</p>
             <div style={{display:'flex',flexWrap:'wrap',gap:12}}>
               {['Acne & Breakouts','Scarring','Hyperpigmentation','Fine Lines & Wrinkles','Rosacea & Redness','Dryness & Flaking','Oiliness','Large Pores','Sun Damage','Texture & Dullness'].map(c=>(
                 <button key={c} type="button" onClick={()=>{const x=fd.concerns||[];set('concerns',x.includes(c)?x.filter(z=>z!==c):[...x,c])}}
-                  style={{padding:'10px 25px',borderRadius:99,fontSize:14,fontWeight:600,border:(fd.concerns||[]).includes(c)?`2px solid ${L.acc}`:`2px solid ${L.bdr}`,background:(fd.concerns||[]).includes(c)?'rgba(200,163,76,0.08)':L.card,color:(fd.concerns||[]).includes(c)?L.acc:L.txtM,cursor:'pointer'}}>{c}</button>
+                  style={{padding:'7px 16px',borderRadius:99,fontSize:13,fontWeight:600,border:(fd.concerns||[]).includes(c)?`2px solid ${L.acc}`:`2px solid ${L.bdr}`,background:(fd.concerns||[]).includes(c)?'rgba(200,163,76,0.08)':L.card,color:(fd.concerns||[]).includes(c)?L.acc:L.txtM,cursor:'pointer'}}>{c}</button>
               ))}
             </div>
           </div>
 
           {/* Additional Details (Figma: 2:509) */}
           <div>
-            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>{I.form(L.acc,18)}<p style={{fontSize:18,fontWeight:700,color:L.h,margin:0}}>Additional Details</p></div>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>{I.form(L.acc,18)}<p style={{fontSize:15,fontWeight:600,color:L.h,margin:0}}>Additional Details</p></div>
             <textarea placeholder="Tell us anything else about your skin history (e.g. allergies, previous treatments, current products)..." value={fd.skinNotes||''} onChange={e=>set('skinNotes',e.target.value)}
               style={{width:'100%',minHeight:120,padding:17,borderRadius:16,border:`1px solid ${L.bdr}`,fontSize:14,outline:'none',background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f,resize:'vertical'}}/>
           </div>
@@ -758,8 +758,8 @@ export default function ClientPortal() {
 
         {/* Step 4: Lifestyle */}
         {step===4&&(<div>
-          <h2 style={{fontSize:desk?36:24,fontWeight:700,color:L.h,margin:'0 0 8px'}}>Lifestyle</h2>
-          <p style={{fontSize:16,color:L.txtM,margin:'0 0 32px',lineHeight:'26px'}}>Sun exposure and lifestyle factors affect treatment safety and results.</p>
+          <h2 style={{fontSize:desk?28:22,fontWeight:700,color:L.h,margin:'0 0 8px'}}>Lifestyle</h2>
+          <p style={{fontSize:14,color:L.txtM,margin:'0 0 24px',lineHeight:'26px'}}>Sun exposure and lifestyle factors affect treatment safety and results.</p>
           <QCard label="Significant sun exposure in the last 2 weeks?" sub="Including sunburn, prolonged outdoor activity." name="sunburn" value={fd.sunburn} onChange={set}/>
           <QCard label="Sunbed use in the last 4 weeks?" name="sunbed" value={fd.sunbed} onChange={set}/>
           <QCard label="Currently have a tan (natural or self-tan)?" name="tan" value={fd.tan} onChange={set}/>
@@ -770,13 +770,13 @@ export default function ClientPortal() {
 
         {/* Step 5: Consent & Signature (Figma: 2:540) */}
         {step===5&&(<div>
-          <h2 style={{fontSize:desk?36:24,fontWeight:700,color:L.h,margin:'0 0 8px'}}>Legal Consent & Signature</h2>
-          <p style={{fontSize:16,color:L.txtM,margin:'0 0 32px',lineHeight:'26px'}}>Please carefully review the following terms and conditions regarding your skin treatment and provide your digital signature below to proceed.</p>
+          <h2 style={{fontSize:desk?28:22,fontWeight:700,color:L.h,margin:'0 0 8px'}}>Legal Consent & Signature</h2>
+          <p style={{fontSize:14,color:L.txtM,margin:'0 0 24px',lineHeight:'26px'}}>Please carefully review the following terms and conditions regarding your skin treatment and provide your digital signature below to proceed.</p>
           {alerts.blocks.length>0&&<Alerts blocks={alerts.blocks} flags={alerts.flags}/>}
 
           {/* Terms of Service card (Figma: 2:571) */}
-          <div style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:24,padding:33,marginBottom:32}}>
-            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:20}}>{I.shield(L.acc,18)}<p style={{fontSize:20,fontWeight:700,color:L.h,margin:0}}>Terms of Service</p></div>
+          <div style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:12,padding:24,marginBottom:24}}>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:20}}>{I.shield(L.acc,18)}<p style={{fontSize:16,fontWeight:700,color:L.h,margin:0}}>Terms of Service</p></div>
             <Consent label="Information Accuracy" sub="I confirm that all the information provided in the previous steps is accurate and complete to the best of my knowledge." checked={fd.consent1} onChange={()=>set('consent1',!fd.consent1)}/>
             <Consent label="Medical Disclosure" sub="I have disclosed all known allergies, medical conditions, and medications I am currently taking. I understand that withholding information may lead to adverse reactions." checked={fd.consent2} onChange={()=>set('consent2',!fd.consent2)}/>
             <Consent label="Treatment Consent" sub="I authorize Rejuvenate Skin Experts to perform the recommended cosmetic procedures. I understand that results may vary and are not guaranteed." checked={fd.consent3} onChange={()=>set('consent3',!fd.consent3)}/>

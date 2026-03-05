@@ -29,29 +29,36 @@ const I={
 
 const $={bg:'#F4F5F7',card:'#FFFFFF',bdr:'#E5E7EB',bdr2:'#D1D5DB',h:'#111111',txt:'#374151',txtM:'#6B7280',txtL:'#9CA3AF',acc:'#C9A84C',ok:'#22C55E',err:'#EF4444',wrn:'#F59E0B',f:"'Figtree',-apple-system,sans-serif"}
 const STEPS=['Personal','Medical','Medications','Skin','Lifestyle','Consent']
-const FONT=<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+const GCSS=<style>{`
+.client-sidebar{display:flex}
+.client-mobnav{display:flex}
+@media screen and (max-width:767px){.client-sidebar{display:none!important;width:0!important;min-width:0!important;overflow:hidden!important;visibility:hidden!important;position:absolute!important;left:-99999px!important}}
+@media screen and (min-width:768px){.client-mobnav{display:none!important}}
+@keyframes spin{to{transform:rotate(360deg)}}
+`}</style>
+const FONT=<><link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>{GCSS}</>
 
 // ═══ REUSABLE COMPONENTS ═══
-const Toggle=({value,onChange})=>{const on=value==='yes';return <button type="button" onClick={()=>onChange(on?'no':'yes')} style={{width:48,height:26,borderRadius:13,background:on?$.acc:$.bdr,border:'none',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0}}><div style={{width:20,height:20,borderRadius:10,background:'#fff',position:'absolute',top:3,left:on?25:3,transition:'left 0.2s',boxShadow:'0 1px 3px rgba(0,0,0,0.2)'}}/></button>}
+const Toggle=({value,onChange,d})=>{const on=value==='yes';const w=d?48:56,h=d?26:32,k=d?20:26;return <button type="button" onClick={()=>onChange(on?'no':'yes')} style={{width:w,height:h,borderRadius:h/2,background:on?$.acc:$.bdr,border:'none',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0}}><div style={{width:k,height:k,borderRadius:k/2,background:'#fff',position:'absolute',top:(h-k)/2,left:on?w-k-(h-k)/2:(h-k)/2,transition:'left 0.2s',boxShadow:'0 1px 3px rgba(0,0,0,0.2)'}}/></button>}
 
-const Q=({label,sub,name,value,onChange,detail,dLabel,dVal,dChange})=>(
-  <div style={{background:$.card,border:`1px solid ${value==='yes'?$.acc+'50':$.bdr}`,borderRadius:12,padding:'12px 16px',marginBottom:10}}>
+const Q=({label,sub,name,value,onChange,detail,dLabel,dVal,dChange,d})=>(
+  <div style={{background:$.card,border:`1px solid ${value==='yes'?$.acc+'50':$.bdr}`,borderRadius:d?12:16,padding:d?'12px 16px':'16px 20px',marginBottom:d?10:14}}>
     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
-      <div style={{flex:1}}><p style={{fontSize:13,fontWeight:600,color:$.h,margin:0,lineHeight:1.4}}>{label}</p>{sub&&<p style={{fontSize:12,color:$.txtM,margin:'2px 0 0',lineHeight:1.4}}>{sub}</p>}</div>
-      <Toggle value={value} onChange={v=>onChange(name,v)}/>
+      <div style={{flex:1}}><p style={{fontSize:d?13:16,fontWeight:600,color:$.h,margin:0,lineHeight:1.4}}>{label}</p>{sub&&<p style={{fontSize:d?12:14,color:$.txtM,margin:d?'2px 0 0':'4px 0 0',lineHeight:1.5}}>{sub}</p>}</div>
+      <Toggle value={value} onChange={v=>onChange(name,v)} d={d}/>
     </div>
-    {value==='yes'&&detail&&<div style={{marginTop:10}}><p style={{fontSize:12,fontWeight:600,color:$.txt,margin:'0 0 4px'}}>{dLabel||'Details'}</p><textarea placeholder="Please provide details..." value={dVal||''} onChange={e=>dChange(name+'Detail',e.target.value)} style={{width:'100%',minHeight:72,padding:'8px 12px',borderRadius:8,border:`1px solid ${$.bdr}`,fontSize:12,outline:'none',background:$.card,color:$.h,boxSizing:'border-box',fontFamily:$.f,resize:'vertical'}}/></div>}
+    {value==='yes'&&detail&&<div style={{marginTop:10}}><p style={{fontSize:d?12:14,fontWeight:600,color:$.txt,margin:'0 0 4px'}}>{dLabel||'Details'}</p><textarea placeholder="Please provide details..." value={dVal||''} onChange={e=>dChange(name+'Detail',e.target.value)} style={{width:'100%',minHeight:72,padding:d?'8px 12px':'12px 16px',borderRadius:d?8:12,border:`1px solid ${$.bdr}`,fontSize:d?12:15,outline:'none',background:$.card,color:$.h,boxSizing:'border-box',fontFamily:$.f,resize:'vertical'}}/></div>}
   </div>
 )
 
-const F=({label,icon,type='text',value,onChange,placeholder,name})=>(
-  <div style={{marginBottom:14}}><div style={{display:'flex',alignItems:'center',gap:5,marginBottom:4}}>{icon}{label&&<label style={{fontSize:12,fontWeight:600,color:$.txt}}>{label}</label>}</div><input type={type} value={value||''} placeholder={placeholder} onChange={e=>onChange(name,e.target.value)} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:`1px solid ${$.bdr}`,fontSize:12,outline:'none',background:$.card,color:$.h,boxSizing:'border-box',fontFamily:$.f}} onFocus={e=>e.target.style.borderColor=$.acc} onBlur={e=>e.target.style.borderColor=$.bdr}/></div>
+const F=({label,icon,type='text',value,onChange,placeholder,name,d=true})=>(
+  <div style={{marginBottom:d?14:18}}><div style={{display:'flex',alignItems:'center',gap:5,marginBottom:d?4:6}}>{icon}{label&&<label style={{fontSize:d?12:15,fontWeight:600,color:$.txt}}>{label}</label>}</div><input type={type} value={value||''} placeholder={placeholder} onChange={e=>onChange(name,e.target.value)} style={{width:'100%',padding:d?'9px 12px':'14px 16px',borderRadius:d?8:12,border:`1px solid ${$.bdr}`,fontSize:d?12:16,outline:'none',background:$.card,color:$.h,boxSizing:'border-box',fontFamily:$.f}} onFocus={e=>e.target.style.borderColor=$.acc} onBlur={e=>e.target.style.borderColor=$.bdr}/></div>
 )
 
-const CK=({label,sub,checked,onChange})=>(
-  <div style={{display:'flex',gap:10,padding:'10px 0',borderBottom:`1px solid ${$.bdr}18`}}>
-    <button type="button" onClick={onChange} style={{width:20,height:20,borderRadius:5,border:checked?'none':`2px solid ${$.bdr}`,background:checked?$.acc:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0,marginTop:1}}>{checked&&I.chk('#fff',10)}</button>
-    <div><p style={{fontSize:13,fontWeight:600,color:$.h,margin:0}}>{label}</p>{sub&&<p style={{fontSize:12,color:$.txtM,margin:'2px 0 0',lineHeight:1.4}}>{sub}</p>}</div>
+const CK=({label,sub,checked,onChange,d=true})=>(
+  <div style={{display:'flex',gap:d?10:14,padding:d?'10px 0':'14px 0',borderBottom:`1px solid ${$.bdr}18`}}>
+    <button type="button" onClick={onChange} style={{width:d?20:26,height:d?20:26,borderRadius:d?5:7,border:checked?'none':`2px solid ${$.bdr}`,background:checked?$.acc:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0,marginTop:1}}>{checked&&I.chk('#fff',10)}</button>
+    <div><p style={{fontSize:d?13:16,fontWeight:600,color:$.h,margin:0}}>{label}</p>{sub&&<p style={{fontSize:d?12:14,color:$.txtM,margin:d?'2px 0 0':'4px 0 0',lineHeight:1.5}}>{sub}</p>}</div>
   </div>
 )
 
@@ -62,8 +69,8 @@ const Alerts=({blocks,flags})=>{if(!blocks.length&&!flags.length)return null;ret
   </div>
 )}
 
-const SigPad=({onSign})=>{const ref=useRef(null),dr=useRef(false);const s=useCallback(e=>{dr.current=true;const c=ref.current,r=c.getBoundingClientRect(),ctx=c.getContext('2d'),p=e.touches?e.touches[0]:e;ctx.beginPath();ctx.moveTo(p.clientX-r.left,p.clientY-r.top)},[]);const d=useCallback(e=>{if(!dr.current)return;e.preventDefault();const c=ref.current,r=c.getBoundingClientRect(),ctx=c.getContext('2d'),p=e.touches?e.touches[0]:e;ctx.strokeStyle=$.h;ctx.lineWidth=2;ctx.lineCap='round';ctx.lineTo(p.clientX-r.left,p.clientY-r.top);ctx.stroke()},[]);const u=useCallback(()=>{dr.current=false;if(ref.current)onSign(ref.current.toDataURL())},[onSign]);return(
-  <div><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><p style={{fontSize:14,fontWeight:700,color:$.h,margin:0}}>Digital Signature</p><button type="button" onClick={()=>{ref.current.getContext('2d').clearRect(0,0,600,180);onSign(null)}} style={{background:'none',border:'none',color:$.acc,fontSize:12,fontWeight:600,cursor:'pointer'}}>Clear</button></div><canvas ref={ref} width={600} height={180} style={{width:'100%',height:140,border:`2px dashed ${$.bdr}`,borderRadius:10,cursor:'crosshair',background:$.card,touchAction:'none',display:'block'}} onMouseDown={s} onMouseMove={d} onMouseUp={u} onMouseLeave={u} onTouchStart={s} onTouchMove={d} onTouchEnd={u}/><p style={{fontSize:11,color:$.txtL,marginTop:8}}>By signing above, you acknowledge this is a legally binding electronic signature.</p></div>
+const SigPad=({onSign,desk:dk})=>{const ref=useRef(null),dr=useRef(false);const s=useCallback(e=>{dr.current=true;const c=ref.current,r=c.getBoundingClientRect(),ctx=c.getContext('2d'),p=e.touches?e.touches[0]:e;ctx.beginPath();ctx.moveTo(p.clientX-r.left,p.clientY-r.top)},[]);const d=useCallback(e=>{if(!dr.current)return;e.preventDefault();const c=ref.current,r=c.getBoundingClientRect(),ctx=c.getContext('2d'),p=e.touches?e.touches[0]:e;ctx.strokeStyle=$.h;ctx.lineWidth=2;ctx.lineCap='round';ctx.lineTo(p.clientX-r.left,p.clientY-r.top);ctx.stroke()},[]);const u=useCallback(()=>{dr.current=false;if(ref.current)onSign(ref.current.toDataURL())},[onSign]);return(
+  <div><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><p style={{fontSize:dk?14:18,fontWeight:700,color:$.h,margin:0}}>Digital Signature</p><button type="button" onClick={()=>{ref.current.getContext('2d').clearRect(0,0,600,180);onSign(null)}} style={{background:'none',border:'none',color:$.acc,fontSize:12,fontWeight:600,cursor:'pointer'}}>Clear</button></div><canvas ref={ref} width={600} height={180} style={{width:'100%',height:140,border:`2px dashed ${$.bdr}`,borderRadius:10,cursor:'crosshair',background:$.card,touchAction:'none',display:'block'}} onMouseDown={s} onMouseMove={d} onMouseUp={u} onMouseLeave={u} onTouchStart={s} onTouchMove={d} onTouchEnd={u}/><p style={{fontSize:11,color:$.txtL,marginTop:8}}>By signing above, you acknowledge this is a legally binding electronic signature.</p></div>
 )}
 
 // ═══ SIDEBAR (logged-in pages only) ═══
@@ -129,18 +136,11 @@ export default function ClientPortal(){
   const Shell=({tab,children})=>(
     <div style={{display:'flex',minHeight:'100vh',background:$.bg,fontFamily:$.f}}>
       {FONT}
-      <style>{`
-.client-sidebar{display:flex}
-.client-mobnav{display:none}
-@media screen and (max-width:767px){
-  .client-sidebar{display:none!important;width:0!important;overflow:hidden!important;position:absolute!important;left:-9999px!important}
-  .client-mobnav{display:flex!important}
-}
-`}</style>
+
       <Sidebar biz={biz} user={user} activeTab={tab||activeTab} onNav={navTo} onLogout={logout}/>
       <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column'}}>{children}</div>
-      <div className="client-mobnav" style={{position:'fixed',bottom:0,left:0,right:0,background:$.card,borderTop:`1px solid ${$.bdr}`,padding:'6px 0 10px',zIndex:30,justifyContent:'space-around'}}>
-        {[{id:'home',icon:'home',label:'Home'},{id:'bookings',icon:'cal',label:'Bookings'},{id:'form',icon:'form',label:'Forms'},{id:'messages',icon:'msg',label:'Messages'},{id:'profile',icon:'user',label:'Profile'}].map(t=><button key={t.id} onClick={()=>navTo(t.id)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'2px 6px'}}>{I[t.icon](activeTab===t.id?$.acc:$.txtL,18)}<span style={{fontSize:9,fontWeight:activeTab===t.id?700:500,color:activeTab===t.id?$.acc:$.txtL}}>{t.label}</span></button>)}
+      <div className="client-mobnav" style={{position:'fixed',bottom:0,left:0,right:0,background:$.card,borderTop:`1px solid ${$.bdr}`,padding:'8px 0 14px',zIndex:30,display:'flex',justifyContent:'space-around'}}>
+        {[{id:'home',icon:'home',label:'Home'},{id:'bookings',icon:'cal',label:'Bookings'},{id:'form',icon:'form',label:'Forms'},{id:'messages',icon:'msg',label:'Messages'},{id:'profile',icon:'user',label:'Profile'}].map(t=><button key={t.id} onClick={()=>navTo(t.id)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'2px 6px'}}>{I[t.icon](activeTab===t.id?$.acc:$.txtL,22)}<span style={{fontSize:11,fontWeight:activeTab===t.id?700:500,color:activeTab===t.id?$.acc:$.txtL}}>{t.label}</span></button>)}
       </div>
     </div>
   )
@@ -148,13 +148,13 @@ export default function ClientPortal(){
   // Shared: top bar for logged-in views
   const TopBar=()=>(
     <div style={{background:$.card,borderBottom:`1px solid ${$.bdr}`,padding:'10px 20px',display:'flex',alignItems:'center',justifyContent:'flex-end',gap:10,flexShrink:0}}>
-      <button style={{width:36,height:36,borderRadius:18,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative'}}>{I.bell($.txtM,16)}<div style={{position:'absolute',top:7,right:7,width:7,height:7,borderRadius:99,background:$.acc}}/></button>
-      <div style={{background:$.acc,borderRadius:18,padding:'5px 14px'}}><span style={{fontSize:12,fontWeight:700,color:'#fff'}}>Hi {(user?.name||'').split(' ')[0]}</span></div>
+      <button style={{width:desk?36:44,height:desk?36:44,borderRadius:desk?18:22,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative'}}>{I.bell($.txtM,16)}<div style={{position:'absolute',top:7,right:7,width:7,height:7,borderRadius:99,background:$.acc}}/></button>
+      <div style={{background:$.acc,borderRadius:18,padding:desk?'5px 14px':'8px 18px'}}><span style={{fontSize:12,fontWeight:700,color:'#fff'}}>Hi {(user?.name||'').split(' ')[0]}</span></div>
       <div style={{width:34,height:34,borderRadius:99,border:`2px solid ${$.acc}`,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:$.acc}}>{(user?.name||'?').charAt(0)}</div>
     </div>
   )
 
-  if(!biz)return<div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:$.bg,fontFamily:$.f}}>{FONT}<div style={{textAlign:'center'}}><div style={{width:28,height:28,border:`3px solid ${$.bdr}`,borderTopColor:$.acc,borderRadius:'50%',animation:'spin 0.8s linear infinite',margin:'0 auto 10px'}}/><p style={{fontSize:12,color:$.txtM}}>Loading...</p></div><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>
+  if(!biz)return<div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:$.bg,fontFamily:$.f}}>{FONT}<div style={{textAlign:'center'}}><div style={{width:28,height:28,border:`3px solid ${$.bdr}`,borderTopColor:$.acc,borderRadius:'50%',animation:'spin 0.8s linear infinite',margin:'0 auto 10px'}}/><p style={{fontSize:12,color:$.txtM}}>Loading...</p></div></div>
 
   // ═══════════════════════════════════════════════════════════════
   // LOGIN (Figma 2:115) — NO sidebar, full-width header+hero+two-col
@@ -212,16 +212,16 @@ export default function ClientPortal(){
     return(
       <Shell tab="home">
         <TopBar/>
-        <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:72}}>
+        <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:80}}>
           <div style={{maxWidth:1000,margin:'0 auto',padding:desk?'24px 24px 32px':'12px'}}>
-            {hasForm&&<div style={{marginBottom:20}}><h1 style={{fontSize:desk?24:20,fontWeight:700,color:$.h,margin:0}}>Welcome back, {(user?.name||'').split(' ')[0]}!</h1><p style={{fontSize:13,color:$.txtM,margin:'2px 0 0'}}>Your skin health journey is progressing perfectly.</p></div>}
+            {hasForm&&<div style={{marginBottom:20}}><h1 style={{fontSize:desk?24:26,fontWeight:700,color:$.h,margin:0}}>Welcome back, {(user?.name||'').split(' ')[0]}!</h1><p style={{fontSize:desk?13:16,color:$.txtM,margin:'2px 0 0'}}>Your skin health journey is progressing perfectly.</p></div>}
             {isSalon&&<div style={{background:hasForm?'rgba(34,197,94,0.04)':'rgba(200,163,76,0.05)',border:`1.5px solid ${hasForm?'rgba(34,197,94,0.2)':'rgba(200,163,76,0.25)'}`,borderRadius:12,padding:desk?22:16,marginBottom:20,display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:24}}>
               <div style={{flex:1}}>
                 <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:3}}>{hasForm?I.shield($.ok,14):I.warn($.acc,14)}<span style={{fontSize:12,fontWeight:700,color:hasForm?$.ok:$.acc,textTransform:'uppercase',letterSpacing:'0.5px'}}>{hasForm?'Status: Complete':'Action Required'}</span></div>
-                <h3 style={{fontSize:desk?18:16,fontWeight:700,color:$.h,margin:'0 0 4px'}}>{hasForm?'Consultation Form Complete':'Consultation Form Needed'}</h3>
-                <p style={{fontSize:13,color:$.txtM,margin:0,lineHeight:'20px',maxWidth:500}}>{hasForm?'Our clinical experts have reviewed your profile and your treatment plan is ready.':'Please complete your skin assessment form before your next visit.'}</p>
+                <h3 style={{fontSize:desk?18:20,fontWeight:700,color:$.h,margin:'0 0 4px'}}>{hasForm?'Consultation Form Complete':'Consultation Form Needed'}</h3>
+                <p style={{fontSize:desk?13:15,color:$.txtM,margin:0,lineHeight:desk?'20px':'24px',maxWidth:500}}>{hasForm?'Our clinical experts have reviewed your profile and your treatment plan is ready.':'Please complete your skin assessment form before your next visit.'}</p>
                 <div style={{display:'flex',gap:8,marginTop:12}}>
-                  <button onClick={()=>{setStep(0);setView('form')}} style={{padding:'8px 18px',borderRadius:8,border:'none',background:$.acc,color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>{hasForm?'View Form':'Fill Form Now'}</button>
+                  <button onClick={()=>{setStep(0);setView('form')}} style={{padding:desk?'8px 18px':'14px 24px',borderRadius:desk?8:12,border:'none',background:$.acc,color:'#fff',fontSize:desk?12:16,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>{hasForm?'View Form':'Fill Form Now'}</button>
                   {hasForm&&<button style={{padding:'8px 18px',borderRadius:8,border:`1px solid ${$.acc}40`,background:'transparent',color:$.acc,fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Download PDF</button>}
                 </div>
               </div>
@@ -231,10 +231,10 @@ export default function ClientPortal(){
               <div style={{flex:1,minWidth:0}}>
                 <h3 style={{fontSize:15,fontWeight:700,color:$.h,margin:'0 0 10px'}}>Quick Actions</h3>
                 <div style={{display:'grid',gridTemplateColumns:desk?`repeat(${qa.length},1fr)`:'1fr 1fr',gap:10,marginBottom:20}}>
-                  {qa.map((a,i)=><button key={i} onClick={a.action} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:14,cursor:'pointer',textAlign:'left',transition:'border-color 0.15s'}} onMouseEnter={e=>e.currentTarget.style.borderColor=$.acc+'50'} onMouseLeave={e=>e.currentTarget.style.borderColor=$.bdr}><div style={{width:36,height:36,borderRadius:8,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8}}>{I[a.icon]($.acc,16)}</div><p style={{fontSize:13,fontWeight:600,color:$.h,margin:0}}>{a.label}</p><p style={{fontSize:11,color:$.txtM,margin:'2px 0 0'}}>{a.sub}</p></button>)}
+                  {qa.map((a,i)=><button key={i} onClick={a.action} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:desk?10:14,padding:desk?14:18,cursor:'pointer',textAlign:'left',transition:'border-color 0.15s'}} onMouseEnter={e=>e.currentTarget.style.borderColor=$.acc+'50'} onMouseLeave={e=>e.currentTarget.style.borderColor=$.bdr}><div style={{width:36,height:36,borderRadius:8,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8}}>{I[a.icon]($.acc,16)}</div><p style={{fontSize:desk?13:16,fontWeight:600,color:$.h,margin:0}}>{a.label}</p><p style={{fontSize:desk?11:14,color:$.txtM,margin:'2px 0 0'}}>{a.sub}</p></button>)}
                 </div>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><h3 style={{fontSize:15,fontWeight:700,color:$.h,margin:0}}>Upcoming Bookings</h3>{upcoming.length>0&&<button style={{background:'none',border:'none',color:$.acc,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:$.f}}>View All</button>}</div>
-                {upcoming.length>0?upcoming.map((b,i)=><div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:14,marginBottom:8,display:'flex',alignItems:'center',justifyContent:'space-between'}}><div style={{display:'flex',gap:14,alignItems:'center'}}><div style={{width:48,height:48,borderRadius:10,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flexShrink:0}}><span style={{fontSize:10,fontWeight:700,color:$.txtM,textTransform:'uppercase'}}>{b.month||'TBC'}</span><span style={{fontSize:17,fontWeight:700,color:$.h,lineHeight:1}}>{b.day||'—'}</span></div><div><p style={{fontSize:14,fontWeight:600,color:$.h,margin:0}}>{b.service}</p><div style={{display:'flex',gap:12,marginTop:2}}><span style={{display:'flex',alignItems:'center',gap:3,fontSize:12,color:$.txtM}}>{I.clock($.txtM,11)} {b.time}</span>{b.staff&&<span style={{display:'flex',alignItems:'center',gap:3,fontSize:12,color:$.txtM}}>{I.user($.txtM,11)} {b.staff}</span>}</div></div></div><span style={{padding:'3px 8px',borderRadius:99,fontSize:10,fontWeight:700,background:hasForm?'rgba(16,185,129,0.08)':'rgba(245,158,11,0.08)',color:hasForm?'#10B981':'#F59E0B',border:`1px solid ${hasForm?'rgba(16,185,129,0.15)':'rgba(245,158,11,0.15)'}`}}>{hasForm?'All set':'Form needed'}</span></div>):<div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:28,textAlign:'center'}}><div style={{width:40,height:40,borderRadius:10,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}>{I.cal($.acc,20)}</div><p style={{fontSize:13,fontWeight:600,color:$.h}}>No upcoming appointments</p><p style={{fontSize:12,color:$.txtM,margin:'3px 0 12px'}}>Book your first treatment to get started</p><button onClick={()=>window.open(`/${slug}`,'_blank')} style={{padding:'7px 18px',borderRadius:8,border:'none',background:$.acc,color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book Appointment</button></div>}
+                {upcoming.length>0?upcoming.map((b,i)=><div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:14,marginBottom:8,display:'flex',alignItems:'center',justifyContent:'space-between'}}><div style={{display:'flex',gap:14,alignItems:'center'}}><div style={{width:48,height:48,borderRadius:10,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flexShrink:0}}><span style={{fontSize:10,fontWeight:700,color:$.txtM,textTransform:'uppercase'}}>{b.month||'TBC'}</span><span style={{fontSize:17,fontWeight:700,color:$.h,lineHeight:1}}>{b.day||'—'}</span></div><div><p style={{fontSize:desk?14:17,fontWeight:600,color:$.h,margin:0}}>{b.service}</p><div style={{display:'flex',gap:12,marginTop:2}}><span style={{display:'flex',alignItems:'center',gap:3,fontSize:12,color:$.txtM}}>{I.clock($.txtM,11)} {b.time}</span>{b.staff&&<span style={{display:'flex',alignItems:'center',gap:3,fontSize:12,color:$.txtM}}>{I.user($.txtM,11)} {b.staff}</span>}</div></div></div><span style={{padding:'3px 8px',borderRadius:99,fontSize:10,fontWeight:700,background:hasForm?'rgba(16,185,129,0.08)':'rgba(245,158,11,0.08)',color:hasForm?'#10B981':'#F59E0B',border:`1px solid ${hasForm?'rgba(16,185,129,0.15)':'rgba(245,158,11,0.15)'}`}}>{hasForm?'All set':'Form needed'}</span></div>):<div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:28,textAlign:'center'}}><div style={{width:40,height:40,borderRadius:10,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}>{I.cal($.acc,20)}</div><p style={{fontSize:desk?13:17,fontWeight:600,color:$.h}}>No upcoming appointments</p><p style={{fontSize:desk?12:15,color:$.txtM,margin:desk?'3px 0 12px':'6px 0 16px'}}>Book your first treatment to get started</p><button onClick={()=>window.open(`/${slug}`,'_blank')} style={{padding:desk?'7px 18px':'14px 24px',borderRadius:desk?8:12,border:'none',background:$.acc,color:'#fff',fontSize:desk?12:16,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book Appointment</button></div>}
                 {myData?.past_bookings?.length>0&&<div style={{marginTop:16}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><h3 style={{fontSize:15,fontWeight:700,color:$.h,margin:0}}>Treatment History</h3><button style={{background:'none',border:'none',color:$.acc,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:$.f}}>View All</button></div>{myData.past_bookings.slice(0,4).map((b,i)=><div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',alignItems:'center',justifyContent:'space-between'}}><div style={{display:'flex',gap:10,alignItems:'center'}}><div style={{width:36,height:36,borderRadius:8,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{I.shield($.txtL,16)}</div><div><p style={{fontSize:13,fontWeight:600,color:$.h,margin:0}}>{b.service}</p><p style={{fontSize:11,color:$.txtM,margin:'1px 0 0'}}>{b.staff?`${b.staff} · `:''}{ b.date}</p></div></div><span style={{fontSize:10,fontWeight:700,color:$.ok,textTransform:'uppercase'}}>Completed</span></div>)}</div>}
               </div>
               {desk&&<div style={{width:320,flexShrink:0,display:'flex',flexDirection:'column',gap:16}}>
@@ -275,123 +275,123 @@ export default function ClientPortal(){
       <div style={{background:$.card,borderBottom:`1px solid ${$.bdr}`,padding:'12px 20px 16px'}}>
         <div style={{maxWidth:680,margin:'0 auto'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:6}}>
-            <div><p style={{fontSize:11,fontWeight:700,color:$.acc,margin:0,textTransform:'uppercase',letterSpacing:'0.5px'}}>Step {step+1} of 6</p><p style={{fontSize:16,fontWeight:700,color:$.h,margin:'1px 0 0'}}>{STEPS[step]}</p></div>
+            <div><p style={{fontSize:desk?11:13,fontWeight:700,color:$.acc,margin:0,textTransform:'uppercase',letterSpacing:'0.5px'}}>Step {step+1} of 6</p><p style={{fontSize:desk?16:20,fontWeight:700,color:$.h,margin:'1px 0 0'}}>{STEPS[step]}</p></div>
             <span style={{fontSize:12,color:$.txtM}}>{Math.round(((step+1)/6)*100)}%</span>
           </div>
           <div style={{height:6,background:$.bdr,borderRadius:3}}><div style={{height:'100%',width:`${((step+1)/6)*100}%`,background:$.acc,borderRadius:3,transition:'width 0.3s'}}/></div>
         </div>
       </div>
       {/* Steps */}
-      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:72}}>
+      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:80}}>
         <div style={{maxWidth:680,margin:'0 auto',padding:desk?'24px 20px 0':'16px 12px 0'}}>
 
           {step===0&&<div>
-            <h2 style={{fontSize:desk?22:18,fontWeight:700,color:$.h,margin:'0 0 4px'}}>Personal Details</h2>
-            <p style={{fontSize:13,color:$.txtM,margin:'0 0 20px'}}>Used for your treatment records and emergency contact information.</p>
-            <F label="Full Name" icon={I.user($.txtL,12)} name="fullName" value={fd.fullName} onChange={set} placeholder="Your full name"/>
-            <div style={{display:'grid',gridTemplateColumns:desk?'1fr 1fr':'1fr',gap:12}}><F label="Date of Birth" type="date" name="dob" value={fd.dob} onChange={set}/><F label="Address" name="address" value={fd.address} onChange={set} placeholder="Full address"/></div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}><F label="Mobile" icon={I.phone($.txtL,12)} type="tel" name="mobile" value={fd.mobile} onChange={set} placeholder="07..."/><F label="Email" icon={I.mail($.txtL,12)} type="email" name="email" value={fd.email} onChange={set} placeholder="you@email.com"/></div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}><F label="Emergency Contact" name="emergencyName" value={fd.emergencyName} onChange={set} placeholder="Contact name"/><F label="Their Number" type="tel" name="emergencyPhone" value={fd.emergencyPhone} onChange={set} placeholder="07..."/></div>
-            <F label="GP Name" name="gpName" value={fd.gpName} onChange={set} placeholder="Dr..."/>
-            <F label="GP Surgery (optional)" name="gpAddress" value={fd.gpAddress} onChange={set} placeholder="Surgery name"/>
-            <div style={{marginBottom:14}}><label style={{display:'block',fontSize:12,fontWeight:600,color:$.txt,marginBottom:4}}>How did you hear about us?</label><select value={fd.referral||''} onChange={e=>set('referral',e.target.value)} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:`1px solid ${$.bdr}`,fontSize:12,background:$.card,color:$.h,boxSizing:'border-box',fontFamily:$.f}}><option value="">Select...</option>{['Instagram','TikTok','Google','Friend / Referral','Returning Client','Other'].map(o=><option key={o}>{o}</option>)}</select></div>
+            <h2 style={{fontSize:desk?22:24,fontWeight:700,color:$.h,margin:desk?'0 0 4px':'0 0 8px'}}>Personal Details</h2>
+            <p style={{fontSize:desk?13:16,color:$.txtM,margin:desk?'0 0 20px':'0 0 24px'}}>Used for your treatment records and emergency contact information.</p>
+            <F label="Full Name" icon={I.user($.txtL,12)} name="fullName" value={fd.fullName} onChange={set} d={desk} placeholder="Your full name"/>
+            <div style={{display:'grid',gridTemplateColumns:desk?'1fr 1fr':'1fr',gap:12}}><F label="Date of Birth" type="date" name="dob" value={fd.dob} onChange={set}/><F label="Address" name="address" value={fd.address} onChange={set} d={desk} placeholder="Full address"/></div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}><F label="Mobile" icon={I.phone($.txtL,12)} type="tel" name="mobile" value={fd.mobile} onChange={set} d={desk} placeholder="07..."/><F label="Email" icon={I.mail($.txtL,12)} type="email" name="email" value={fd.email} onChange={set} d={desk} placeholder="you@email.com"/></div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}><F label="Emergency Contact" name="emergencyName" value={fd.emergencyName} onChange={set} d={desk} placeholder="Contact name"/><F label="Their Number" type="tel" name="emergencyPhone" value={fd.emergencyPhone} onChange={set} d={desk} placeholder="07..."/></div>
+            <F label="GP Name" name="gpName" value={fd.gpName} onChange={set} d={desk} placeholder="Dr..."/>
+            <F label="GP Surgery (optional)" name="gpAddress" value={fd.gpAddress} onChange={set} d={desk} placeholder="Surgery name"/>
+            <div style={{marginBottom:14}}><label style={{display:'block',fontSize:12,fontWeight:600,color:$.txt,marginBottom:4}}>How did you hear about us?</label><select value={fd.referral||''} onChange={e=>set('referral',e.target.value)} style={{width:'100%',padding:desk?'9px 12px':'14px 16px',borderRadius:desk?8:12,border:`1px solid ${$.bdr}`,fontSize:desk?12:16,background:$.card,color:$.h,boxSizing:'border-box',fontFamily:$.f}}><option value="">Select...</option>{['Instagram','TikTok','Google','Friend / Referral','Returning Client','Other'].map(o=><option key={o}>{o}</option>)}</select></div>
             <div style={{background:$.card,borderRadius:10,padding:14,border:`1px solid ${$.bdr}`}}>
-              <p style={{fontSize:13,fontWeight:700,color:$.acc,margin:'0 0 8px'}}>Photo Consent</p>
-              <CK label="Treatment records" sub="Clinical use only." checked={fd.photoRecords} onChange={()=>set('photoRecords',!fd.photoRecords)}/>
-              <CK label="Training purposes" sub="Educational use." checked={fd.photoTraining} onChange={()=>set('photoTraining',!fd.photoTraining)}/>
-              <CK label="Marketing & social media" sub="May be shared anonymised." checked={fd.photoMarketing} onChange={()=>set('photoMarketing',!fd.photoMarketing)}/>
+              <p style={{fontSize:desk?13:16,fontWeight:700,color:$.acc,margin:desk?'0 0 8px':'0 0 12px'}}>Photo Consent</p>
+              <CK label="Treatment records" sub="Clinical use only." checked={fd.photoRecords} onChange={()=>set('photoRecords',!fd.photoRecords)} d={desk}/>
+              <CK label="Training purposes" sub="Educational use." checked={fd.photoTraining} onChange={()=>set('photoTraining',!fd.photoTraining)} d={desk}/>
+              <CK label="Marketing & social media" sub="May be shared anonymised." checked={fd.photoMarketing} onChange={()=>set('photoMarketing',!fd.photoMarketing)} d={desk}/>
             </div>
           </div>}
 
           {step===1&&<div>
-            <h2 style={{fontSize:desk?22:18,fontWeight:700,color:$.h,margin:'0 0 4px'}}>General Health Questionnaire</h2>
-            <p style={{fontSize:13,color:$.txtM,margin:'0 0 20px'}}>Your safety is our priority. Please provide accurate details.</p>
-            <Q label="Pregnant, breastfeeding, or trying to conceive?" sub="Some treatments are not suitable during pregnancy." name="pregnant" value={fd.pregnant} onChange={set}/>
-            <Q label="Do you have a heart pacemaker?" sub="Electronic implants can interfere with certain technologies." name="pacemaker" value={fd.pacemaker} onChange={set}/>
-            <Q label="Heart condition or high blood pressure?" name="heartCondition" value={fd.heartCondition} onChange={set} detail dLabel="Controlled or uncontrolled?" dVal={fd.heartConditionDetail} dChange={set}/>
-            <Q label="Metal implants, plates, or screws?" name="metalImplants" value={fd.metalImplants} onChange={set} detail dLabel="Location" dVal={fd.metalImplantsDetail} dChange={set}/>
-            <Q label="Diabetes?" sub="May affect wound healing." name="diabetes" value={fd.diabetes} onChange={set} detail dLabel="Type 1/2? Controlled?" dVal={fd.diabetesDetail} dChange={set}/>
-            <Q label="History of epilepsy or seizures?" sub="Light therapies may require precautions." name="epilepsy" value={fd.epilepsy} onChange={set}/>
-            <Q label="Autoimmune disorders?" sub="Conditions like Lupus may affect healing." name="autoimmune" value={fd.autoimmune} onChange={set} detail dLabel="Condition" dVal={fd.autoimmuneDetail} dChange={set}/>
-            <Q label="Blood clotting disorder?" name="bloodClotting" value={fd.bloodClotting} onChange={set}/>
-            <Q label="Cancer history?" name="activeCancer" value={fd.activeCancer} onChange={set} detail dLabel="Type, when, status" dVal={fd.activeCancerDetail} dChange={set}/>
-            <Q label="HIV/AIDS or hepatitis?" name="hivHepatitis" value={fd.hivHepatitis} onChange={set}/>
-            <Q label="Liver or kidney disease?" name="liverKidney" value={fd.liverKidney} onChange={set}/>
-            <Q label="History of cold sores (herpes simplex)?" name="herpes" value={fd.herpes} onChange={set}/>
-            <Q label="History of keloid or raised scarring?" name="keloid" value={fd.keloid} onChange={set}/>
+            <h2 style={{fontSize:desk?22:24,fontWeight:700,color:$.h,margin:desk?'0 0 4px':'0 0 8px'}}>General Health Questionnaire</h2>
+            <p style={{fontSize:desk?13:16,color:$.txtM,margin:desk?'0 0 20px':'0 0 24px'}}>Your safety is our priority. Please provide accurate details.</p>
+            <Q label="Pregnant, breastfeeding, or trying to conceive?" sub="Some treatments are not suitable during pregnancy." name="pregnant" value={fd.pregnant} onChange={set} d={desk}/>
+            <Q label="Do you have a heart pacemaker?" sub="Electronic implants can interfere with certain technologies." name="pacemaker" value={fd.pacemaker} onChange={set} d={desk}/>
+            <Q label="Heart condition or high blood pressure?" name="heartCondition" value={fd.heartCondition} onChange={set} detail dLabel="Controlled or uncontrolled?" dVal={fd.heartConditionDetail} dChange={set} d={desk}/>
+            <Q label="Metal implants, plates, or screws?" name="metalImplants" value={fd.metalImplants} onChange={set} detail dLabel="Location" dVal={fd.metalImplantsDetail} dChange={set} d={desk}/>
+            <Q label="Diabetes?" sub="May affect wound healing." name="diabetes" value={fd.diabetes} onChange={set} detail dLabel="Type 1/2? Controlled?" dVal={fd.diabetesDetail} dChange={set} d={desk}/>
+            <Q label="History of epilepsy or seizures?" sub="Light therapies may require precautions." name="epilepsy" value={fd.epilepsy} onChange={set} d={desk}/>
+            <Q label="Autoimmune disorders?" sub="Conditions like Lupus may affect healing." name="autoimmune" value={fd.autoimmune} onChange={set} detail dLabel="Condition" dVal={fd.autoimmuneDetail} dChange={set} d={desk}/>
+            <Q label="Blood clotting disorder?" name="bloodClotting" value={fd.bloodClotting} onChange={set} d={desk}/>
+            <Q label="Cancer history?" name="activeCancer" value={fd.activeCancer} onChange={set} detail dLabel="Type, when, status" dVal={fd.activeCancerDetail} dChange={set} d={desk}/>
+            <Q label="HIV/AIDS or hepatitis?" name="hivHepatitis" value={fd.hivHepatitis} onChange={set} d={desk}/>
+            <Q label="Liver or kidney disease?" name="liverKidney" value={fd.liverKidney} onChange={set} d={desk}/>
+            <Q label="History of cold sores (herpes simplex)?" name="herpes" value={fd.herpes} onChange={set} d={desk}/>
+            <Q label="History of keloid or raised scarring?" name="keloid" value={fd.keloid} onChange={set} d={desk}/>
             <Alerts blocks={alerts.blocks} flags={alerts.flags}/>
           </div>}
 
           {step===2&&<div>
-            <h2 style={{fontSize:desk?22:18,fontWeight:700,color:$.h,margin:'0 0 4px'}}>Medication History</h2>
+            <h2 style={{fontSize:desk?22:24,fontWeight:700,color:$.h,margin:desk?'0 0 4px':'0 0 8px'}}>Medication History</h2>
             <p style={{fontSize:13,color:$.txtM,margin:'0 0 4px',fontStyle:'italic'}}>"Your safety is our priority. Please be as detailed as possible."</p>
             <div style={{height:1,background:$.bdr,margin:'12px 0 20px'}}/>
-            <Q label="Roaccutane / Accutane" sub="Have you taken Isotretinoin in the last 6 months?" name="roaccutane" value={fd.roaccutane} onChange={set} detail dLabel="Dosage and stop date" dVal={fd.roaccutaneDetail} dChange={set}/>
-            <Q label="Blood Thinning Medication" sub="Warfarin, Aspirin, Clopidogrel etc." name="bloodThinners" value={fd.bloodThinners} onChange={set} detail dLabel="Which medication?" dVal={fd.bloodThinnersDetail} dChange={set}/>
-            <Q label="Photosensitising medications?" sub="Tetracyclines, doxycycline, St John's Wort" name="photosensitising" value={fd.photosensitising} onChange={set} detail dLabel="Which?" dVal={fd.photosensitivesDetail} dChange={set}/>
-            <Q label="Topical retinoids?" sub="Retin-A, Tretinoin, Differin, Epiduo" name="retinoids" value={fd.retinoids} onChange={set} detail dLabel="Product and last used" dVal={fd.retinoidsDetail} dChange={set}/>
-            <Q label="Steroids (oral or topical)?" name="steroids" value={fd.steroids} onChange={set} detail dLabel="Which?" dVal={fd.steroidsDetail} dChange={set}/>
-            <Q label="Immunosuppressants?" name="immunosuppressants" value={fd.immunosuppressants} onChange={set}/>
-            <Q label="Herbal supplements?" sub="Garlic, ginkgo, fish oils affect bleeding." name="herbalSupps" value={fd.herbalSupps} onChange={set} detail dLabel="Which?" dVal={fd.herbalSuppsDetail} dChange={set}/>
-            <Q label="Fish or salmon allergy?" sub="Important for polynucleotide treatments." name="fishAllergy" value={fd.fishAllergy} onChange={set}/>
+            <Q label="Roaccutane / Accutane" sub="Have you taken Isotretinoin in the last 6 months?" name="roaccutane" value={fd.roaccutane} onChange={set} detail dLabel="Dosage and stop date" dVal={fd.roaccutaneDetail} dChange={set} d={desk}/>
+            <Q label="Blood Thinning Medication" sub="Warfarin, Aspirin, Clopidogrel etc." name="bloodThinners" value={fd.bloodThinners} onChange={set} detail dLabel="Which medication?" dVal={fd.bloodThinnersDetail} dChange={set} d={desk}/>
+            <Q label="Photosensitising medications?" sub="Tetracyclines, doxycycline, St John's Wort" name="photosensitising" value={fd.photosensitising} onChange={set} detail dLabel="Which?" dVal={fd.photosensitivesDetail} dChange={set} d={desk}/>
+            <Q label="Topical retinoids?" sub="Retin-A, Tretinoin, Differin, Epiduo" name="retinoids" value={fd.retinoids} onChange={set} detail dLabel="Product and last used" dVal={fd.retinoidsDetail} dChange={set} d={desk}/>
+            <Q label="Steroids (oral or topical)?" name="steroids" value={fd.steroids} onChange={set} detail dLabel="Which?" dVal={fd.steroidsDetail} dChange={set} d={desk}/>
+            <Q label="Immunosuppressants?" name="immunosuppressants" value={fd.immunosuppressants} onChange={set} d={desk}/>
+            <Q label="Herbal supplements?" sub="Garlic, ginkgo, fish oils affect bleeding." name="herbalSupps" value={fd.herbalSupps} onChange={set} detail dLabel="Which?" dVal={fd.herbalSuppsDetail} dChange={set} d={desk}/>
+            <Q label="Fish or salmon allergy?" sub="Important for polynucleotide treatments." name="fishAllergy" value={fd.fishAllergy} onChange={set} d={desk}/>
             <Alerts blocks={alerts.blocks} flags={alerts.flags}/>
           </div>}
 
           {step===3&&<div>
-            <h2 style={{fontSize:desk?22:18,fontWeight:700,color:$.h,margin:'0 0 4px'}}>Skin History</h2>
-            <p style={{fontSize:13,color:$.txtM,margin:'0 0 20px'}}>Tell us about your skin type and concerns to personalise your treatment plan.</p>
+            <h2 style={{fontSize:desk?22:24,fontWeight:700,color:$.h,margin:desk?'0 0 4px':'0 0 8px'}}>Skin History</h2>
+            <p style={{fontSize:desk?13:16,color:$.txtM,margin:desk?'0 0 20px':'0 0 24px'}}>Tell us about your skin type and concerns to personalise your treatment plan.</p>
             <div style={{marginBottom:20}}>
-              <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6}}>{I.shield($.acc,14)}<p style={{fontSize:14,fontWeight:700,color:$.h,margin:0}}>Fitzpatrick Skin Type</p></div>
+              <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6}}>{I.shield($.acc,14)}<p style={{fontSize:desk?14:18,fontWeight:700,color:$.h,margin:0}}>Fitzpatrick Skin Type</p></div>
               <p style={{fontSize:12,color:$.txtM,margin:'0 0 12px'}}>Select the tone matching your reaction to sun exposure.</p>
               <div style={{display:'grid',gridTemplateColumns:'repeat(6,1fr)',gap:desk?10:6}}>
                 {[{v:'I',bg:'#FDEBD0',x:'Always Burns'},{v:'II',bg:'#F5CBA7',x:'Usually Burns'},{v:'III',bg:'#E0B88A',x:'Sometimes'},{v:'IV',bg:'#C4956A',x:'Rarely Burns'},{v:'V',bg:'#8B6914',x:'Very Rarely'},{v:'VI',bg:'#5C4033',x:'Never Burns'}].map(t=><button key={t.v} type="button" onClick={()=>set('fitzpatrick',t.v)} style={{padding:desk?10:6,borderRadius:8,border:fd.fitzpatrick===t.v?`2px solid ${$.acc}`:`2px solid ${$.bdr}`,background:$.card,cursor:'pointer',textAlign:'center'}}><div style={{width:desk?44:28,height:desk?44:28,borderRadius:99,margin:'0 auto 4px',background:t.bg}}/><p style={{fontSize:desk?12:10,fontWeight:700,color:$.h,margin:0}}>Type {t.v}</p>{desk&&<p style={{fontSize:9,color:$.txtM,margin:'1px 0 0',textTransform:'uppercase'}}>{t.x}</p>}</button>)}
               </div>
             </div>
             <div style={{marginBottom:20}}>
-              <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6}}>{I.warn($.acc,14)}<p style={{fontSize:14,fontWeight:700,color:$.h,margin:0}}>Main Skin Concerns</p></div>
+              <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6}}>{I.warn($.acc,14)}<p style={{fontSize:desk?14:18,fontWeight:700,color:$.h,margin:0}}>Main Skin Concerns</p></div>
               <p style={{fontSize:12,color:$.txtM,margin:'0 0 10px'}}>Select all that apply.</p>
               <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
-                {['Acne & Breakouts','Scarring','Hyperpigmentation','Fine Lines & Wrinkles','Rosacea & Redness','Dryness & Flaking','Oiliness','Large Pores','Sun Damage','Texture & Dullness'].map(c=><button key={c} type="button" onClick={()=>{const x=fd.concerns||[];set('concerns',x.includes(c)?x.filter(z=>z!==c):[...x,c])}} style={{padding:'6px 14px',borderRadius:99,fontSize:12,fontWeight:600,border:(fd.concerns||[]).includes(c)?`2px solid ${$.acc}`:`2px solid ${$.bdr}`,background:(fd.concerns||[]).includes(c)?'rgba(200,163,76,0.08)':$.card,color:(fd.concerns||[]).includes(c)?$.acc:$.txtM,cursor:'pointer'}}>{c}</button>)}
+                {['Acne & Breakouts','Scarring','Hyperpigmentation','Fine Lines & Wrinkles','Rosacea & Redness','Dryness & Flaking','Oiliness','Large Pores','Sun Damage','Texture & Dullness'].map(c=><button key={c} type="button" onClick={()=>{const x=fd.concerns||[];set('concerns',x.includes(c)?x.filter(z=>z!==c):[...x,c])}} style={{padding:desk?'6px 14px':'10px 20px',borderRadius:99,fontSize:desk?12:15,fontWeight:600,border:(fd.concerns||[]).includes(c)?`2px solid ${$.acc}`:`2px solid ${$.bdr}`,background:(fd.concerns||[]).includes(c)?'rgba(200,163,76,0.08)':$.card,color:(fd.concerns||[]).includes(c)?$.acc:$.txtM,cursor:'pointer'}}>{c}</button>)}
               </div>
             </div>
-            <Q label="Active skin infection?" name="skinInfection" value={fd.skinInfection} onChange={set}/>
-            <Q label="Tattoos or permanent makeup in treatment area?" name="tattoos" value={fd.tattoos} onChange={set}/>
-            <Q label="Previous adverse reactions to skin treatments?" name="adverseReactions" value={fd.adverseReactions} onChange={set} detail dLabel="What happened?" dVal={fd.adverseReactionsDetail} dChange={set}/>
+            <Q label="Active skin infection?" name="skinInfection" value={fd.skinInfection} onChange={set} d={desk}/>
+            <Q label="Tattoos or permanent makeup in treatment area?" name="tattoos" value={fd.tattoos} onChange={set} d={desk}/>
+            <Q label="Previous adverse reactions to skin treatments?" name="adverseReactions" value={fd.adverseReactions} onChange={set} detail dLabel="What happened?" dVal={fd.adverseReactionsDetail} dChange={set} d={desk}/>
             <Alerts blocks={alerts.blocks} flags={alerts.flags}/>
           </div>}
 
           {step===4&&<div>
-            <h2 style={{fontSize:desk?22:18,fontWeight:700,color:$.h,margin:'0 0 4px'}}>Lifestyle</h2>
-            <p style={{fontSize:13,color:$.txtM,margin:'0 0 20px'}}>Sun exposure and lifestyle factors affect treatment safety.</p>
-            <Q label="Significant sun exposure in the last 2 weeks?" name="sunburn" value={fd.sunburn} onChange={set}/>
-            <Q label="Sunbed use in the last 4 weeks?" name="sunbed" value={fd.sunbed} onChange={set}/>
-            <Q label="Currently have a tan (natural or self-tan)?" name="tan" value={fd.tan} onChange={set}/>
-            <Q label="Planned sun exposure in next 4 weeks?" sub="Holiday, outdoor event etc." name="plannedSun" value={fd.plannedSun} onChange={set}/>
-            <Q label="Do you smoke?" sub="Affects wound healing." name="smoker" value={fd.smoker} onChange={set}/>
+            <h2 style={{fontSize:desk?22:24,fontWeight:700,color:$.h,margin:desk?'0 0 4px':'0 0 8px'}}>Lifestyle</h2>
+            <p style={{fontSize:desk?13:16,color:$.txtM,margin:desk?'0 0 20px':'0 0 24px'}}>Sun exposure and lifestyle factors affect treatment safety.</p>
+            <Q label="Significant sun exposure in the last 2 weeks?" name="sunburn" value={fd.sunburn} onChange={set} d={desk}/>
+            <Q label="Sunbed use in the last 4 weeks?" name="sunbed" value={fd.sunbed} onChange={set} d={desk}/>
+            <Q label="Currently have a tan (natural or self-tan)?" name="tan" value={fd.tan} onChange={set} d={desk}/>
+            <Q label="Planned sun exposure in next 4 weeks?" sub="Holiday, outdoor event etc." name="plannedSun" value={fd.plannedSun} onChange={set} d={desk}/>
+            <Q label="Do you smoke?" sub="Affects wound healing." name="smoker" value={fd.smoker} onChange={set} d={desk}/>
             <Alerts blocks={alerts.blocks} flags={alerts.flags}/>
           </div>}
 
           {step===5&&<div>
-            <h2 style={{fontSize:desk?22:18,fontWeight:700,color:$.h,margin:'0 0 4px'}}>Legal Consent & Signature</h2>
-            <p style={{fontSize:13,color:$.txtM,margin:'0 0 20px'}}>Please review each statement and provide your digital signature.</p>
+            <h2 style={{fontSize:desk?22:24,fontWeight:700,color:$.h,margin:desk?'0 0 4px':'0 0 8px'}}>Legal Consent & Signature</h2>
+            <p style={{fontSize:desk?13:16,color:$.txtM,margin:desk?'0 0 20px':'0 0 24px'}}>Please review each statement and provide your digital signature.</p>
             {alerts.blocks.length>0&&<Alerts blocks={alerts.blocks} flags={alerts.flags}/>}
             <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:20,marginBottom:20}}>
-              <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:14}}>{I.shield($.acc,14)}<p style={{fontSize:14,fontWeight:700,color:$.h,margin:0}}>Terms of Service</p></div>
-              <CK label="Information Accuracy" sub="I confirm all information provided is accurate and complete." checked={fd.consent1} onChange={()=>set('consent1',!fd.consent1)}/>
-              <CK label="Medical Disclosure" sub="I have disclosed all allergies, conditions, and medications. Withholding info may lead to adverse reactions." checked={fd.consent2} onChange={()=>set('consent2',!fd.consent2)}/>
-              <CK label="Treatment Consent" sub="I authorize the recommended procedures. Results may vary and are not guaranteed." checked={fd.consent3} onChange={()=>set('consent3',!fd.consent3)}/>
-              <CK label="Privacy Policy" sub="I consent to storage of my personal and medical data for treatment purposes." checked={fd.consent4} onChange={()=>set('consent4',!fd.consent4)}/>
+              <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:14}}>{I.shield($.acc,14)}<p style={{fontSize:desk?14:18,fontWeight:700,color:$.h,margin:0}}>Terms of Service</p></div>
+              <CK label="Information Accuracy" sub="I confirm all information provided is accurate and complete." checked={fd.consent1} onChange={()=>set('consent1',!fd.consent1)} d={desk}/>
+              <CK label="Medical Disclosure" sub="I have disclosed all allergies, conditions, and medications. Withholding info may lead to adverse reactions." checked={fd.consent2} onChange={()=>set('consent2',!fd.consent2)} d={desk}/>
+              <CK label="Treatment Consent" sub="I authorize the recommended procedures. Results may vary and are not guaranteed." checked={fd.consent3} onChange={()=>set('consent3',!fd.consent3)} d={desk}/>
+              <CK label="Privacy Policy" sub="I consent to storage of my personal and medical data for treatment purposes." checked={fd.consent4} onChange={()=>set('consent4',!fd.consent4)} d={desk}/>
             </div>
-            <SigPad onSign={s=>set('signed',s)}/>
+            <SigPad onSign={s=>set('signed',s)} desk={desk}/>
           </div>}
         </div>
       </div>
       {/* Nav buttons */}
       <div style={{borderTop:`1px solid ${$.bdr}`,padding:'16px 20px',flexShrink:0}}>
         <div style={{maxWidth:680,margin:'0 auto',display:'flex',justifyContent:'space-between'}}>
-          {step>0?<button onClick={()=>goStep(step-1)} style={{padding:'8px 20px',borderRadius:8,border:`1px solid ${$.bdr}`,background:$.card,fontSize:12,fontWeight:600,color:$.acc,cursor:'pointer',fontFamily:$.f,display:'flex',alignItems:'center',gap:5}}>{I.back($.acc,12)} Previous</button>:<div/>}
-          {step<5?<button onClick={()=>canProceed()&&goStep(step+1)} disabled={!canProceed()} style={{padding:'8px 24px',borderRadius:8,border:'none',background:canProceed()?$.acc:$.bdr,color:canProceed()?'#fff':$.txtL,fontSize:12,fontWeight:700,cursor:canProceed()?'pointer':'not-allowed',fontFamily:$.f,display:'flex',alignItems:'center',gap:5}}>Continue {I.arr('#fff',12)}</button>
-          :<button onClick={()=>canProceed()&&submitForm()} disabled={!canProceed()||loading} style={{padding:'8px 24px',borderRadius:8,border:'none',background:canProceed()&&!loading?$.acc:$.bdr,color:canProceed()?'#fff':$.txtL,fontSize:12,fontWeight:700,cursor:canProceed()?'pointer':'not-allowed',fontFamily:$.f}}>{loading?'Submitting...':'Submit Form'}</button>}
+          {step>0?<button onClick={()=>goStep(step-1)} style={{padding:desk?'8px 20px':'14px 28px',borderRadius:desk?8:12,border:`1px solid ${$.bdr}`,background:$.card,fontSize:desk?12:16,fontWeight:600,color:$.acc,cursor:'pointer',fontFamily:$.f,display:'flex',alignItems:'center',gap:5}}>{I.back($.acc,12)} Previous</button>:<div/>}
+          {step<5?<button onClick={()=>canProceed()&&goStep(step+1)} disabled={!canProceed()} style={{padding:desk?'8px 24px':'14px 32px',borderRadius:desk?8:12,border:'none',background:canProceed()?$.acc:$.bdr,color:canProceed()?'#fff':$.txtL,fontSize:desk?12:16,fontWeight:700,cursor:canProceed()?'pointer':'not-allowed',fontFamily:$.f,display:'flex',alignItems:'center',gap:5}}>Continue {I.arr('#fff',12)}</button>
+          :<button onClick={()=>canProceed()&&submitForm()} disabled={!canProceed()||loading} style={{padding:desk?'8px 24px':'14px 32px',borderRadius:desk?8:12,border:'none',background:canProceed()&&!loading?$.acc:$.bdr,color:canProceed()?'#fff':$.txtL,fontSize:desk?12:16,fontWeight:700,cursor:canProceed()?'pointer':'not-allowed',fontFamily:$.f}}>{loading?'Submitting...':'Submit Form'}</button>}
         </div>
       </div>
     </Shell>

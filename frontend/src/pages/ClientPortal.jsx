@@ -73,7 +73,8 @@ const Sidebar=({biz,user,activeTab,onNav,desk,onLogout})=>{
   const tabs=[{id:'home',label:'Home',icon:'home'},{id:'bookings',label:'Bookings',icon:'cal'},{id:'form',label:'Consultation',icon:'form'},{id:'messages',label:'Messages',icon:'msg'},{id:'profile',label:'My Profile',icon:'user'}]
   const ini=(user?.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2)
   return(
-    <div style={{display:'flex',height:'100vh',position:'sticky',top:0,flexShrink:0,fontFamily:$.f}}>
+    <div className="client-sidebar" style={{display:'flex',height:'100vh',position:'sticky',top:0,flexShrink:0,fontFamily:$.f}}>
+      <style>{`.client-sidebar{display:flex!important}@media(max-width:767px){.client-sidebar{display:none!important}}`}</style>
       <div style={{width:RAIL,background:'#111',display:'flex',flexDirection:'column',flexShrink:0}}>
         <div style={{height:56,display:'flex',alignItems:'center',justifyContent:'center',borderBottom:'1px solid rgba(255,255,255,0.08)'}}><div style={{width:30,height:30,borderRadius:8,background:$.acc,display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{color:'#111',fontWeight:700,fontSize:13}}>R.</span></div></div>
         <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',paddingTop:12,gap:2}}>
@@ -112,7 +113,8 @@ export default function ClientPortal(){
   const isSalon=biz?.type==='salon'||biz?.type==='local_services'||biz?.category==='salon'
   const hasForm=cs?.status==='complete'||cs?.status==='submitted'
   const alerts=getAlerts(fd)
-  const desk=typeof window!=='undefined'&&window.innerWidth>=768
+  const[desk,setDesk]=useState(typeof window!=='undefined'&&window.innerWidth>=768)
+  useEffect(()=>{const h=()=>setDesk(window.innerWidth>=768);window.addEventListener('resize',h);return()=>window.removeEventListener('resize',h)},[])
   const set=useCallback((k,v)=>setFd(p=>({...p,[k]:v})),[])
   const upcoming=myData?.upcoming_bookings||[]
 

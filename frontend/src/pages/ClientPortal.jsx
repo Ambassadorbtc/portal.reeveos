@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 const API='/api'
-const IMG={login:'/portal-assets/hero-login.png',appt:'/portal-assets/appointment-card.png',hero:'/portal-assets/consultation-hero.png',form:'/portal-assets/form-complete.jpg'}
+const IMG={login:'/portal-assets/hero-login.png',appt:'/portal-assets/appointment-card.png',hero:'/portal-assets/consultation-hero.png'}
 const apiFetch=async(path,opts={})=>{const token=sessionStorage.getItem('client_token');const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};const res=await fetch(`${API}${path}`,{...opts,headers});if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.detail||`HTTP ${res.status}`)}return res.json()}
 const DC={pregnant:{microneedling:'BLOCK',peel:'BLOCK',rf:'BLOCK',polynucleotides:'BLOCK',lymphatic:'FLAG'},pacemaker:{rf:'BLOCK',microneedling:'FLAG'},metalImplants:{rf:'BLOCK'},bloodClotting:{microneedling:'BLOCK',peel:'FLAG',rf:'FLAG',polynucleotides:'FLAG'},activeCancer:{microneedling:'BLOCK',peel:'BLOCK',rf:'BLOCK',polynucleotides:'BLOCK',lymphatic:'BLOCK'},keloid:{microneedling:'BLOCK',rf:'FLAG',peel:'FLAG',polynucleotides:'FLAG'},skinInfection:{microneedling:'BLOCK',peel:'BLOCK',rf:'BLOCK',polynucleotides:'BLOCK',lymphatic:'BLOCK'},autoimmune:{microneedling:'BLOCK',peel:'FLAG',rf:'FLAG',polynucleotides:'FLAG'},epilepsy:{microneedling:'FLAG',peel:'FLAG',rf:'FLAG',polynucleotides:'FLAG',lymphatic:'FLAG'},herpes:{microneedling:'FLAG',peel:'FLAG'},roaccutane:{microneedling:'BLOCK',peel:'BLOCK',rf:'BLOCK',polynucleotides:'FLAG'},bloodThinners:{microneedling:'BLOCK',rf:'FLAG',polynucleotides:'FLAG'},retinoids:{peel:'BLOCK',microneedling:'FLAG'},photosensitising:{peel:'BLOCK',microneedling:'FLAG'},immunosuppressants:{microneedling:'BLOCK',peel:'FLAG',rf:'FLAG',polynucleotides:'FLAG'},sunburn:{microneedling:'BLOCK',peel:'BLOCK',rf:'BLOCK',polynucleotides:'FLAG'},sunbed:{peel:'BLOCK',microneedling:'FLAG',rf:'FLAG'},fishAllergy:{polynucleotides:'BLOCK'},fillersRecent:{rf:'BLOCK',polynucleotides:'FLAG'}}
 const TL={microneedling:'Microneedling',peel:'Chemical Peels',rf:'RF Needling',polynucleotides:'Polynucleotides',lymphatic:'Lymphatic Lift'}
@@ -271,7 +271,7 @@ export default function ClientPortal(){
                   {hasForm&&desk&&<button style={{padding:'8px 18px',borderRadius:99,border:`1px solid ${$.acc}40`,background:'transparent',color:$.acc,fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Download PDF</button>}
                 </div>
               </div>
-              <div style={{width:desk?240:64,height:desk?140:64,borderRadius:desk?10:12,overflow:'hidden',flexShrink:0}}><img src={IMG.form} alt="" style={{width:'100%',height:'100%',objectFit:'cover',opacity:0.85}}/></div>
+              <div style={{width:desk?120:64,height:desk?120:64,borderRadius:desk?16:12,background:'rgba(200,163,76,0.06)',border:`1px solid rgba(200,163,76,0.12)`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><svg width={desk?48:28} height={desk?48:28} viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg></div>
             </div>}
             <div style={desk?{display:'flex',gap:24,alignItems:'flex-start'}:{}}>
               <div style={{flex:1,minWidth:0}}>

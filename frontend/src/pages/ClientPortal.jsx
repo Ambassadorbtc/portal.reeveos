@@ -590,12 +590,10 @@ export default function ClientPortal() {
               </div>
             )}
           </div>
-        </div>
-
-            </div>{/* close maxWidth */}
-          </div>{/* close scrollable */}
+          </div>
+          </div>
           {desk&&<Footer biz={biz} desk={desk}/>}
-        </div>{/* close main content column */}
+        </div>
 
         {/* Mobile bottom nav */}
         {!desk&&<div style={{position:'fixed',bottom:0,left:0,right:0,background:L.card,borderTop:`1px solid ${L.bdr}`,padding:'8px 0 12px',zIndex:30,display:'flex',justifyContent:'space-around'}}>

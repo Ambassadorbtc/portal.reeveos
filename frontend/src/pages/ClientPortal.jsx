@@ -130,7 +130,7 @@ export default function ClientPortal(){
   const upcoming=myData?.upcoming_bookings||[]
 
   useEffect(()=>{if(!slug)return;apiFetch(`/client/${slug}/info`).then(d=>{setBiz(d.business||d);if(sessionStorage.getItem('client_token'))loadUser()}).catch(()=>{})},[slug])
-  const loadUser=async()=>{try{const p=await apiFetch('/client/auth/me');const d=await apiFetch(`/client/${slug}/my-data`);setUser(p.user||p);setCs(d.consultation||null);setMyData(d);setView('home')}catch(e){sessionStorage.removeItem('client_token')}}
+  const loadUser=async()=>{try{const p=await apiFetch('/client/auth/me');const d=await apiFetch(`/client/${slug}/my-data`);setUser(p.user||p);setCs(d.consultation||null);setMyData(d);setView('home');try{const svc=await apiFetch(`/client/${slug}/services`);setServices(svc.services||[])}catch(e){}}catch(e){sessionStorage.removeItem('client_token')}}
   const doAuth=async()=>{setLoading(true);setErr('');try{const body=authMode==='login'?{email,password}:{name:signupName,email,phone:signupPhone,password,business_id:biz?.business_id||''};const d=await apiFetch(`/client/auth/${authMode==='login'?'login':'signup'}`,{method:'POST',body:JSON.stringify(body)});sessionStorage.setItem('client_token',d.token);await loadUser()}catch(e){setErr(e.message)}setLoading(false)}
   const logout=()=>{sessionStorage.removeItem('client_token');setUser(null);setView('login')}
   const submitForm=async()=>{setLoading(true);try{await apiFetch(`/consultation/public/${slug}/submit`,{method:'POST',body:JSON.stringify({form_data:fd,alerts})});setCs({status:'submitted'});setView('submitted')}catch(e){setErr(e.message)}setLoading(false)}
@@ -157,7 +157,7 @@ export default function ClientPortal(){
 
       <Sidebar biz={biz} user={user} activeTab={tab||activeTab} onNav={navTo} onLogout={logout}/>
       <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column'}}>{children}</div>
-      <div className="client-mobnav" style={{position:'fixed',bottom:0,left:0,right:0,background:'#111111',padding:'10px 0 16px',zIndex:30,display:'flex',justifyContent:'space-around'}}>
+      <div className="client-mobnav" style={{position:'fixed',bottom:0,left:0,right:0,background:'#111111',padding:'10px 0 20px',zIndex:30,display:'flex',justifyContent:'space-around',borderTop:'1px solid rgba(200,163,76,0.1)'}}>
         {[{id:'home',icon:'home',label:'Home'},{id:'bookings',icon:'cal',label:'Bookings'},{id:'form',icon:'form',label:'Forms'},{id:'messages',icon:'msg',label:'Messages'},{id:'profile',icon:'user',label:'Profile'}].map(t=><button key={t.id} onClick={()=>navTo(t.id)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'2px 6px'}}>{I[t.icon](activeTab===t.id?$.acc:'rgba(255,255,255,0.45)',22)}<span style={{fontSize:11,fontWeight:activeTab===t.id?700:500,color:activeTab===t.id?$.acc:'rgba(255,255,255,0.45)'}}>{t.label}</span></button>)}
       </div>
     </div>
@@ -166,16 +166,17 @@ export default function ClientPortal(){
   // Shared: top bar for logged-in views
   const ini=(user?.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2)
   const TopBar=()=>(
-    <div style={{background:desk?'linear-gradient(135deg,#111111 0%,#1a1708 100%)':$.card,padding:desk?'12px 24px':'14px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0,borderBottom:desk?'none':`1px solid ${$.bdr}`}}>
-      <div style={{display:'flex',alignItems:'center',gap:desk?10:12}}>
-        {!desk?<div style={{width:40,height:40,borderRadius:99,border:`2px solid ${$.acc}40`,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><span style={{fontSize:14,fontWeight:700,color:$.acc}}>{ini}</span></div>
-        :<div style={{width:32,height:32,borderRadius:10,background:$.acc,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><span style={{fontSize:13,fontWeight:800,color:'#111'}}>R.</span></div>}
-        {desk?<span style={{fontSize:15,fontWeight:700,color:'#FAF7F2'}}>{biz?.name||'Portal'}</span>
-        :<div><p style={{fontSize:15,fontWeight:700,color:$.acc,margin:0}}>Hi {(user?.name||'').split(' ')[0]}</p><p style={{fontSize:11,color:$.txtM,margin:0}}>{biz?.name}</p></div>}
-      </div>
+    <div style={{background:'#111111',padding:desk?'12px 24px':'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
       <div style={{display:'flex',alignItems:'center',gap:10}}>
-        <button style={{width:desk?34:40,height:desk?34:40,borderRadius:99,background:desk?'rgba(255,255,255,0.08)':$.bg,border:desk?'none':`1px solid ${$.bdr}`,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative',flexShrink:0}}>{I.bell(desk?'rgba(250,247,242,0.6)':$.txtM,desk?16:18)}<div style={{position:'absolute',top:desk?7:8,right:desk?7:8,width:7,height:7,borderRadius:99,background:$.acc}}/></button>
-        {desk&&<div style={{width:34,height:34,borderRadius:99,border:`2px solid ${$.acc}`,background:'rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:$.acc,flexShrink:0}}>{(user?.name||'?').charAt(0)}</div>}
+        <div style={{width:34,height:34,borderRadius:10,background:$.acc,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><span style={{fontSize:13,fontWeight:800,color:'#111'}}>R.</span></div>
+        <div>
+          <p style={{fontSize:14,fontWeight:700,color:'#FAF7F2',margin:0}}>{desk?biz?.name||'Portal':`Hi ${(user?.name||'').split(' ')[0]}`}</p>
+          {!desk&&<p style={{fontSize:10,color:'rgba(250,247,242,0.5)',margin:0}}>{biz?.name}</p>}
+        </div>
+      </div>
+      <div style={{display:'flex',alignItems:'center',gap:8}}>
+        <button style={{width:36,height:36,borderRadius:99,background:'rgba(255,255,255,0.08)',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative',flexShrink:0}}>{I.bell('rgba(250,247,242,0.6)',16)}<div style={{position:'absolute',top:7,right:7,width:7,height:7,borderRadius:99,background:$.acc}}/></button>
+        <div style={{width:34,height:34,borderRadius:99,border:`2px solid ${$.acc}40`,background:'rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:$.acc,flexShrink:0}}>{ini}</div>
       </div>
     </div>
   )
@@ -252,7 +253,7 @@ export default function ClientPortal(){
     return(
       <Shell tab="home">
         <TopBar/>
-        <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:80}}>
+        <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:100}}>
           <div style={{maxWidth:1000,margin:'0 auto',padding:desk?'24px 24px 32px':'16px 12px'}}>
             {hasForm&&<div style={{marginBottom:20}}><h1 style={{fontSize:desk?24:26,fontWeight:700,color:$.h,margin:0}}>Welcome back, {(user?.name||'').split(' ')[0]}!</h1><p style={{fontSize:desk?13:16,color:$.txtM,margin:'2px 0 0'}}>Your skin health journey is progressing perfectly.</p></div>}
             {isSalon&&<div style={{background:hasForm?'rgba(74,222,128,0.06)':'rgba(239,68,68,0.04)',border:`2px solid ${hasForm?'rgba(74,222,128,0.35)':'rgba(239,68,68,0.18)'}`,borderRadius:12,padding:desk?22:16,marginBottom:20,display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:24}}>
@@ -383,7 +384,7 @@ export default function ClientPortal(){
         </div>
       </div>
       {/* Steps */}
-      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:80}}>
+      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:20}}>
         <div style={{maxWidth:680,margin:'0 auto',padding:desk?'24px 20px 0':'16px 12px 0'}}>
 
           {step===0&&<div>
@@ -489,7 +490,7 @@ export default function ClientPortal(){
         </div>
       </div>
       {/* Nav buttons — mobile: stacked full-width (Figma style) */}
-      <div style={{borderTop:`1px solid ${$.bdr}`,padding:desk?'16px 20px':'16px 16px',flexShrink:0}}>
+      <div style={{borderTop:`1px solid ${$.bdr}`,padding:desk?'16px 20px':'16px 16px',flexShrink:0,marginBottom:desk?0:70,background:$.card}}>
         <div style={{maxWidth:680,margin:'0 auto',display:'flex',flexDirection:desk?'row':'column',gap:desk?0:10,justifyContent:'space-between'}}>
           {step<5?<button onClick={()=>canProceed()&&goStep(step+1)} disabled={!canProceed()} style={{padding:desk?'8px 24px':'16px 0',borderRadius:99,border:'none',background:canProceed()?$.acc:$.bdr,color:canProceed()?'#111':$.txtL,fontSize:desk?12:16,fontWeight:700,cursor:canProceed()?'pointer':'not-allowed',fontFamily:$.f,display:'flex',alignItems:'center',justifyContent:'center',gap:8,order:desk?2:1,width:desk?'auto':'100%'}}>Continue to Step {step+2} {I.arr(canProceed()?'#111':'#999',14)}</button>
           :<button onClick={()=>canProceed()&&submitForm()} disabled={!canProceed()||loading} style={{padding:desk?'8px 24px':'16px 0',borderRadius:99,border:'none',background:canProceed()&&!loading?$.acc:$.bdr,color:canProceed()?'#111':$.txtL,fontSize:desk?12:16,fontWeight:700,cursor:canProceed()?'pointer':'not-allowed',fontFamily:$.f,width:desk?'auto':'100%',order:desk?2:1}}>{loading?'Submitting...':'Submit Form'}</button>}
@@ -524,7 +525,7 @@ export default function ClientPortal(){
     return(
       <Shell tab="bookings">
         <TopBar/>
-        <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:80}}>
+        <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:100}}>
           <div style={{maxWidth:1000,margin:'0 auto',padding:desk?'24px 24px 32px':'16px 12px'}}>
             <h1 style={{fontSize:desk?24:22,fontWeight:700,color:$.h,margin:'0 0 4px'}}>My Bookings</h1>
             <p style={{fontSize:desk?13:15,color:$.txtM,margin:'0 0 20px'}}>Book treatments, view upcoming and past appointments.</p>
@@ -541,7 +542,7 @@ export default function ClientPortal(){
                 {/* Left: Service + Staff + Confirm */}
                 <div style={{flex:desk?'0 0 320px':'auto',marginBottom:desk?0:16}}>
                   <h3 style={{fontSize:desk?14:16,fontWeight:700,color:$.h,margin:'0 0 8px'}}>1. Choose Treatment</h3>
-                  {services.length===0?<p style={{fontSize:desk?12:14,color:$.txtM}}>Loading services...</p>:(
+                  {services.length===0?<div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:20,textAlign:'center',marginBottom:16}}><p style={{fontSize:desk?13:15,color:$.txtM,margin:0}}>No services configured yet. Ask {biz?.name} to add their treatment menu.</p></div>:(
                     <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:16}}>
                       {services.map(s=>(
                         <button key={s.id} onClick={()=>{setBookSvc(s);setBookTime('');if(bookDate)loadSlots(s.id,bookDate)}} style={{textAlign:'left',background:bookSvc?.id===s.id?'rgba(200,163,76,0.08)':$.card,border:bookSvc?.id===s.id?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,borderRadius:10,padding:desk?'10px 12px':'12px 14px',cursor:'pointer',fontFamily:$.f}}>
@@ -678,7 +679,7 @@ export default function ClientPortal(){
   if(view==='messages')return(
     <Shell tab="messages">
       <TopBar/>
-      <div style={{flex:1,display:'flex',flexDirection:'column',paddingBottom:desk?0:80}}>
+      <div style={{flex:1,display:'flex',flexDirection:'column',paddingBottom:desk?0:100}}>
         {/* Tab bar: Chat / AI Support */}
         <div style={{display:'flex',borderBottom:`1px solid ${$.bdr}`,background:$.card,flexShrink:0}}>
           {[{id:'chat',label:'Messages'},{id:'ai',label:'AI Support'}].map(t=>(
@@ -737,7 +738,7 @@ export default function ClientPortal(){
   if(view==='profile')return(
     <Shell tab="profile">
       <TopBar/>
-      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:80}}>
+      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:100}}>
         <div style={{maxWidth:800,margin:'0 auto',padding:desk?'24px 24px 32px':'16px 12px'}}>
           {/* Profile header */}
           <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:24}}>

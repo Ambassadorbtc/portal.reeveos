@@ -440,7 +440,8 @@ async def get_services(slug: str):
 
     biz_id = str(biz["_id"])
     services = []
-    cursor = db.services.find({"business_id": biz_id, "active": {"$ne": False}}).sort("name", 1)
+    # Try both field naming conventions (businessId vs business_id)
+    cursor = db.services.find({"$or": [{"business_id": biz_id}, {"businessId": biz_id}], "active": {"$ne": False}}).sort("name", 1)
     async for svc in cursor:
         services.append({
             "id": str(svc["_id"]),
@@ -475,17 +476,29 @@ async def get_available_slots(slug: str, service_id: str = "", date: str = ""):
     duration = 60
     if service_id:
         try:
-            svc = await db.services.find_one({"_id": ObjectId(service_id), "business_id": biz_id})
+            svc = await db.services.find_one({"_id": ObjectId(service_id), "$or": [{"business_id": biz_id}, {"businessId": biz_id}]})
             if svc:
                 duration = svc.get("duration", 60)
         except Exception:
             pass
 
-    # Get staff for this business
+    # Get staff — check dedicated collection + embedded in business doc
     staff = []
-    cursor = db.staff.find({"business_id": biz_id, "active": {"$ne": False}})
+    # Try staff collection
+    cursor = db.staff.find({"$or": [{"business_id": biz_id}, {"businessId": biz_id}], "active": {"$ne": False}})
     async for s in cursor:
         staff.append({"id": str(s["_id"]), "name": s.get("name", "")})
+    # Try staff_members collection
+    if not staff:
+        cursor = db.staff_members.find({"$or": [{"business_id": biz_id}, {"businessId": biz_id}], "status": "active"})
+        async for s in cursor:
+            staff.append({"id": str(s["_id"]), "name": s.get("name", "")})
+    # Try embedded staff in business doc
+    if not staff:
+        embedded_staff = biz.get("staff", [])
+        for s in embedded_staff:
+            sid = s.get("id", s.get("_id", ""))
+            staff.append({"id": str(sid), "name": s.get("name", "")})
 
     # Get existing bookings for that date
     existing = []
@@ -554,7 +567,7 @@ async def create_booking(slug: str, data: dict = Body(...), user=Depends(_get_co
 
     # Get service
     try:
-        svc = await db.services.find_one({"_id": ObjectId(service_id), "business_id": biz_id})
+        svc = await db.services.find_one({"_id": ObjectId(service_id), "$or": [{"business_id": biz_id}, {"businessId": biz_id}]})
     except Exception:
         svc = None
     if not svc:

@@ -226,9 +226,99 @@ const FormNav = ({step,canProceed,onBack,onNext,onSubmit,loading,desk}) => (
   </div>
 )
 
-// ═══════════════════════════════════════════════════════════════
-// MAIN COMPONENT
-// ═══════════════════════════════════════════════════════════════
+// ═══ CLIENT SIDEBAR (matching web portal style: black rail + white panel) ═══
+const RAIL=64, PANEL=200
+const ClientSidebar = ({biz,user,activeTab,onNav,desk,onLogout}) => {
+  const [panelOpen,setPanelOpen]=useState(true)
+  const tabs=[
+    {id:'home',label:'Home',icon:'home'},
+    {id:'bookings',label:'Bookings',icon:'cal'},
+    {id:'form',label:'Consultation',icon:'form'},
+    {id:'messages',label:'Messages',icon:'msg'},
+    {id:'profile',label:'My Profile',icon:'user'},
+  ]
+  const initials=(user?.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2)
+  if(!desk) return null
+  return (
+    <div style={{display:'flex',height:'100vh',position:'sticky',top:0,flexShrink:0,fontFamily:L.f}}>
+      {/* BLACK RAIL */}
+      <div style={{width:RAIL,background:'#111111',display:'flex',flexDirection:'column',zIndex:20,flexShrink:0}}>
+        {/* Logo */}
+        <div style={{height:64,display:'flex',alignItems:'center',justifyContent:'center',borderBottom:'1px solid rgba(255,255,255,0.08)',flexShrink:0}}>
+          <div style={{width:34,height:34,borderRadius:10,background:'#D4A373',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 2px 8px rgba(0,0,0,0.15)'}}>
+            <span style={{color:'#111111',fontWeight:700,fontSize:15}}>R.</span>
+          </div>
+        </div>
+        {/* Rail icons */}
+        <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',paddingTop:16,gap:4}}>
+          {tabs.map(t=>{
+            const active=activeTab===t.id
+            return (
+              <button key={t.id} onClick={()=>onNav(t.id)} style={{
+                width:44,height:44,borderRadius:12,border:'none',cursor:'pointer',
+                display:'flex',alignItems:'center',justifyContent:'center',position:'relative',
+                background:active?'rgba(255,255,255,0.14)':'transparent',transition:'all 200ms',
+              }}
+                onMouseEnter={e=>{if(!active)e.currentTarget.style.background='rgba(255,255,255,0.08)'}}
+                onMouseLeave={e=>{if(!active)e.currentTarget.style.background='transparent'}}>
+                {active&&<div style={{position:'absolute',left:0,top:8,bottom:8,width:3,borderRadius:'0 4px 4px 0',background:'#FAF7F2'}}/>}
+                {I[t.icon](active?'#FAF7F2':'rgba(250,247,242,0.4)',20)}
+              </button>
+            )
+          })}
+        </div>
+        {/* User avatar */}
+        <div style={{borderTop:'1px solid rgba(255,255,255,0.08)',padding:'12px 0',display:'flex',justifyContent:'center',flexShrink:0}}>
+          <div style={{width:36,height:36,borderRadius:'50%',background:'rgba(255,255,255,0.12)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>
+            <span style={{color:'#FAF7F2',fontWeight:600,fontSize:12}}>{initials}</span>
+          </div>
+        </div>
+      </div>
+      {/* WHITE PANEL */}
+      {panelOpen&&<div style={{width:PANEL,background:'#FFFFFF',display:'flex',flexDirection:'column',borderRight:`1px solid ${L.bdr}`,overflow:'hidden'}}>
+        {/* Panel header */}
+        <div style={{height:64,display:'flex',alignItems:'center',padding:'0 16px',borderBottom:'1px solid #F0EDE7',flexShrink:0}}>
+          <span style={{fontWeight:700,fontSize:15,color:'#111111',letterSpacing:'-0.01em'}}>{biz?.name||'Portal'}</span>
+        </div>
+        {/* Nav items */}
+        <div style={{flex:1,padding:'12px 10px',overflowY:'auto'}}>
+          <div style={{padding:'0 8px',marginBottom:10,fontSize:10,fontWeight:600,letterSpacing:'0.1em',color:'#7A776F',textTransform:'uppercase'}}>MENU</div>
+          {tabs.map(t=>{
+            const active=activeTab===t.id
+            return (
+              <button key={t.id} onClick={()=>onNav(t.id)} style={{
+                width:'100%',display:'flex',alignItems:'center',gap:10,
+                padding:'9px 10px',borderRadius:10,border:'none',cursor:'pointer',
+                fontSize:13.5,fontWeight:active?600:500,
+                color:active?'#111111':'#7A776F',
+                background:active?'rgba(17,17,17,0.06)':'transparent',
+                transition:'all 180ms',fontFamily:L.f,textAlign:'left',
+              }}
+                onMouseEnter={e=>{if(!active){e.currentTarget.style.background='rgba(232,228,221,0.5)';e.currentTarget.style.color='#2C2C2A'}}}
+                onMouseLeave={e=>{if(!active){e.currentTarget.style.background='transparent';e.currentTarget.style.color='#7A776F'}}}>
+                {I[t.icon](active?'#111111':'#7A776F',17)}
+                <span>{t.label}</span>
+              </button>
+            )
+          })}
+        </div>
+        {/* User footer */}
+        <div style={{flexShrink:0,borderTop:'1px solid #F0EDE7',padding:12}}>
+          <div style={{display:'flex',alignItems:'center',gap:10,padding:6,borderRadius:10}}>
+            <div style={{width:34,height:34,borderRadius:'50%',background:'rgba(212,163,115,0.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+              <span style={{color:'#111111',fontWeight:600,fontSize:11}}>{initials}</span>
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:13,fontWeight:600,color:'#2C2C2A',lineHeight:1.3}}>{user?.name||'User'}</div>
+              <div style={{fontSize:11,color:'#7A776F'}}>{biz?.name}</div>
+            </div>
+          </div>
+          <button onClick={onLogout} style={{width:'100%',marginTop:8,padding:'8px 0',borderRadius:8,border:`1px solid ${L.bdr}`,background:'transparent',fontSize:12,fontWeight:600,color:'#7A776F',cursor:'pointer',fontFamily:L.f}}>Sign Out</button>
+        </div>
+      </div>}
+    </div>
+  )
+}
 export default function ClientPortal() {
   const {slug}=useParams()
   const [view,setView]=useState('login'),[biz,setBiz]=useState(null),[user,setUser]=useState(null)
@@ -341,21 +431,31 @@ export default function ClientPortal() {
     const tabs=[{icon:'home',label:'Home',id:'home'},{icon:'cal',label:'Bookings',id:'bookings'},{icon:'msg',label:'Messages',id:'messages'},{icon:'user',label:'Profile',id:'profile'}]
 
     return (
-      <div style={{minHeight:'100vh',background:L.bg,fontFamily:L.f,paddingBottom:desk?0:72}}>
+      <div style={{display:'flex',minHeight:'100vh',background:L.bg,fontFamily:L.f}}>
         <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-        {/* Header (Figma: 2:852) */}
-        <Header biz={biz} desk={desk}>
-          {desk&&['Home','Services','Products','About'].map(l=><button key={l} style={{background:'none',border:'none',fontSize:14,fontWeight:500,color:L.txtM,cursor:'pointer',fontFamily:L.f}}>{l}</button>)}
-          <button style={{width:40,height:40,borderRadius:24,background:L.bg,border:`1px solid ${L.bdr}`,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative'}}>
-            {I.bell(L.txtM)}<div style={{position:'absolute',top:8,right:8,width:8,height:8,borderRadius:99,background:L.acc}}/>
-          </button>
-          <button style={{background:L.acc,border:'none',borderRadius:24,padding:'8px 20px',cursor:'pointer'}}>
-            <span style={{fontSize:14,fontWeight:700,color:'#fff'}}>Hi {(user?.name||'').split(' ')[0]}</span>
-          </button>
-          <div style={{width:40,height:40,borderRadius:99,border:`2px solid ${L.acc}`,background:L.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:L.acc}}>{(user?.name||'?').charAt(0)}</div>
-        </Header>
+        {/* SIDEBAR (desktop) */}
+        <ClientSidebar biz={biz} user={user} activeTab={activeTab} onNav={setActiveTab} desk={desk} onLogout={logout}/>
 
-        <div style={{maxWidth:1200,margin:'0 auto',padding:desk?'32px 24px':'16px'}}>
+        {/* MAIN CONTENT */}
+        <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column'}}>
+          {/* Top bar (simpler — sidebar handles main nav) */}
+          <div style={{background:L.card,borderBottom:`1px solid ${L.bdr}`,padding:'12px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+            <div/>
+            <div style={{display:'flex',alignItems:'center',gap:12}}>
+              <button style={{width:40,height:40,borderRadius:24,background:L.bg,border:`1px solid ${L.bdr}`,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative'}}>
+                {I.bell(L.txtM)}<div style={{position:'absolute',top:8,right:8,width:8,height:8,borderRadius:99,background:L.acc}}/>
+              </button>
+              <button style={{background:L.acc,border:'none',borderRadius:24,padding:'8px 20px',cursor:'pointer'}}>
+                <span style={{fontSize:14,fontWeight:700,color:'#fff'}}>Hi {(user?.name||'').split(' ')[0]}</span>
+              </button>
+              <div style={{width:40,height:40,borderRadius:99,border:`2px solid ${L.acc}`,background:L.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:L.acc}}>{(user?.name||'?').charAt(0)}</div>
+            </div>
+          </div>
+
+          {/* Scrollable content */}
+          <div style={{flex:1,overflowY:'auto'}}>
+            <div style={{maxWidth:1100,margin:'0 auto',padding:desk?'32px 32px 40px':'16px'}}>
+
           {/* Welcome heading (Figma 2:674) */}
           {hasForm&&<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
             <div>
@@ -492,11 +592,15 @@ export default function ClientPortal() {
           </div>
         </div>
 
-        {/* Mobile bottom nav (Figma: 1:491) */}
+            </div>{/* close maxWidth */}
+          </div>{/* close scrollable */}
+          {desk&&<Footer biz={biz} desk={desk}/>}
+        </div>{/* close main content column */}
+
+        {/* Mobile bottom nav */}
         {!desk&&<div style={{position:'fixed',bottom:0,left:0,right:0,background:L.card,borderTop:`1px solid ${L.bdr}`,padding:'8px 0 12px',zIndex:30,display:'flex',justifyContent:'space-around'}}>
           {tabs.map(t=><button key={t.id} onClick={()=>setActiveTab(t.id)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'4px 8px'}}>{I[t.icon](activeTab===t.id?L.acc:L.txtL,20)}<span style={{fontSize:10,fontWeight:activeTab===t.id?700:500,color:activeTab===t.id?L.acc:L.txtL}}>{t.label}</span></button>)}
         </div>}
-        {desk&&<Footer biz={biz} desk={desk}/>}
       </div>
     )
   }

@@ -14,7 +14,7 @@ import {
   LayoutGrid, Megaphone, Settings, HelpCircle,
   ChevronLeft, ChevronRight, ChevronDown, Lock,
   Send, Bot, Linkedin, Bell,
-  Package, Flame, Clock, Wallet, ClipboardCheck, MessageSquare
+  Package, Flame, Clock, Wallet, ClipboardCheck, MessageSquare, Monitor
 } from 'lucide-react'
 
 /* ── Color tokens ── */
@@ -62,6 +62,7 @@ const ICON_MAP = {
 function buildSections(navItems, tier, businessType) {
   const iconFor = (item) => ICON_MAP[item.icon] || LayoutDashboard
   const locked = () => false // All features unlocked
+  const isRestaurant = businessType === 'restaurant'
 
   // Group: MAIN
   const mainChildren = [
@@ -136,14 +137,26 @@ function buildSections(navItems, tier, businessType) {
         })),
       ].filter(Boolean) },
     ]}] : []),
+    ...(!isRestaurant ? [{ label: 'CLIENT PORTAL', items: [
+      { id: 'client-portal-mgmt', Icon: Monitor, label: 'Client Portal', children: [
+        { id: 'portal-clients', label: 'Clients', path: '/dashboard/portal-clients', Icon: BookUser, locked: false },
+        { id: 'consultation-forms', label: 'Consultation Forms', path: '/dashboard/consultation-forms', Icon: ClipboardCheck, locked: false },
+        { id: 'client-messages', label: 'Messages', path: '/dashboard/client-messages', Icon: MessageSquare, locked: false },
+        { id: 'client-emails', label: 'Email Management', path: '/dashboard/client-emails', Icon: Send, locked: false },
+        { id: 'client-push', label: 'Push Notifications', path: '/dashboard/client-push', Icon: Bell, locked: false },
+      ]},
+    ]}] : []),
     { label: 'MANAGE', items: [
       { id: 'people', Icon: Users, label: 'People', children: [
         ...(navItems.management || []).filter(i => i.id === 'staff').map(i => ({
           id: i.id, label: i.label, path: i.path, Icon: iconFor(i), locked: locked(i),
         })),
-        ...(navItems.business || []).filter(i => ['clients', 'reviews', 'consultation-forms', 'client-messages'].includes(i.id)).map(i => ({
+        ...(navItems.business || []).filter(i => ['reviews'].includes(i.id)).map(i => ({
           id: i.id, label: i.label, path: i.path, Icon: iconFor(i), locked: locked(i),
         })),
+        ...(isRestaurant ? (navItems.business || []).filter(i => i.id === 'clients').map(i => ({
+          id: i.id, label: i.label, path: i.path, Icon: iconFor(i), locked: locked(i),
+        })) : []),
       ].filter(Boolean) },
       { id: 'business', Icon: BarChart3, label: 'Business', children: [
         ...(navItems.business || []).filter(i => ['analytics', 'payments'].includes(i.id)).map(i => ({

@@ -766,3 +766,227 @@ async def business_reply(business_id: str, consumer_id: str, data: dict = Body(.
         "staff_name": staff_name,
         "created_at": now.isoformat(),
     }
+
+
+# ═══════════════════════════════════════════════════════════════
+# BUSINESS-SIDE: Portal client list + detail
+# ═══════════════════════════════════════════════════════════════
+
+@router.get("/business/{business_id}/portal-clients")
+async def list_portal_clients(business_id: str, authorization: str = Header(None)):
+    """List all consumer accounts linked to this business."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Auth required")
+
+    db = get_database()
+    clients = []
+    cursor = db.consumer_accounts.find({"business_ids": business_id}).sort("created_at", -1)
+    async for c in cursor:
+        # Get linked client record for stats
+        cl = await db.clients.find_one({"email": c.get("email"), "business_id": business_id})
+        clients.append({
+            "id": str(c["_id"]),
+            "name": c.get("name", ""),
+            "email": c.get("email", ""),
+            "phone": c.get("phone", ""),
+            "created_at": c.get("created_at", "").isoformat() if c.get("created_at") else "",
+            "consultation_status": cl.get("consultation_status") if cl else None,
+            "visit_count": cl.get("visit_count", 0) if cl else 0,
+            "total_spend": cl.get("total_spend", 0) if cl else 0,
+        })
+    return {"clients": clients}
+
+
+@router.get("/business/{business_id}/portal-clients/{consumer_id}")
+async def get_portal_client_detail(business_id: str, consumer_id: str, authorization: str = Header(None)):
+    """Full client profile — bookings, forms, stats."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Auth required")
+
+    db = get_database()
+    consumer = await db.consumer_accounts.find_one({"_id": ObjectId(consumer_id)})
+    if not consumer:
+        raise HTTPException(404, "Client not found")
+
+    email = consumer.get("email", "")
+    now = datetime.utcnow()
+
+    # Client record
+    cl = await db.clients.find_one({"email": email, "business_id": business_id})
+
+    # Bookings
+    bookings = []
+    cursor = db.bookings.find({
+        "$or": [{"businessId": business_id}, {"business_id": business_id}],
+        "customer.email": email,
+    }).sort("date", -1).limit(20)
+    async for b in cursor:
+        bookings.append({
+            "service": b.get("service", ""),
+            "date": b.get("date", ""),
+            "time": b.get("time", ""),
+            "staff": b.get("staff_name", ""),
+            "price": b.get("price"),
+            "status": b.get("status", ""),
+        })
+
+    # Consultation
+    form = await db.consultation_submissions.find_one(
+        {"business_id": business_id, "client_email": email},
+        sort=[("submitted_at", -1)],
+    )
+    consultation = None
+    if form:
+        consultation = {
+            "status": form.get("status", "submitted"),
+            "submitted_at": form.get("submitted_at", "").isoformat() if form.get("submitted_at") else "",
+            "alerts": form.get("alerts", {"blocks": [], "flags": []}),
+        }
+
+    return {
+        "name": consumer.get("name", ""),
+        "email": email,
+        "phone": consumer.get("phone", ""),
+        "created_at": consumer.get("created_at", "").isoformat() if consumer.get("created_at") else "",
+        "visit_count": cl.get("visit_count", 0) if cl else len(bookings),
+        "total_spend": cl.get("total_spend", 0) if cl else sum(float(b.get("price", 0) or 0) for b in bookings),
+        "consultation_status": cl.get("consultation_status") if cl else (consultation["status"] if consultation else None),
+        "consultation": consultation,
+        "bookings": bookings,
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+# BUSINESS-SIDE: Email management
+# ═══════════════════════════════════════════════════════════════
+
+@router.post("/business/{business_id}/send-email")
+async def send_client_email(business_id: str, data: dict = Body(...), authorization: str = Header(None)):
+    """Send email to selected portal clients."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Auth required")
+
+    db = get_database()
+    client_ids = data.get("client_ids", [])
+    subject = data.get("subject", "")
+    body = data.get("body", "")
+
+    if not subject or not body or not client_ids:
+        raise HTTPException(400, "subject, body, and client_ids required")
+
+    # Get emails
+    recipients = []
+    for cid in client_ids:
+        try:
+            c = await db.consumer_accounts.find_one({"_id": ObjectId(cid)})
+            if c:
+                recipients.append({"email": c["email"], "name": c.get("name", "")})
+        except Exception:
+            pass
+
+    # Log the email send
+    now = datetime.utcnow()
+    await db.client_email_log.insert_one({
+        "business_id": business_id,
+        "subject": subject,
+        "body": body,
+        "recipient_count": len(recipients),
+        "recipients": [r["email"] for r in recipients],
+        "sent_at": now,
+    })
+
+    # TODO: Actually send via Resend/Sendly when configured
+    return {"sent": True, "recipient_count": len(recipients)}
+
+
+@router.get("/business/{business_id}/email-history")
+async def get_email_history(business_id: str, authorization: str = Header(None)):
+    """Get email send history."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Auth required")
+
+    db = get_database()
+    emails = []
+    cursor = db.client_email_log.find({"business_id": business_id}).sort("sent_at", -1).limit(20)
+    async for e in cursor:
+        emails.append({
+            "subject": e.get("subject", ""),
+            "recipient_count": e.get("recipient_count", 0),
+            "sent_at": e.get("sent_at", "").isoformat() if e.get("sent_at") else "",
+        })
+    return {"emails": emails}
+
+
+# ═══════════════════════════════════════════════════════════════
+# BUSINESS-SIDE: Push notifications
+# ═══════════════════════════════════════════════════════════════
+
+@router.post("/business/{business_id}/send-push")
+async def send_push_notification(business_id: str, data: dict = Body(...), authorization: str = Header(None)):
+    """Send push notification to portal clients (stored in DB, shown in portal)."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Auth required")
+
+    db = get_database()
+    ntype = data.get("type", "announcement")
+    title = data.get("title", "")
+    message = data.get("message", "")
+    target = data.get("target", "all")
+    client_ids = data.get("client_ids", [])
+
+    if not title or not message:
+        raise HTTPException(400, "title and message required")
+
+    now = datetime.utcnow()
+
+    # Get recipient list
+    if target == "all":
+        recipients = []
+        async for c in db.consumer_accounts.find({"business_ids": business_id}, {"_id": 1}):
+            recipients.append(str(c["_id"]))
+    else:
+        recipients = client_ids
+
+    # Create notification for each recipient
+    for rid in recipients:
+        await db.client_notifications.insert_one({
+            "business_id": business_id,
+            "consumer_id": rid,
+            "type": ntype,
+            "title": title,
+            "message": message,
+            "read": False,
+            "created_at": now,
+        })
+
+    # Log
+    await db.client_push_log.insert_one({
+        "business_id": business_id,
+        "type": ntype,
+        "title": title,
+        "message": message,
+        "target": target,
+        "recipient_count": len(recipients),
+        "sent_at": now,
+    })
+
+    return {"sent": True, "recipient_count": len(recipients)}
+
+
+@router.get("/business/{business_id}/push-history")
+async def get_push_history(business_id: str, authorization: str = Header(None)):
+    """Get push notification history."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Auth required")
+
+    db = get_database()
+    notifications = []
+    cursor = db.client_push_log.find({"business_id": business_id}).sort("sent_at", -1).limit(20)
+    async for n in cursor:
+        notifications.append({
+            "type": n.get("type", ""),
+            "title": n.get("title", ""),
+            "recipient_count": n.get("recipient_count", 0),
+            "sent_at": n.get("sent_at", "").isoformat() if n.get("sent_at") else "",
+        })
+    return {"notifications": notifications}

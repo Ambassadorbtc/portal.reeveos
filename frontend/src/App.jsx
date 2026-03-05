@@ -29,6 +29,9 @@ import Orders from './pages/dashboard/Orders'
 import Clients from './pages/dashboard/Clients'
 import ConsultationForms from './pages/dashboard/ConsultationForms'
 import ClientMessages from './pages/dashboard/ClientMessages'
+import PortalClients from './pages/dashboard/PortalClients'
+import ClientEmails from './pages/dashboard/ClientEmails'
+import ClientPush from './pages/dashboard/ClientPush'
 import Notifications from './pages/dashboard/Notifications'
 import Marketing from './pages/dashboard/Marketing'
 import Payments from './pages/dashboard/Payments'
@@ -186,6 +189,9 @@ const App = () => {
               <Route path="clients" element={<Clients />} />
               <Route path="consultation-forms" element={<ConsultationForms />} />
               <Route path="client-messages" element={<ClientMessages />} />
+              <Route path="portal-clients" element={<PortalClients />} />
+              <Route path="client-emails" element={<ClientEmails />} />
+              <Route path="client-push" element={<ClientPush />} />
               <Route path="reviews" element={<Reviews />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="payments" element={<Payments />} />

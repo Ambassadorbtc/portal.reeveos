@@ -147,10 +147,16 @@ export default function ClientPortal(){
 
   // Shared: top bar for logged-in views
   const TopBar=()=>(
-    <div style={{background:$.card,borderBottom:`1px solid ${$.bdr}`,padding:'10px 20px',display:'flex',alignItems:'center',justifyContent:'flex-end',gap:10,flexShrink:0}}>
-      <button style={{width:desk?36:44,height:desk?36:44,borderRadius:desk?18:22,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative'}}>{I.bell($.txtM,16)}<div style={{position:'absolute',top:7,right:7,width:7,height:7,borderRadius:99,background:$.acc}}/></button>
-      <div style={{background:$.acc,borderRadius:18,padding:desk?'5px 14px':'8px 18px'}}><span style={{fontSize:12,fontWeight:700,color:'#fff'}}>Hi {(user?.name||'').split(' ')[0]}</span></div>
-      <div style={{width:34,height:34,borderRadius:99,border:`2px solid ${$.acc}`,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:$.acc}}>{(user?.name||'?').charAt(0)}</div>
+    <div style={{background:$.card,borderBottom:`1px solid ${$.bdr}`,padding:desk?'10px 20px':'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+      {!desk?<div style={{display:'flex',alignItems:'center',gap:10}}>
+        <div style={{width:34,height:34,borderRadius:8,background:$.acc,display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{fontSize:14,fontWeight:800,color:'#fff'}}>R</span></div>
+        <span style={{fontSize:15,fontWeight:700,color:$.h}}>{biz?.name||'Portal'}</span>
+      </div>:<div/>}
+      <div style={{display:'flex',alignItems:'center',gap:10}}>
+        <button style={{width:desk?36:42,height:desk?36:42,borderRadius:99,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative'}}>{I.bell($.txtM,desk?16:18)}<div style={{position:'absolute',top:desk?7:8,right:desk?7:8,width:7,height:7,borderRadius:99,background:$.acc}}/></button>
+        <div style={{background:$.acc,borderRadius:99,padding:desk?'5px 14px':'7px 16px'}}><span style={{fontSize:desk?12:13,fontWeight:700,color:'#fff'}}>Hi {(user?.name||'').split(' ')[0]}</span></div>
+        <div style={{width:desk?34:38,height:desk?34:38,borderRadius:99,border:`2px solid ${$.acc}`,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:desk?12:14,fontWeight:700,color:$.acc}}>{(user?.name||'?').charAt(0)}</div>
+      </div>
     </div>
   )
 
@@ -215,9 +221,9 @@ export default function ClientPortal(){
         <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:80}}>
           <div style={{maxWidth:1000,margin:'0 auto',padding:desk?'24px 24px 32px':'12px'}}>
             {hasForm&&<div style={{marginBottom:20}}><h1 style={{fontSize:desk?24:26,fontWeight:700,color:$.h,margin:0}}>Welcome back, {(user?.name||'').split(' ')[0]}!</h1><p style={{fontSize:desk?13:16,color:$.txtM,margin:'2px 0 0'}}>Your skin health journey is progressing perfectly.</p></div>}
-            {isSalon&&<div style={{background:hasForm?'rgba(34,197,94,0.04)':'rgba(200,163,76,0.05)',border:`1.5px solid ${hasForm?'rgba(34,197,94,0.2)':'rgba(200,163,76,0.25)'}`,borderRadius:12,padding:desk?22:16,marginBottom:20,display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:24}}>
+            {isSalon&&<div style={{background:hasForm?'rgba(74,222,128,0.06)':'rgba(239,68,68,0.04)',border:`2px solid ${hasForm?'rgba(74,222,128,0.35)':'rgba(239,68,68,0.18)'}`,borderRadius:12,padding:desk?22:16,marginBottom:20,display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:24}}>
               <div style={{flex:1}}>
-                <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:3}}>{hasForm?I.shield($.ok,14):I.warn($.acc,14)}<span style={{fontSize:12,fontWeight:700,color:hasForm?$.ok:$.acc,textTransform:'uppercase',letterSpacing:'0.5px'}}>{hasForm?'Status: Complete':'Action Required'}</span></div>
+                <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:3}}>{hasForm?I.chk('#22C55E',16):I.warn('#DC2626',16)}<span style={{fontSize:desk?12:14,fontWeight:700,color:hasForm?'#22C55E':'#DC2626',textTransform:'uppercase',letterSpacing:'0.5px'}}>{hasForm?'Status: Complete':'Action Required'}</span></div>
                 <h3 style={{fontSize:desk?18:20,fontWeight:700,color:$.h,margin:'0 0 4px'}}>{hasForm?'Consultation Form Complete':'Consultation Form Needed'}</h3>
                 <p style={{fontSize:desk?13:15,color:$.txtM,margin:0,lineHeight:desk?'20px':'24px',maxWidth:500}}>{hasForm?'Our clinical experts have reviewed your profile and your treatment plan is ready.':'Please complete your skin assessment form before your next visit.'}</p>
                 <div style={{display:'flex',gap:8,marginTop:12}}>

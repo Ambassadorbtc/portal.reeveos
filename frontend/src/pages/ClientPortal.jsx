@@ -132,7 +132,7 @@ export default function ClientPortal(){
   const goStep=n=>{setStep(n);topRef.current?.scrollIntoView({behavior:'smooth'})}
   const[msgTab,setMsgTab]=useState('chat'),[msgs,setMsgs]=useState([]),[msgText,setMsgText]=useState('')
   const[services,setServices]=useState([]),[slots,setSlots]=useState([]),[slotStaff,setSlotStaff]=useState([])
-  const[bookSvc,setBookSvc]=useState(null),[bookDate,setBookDate]=useState(''),[bookTime,setBookTime]=useState(''),[bookStaff,setBookStaff]=useState(''),[bookStep,setBookStep]=useState('list'),[bookLoading,setBookLoading]=useState(false)
+  const[bookSvc,setBookSvc]=useState(null),[bookDate,setBookDate]=useState(new Date().toISOString().split('T')[0]),[bookTime,setBookTime]=useState(''),[bookStaff,setBookStaff]=useState(''),[bookStep,setBookStep]=useState('list'),[bookLoading,setBookLoading]=useState(false)
   const[notifPrefs,setNotifPrefs]=useState({appointment_reminders:true,aftercare:true,promotions:false,booking_confirmations:true})
   const navTo=t=>{setActiveTab(t);if(t==='home')setView('home');else if(t==='form'){setStep(0);setView('form')}else{setView(t);if(t==='messages')loadMsgs();if(t==='bookings'){loadServices();setBookStep('list')}if(t==='profile')loadNotifPrefs()}}
   const loadMsgs=async()=>{try{const d=await apiFetch(`/client/${slug}/messages`);setMsgs((d.messages||[]).map(m=>({from:m.from==='client'?'me':'them',text:m.text,time:m.created_at?new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'',staff:m.staff_name})))}catch(e){}}
@@ -418,128 +418,177 @@ export default function ClientPortal(){
   // ═══════════════════════════════════════════════════════════════
   // BOOKINGS — past visits + upcoming + book again
   // ═══════════════════════════════════════════════════════════════
-  if(view==='bookings')return(
-    <Shell tab="bookings">
-      <TopBar/>
-      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:80}}>
-        <div style={{maxWidth:1000,margin:'0 auto',padding:desk?'24px 24px 32px':'16px 12px'}}>
-          <h1 style={{fontSize:desk?24:22,fontWeight:700,color:$.h,margin:'0 0 4px'}}>My Bookings</h1>
-          <p style={{fontSize:desk?13:15,color:$.txtM,margin:'0 0 20px'}}>View your appointment history and book new treatments.</p>
+  // ═══════════════════════════════════════════════════════════════
+  // BOOKINGS — calendar + service/staff picker + history
+  // ═══════════════════════════════════════════════════════════════
+  if(view==='bookings'){
+    // Calendar helper
+    const today=new Date()
+    const calMonth=bookDate?new Date(bookDate+'T00:00:00'):today
+    const y=calMonth.getFullYear(),m=calMonth.getMonth()
+    const firstDay=new Date(y,m,1).getDay()||7 // Mon=1
+    const daysInMonth=new Date(y,m+1,0).getDate()
+    const monthName=calMonth.toLocaleDateString('en-GB',{month:'long',year:'numeric'})
+    const calDays=[]
+    for(let i=1;i<firstDay;i++)calDays.push(null)
+    for(let d=1;d<=daysInMonth;d++)calDays.push(d)
+    const todayStr=today.toISOString().split('T')[0]
+    const selDay=bookDate?parseInt(bookDate.split('-')[2]):null
+    const shiftMonth=(dir)=>{const nd=new Date(y,m+dir,1);setBookDate(nd.toISOString().split('T')[0].slice(0,8)+'01');setBookTime('');setSlots([])}
+    const pickDay=(d)=>{const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;setBookDate(ds);setBookTime('');if(bookSvc)loadSlots(bookSvc.id,ds)}
 
-          {/* Upcoming */}
-          <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'0 0 10px'}}>Upcoming</h3>
-          {upcoming.length>0?upcoming.map((b,i)=>(
-            <div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:desk?16:14,marginBottom:10,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-              <div style={{display:'flex',gap:14,alignItems:'center'}}>
-                <div style={{width:48,height:48,borderRadius:10,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                  <span style={{fontSize:10,fontWeight:700,color:$.txtM,textTransform:'uppercase'}}>{b.month||'TBC'}</span>
-                  <span style={{fontSize:17,fontWeight:700,color:$.h,lineHeight:1}}>{b.day||'—'}</span>
+    return(
+      <Shell tab="bookings">
+        <TopBar/>
+        <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:80}}>
+          <div style={{maxWidth:1000,margin:'0 auto',padding:desk?'24px 24px 32px':'16px 12px'}}>
+            <h1 style={{fontSize:desk?24:22,fontWeight:700,color:$.h,margin:'0 0 4px'}}>My Bookings</h1>
+            <p style={{fontSize:desk?13:15,color:$.txtM,margin:'0 0 20px'}}>Book treatments, view upcoming and past appointments.</p>
+
+            {bookStep==='done'?(
+              <div style={{textAlign:'center',padding:32,background:$.card,borderRadius:12,border:`1px solid ${$.bdr}`,marginBottom:24}}>
+                <div style={{width:48,height:48,borderRadius:99,background:'rgba(34,197,94,0.08)',border:'2px solid rgba(34,197,94,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}>{I.chk($.ok,24)}</div>
+                <h3 style={{fontSize:desk?18:20,fontWeight:700,color:$.h,margin:'0 0 6px'}}>Booking Confirmed!</h3>
+                <p style={{fontSize:desk?13:15,color:$.txtM,margin:'0 0 20px'}}>Your appointment for {bookSvc?.name} on {bookDate} at {bookTime} has been confirmed.</p>
+                <button onClick={()=>{setBookStep('list');setBookSvc(null);setBookDate(todayStr);setBookTime('')}} style={{padding:desk?'8px 24px':'12px 28px',borderRadius:99,border:'none',background:$.acc,color:'#fff',fontSize:desk?13:15,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Done</button>
+              </div>
+            ):(
+              <div style={desk?{display:'flex',gap:24,alignItems:'flex-start',marginBottom:24}:{marginBottom:24}}>
+                {/* Left: Service + Staff + Confirm */}
+                <div style={{flex:desk?'0 0 320px':'auto',marginBottom:desk?0:16}}>
+                  <h3 style={{fontSize:desk?14:16,fontWeight:700,color:$.h,margin:'0 0 8px'}}>1. Choose Treatment</h3>
+                  {services.length===0?<p style={{fontSize:desk?12:14,color:$.txtM}}>Loading services...</p>:(
+                    <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:16}}>
+                      {services.map(s=>(
+                        <button key={s.id} onClick={()=>{setBookSvc(s);setBookTime('');if(bookDate)loadSlots(s.id,bookDate)}} style={{textAlign:'left',background:bookSvc?.id===s.id?'rgba(200,163,76,0.08)':$.card,border:bookSvc?.id===s.id?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,borderRadius:10,padding:desk?'10px 12px':'12px 14px',cursor:'pointer',fontFamily:$.f}}>
+                          <p style={{fontSize:desk?13:15,fontWeight:600,color:$.h,margin:0}}>{s.name}</p>
+                          <div style={{display:'flex',gap:8,marginTop:2}}><span style={{fontSize:desk?11:12,color:$.txtM}}>{s.duration}min</span><span style={{fontSize:desk?11:12,fontWeight:600,color:$.acc}}>£{s.price}</span></div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {bookSvc&&slotStaff.length>0&&<div style={{marginBottom:16}}>
+                    <h3 style={{fontSize:desk?14:16,fontWeight:700,color:$.h,margin:'0 0 8px'}}>2. Practitioner</h3>
+                    <select value={bookStaff} onChange={e=>setBookStaff(e.target.value)} style={{width:'100%',padding:desk?'8px 12px':'12px 14px',borderRadius:10,border:`1px solid ${$.bdr}`,fontSize:desk?12:15,background:$.card,color:$.h,fontFamily:$.f}}>
+                      <option value="">Any available</option>
+                      {slotStaff.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                  </div>}
+
+                  {bookSvc&&bookDate&&bookTime&&(
+                    <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:desk?14:16,marginBottom:8}}>
+                      <p style={{fontSize:desk?12:14,fontWeight:700,color:$.h,margin:'0 0 6px'}}>Booking Summary</p>
+                      <p style={{fontSize:desk?12:13,color:$.txtM,margin:'2px 0'}}>{bookSvc.name} — {bookSvc.duration}min</p>
+                      <p style={{fontSize:desk?12:13,color:$.txtM,margin:'2px 0'}}>{bookDate} at {bookTime}</p>
+                      <p style={{fontSize:desk?13:15,fontWeight:700,color:$.acc,margin:'4px 0 0'}}>£{bookSvc.price}</p>
+                      {err&&<p style={{fontSize:11,color:$.err,marginTop:6}}>{err}</p>}
+                      <button onClick={doBook} disabled={bookLoading} style={{width:'100%',marginTop:10,padding:desk?'9px 0':'12px 0',borderRadius:99,border:'none',background:$.acc,color:'#fff',fontSize:desk?13:15,fontWeight:700,cursor:bookLoading?'wait':'pointer',fontFamily:$.f,opacity:bookLoading?0.6:1}}>{bookLoading?'Booking...':'Confirm Booking'}</button>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <p style={{fontSize:desk?14:16,fontWeight:600,color:$.h,margin:0}}>{b.service}</p>
-                  <div style={{display:'flex',gap:10,marginTop:2}}>
-                    <span style={{fontSize:desk?12:13,color:$.txtM,display:'flex',alignItems:'center',gap:3}}>{I.clock($.txtM,11)} {b.time}</span>
-                    {b.staff&&<span style={{fontSize:desk?12:13,color:$.txtM,display:'flex',alignItems:'center',gap:3}}>{I.user($.txtM,11)} {b.staff}</span>}
+
+                {/* Right: Calendar + Time slots */}
+                <div style={{flex:1,minWidth:0}}>
+                  <h3 style={{fontSize:desk?14:16,fontWeight:700,color:$.h,margin:'0 0 8px'}}>{bookSvc?'3. Pick Date & Time':'Select a treatment first'}</h3>
+                  {/* Month nav */}
+                  <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,overflow:'hidden'}}>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:desk?'10px 14px':'12px 14px',borderBottom:`1px solid ${$.bdr}`}}>
+                      <button onClick={()=>shiftMonth(-1)} style={{background:'none',border:'none',cursor:'pointer',padding:4}}>{I.back($.txtM,16)}</button>
+                      <span style={{fontSize:desk?14:16,fontWeight:700,color:$.h}}>{monthName}</span>
+                      <button onClick={()=>shiftMonth(1)} style={{background:'none',border:'none',cursor:'pointer',padding:4}}>{I.arr($.txtM,16)}</button>
+                    </div>
+                    {/* Day headers */}
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',textAlign:'center',padding:'6px 8px'}}>
+                      {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=><span key={d} style={{fontSize:desk?10:11,fontWeight:600,color:$.txtL,padding:'4px 0'}}>{d}</span>)}
+                    </div>
+                    {/* Days grid */}
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:2,padding:'0 8px 10px'}}>
+                      {calDays.map((d,i)=>{
+                        if(!d)return<div key={i}/>
+                        const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
+                        const isPast=ds<todayStr
+                        const isSel=selDay===d&&bookDate?.startsWith(`${y}-${String(m+1).padStart(2,'0')}`)
+                        const isToday=ds===todayStr
+                        return<button key={i} disabled={isPast||!bookSvc} onClick={()=>pickDay(d)} style={{
+                          width:'100%',aspectRatio:'1',borderRadius:99,border:isSel?`2px solid ${$.acc}`:isToday?`1px solid ${$.acc}40`:'1px solid transparent',
+                          background:isSel?$.acc:isToday?'rgba(200,163,76,0.06)':'transparent',
+                          color:isSel?'#fff':isPast?$.txtL:$.h,fontSize:desk?12:14,fontWeight:isSel||isToday?700:500,
+                          cursor:isPast||!bookSvc?'default':'pointer',opacity:isPast?0.4:1,fontFamily:$.f,
+                        }}>{d}</button>
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Time slots */}
+                  {bookDate&&bookSvc&&(
+                    <div style={{marginTop:12}}>
+                      <p style={{fontSize:desk?13:15,fontWeight:600,color:$.h,margin:'0 0 8px'}}>Available Times</p>
+                      {slots.length===0?<p style={{fontSize:desk?12:14,color:$.txtM}}>No slots available on this date.</p>:(
+                        <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+                          {slots.map(s=><button key={s} onClick={()=>setBookTime(s)} style={{
+                            padding:desk?'7px 14px':'9px 18px',borderRadius:99,
+                            border:bookTime===s?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,
+                            background:bookTime===s?'rgba(200,163,76,0.08)':$.card,
+                            color:bookTime===s?$.acc:$.h,fontSize:desk?12:14,fontWeight:600,cursor:'pointer',fontFamily:$.f
+                          }}>{s}</button>)}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Upcoming */}
+            <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'0 0 10px'}}>Upcoming</h3>
+            {upcoming.length>0?upcoming.map((b,i)=>(
+              <div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:desk?16:14,marginBottom:10,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <div style={{display:'flex',gap:14,alignItems:'center'}}>
+                  <div style={{width:48,height:48,borderRadius:10,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <span style={{fontSize:10,fontWeight:700,color:$.txtM,textTransform:'uppercase'}}>{b.month||'TBC'}</span>
+                    <span style={{fontSize:17,fontWeight:700,color:$.h,lineHeight:1}}>{b.day||'—'}</span>
+                  </div>
+                  <div>
+                    <p style={{fontSize:desk?14:16,fontWeight:600,color:$.h,margin:0}}>{b.service}</p>
+                    <div style={{display:'flex',gap:10,marginTop:2}}>
+                      <span style={{fontSize:desk?12:13,color:$.txtM,display:'flex',alignItems:'center',gap:3}}>{I.clock($.txtM,11)} {b.time}</span>
+                      {b.staff&&<span style={{fontSize:desk?12:13,color:$.txtM,display:'flex',alignItems:'center',gap:3}}>{I.user($.txtM,11)} {b.staff}</span>}
+                    </div>
                   </div>
                 </div>
+                <span style={{padding:'3px 8px',borderRadius:99,fontSize:10,fontWeight:700,background:'rgba(16,185,129,0.08)',color:'#10B981',border:'1px solid rgba(16,185,129,0.15)'}}>Confirmed</span>
               </div>
-              <span style={{padding:'3px 8px',borderRadius:99,fontSize:10,fontWeight:700,background:hasForm?'rgba(16,185,129,0.08)':'rgba(245,158,11,0.08)',color:hasForm?'#10B981':'#F59E0B',border:`1px solid ${hasForm?'rgba(16,185,129,0.15)':'rgba(245,158,11,0.15)'}`}}>{hasForm?'All set':'Form needed'}</span>
-            </div>
-          )):(
-            <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:desk?24:20,textAlign:'center',marginBottom:20}}>
-              <div style={{width:40,height:40,borderRadius:10,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}>{I.cal($.acc,20)}</div>
-              <p style={{fontSize:desk?14:16,fontWeight:600,color:$.h}}>No upcoming appointments</p>
-              <p style={{fontSize:desk?12:14,color:$.txtM,margin:'4px 0 0'}}>Your next booking will appear here.</p>
-            </div>
-          )}
+            )):(
+              <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:desk?20:16,textAlign:'center',marginBottom:16}}>
+                <p style={{fontSize:desk?13:15,color:$.txtM,margin:0}}>No upcoming appointments. Use the calendar above to book.</p>
+              </div>
+            )}
 
-          {/* Past visits */}
-          <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'24px 0 10px'}}>Treatment History</h3>
-          {pastBookings.length>0?pastBookings.map((b,i)=>(
-            <div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:desk?'12px 16px':'14px 16px',marginBottom:8,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-              <div style={{display:'flex',gap:12,alignItems:'center'}}>
-                <div style={{width:40,height:40,borderRadius:10,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{I.shield($.txtL,18)}</div>
+            {/* History */}
+            <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'16px 0 10px'}}>Treatment History</h3>
+            {pastBookings.length>0?pastBookings.map((b,i)=>(
+              <div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:'12px 16px',marginBottom:8,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                 <div>
-                  <p style={{fontSize:desk?14:16,fontWeight:600,color:$.h,margin:0}}>{b.service}</p>
-                  <p style={{fontSize:desk?12:13,color:$.txtM,margin:'2px 0 0'}}>{b.staff?`${b.staff} · `:''}{ b.date}</p>
+                  <p style={{fontSize:desk?14:15,fontWeight:600,color:$.h,margin:0}}>{b.service}</p>
+                  <p style={{fontSize:desk?12:13,color:$.txtM,margin:'2px 0 0'}}>{b.date}{b.staff?` · ${b.staff}`:''}</p>
+                </div>
+                <div style={{textAlign:'right'}}>
+                  {b.price&&<p style={{fontSize:desk?14:15,fontWeight:700,color:$.h,margin:0}}>£{b.price}</p>}
+                  <span style={{fontSize:10,fontWeight:700,color:$.ok,textTransform:'uppercase'}}>Completed</span>
                 </div>
               </div>
-              <div style={{textAlign:'right'}}>
-                {b.price&&<p style={{fontSize:desk?14:15,fontWeight:700,color:$.h,margin:0}}>£{b.price}</p>}
-                <span style={{fontSize:10,fontWeight:700,color:$.ok,textTransform:'uppercase'}}>Completed</span>
+            )):(
+              <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:16,textAlign:'center'}}>
+                <p style={{fontSize:desk?13:15,color:$.txtM,margin:0}}>No past appointments yet.</p>
               </div>
-            </div>
-          )):(
-            <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:20,textAlign:'center'}}>
-              <p style={{fontSize:desk?13:15,color:$.txtM,margin:0}}>No past appointments yet. Your treatment history will appear here.</p>
-            </div>
-          )}
-
-          {/* Book new */}
-          {bookStep==='list'&&<div style={{marginTop:24,textAlign:'center'}}>
-            <button onClick={()=>{loadServices();setBookStep('service')}} style={{padding:desk?'10px 28px':'12px 32px',borderRadius:99,border:'none',background:$.acc,color:'#fff',fontSize:desk?13:15,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book New Appointment</button>
-          </div>}
-
-          {/* Step 1: pick service */}
-          {bookStep==='service'&&<div style={{marginTop:20}}>
-            <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'0 0 12px'}}>Choose a Treatment</h3>
-            {services.length===0?<p style={{fontSize:desk?13:15,color:$.txtM}}>No services available yet.</p>:services.map(s=>(
-              <button key={s.id} onClick={()=>{setBookSvc(s);setBookStep('date')}} style={{display:'block',width:'100%',textAlign:'left',background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:desk?16:14,marginBottom:8,cursor:'pointer',fontFamily:$.f}}>
-                <p style={{fontSize:desk?14:16,fontWeight:600,color:$.h,margin:0}}>{s.name}</p>
-                <div style={{display:'flex',gap:12,marginTop:2}}><span style={{fontSize:desk?12:13,color:$.txtM}}>{s.duration} min</span><span style={{fontSize:desk?12:13,fontWeight:600,color:$.acc}}>£{s.price}</span></div>
-                {s.description&&<p style={{fontSize:desk?11:13,color:$.txtL,margin:'4px 0 0'}}>{s.description}</p>}
-              </button>
-            ))}
-            <button onClick={()=>setBookStep('list')} style={{marginTop:8,background:'none',border:'none',color:$.txtM,fontSize:desk?12:14,cursor:'pointer',fontFamily:$.f}}>{I.back($.txtM,12)} Back</button>
-          </div>}
-
-          {/* Step 2: pick date */}
-          {bookStep==='date'&&<div style={{marginTop:20}}>
-            <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'0 0 4px'}}>Pick a Date</h3>
-            <p style={{fontSize:desk?12:14,color:$.txtM,margin:'0 0 12px'}}>{bookSvc?.name} — {bookSvc?.duration} min — £{bookSvc?.price}</p>
-            <input type="date" value={bookDate} onChange={e=>{setBookDate(e.target.value);setBookTime('');if(e.target.value)loadSlots(bookSvc.id,e.target.value)}} min={new Date().toISOString().split('T')[0]} style={{width:'100%',padding:desk?'9px 12px':'14px 16px',borderRadius:desk?8:12,border:`1px solid ${$.bdr}`,fontSize:desk?12:16,height:desk?'auto':48,background:$.card,color:$.h,boxSizing:'border-box',fontFamily:$.f,WebkitAppearance:'none'}}/>
-            {bookDate&&<div style={{marginTop:12}}>
-              <p style={{fontSize:desk?13:15,fontWeight:600,color:$.h,margin:'0 0 8px'}}>Available times:</p>
-              {slots.length===0?<p style={{fontSize:desk?12:14,color:$.txtM}}>No slots available on this date.</p>:
-              <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
-                {slots.map(s=><button key={s} onClick={()=>{setBookTime(s);setBookStep('confirm')}} style={{padding:desk?'8px 16px':'10px 20px',borderRadius:99,border:bookTime===s?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,background:bookTime===s?'rgba(200,163,76,0.08)':$.card,color:bookTime===s?$.acc:$.h,fontSize:desk?12:14,fontWeight:600,cursor:'pointer',fontFamily:$.f}}>{s}</button>)}
-              </div>}
-            </div>}
-            <button onClick={()=>setBookStep('service')} style={{marginTop:12,background:'none',border:'none',color:$.txtM,fontSize:desk?12:14,cursor:'pointer',fontFamily:$.f}}>{I.back($.txtM,12)} Back</button>
-          </div>}
-
-          {/* Step 3: confirm */}
-          {bookStep==='confirm'&&<div style={{marginTop:20}}>
-            <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'0 0 12px'}}>Confirm Booking</h3>
-            <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:desk?20:16}}>
-              <div style={{display:'grid',gap:12}}>
-                <div><p style={{fontSize:11,color:$.txtM,margin:'0 0 2px'}}>Treatment</p><p style={{fontSize:desk?14:16,fontWeight:600,color:$.h,margin:0}}>{bookSvc?.name}</p></div>
-                <div><p style={{fontSize:11,color:$.txtM,margin:'0 0 2px'}}>Date & Time</p><p style={{fontSize:desk?14:16,fontWeight:600,color:$.h,margin:0}}>{bookDate} at {bookTime}</p></div>
-                <div><p style={{fontSize:11,color:$.txtM,margin:'0 0 2px'}}>Duration</p><p style={{fontSize:desk?14:16,fontWeight:600,color:$.h,margin:0}}>{bookSvc?.duration} minutes</p></div>
-                <div><p style={{fontSize:11,color:$.txtM,margin:'0 0 2px'}}>Price</p><p style={{fontSize:desk?14:16,fontWeight:600,color:$.h,margin:0}}>£{bookSvc?.price}</p></div>
-                {slotStaff.length>0&&<div><p style={{fontSize:11,color:$.txtM,margin:'0 0 4px'}}>Practitioner (optional)</p><select value={bookStaff} onChange={e=>setBookStaff(e.target.value)} style={{width:'100%',padding:desk?'8px 12px':'12px 16px',borderRadius:desk?8:12,border:`1px solid ${$.bdr}`,fontSize:desk?12:15,background:$.card,color:$.h,fontFamily:$.f}}><option value="">Any available</option>{slotStaff.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></div>}
-              </div>
-            </div>
-            {err&&<p style={{fontSize:12,color:$.err,marginTop:8}}>{err}</p>}
-            <div style={{display:'flex',gap:8,marginTop:16}}>
-              <button onClick={()=>setBookStep('date')} style={{padding:desk?'8px 20px':'12px 24px',borderRadius:99,border:`1px solid ${$.bdr}`,background:$.card,fontSize:desk?12:14,fontWeight:600,color:$.txtM,cursor:'pointer',fontFamily:$.f}}>Back</button>
-              <button onClick={doBook} disabled={bookLoading} style={{flex:1,padding:desk?'10px 0':'14px 0',borderRadius:99,border:'none',background:$.acc,color:'#fff',fontSize:desk?13:15,fontWeight:700,cursor:bookLoading?'wait':'pointer',fontFamily:$.f,opacity:bookLoading?0.6:1}}>{bookLoading?'Booking...':'Confirm Booking'}</button>
-            </div>
-          </div>}
-
-          {/* Step 4: success */}
-          {bookStep==='done'&&<div style={{marginTop:20,textAlign:'center',padding:32}}>
-            <div style={{width:48,height:48,borderRadius:99,background:'rgba(34,197,94,0.08)',border:'2px solid rgba(34,197,94,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}>{I.chk($.ok,24)}</div>
-            <h3 style={{fontSize:desk?18:20,fontWeight:700,color:$.h,margin:'0 0 6px'}}>Booking Confirmed!</h3>
-            <p style={{fontSize:desk?13:15,color:$.txtM,margin:'0 0 20px'}}>Your appointment for {bookSvc?.name} on {bookDate} at {bookTime} has been confirmed.</p>
-            <button onClick={()=>{setBookStep('list');setBookSvc(null);setBookDate('');setBookTime('')}} style={{padding:desk?'8px 24px':'12px 28px',borderRadius:99,border:'none',background:$.acc,color:'#fff',fontSize:desk?13:15,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Done</button>
-          </div>}
+            )}
+          </div>
         </div>
-      </div>
-    </Shell>
-  )
+      </Shell>
+    )
+  }
 
-  // ═══════════════════════════════════════════════════════════════
   // MESSAGES — ticketing + AI support
   // ═══════════════════════════════════════════════════════════════
   if(view==='messages')return(

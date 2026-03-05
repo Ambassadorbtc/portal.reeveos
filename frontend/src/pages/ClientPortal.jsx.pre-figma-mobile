@@ -43,17 +43,12 @@ const FONT=<><link href="https://fonts.googleapis.com/css2?family=Figtree:wght@4
 const Toggle=({value,onChange,d})=>{const on=value==='yes';const w=d?48:56,h=d?26:32,k=d?20:26;return <button type="button" onClick={()=>onChange(on?'no':'yes')} style={{width:w,height:h,borderRadius:h/2,background:on?$.acc:$.bdr,border:'none',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0}}><div style={{width:k,height:k,borderRadius:k/2,background:'#fff',position:'absolute',top:(h-k)/2,left:on?w-k-(h-k)/2:(h-k)/2,transition:'left 0.2s',boxShadow:'0 1px 3px rgba(0,0,0,0.2)'}}/></button>}
 
 const Q=({label,sub,name,value,onChange,detail,dLabel,dVal,dChange,d})=>(
-  <div style={{background:$.card,border:d?`1px solid ${value==='yes'?$.acc+'50':$.bdr}`:`2px solid ${value==='yes'?$.acc:$.bdr}`,borderRadius:d?12:20,padding:d?'12px 16px':'18px 20px',marginBottom:d?10:14}}>
+  <div style={{background:$.card,border:`1px solid ${value==='yes'?$.acc+'50':$.bdr}`,borderRadius:d?12:16,padding:d?'12px 16px':'16px 20px',marginBottom:d?10:14}}>
     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
       <div style={{flex:1}}><p style={{fontSize:d?13:16,fontWeight:600,color:$.h,margin:0,lineHeight:1.4}}>{label}</p>{sub&&<p style={{fontSize:d?12:14,color:$.txtM,margin:d?'2px 0 0':'4px 0 0',lineHeight:1.5}}>{sub}</p>}</div>
-      {d?<Toggle value={value} onChange={v=>onChange(name,v)} d={d}/>:null}
+      <Toggle value={value} onChange={v=>onChange(name,v)} d={d}/>
     </div>
-    {/* Mobile: Yes/No pill buttons (Figma 1:163) */}
-    {!d&&<div style={{display:'flex',gap:10,marginTop:12}}>
-      <button onClick={()=>onChange(name,'yes')} style={{flex:1,padding:'12px 0',borderRadius:99,border:value==='yes'?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,background:value==='yes'?'rgba(200,163,76,0.08)':$.card,color:value==='yes'?$.acc:$.txtM,fontSize:15,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Yes</button>
-      <button onClick={()=>onChange(name,'no')} style={{flex:1,padding:'12px 0',borderRadius:99,border:value==='no'?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,background:value==='no'?'rgba(200,163,76,0.08)':$.card,color:value==='no'?$.acc:$.txtM,fontSize:15,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>No</button>
-    </div>}
-    {value==='yes'&&detail&&<div style={{marginTop:12,padding:d?0:'12px 0 0',borderTop:d?'none':`1px solid ${$.bdr}`}}><p style={{fontSize:d?12:13,fontWeight:700,color:$.txt,margin:'0 0 6px',textTransform:d?'none':'uppercase',letterSpacing:d?0:'0.5px'}}>{dLabel||'Please provide details'}</p><textarea placeholder="Please provide details..." value={dVal||''} onChange={e=>dChange(name+'Detail',e.target.value)} style={{width:'100%',minHeight:d?72:88,padding:d?'8px 12px':'14px 16px',borderRadius:d?8:14,border:`1px solid ${$.bdr}`,fontSize:d?12:15,outline:'none',background:d?$.card:$.bg,color:$.h,boxSizing:'border-box',fontFamily:$.f,resize:'vertical'}}/></div>}
+    {value==='yes'&&detail&&<div style={{marginTop:10}}><p style={{fontSize:d?12:14,fontWeight:600,color:$.txt,margin:'0 0 4px'}}>{dLabel||'Details'}</p><textarea placeholder="Please provide details..." value={dVal||''} onChange={e=>dChange(name+'Detail',e.target.value)} style={{width:'100%',minHeight:72,padding:d?'8px 12px':'12px 16px',borderRadius:d?8:12,border:`1px solid ${$.bdr}`,fontSize:d?12:15,outline:'none',background:$.card,color:$.h,boxSizing:'border-box',fontFamily:$.f,resize:'vertical'}}/></div>}
   </div>
 )
 
@@ -63,8 +58,8 @@ const F=({label,icon,type='text',value,onChange,placeholder,name,d=true})=>(
 
 const CK=({label,sub,checked,onChange,d=true})=>(
   <div style={{display:'flex',gap:d?10:14,padding:d?'10px 0':'14px 0',borderBottom:`1px solid ${$.bdr}18`}}>
-    <button type="button" onClick={onChange} style={{width:d?20:28,height:d?20:28,borderRadius:99,border:checked?'none':`2px solid ${$.bdr}`,background:checked?'#22C55E':'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0,marginTop:1}}>{checked&&I.chk('#fff',d?10:13)}</button>
-    <div style={{flex:1}}><p style={{fontSize:d?13:15,fontWeight:500,color:$.h,margin:0,lineHeight:1.5}}>{label}</p>{sub&&<p style={{fontSize:d?12:13,color:$.txtM,margin:d?'2px 0 0':'3px 0 0',lineHeight:1.5}}>{sub}</p>}</div>
+    <button type="button" onClick={onChange} style={{width:d?20:26,height:d?20:26,borderRadius:d?5:7,border:checked?'none':`2px solid ${$.bdr}`,background:checked?$.acc:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0,marginTop:1}}>{checked&&I.chk('#fff',10)}</button>
+    <div><p style={{fontSize:d?13:16,fontWeight:600,color:$.h,margin:0}}>{label}</p>{sub&&<p style={{fontSize:d?12:14,color:$.txtM,margin:d?'2px 0 0':'4px 0 0',lineHeight:1.5}}>{sub}</p>}</div>
   </div>
 )
 
@@ -164,18 +159,15 @@ export default function ClientPortal(){
   )
 
   // Shared: top bar for logged-in views
-  const ini=(user?.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2)
   const TopBar=()=>(
-    <div style={{background:desk?'linear-gradient(135deg,#111111 0%,#1a1708 100%)':$.card,padding:desk?'12px 24px':'14px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0,borderBottom:desk?'none':`1px solid ${$.bdr}`}}>
-      <div style={{display:'flex',alignItems:'center',gap:desk?10:12}}>
-        {!desk?<div style={{width:40,height:40,borderRadius:99,border:`2px solid ${$.acc}40`,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><span style={{fontSize:14,fontWeight:700,color:$.acc}}>{ini}</span></div>
-        :<div style={{width:32,height:32,borderRadius:10,background:$.acc,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><span style={{fontSize:13,fontWeight:800,color:'#111'}}>R.</span></div>}
-        {desk?<span style={{fontSize:15,fontWeight:700,color:'#FAF7F2'}}>{biz?.name||'Portal'}</span>
-        :<div><p style={{fontSize:15,fontWeight:700,color:$.acc,margin:0}}>Hi {(user?.name||'').split(' ')[0]}</p><p style={{fontSize:11,color:$.txtM,margin:0}}>{biz?.name}</p></div>}
+    <div style={{background:'linear-gradient(135deg,#111111 0%,#1a1708 100%)',padding:desk?'12px 24px':'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+      <div style={{display:'flex',alignItems:'center',gap:10}}>
+        <div style={{width:32,height:32,borderRadius:10,background:$.acc,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><span style={{fontSize:13,fontWeight:800,color:'#111'}}>R.</span></div>
+        <span style={{fontSize:desk?15:14,fontWeight:700,color:'#FAF7F2',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{biz?.name||'Portal'}</span>
       </div>
       <div style={{display:'flex',alignItems:'center',gap:10}}>
-        <button style={{width:desk?34:40,height:desk?34:40,borderRadius:99,background:desk?'rgba(255,255,255,0.08)':$.bg,border:desk?'none':`1px solid ${$.bdr}`,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative',flexShrink:0}}>{I.bell(desk?'rgba(250,247,242,0.6)':$.txtM,desk?16:18)}<div style={{position:'absolute',top:desk?7:8,right:desk?7:8,width:7,height:7,borderRadius:99,background:$.acc}}/></button>
-        {desk&&<div style={{width:34,height:34,borderRadius:99,border:`2px solid ${$.acc}`,background:'rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:$.acc,flexShrink:0}}>{(user?.name||'?').charAt(0)}</div>}
+        <button style={{width:34,height:34,borderRadius:99,background:'rgba(255,255,255,0.08)',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative',flexShrink:0}}>{I.bell('rgba(250,247,242,0.6)',16)}<div style={{position:'absolute',top:7,right:7,width:7,height:7,borderRadius:99,background:$.acc}}/></button>
+        <div style={{width:34,height:34,borderRadius:99,border:`2px solid ${$.acc}`,background:'rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:$.acc,flexShrink:0}}>{(user?.name||'?').charAt(0)}</div>
       </div>
     </div>
   )
@@ -260,9 +252,9 @@ export default function ClientPortal(){
                 <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:3}}>{hasForm?I.chk('#22C55E',16):I.warn('#DC2626',16)}<span style={{fontSize:desk?12:14,fontWeight:700,color:hasForm?'#22C55E':'#DC2626',textTransform:'uppercase',letterSpacing:'0.5px'}}>{hasForm?'Status: Complete':'Action Required'}</span></div>
                 <h3 style={{fontSize:desk?18:20,fontWeight:700,color:$.h,margin:'0 0 4px'}}>{hasForm?'Consultation Form Complete':'Consultation Form Needed'}</h3>
                 <p style={{fontSize:desk?13:15,color:$.txtM,margin:0,lineHeight:desk?'20px':'24px',maxWidth:500}}>{hasForm?'Our clinical experts have reviewed your profile and your treatment plan is ready.':'Please complete your skin assessment form before your next visit.'}</p>
-                <div style={{display:desk?'flex':'block',gap:8,marginTop:12}}>
-                  <button onClick={()=>{setStep(0);setView('form')}} style={{padding:desk?'8px 18px':'14px 0',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:desk?12:15,fontWeight:700,cursor:'pointer',fontFamily:$.f,width:desk?'auto':'100%',display:desk?'inline-flex':'flex',alignItems:'center',justifyContent:'center'}}>{hasForm?'View Form':'Complete Consultation Form'}</button>
-                  {hasForm&&desk&&<button style={{padding:'8px 18px',borderRadius:99,border:`1px solid ${$.acc}40`,background:'transparent',color:$.acc,fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Download PDF</button>}
+                <div style={{display:'flex',gap:8,marginTop:12}}>
+                  <button onClick={()=>{setStep(0);setView('form')}} style={{padding:desk?'8px 18px':'10px 22px',borderRadius:99,border:'none',background:$.acc,color:'#fff',fontSize:desk?12:14,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>{hasForm?'View Form':'Fill Form Now'}</button>
+                  {hasForm&&<button style={{padding:desk?'8px 18px':'10px 22px',borderRadius:99,border:`1px solid ${$.acc}40`,background:'transparent',color:$.acc,fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Download PDF</button>}
                 </div>
               </div>
               <div style={{width:desk?240:64,height:desk?140:64,borderRadius:desk?10:12,overflow:'hidden',flexShrink:0}}><img src={IMG.form} alt="" style={{width:'100%',height:'100%',objectFit:'cover',opacity:0.85}}/></div>
@@ -271,7 +263,7 @@ export default function ClientPortal(){
               <div style={{flex:1,minWidth:0}}>
                 <h3 style={{fontSize:15,fontWeight:700,color:$.h,margin:'0 0 10px'}}>Quick Actions</h3>
                 <div style={{display:'grid',gridTemplateColumns:desk?`repeat(${qa.length},1fr)`:'1fr 1fr',gap:10,marginBottom:20}}>
-                  {qa.map((a,i)=><button key={i} onClick={a.action} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:desk?10:20,padding:desk?14:16,cursor:'pointer',textAlign:'left',transition:'border-color 0.15s',display:'flex',flexDirection:'column',justifyContent:'space-between',minHeight:desk?'auto':80}} onMouseEnter={e=>e.currentTarget.style.borderColor=$.acc+'50'} onMouseLeave={e=>e.currentTarget.style.borderColor=$.bdr}>{I[a.icon]($.acc,desk?16:20)}<p style={{fontSize:desk?13:15,fontWeight:700,color:$.h,margin:desk?'8px 0 0':'10px 0 0'}}>{a.label}</p></button>)}
+                  {qa.map((a,i)=><button key={i} onClick={a.action} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:desk?10:14,padding:desk?14:18,cursor:'pointer',textAlign:'left',transition:'border-color 0.15s'}} onMouseEnter={e=>e.currentTarget.style.borderColor=$.acc+'50'} onMouseLeave={e=>e.currentTarget.style.borderColor=$.bdr}><div style={{width:36,height:36,borderRadius:8,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:8}}>{I[a.icon]($.acc,16)}</div><p style={{fontSize:desk?13:16,fontWeight:600,color:$.h,margin:0}}>{a.label}</p><p style={{fontSize:desk?11:14,color:$.txtM,margin:'2px 0 0'}}>{a.sub}</p></button>)}
                 </div>
                 
                 {/* Next Appointment Card with Image */}
@@ -292,28 +284,7 @@ export default function ClientPortal(){
                 </div>}
 
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><h3 style={{fontSize:15,fontWeight:700,color:$.h,margin:0}}>Upcoming Bookings</h3>{upcoming.length>0&&<button style={{background:'none',border:'none',color:$.acc,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:$.f}}>View All</button>}</div>
-                {upcoming.length>0?upcoming.map((b,i)=><div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:desk?12:20,marginBottom:desk?8:14,overflow:'hidden'}}>
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:desk?14:'14px 14px 10px'}}>
-                <div style={{display:'flex',gap:14,alignItems:'center'}}>
-                  <div style={{width:48,height:48,borderRadius:10,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                    <span style={{fontSize:10,fontWeight:700,color:$.txtM,textTransform:'uppercase'}}>{b.month||'TBC'}</span>
-                    <span style={{fontSize:17,fontWeight:700,color:$.h,lineHeight:1}}>{b.day||'—'}</span>
-                  </div>
-                  <div>
-                    <p style={{fontSize:desk?14:16,fontWeight:600,color:$.h,margin:0}}>{b.service}</p>
-                    <div style={{display:'flex',gap:10,marginTop:2}}>
-                      <span style={{fontSize:12,color:$.txtM,display:'flex',alignItems:'center',gap:3}}>{I.clock($.txtM,11)} {b.time}</span>
-                      {b.staff&&<span style={{fontSize:12,color:$.txtM,display:'flex',alignItems:'center',gap:3}}>{I.user($.txtM,11)} {b.staff}</span>}
-                    </div>
-                  </div>
-                </div>
-                <span style={{padding:'3px 8px',borderRadius:99,fontSize:10,fontWeight:700,background:hasForm?'rgba(16,185,129,0.08)':'rgba(245,158,11,0.08)',color:hasForm?'#10B981':'#F59E0B',border:`1px solid ${hasForm?'rgba(16,185,129,0.15)':'rgba(245,158,11,0.15)'}`}}>{hasForm?'All set':'Form needed'}</span>
-              </div>
-              {!desk&&<div style={{display:'flex',gap:8,padding:'0 14px 14px'}}>
-                <button style={{flex:1,padding:'10px 0',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Reschedule</button>
-                <button style={{flex:1,padding:'10px 0',borderRadius:99,border:`1px solid ${$.bdr}`,background:$.card,color:$.txtM,fontSize:13,fontWeight:500,cursor:'pointer',fontFamily:$.f}}>Cancel</button>
-              </div>}
-            </div>):<div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:28,textAlign:'center'}}><div style={{width:40,height:40,borderRadius:10,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}>{I.cal($.acc,20)}</div><p style={{fontSize:desk?13:17,fontWeight:600,color:$.h}}>No upcoming appointments</p><p style={{fontSize:desk?12:15,color:$.txtM,margin:desk?'3px 0 12px':'6px 0 16px'}}>Book your first treatment to get started</p><button onClick={()=>navTo('bookings')} style={{padding:desk?'7px 18px':'10px 22px',borderRadius:99,border:'none',background:$.acc,color:'#fff',fontSize:desk?12:14,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book Appointment</button></div>}
+                {upcoming.length>0?upcoming.map((b,i)=><div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:14,marginBottom:8,display:'flex',alignItems:'center',justifyContent:'space-between'}}><div style={{display:'flex',gap:14,alignItems:'center'}}><div style={{width:48,height:48,borderRadius:10,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flexShrink:0}}><span style={{fontSize:10,fontWeight:700,color:$.txtM,textTransform:'uppercase'}}>{b.month||'TBC'}</span><span style={{fontSize:17,fontWeight:700,color:$.h,lineHeight:1}}>{b.day||'—'}</span></div><div><p style={{fontSize:desk?14:17,fontWeight:600,color:$.h,margin:0}}>{b.service}</p><div style={{display:'flex',gap:12,marginTop:2}}><span style={{display:'flex',alignItems:'center',gap:3,fontSize:12,color:$.txtM}}>{I.clock($.txtM,11)} {b.time}</span>{b.staff&&<span style={{display:'flex',alignItems:'center',gap:3,fontSize:12,color:$.txtM}}>{I.user($.txtM,11)} {b.staff}</span>}</div></div></div><span style={{padding:'3px 8px',borderRadius:99,fontSize:10,fontWeight:700,background:hasForm?'rgba(16,185,129,0.08)':'rgba(245,158,11,0.08)',color:hasForm?'#10B981':'#F59E0B',border:`1px solid ${hasForm?'rgba(16,185,129,0.15)':'rgba(245,158,11,0.15)'}`}}>{hasForm?'All set':'Form needed'}</span></div>):<div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:28,textAlign:'center'}}><div style={{width:40,height:40,borderRadius:10,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}>{I.cal($.acc,20)}</div><p style={{fontSize:desk?13:17,fontWeight:600,color:$.h}}>No upcoming appointments</p><p style={{fontSize:desk?12:15,color:$.txtM,margin:desk?'3px 0 12px':'6px 0 16px'}}>Book your first treatment to get started</p><button onClick={()=>navTo('bookings')} style={{padding:desk?'7px 18px':'10px 22px',borderRadius:99,border:'none',background:$.acc,color:'#fff',fontSize:desk?12:14,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book Appointment</button></div>}
                 {myData?.past_bookings?.length>0&&<div style={{marginTop:16}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><h3 style={{fontSize:15,fontWeight:700,color:$.h,margin:0}}>Treatment History</h3><button style={{background:'none',border:'none',color:$.acc,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:$.f}}>View All</button></div>{myData.past_bookings.slice(0,4).map((b,i)=><div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',alignItems:'center',justifyContent:'space-between'}}><div style={{display:'flex',gap:10,alignItems:'center'}}><div style={{width:36,height:36,borderRadius:8,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{I.shield($.txtL,16)}</div><div><p style={{fontSize:13,fontWeight:600,color:$.h,margin:0}}>{b.service}</p><p style={{fontSize:11,color:$.txtM,margin:'1px 0 0'}}>{b.staff?`${b.staff} · `:''}{ b.date}</p></div></div><span style={{fontSize:10,fontWeight:700,color:$.ok,textTransform:'uppercase'}}>Completed</span></div>)}</div>}
               </div>
               {desk&&<div style={{width:320,flexShrink:0,display:'flex',flexDirection:'column',gap:16}}>
@@ -350,36 +321,14 @@ export default function ClientPortal(){
   if(view==='form')return(
     <Shell tab="form">
       <div ref={topRef}/>
-      {/* Mobile form header (Figma 1:163) */}
-      {!desk&&<div style={{background:$.card,padding:'16px 16px 0',display:'flex',alignItems:'center'}}>
-        <button onClick={()=>step>0?goStep(step-1):setView('home')} style={{width:40,height:40,borderRadius:12,border:'none',background:'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>{I.back($.h,18)}</button>
-        <p style={{flex:1,textAlign:'center',fontSize:17,fontWeight:700,color:$.h,margin:0,marginRight:40}}>Consultation Form</p>
-      </div>}
-      {/* Progress — Figma style numbered circles */}
-      <div style={{background:$.card,borderBottom:`1px solid ${$.bdr}`,padding:desk?'12px 20px 16px':'14px 16px 18px'}}>
+      {/* Progress */}
+      <div style={{background:$.card,borderBottom:`1px solid ${$.bdr}`,padding:'12px 20px 16px'}}>
         <div style={{maxWidth:680,margin:'0 auto'}}>
-          {desk?<>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:6}}>
-              <div><p style={{fontSize:11,fontWeight:700,color:$.acc,margin:0,textTransform:'uppercase',letterSpacing:'0.5px'}}>Step {step+1} of 6</p><p style={{fontSize:16,fontWeight:700,color:$.h,margin:'1px 0 0'}}>{STEPS[step]}</p></div>
-              <span style={{fontSize:12,color:$.txtM}}>{Math.round(((step+1)/6)*100)}%</span>
-            </div>
-            <div style={{height:6,background:$.bdr,borderRadius:3}}><div style={{height:'100%',width:`${((step+1)/6)*100}%`,background:$.acc,borderRadius:3,transition:'width 0.3s'}}/></div>
-          </>:<>
-            {/* Mobile: Figma step circles */}
-            <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,marginBottom:10}}>
-              {STEPS.map((s,i)=>{
-                const done=i<step,active=i===step
-                return <div key={i} style={{display:'flex',alignItems:'center'}}>
-                  <div style={{width:28,height:28,borderRadius:99,background:done?'#22C55E':active?$.acc:'transparent',border:done||active?'none':`2px solid ${$.bdr}`,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                    {done?I.chk('#fff',12):<span style={{fontSize:12,fontWeight:700,color:active?'#fff':$.txtL}}>{i+1}</span>}
-                  </div>
-                  {i<5&&<div style={{width:16,height:2,background:done?'#22C55E':$.bdr,borderRadius:1}}/>}
-                </div>
-              })}
-            </div>
-            <p style={{fontSize:11,fontWeight:700,color:$.acc,textAlign:'center',textTransform:'uppercase',letterSpacing:1,margin:'0 0 2px'}}>Step {step+1}: {STEPS[step]}</p>
-            <div style={{height:5,background:$.bdr,borderRadius:3,marginTop:8}}><div style={{height:'100%',width:`${((step+1)/6)*100}%`,background:$.acc,borderRadius:3,transition:'width 0.3s'}}/></div>
-          </>}
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:6}}>
+            <div><p style={{fontSize:desk?11:13,fontWeight:700,color:$.acc,margin:0,textTransform:'uppercase',letterSpacing:'0.5px'}}>Step {step+1} of 6</p><p style={{fontSize:desk?16:20,fontWeight:700,color:$.h,margin:'1px 0 0'}}>{STEPS[step]}</p></div>
+            <span style={{fontSize:12,color:$.txtM}}>{Math.round(((step+1)/6)*100)}%</span>
+          </div>
+          <div style={{height:6,background:$.bdr,borderRadius:3}}><div style={{height:'100%',width:`${((step+1)/6)*100}%`,background:$.acc,borderRadius:3,transition:'width 0.3s'}}/></div>
         </div>
       </div>
       {/* Steps */}
@@ -474,7 +423,7 @@ export default function ClientPortal(){
           </div>}
 
           {step===5&&<div>
-            <h2 style={{fontSize:desk?22:24,fontWeight:700,color:$.h,margin:desk?'0 0 4px':'0 0 8px'}}>{desk?'Legal Consent & Signature':'Step 6: Consent'}</h2>
+            <h2 style={{fontSize:desk?22:24,fontWeight:700,color:$.h,margin:desk?'0 0 4px':'0 0 8px'}}>Legal Consent & Signature</h2>
             <p style={{fontSize:desk?13:16,color:$.txtM,margin:desk?'0 0 20px':'0 0 24px'}}>Please review each statement and provide your digital signature.</p>
             {alerts.blocks.length>0&&<Alerts blocks={alerts.blocks} flags={alerts.flags}/>}
             <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:20,marginBottom:20}}>
@@ -488,12 +437,12 @@ export default function ClientPortal(){
           </div>}
         </div>
       </div>
-      {/* Nav buttons — mobile: stacked full-width (Figma style) */}
-      <div style={{borderTop:`1px solid ${$.bdr}`,padding:desk?'16px 20px':'16px 16px',flexShrink:0}}>
-        <div style={{maxWidth:680,margin:'0 auto',display:'flex',flexDirection:desk?'row':'column',gap:desk?0:10,justifyContent:'space-between'}}>
-          {step<5?<button onClick={()=>canProceed()&&goStep(step+1)} disabled={!canProceed()} style={{padding:desk?'8px 24px':'16px 0',borderRadius:99,border:'none',background:canProceed()?$.acc:$.bdr,color:canProceed()?'#111':$.txtL,fontSize:desk?12:16,fontWeight:700,cursor:canProceed()?'pointer':'not-allowed',fontFamily:$.f,display:'flex',alignItems:'center',justifyContent:'center',gap:8,order:desk?2:1,width:desk?'auto':'100%'}}>Continue to Step {step+2} {I.arr(canProceed()?'#111':'#999',14)}</button>
-          :<button onClick={()=>canProceed()&&submitForm()} disabled={!canProceed()||loading} style={{padding:desk?'8px 24px':'16px 0',borderRadius:99,border:'none',background:canProceed()&&!loading?$.acc:$.bdr,color:canProceed()?'#111':$.txtL,fontSize:desk?12:16,fontWeight:700,cursor:canProceed()?'pointer':'not-allowed',fontFamily:$.f,width:desk?'auto':'100%',order:desk?2:1}}>{loading?'Submitting...':'Submit Form'}</button>}
-          {step>0&&<button onClick={()=>goStep(step-1)} style={{padding:desk?'8px 20px':'12px 0',borderRadius:99,border:`1px solid ${$.bdr}`,background:$.card,fontSize:desk?12:15,fontWeight:600,color:$.txtM,cursor:'pointer',fontFamily:$.f,display:'flex',alignItems:'center',justifyContent:'center',gap:5,order:desk?1:2,width:desk?'auto':'100%'}}>{I.back($.txtM,12)} Back</button>}
+      {/* Nav buttons */}
+      <div style={{borderTop:`1px solid ${$.bdr}`,padding:'16px 20px',flexShrink:0}}>
+        <div style={{maxWidth:680,margin:'0 auto',display:'flex',justifyContent:'space-between'}}>
+          {step>0?<button onClick={()=>goStep(step-1)} style={{padding:desk?'8px 20px':'12px 24px',borderRadius:99,border:`1px solid ${$.bdr}`,background:$.card,fontSize:desk?12:15,fontWeight:600,color:$.acc,cursor:'pointer',fontFamily:$.f,display:'flex',alignItems:'center',gap:5}}>{I.back($.acc,12)} Previous</button>:<div/>}
+          {step<5?<button onClick={()=>canProceed()&&goStep(step+1)} disabled={!canProceed()} style={{padding:desk?'8px 24px':'12px 28px',borderRadius:99,border:'none',background:canProceed()?$.acc:$.bdr,color:canProceed()?'#fff':$.txtL,fontSize:desk?12:15,fontWeight:700,cursor:canProceed()?'pointer':'not-allowed',fontFamily:$.f,display:'flex',alignItems:'center',gap:5}}>Continue {I.arr('#fff',12)}</button>
+          :<button onClick={()=>canProceed()&&submitForm()} disabled={!canProceed()||loading} style={{padding:desk?'8px 24px':'12px 28px',borderRadius:99,border:'none',background:canProceed()&&!loading?$.acc:$.bdr,color:canProceed()?'#fff':$.txtL,fontSize:desk?12:15,fontWeight:700,cursor:canProceed()?'pointer':'not-allowed',fontFamily:$.f}}>{loading?'Submitting...':'Submit Form'}</button>}
         </div>
       </div>
     </Shell>

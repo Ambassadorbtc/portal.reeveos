@@ -115,7 +115,7 @@ const QCard = ({label,sub,name,value,onChange,detail,detailLabel,detailValue,onD
       <div style={{marginTop:12}}>
         <p style={{fontSize:13,fontWeight:600,color:L.txt,margin:'0 0 6px'}}>{detailLabel||'Details'}</p>
         <textarea placeholder="Please provide details..." value={detailValue||''} onChange={e=>onDetailChange(name+'Detail',e.target.value)}
-          style={{width:'100%',minHeight:80,padding:'10px 12px',borderRadius:10,border:`1px solid ${L.bdr}`,fontSize:13,outline:'none',background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f,resize:'vertical'}}/>
+          style={{width:'100%',minHeight:80,padding:'10px 12px',borderRadius:10,border:`1px solid ${L.bdr}`,fontSize:13,outline:'none',background:L.card,color:L.h,boxSizing:'border-box',fontFamily:L.f,resize:'vertical'}}/>
       </div>
     )}
   </div>
@@ -128,7 +128,7 @@ const Field = ({label,icon,type='text',value,onChange,placeholder,name}) => (
       {icon&&icon}{label&&<label style={{fontSize:13,fontWeight:600,color:L.txt}}>{label}</label>}
     </div>
     <input type={type} value={value||''} placeholder={placeholder} onChange={e=>onChange(name,e.target.value)}
-      style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1px solid ${L.bdr}`,fontSize:13,outline:'none',background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f}}
+      style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1px solid ${L.bdr}`,fontSize:13,outline:'none',background:L.card,color:L.h,boxSizing:'border-box',fontFamily:L.f}}
       onFocus={e=>e.target.style.borderColor=L.acc} onBlur={e=>e.target.style.borderColor=L.bdr}/>
   </div>
 )
@@ -393,7 +393,7 @@ export default function ClientPortal() {
                 </div>
                 <div style={{position:'relative'}}>
                   <input type={showPw?'text':'password'} value={password} onChange={e=>setPassword(e.target.value)} placeholder={authMode==='login'?'••••••••':'Create a strong password'}
-                    style={{width:'100%',padding:'10px 44px 10px 14px',borderRadius:10,border:`1px solid ${L.bdr}`,fontSize:14,outline:'none',background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f}}/>
+                    style={{width:'100%',padding:'10px 44px 10px 14px',borderRadius:10,border:`1px solid ${L.bdr}`,fontSize:14,outline:'none',background:L.card,color:L.h,boxSizing:'border-box',fontFamily:L.f}}/>
                   <button type="button" onClick={()=>setShowPw(!showPw)} style={{position:'absolute',right:17,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer'}}>{I.eye(L.txtL)}</button>
                 </div>
               </div>
@@ -607,15 +607,18 @@ export default function ClientPortal() {
   // SUBMITTED
   // ═══════════════════════════════════════════════════════════════
   if(view==='submitted') return (
-    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:16,background:L.bg,fontFamily:L.f}}>
+    <div style={{display:'flex',minHeight:'100vh',background:L.bg,fontFamily:L.f}}>
       <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-      <div style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:12,maxWidth:440,width:'100%',textAlign:'center',padding:40,boxShadow:'0 10px 40px rgba(0,0,0,0.06)'}}>
-        <div style={{width:52,height:52,borderRadius:99,background:'rgba(34,197,94,0.08)',border:'2px solid rgba(34,197,94,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 24px'}}>{I.chk(L.ok,28)}</div>
-        <h2 style={{fontSize:24,fontWeight:700,color:L.h,marginBottom:8}}>Form Submitted</h2>
-        <p style={{fontSize:16,color:L.txtM,marginBottom:24}}>Thank you, {fd.fullName}. Your consultation form has been received by {biz?.name}.</p>
-        {(alerts.blocks.length>0||alerts.flags.length>0)&&<div style={{textAlign:'left',marginBottom:24}}><Alerts blocks={alerts.blocks} flags={alerts.flags}/></div>}
-        <p style={{fontSize:14,color:L.txtL,marginBottom:24}}>Your therapist will review before your appointment.</p>
-        <button onClick={()=>setView('home')} style={{width:'100%',padding:'12px 0',borderRadius:10,border:'none',background:L.acc,color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:L.f}}>Back to Home</button>
+      <ClientSidebar biz={biz} user={user} activeTab={'form'} onNav={t=>{if(t==='home')setView('home');setActiveTab(t)}} desk={desk} onLogout={logout}/>
+      <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
+        <div style={{background:L.card,border:`1px solid ${L.bdr}`,borderRadius:12,maxWidth:440,width:'100%',textAlign:'center',padding:40,boxShadow:'0 10px 40px rgba(0,0,0,0.06)'}}>
+          <div style={{width:52,height:52,borderRadius:99,background:'rgba(34,197,94,0.08)',border:'2px solid rgba(34,197,94,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 24px'}}>{I.chk(L.ok,28)}</div>
+          <h2 style={{fontSize:20,fontWeight:700,color:L.h,marginBottom:8}}>Form Submitted</h2>
+          <p style={{fontSize:14,color:L.txtM,marginBottom:24}}>Thank you, {fd.fullName}. Your consultation form has been received by {biz?.name}.</p>
+          {(alerts.blocks.length>0||alerts.flags.length>0)&&<div style={{textAlign:'left',marginBottom:24}}><Alerts blocks={alerts.blocks} flags={alerts.flags}/></div>}
+          <p style={{fontSize:13,color:L.txtL,marginBottom:24}}>Your therapist will review before your appointment.</p>
+          <button onClick={()=>setView('home')} style={{width:'100%',padding:'10px 0',borderRadius:10,border:'none',background:L.acc,color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:L.f}}>Back to Home</button>
+        </div>
       </div>
     </div>
   )
@@ -624,21 +627,18 @@ export default function ClientPortal() {
   // CONSULTATION FORM — all 6 steps (Figma: 2:2, 2:206, 2:381, 2:540)
   // ═══════════════════════════════════════════════════════════════
   if(view==='form') return (
-    <div style={{minHeight:'100vh',background:L.bg,fontFamily:L.f}}>
+    <div style={{display:'flex',minHeight:'100vh',background:L.bg,fontFamily:L.f}}>
       <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+      <ClientSidebar biz={biz} user={user} activeTab={'form'} onNav={t=>{if(t==='home'){setView('home')};setActiveTab(t)}} desk={desk} onLogout={logout}/>
+      <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column'}}>
       <div ref={topRef}/>
 
-      {/* Header (same as other pages) */}
-      <Header biz={biz} desk={desk}>
-        {desk&&['Home','Treatments','Shop','Contact'].map(l=><button key={l} style={{background:'none',border:'none',fontSize:14,fontWeight:500,color:L.txtM,cursor:'pointer',fontFamily:L.f}}>{l}</button>)}
-        <div style={{width:40,height:40,borderRadius:99,background:L.bg,border:`1px solid ${L.bdr}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:L.acc}}>{(user?.name||'?').charAt(0)}</div>
-      </Header>
-
-      {/* Progress bar (Figma: sub-header with STEP X OF Y + bar) */}
+      {/* Progress bar */}
       <ProgressBar step={step} total={6} title={STEPS[step]} desk={desk}/>
 
-      {/* Form content */}
-      <div style={{maxWidth:800,margin:'0 auto',padding:desk?'40px 24px 0':'20px 16px 0'}}>
+      {/* Scrollable form content */}
+      <div style={{flex:1,overflowY:'auto'}}>
+      <div style={{maxWidth:720,margin:'0 auto',padding:desk?'32px 24px 0':'20px 16px 0'}}>
 
         {/* Step 0: Personal (Figma structure) */}
         {step===0&&(<div>
@@ -661,7 +661,7 @@ export default function ClientPortal() {
           <Field label="GP Surgery (optional)" name="gpAddress" value={fd.gpAddress} onChange={set} placeholder="Surgery name and address"/>
           <div style={{marginBottom:20}}>
             <label style={{display:'block',fontSize:14,fontWeight:600,color:L.h,marginBottom:6}}>How did you hear about us?</label>
-            <select value={fd.referral||''} onChange={e=>set('referral',e.target.value)} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1px solid ${L.bdr}`,fontSize:13,background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f}}>
+            <select value={fd.referral||''} onChange={e=>set('referral',e.target.value)} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1px solid ${L.bdr}`,fontSize:13,background:L.card,color:L.h,boxSizing:'border-box',fontFamily:L.f}}>
               <option value="">Select...</option>
               {['Instagram','TikTok','Google','Friend / Referral','Returning Client','Other'].map(o=><option key={o}>{o}</option>)}
             </select>
@@ -747,7 +747,7 @@ export default function ClientPortal() {
           <div>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>{I.form(L.acc,18)}<p style={{fontSize:15,fontWeight:600,color:L.h,margin:0}}>Additional Details</p></div>
             <textarea placeholder="Tell us anything else about your skin history (e.g. allergies, previous treatments, current products)..." value={fd.skinNotes||''} onChange={e=>set('skinNotes',e.target.value)}
-              style={{width:'100%',minHeight:120,padding:17,borderRadius:16,border:`1px solid ${L.bdr}`,fontSize:14,outline:'none',background:L.bg,color:L.h,boxSizing:'border-box',fontFamily:L.f,resize:'vertical'}}/>
+              style={{width:'100%',minHeight:120,padding:17,borderRadius:16,border:`1px solid ${L.bdr}`,fontSize:14,outline:'none',background:L.card,color:L.h,boxSizing:'border-box',fontFamily:L.f,resize:'vertical'}}/>
           </div>
 
           <QCard label="Active skin infection?" name="skinInfection" value={fd.skinInfection} onChange={set}/>
@@ -789,16 +789,18 @@ export default function ClientPortal() {
           <p style={{fontSize:14,color:L.txtM,marginTop:24,textAlign:'center'}}>Need help? Contact our support at <span style={{color:L.acc,fontWeight:600}}>support@rejuvenate.com</span></p>
         </div>)}
       </div>
+      </div>
 
-      {/* Form navigation buttons (Figma: bottom buttons) */}
+      {/* Form navigation buttons */}
       <FormNav step={step} canProceed={canProceed()} onBack={()=>goStep(step-1)} onNext={()=>canProceed()&&goStep(step+1)} onSubmit={step===5?submitForm:undefined} loading={loading} desk={desk}/>
 
       {/* Form footer */}
-      <div style={{borderTop:`1px solid ${L.bdr}`,padding:'20px 24px',textAlign:'center'}}>
-        <div style={{maxWidth:800,margin:'0 auto',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <div style={{display:'flex',alignItems:'center',gap:8}}>{I.lock(L.txtL,14)}<span style={{fontSize:13,fontWeight:600,color:L.txtL,textTransform:'uppercase',letterSpacing:'0.5px'}}>Secure HIPAA Compliant Form</span></div>
-          <div style={{display:'flex',gap:16}}>{['Privacy Policy','Terms of Service','Help Center'].map(l=><button key={l} style={{background:'none',border:'none',fontSize:13,color:L.txtL,cursor:'pointer',fontFamily:L.f}}>{l}</button>)}</div>
+      <div style={{borderTop:`1px solid ${L.bdr}`,padding:'16px 24px'}}>
+        <div style={{maxWidth:720,margin:'0 auto',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>{I.lock(L.txtL,14)}<span style={{fontSize:12,fontWeight:600,color:L.txtL,textTransform:'uppercase',letterSpacing:'0.5px'}}>Secure HIPAA Compliant Form</span></div>
+          <div style={{display:'flex',gap:16}}>{['Privacy Policy','Terms of Service','Help Center'].map(l=><button key={l} style={{background:'none',border:'none',fontSize:12,color:L.txtL,cursor:'pointer',fontFamily:L.f}}>{l}</button>)}</div>
         </div>
+      </div>
       </div>
     </div>
   )

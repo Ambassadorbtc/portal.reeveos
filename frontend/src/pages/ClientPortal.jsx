@@ -138,7 +138,7 @@ const Shell=({biz,user,desk,activeTab,onNav,onLogout,tab,children})=>(
     {FONT}
     <Sidebar biz={biz} user={user} activeTab={tab||activeTab} onNav={onNav} onLogout={onLogout}/>
     <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column'}}>{children}</div>
-    <div className="client-mobnav" style={{position:'fixed',bottom:0,left:0,right:0,background:'#111111',padding:'10px 0 20px',zIndex:30,display:'flex',justifyContent:'space-around',borderTop:'1px solid rgba(200,163,76,0.1)'}}>
+    <div className="client-mobnav" style={{position:'fixed',bottom:0,left:0,right:0,background:'#111111',padding:'10px 0 calc(20px + env(safe-area-inset-bottom, 0px))',zIndex:30,display:'flex',justifyContent:'space-around',borderTop:'1px solid rgba(200,163,76,0.1)'}}>
       {[{id:'home',icon:'home',label:'Home'},{id:'bookings',icon:'cal',label:'Bookings'},{id:'form',icon:'form',label:'Forms'},{id:'messages',icon:'msg',label:'Messages'},{id:'profile',icon:'user',label:'Profile'}].map(t=><button key={t.id} onClick={()=>onNav(t.id)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'2px 6px'}}>{I[t.icon](activeTab===t.id?$.acc:'rgba(255,255,255,0.45)',22)}<span style={{fontSize:11,fontWeight:activeTab===t.id?700:500,color:activeTab===t.id?$.acc:'rgba(255,255,255,0.45)'}}>{t.label}</span></button>)}
     </div>
   </div>
@@ -258,7 +258,7 @@ export default function ClientPortal(){
     return(
       <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="home">
         <TopBar biz={biz} user={user} desk={desk}/>
-        <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:100}}>
+        <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:120}}>
           <div style={{maxWidth:1000,margin:'0 auto',padding:desk?'24px 24px 32px':'16px 12px'}}>
             {hasForm&&<div style={{marginBottom:20}}><h1 style={{fontSize:desk?24:26,fontWeight:700,color:$.h,margin:0}}>Welcome back, {(user?.name||'').split(' ')[0]}!</h1><p style={{fontSize:desk?13:16,color:$.txtM,margin:'2px 0 0'}}>Your skin health journey is progressing perfectly.</p></div>}
             {isSalon&&<div style={{background:hasForm?'rgba(74,222,128,0.06)':'rgba(239,68,68,0.04)',border:`2px solid ${hasForm?'rgba(74,222,128,0.35)':'rgba(239,68,68,0.18)'}`,borderRadius:12,padding:desk?22:16,marginBottom:20,display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:24}}>
@@ -530,7 +530,7 @@ export default function ClientPortal(){
     return(
       <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="bookings">
         <TopBar biz={biz} user={user} desk={desk}/>
-        <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:100}}>
+        <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:120}}>
           <div style={{maxWidth:1000,margin:'0 auto',padding:desk?'24px 24px 32px':'16px 12px'}}>
             <h1 style={{fontSize:desk?24:22,fontWeight:700,color:$.h,margin:'0 0 4px'}}>My Bookings</h1>
             <p style={{fontSize:desk?13:15,color:$.txtM,margin:'0 0 20px'}}>Book treatments, view upcoming and past appointments.</p>
@@ -684,7 +684,7 @@ export default function ClientPortal(){
   if(view==='messages')return(
     <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="messages">
       <TopBar biz={biz} user={user} desk={desk}/>
-      <div style={{flex:1,display:'flex',flexDirection:'column',paddingBottom:desk?0:100}}>
+      <div style={{flex:1,display:'flex',flexDirection:'column',paddingBottom:desk?0:120}}>
         {/* Tab bar: Chat / AI Support */}
         <div style={{display:'flex',borderBottom:`1px solid ${$.bdr}`,background:$.card,flexShrink:0}}>
           {[{id:'chat',label:'Messages'},{id:'ai',label:'AI Support'}].map(t=>(
@@ -743,7 +743,7 @@ export default function ClientPortal(){
   if(view==='profile')return(
     <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="profile">
       <TopBar biz={biz} user={user} desk={desk}/>
-      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:100}}>
+      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:120}}>
         <div style={{maxWidth:800,margin:'0 auto',padding:desk?'24px 24px 32px':'16px 12px'}}>
           {/* Profile header */}
           <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:24}}>

@@ -52,7 +52,7 @@ const Q=({label,sub,name,value,onChange,detail,dLabel,dVal,dChange,d})=>(
 )
 
 const F=({label,icon,type='text',value,onChange,placeholder,name,d=true})=>(
-  <div style={{marginBottom:d?14:18}}><div style={{display:'flex',alignItems:'center',gap:5,marginBottom:d?4:6}}>{icon}{label&&<label style={{fontSize:d?12:15,fontWeight:600,color:$.txt}}>{label}</label>}</div><input type={type} value={value||''} placeholder={placeholder} onChange={e=>onChange(name,e.target.value)} style={{width:'100%',padding:d?'9px 12px':'14px 16px',borderRadius:d?8:12,border:`1px solid ${$.bdr}`,fontSize:d?12:16,minHeight:d?'auto':'48px',outline:'none',background:$.card,color:$.h,boxSizing:'border-box',fontFamily:$.f}} onFocus={e=>e.target.style.borderColor=$.acc} onBlur={e=>e.target.style.borderColor=$.bdr}/></div>
+  <div style={{marginBottom:d?14:18}}><div style={{display:'flex',alignItems:'center',gap:5,marginBottom:d?4:6}}>{icon}{label&&<label style={{fontSize:d?12:15,fontWeight:600,color:$.txt}}>{label}</label>}</div><input type={type} value={value||''} placeholder={placeholder} onChange={e=>onChange(name,e.target.value)} style={{width:'100%',padding:d?'9px 12px':'14px 16px',borderRadius:d?8:12,border:`1px solid ${$.bdr}`,fontSize:d?12:16,height:d?'auto':48,outline:'none',background:$.card,color:$.h,boxSizing:'border-box',fontFamily:$.f,WebkitAppearance:'none',lineHeight:'1.4'}} onFocus={e=>e.target.style.borderColor=$.acc} onBlur={e=>e.target.style.borderColor=$.bdr}/></div>
 )
 
 const CK=({label,sub,checked,onChange,d=true})=>(
@@ -147,15 +147,15 @@ export default function ClientPortal(){
 
   // Shared: top bar for logged-in views
   const TopBar=()=>(
-    <div style={{background:$.card,borderBottom:`1px solid ${$.bdr}`,padding:desk?'10px 20px':'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
-      {!desk?<div style={{display:'flex',alignItems:'center',gap:10}}>
-        <div style={{width:34,height:34,borderRadius:8,background:$.acc,display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{fontSize:14,fontWeight:800,color:'#fff'}}>R</span></div>
-        <span style={{fontSize:15,fontWeight:700,color:$.h}}>{biz?.name||'Portal'}</span>
+    <div style={{background:$.card,borderBottom:`1px solid ${$.bdr}`,padding:desk?'10px 20px':'10px 12px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0,gap:8}}>
+      {!desk?<div style={{display:'flex',alignItems:'center',gap:8,flex:1,minWidth:0}}>
+        <div style={{width:30,height:30,borderRadius:8,background:$.acc,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><span style={{fontSize:12,fontWeight:800,color:'#fff'}}>R</span></div>
+        <span style={{fontSize:14,fontWeight:700,color:$.h,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{biz?.name||'Portal'}</span>
       </div>:<div/>}
-      <div style={{display:'flex',alignItems:'center',gap:10}}>
-        <button style={{width:36,height:36,borderRadius:99,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative'}}>{I.bell($.txtM,desk?16:18)}<div style={{position:'absolute',top:desk?7:8,right:desk?7:8,width:7,height:7,borderRadius:99,background:$.acc}}/></button>
-        <div style={{background:$.acc,borderRadius:99,padding:'5px 14px'}}><span style={{fontSize:12,fontWeight:700,color:'#fff'}}>Hi {(user?.name||'').split(' ')[0]}</span></div>
-        <div style={{width:34,height:34,borderRadius:99,border:`2px solid ${$.acc}`,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:$.acc}}>{(user?.name||'?').charAt(0)}</div>
+      <div style={{display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
+        <button style={{width:32,height:32,borderRadius:99,background:$.bg,border:`1px solid ${$.bdr}`,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative',flexShrink:0}}>{I.bell($.txtM,14)}<div style={{position:'absolute',top:6,right:6,width:6,height:6,borderRadius:99,background:$.acc}}/></button>
+        <div style={{background:$.acc,borderRadius:99,padding:'3px 10px',whiteSpace:'nowrap',flexShrink:0}}><span style={{fontSize:11,fontWeight:700,color:'#fff'}}>Hi {(user?.name||'').split(' ')[0]}</span></div>
+        <div style={{width:30,height:30,borderRadius:99,border:`2px solid ${$.acc}`,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:$.acc,flexShrink:0}}>{(user?.name||'?').charAt(0)}</div>
       </div>
     </div>
   )
@@ -295,7 +295,8 @@ export default function ClientPortal(){
             <h2 style={{fontSize:desk?22:24,fontWeight:700,color:$.h,margin:desk?'0 0 4px':'0 0 8px'}}>Personal Details</h2>
             <p style={{fontSize:desk?13:16,color:$.txtM,margin:desk?'0 0 20px':'0 0 24px'}}>Used for your treatment records and emergency contact information.</p>
             <F label="Full Name" icon={I.user($.txtL,12)} name="fullName" value={fd.fullName} onChange={set} d={desk} placeholder="Your full name"/>
-            <div style={{display:'grid',gridTemplateColumns:desk?'1fr 1fr':'1fr',gap:12}}><F label="Date of Birth" type="date" name="dob" value={fd.dob} onChange={set}/><F label="Address" name="address" value={fd.address} onChange={set} d={desk} placeholder="Full address"/></div>
+            <F label="Date of Birth" type="date" name="dob" value={fd.dob} onChange={set} d={desk}/>
+            <F label="Address" name="address" value={fd.address} onChange={set} d={desk} placeholder="Full address"/>
             <div style={{display:'grid',gridTemplateColumns:desk?'1fr 1fr':'1fr',gap:desk?12:0}}><F label="Mobile" icon={I.phone($.txtL,12)} type="tel" name="mobile" value={fd.mobile} onChange={set} d={desk} placeholder="07..."/><F label="Email" icon={I.mail($.txtL,12)} type="email" name="email" value={fd.email} onChange={set} d={desk} placeholder="you@email.com"/></div>
             <div style={{display:'grid',gridTemplateColumns:desk?'1fr 1fr':'1fr',gap:desk?12:0}}><F label="Emergency Contact" name="emergencyName" value={fd.emergencyName} onChange={set} d={desk} placeholder="Contact name"/><F label="Their Number" type="tel" name="emergencyPhone" value={fd.emergencyPhone} onChange={set} d={desk} placeholder="07..."/></div>
             <F label="GP Name" name="gpName" value={fd.gpName} onChange={set} d={desk} placeholder="Dr..."/>

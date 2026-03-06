@@ -64,6 +64,7 @@ from routes import (
     tronc_router,
     consultation_router,
     client_portal_router,
+    packages_router,
 )
 
 
@@ -268,6 +269,7 @@ app.include_router(allergen_management_router)
 app.include_router(tronc_router)
 app.include_router(consultation_router)
 app.include_router(client_portal_router)
+app.include_router(packages_router)
 
 # Static uploads for booking page logo/cover
 static_dir = Path("/opt/rezvo-app/uploads")

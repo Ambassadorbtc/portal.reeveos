@@ -147,6 +147,7 @@ const Calendar = () => {
   const [bookForm, setBookForm] = useState({ customerName: '', customerPhone: '', customerEmail: '', serviceId: '', staffId: '', date: '', time: '', notes: '' })
   const [bookSaving, setBookSaving] = useState(false)
   const [bookError, setBookError] = useState('')
+  const [selPackages, setSelPackages] = useState([])
 
   const openBookModal = () => {
     setBookForm(f => ({ ...f, date: selectedDate, time: '', serviceId: '', staffId: '', customerName: '', customerPhone: '', customerEmail: '', notes: '' }))
@@ -263,6 +264,16 @@ const Calendar = () => {
     const t = setTimeout(() => setNewCalBookingIds(new Set()), 3000)
     return () => clearTimeout(t)
   }, [newCalBookingIds])
+
+  /* ── Fetch packages when booking selected ── */
+  useEffect(() => {
+    if (!selA || !bid) { setSelPackages([]); return }
+    const booking = (data?.bookings || []).find(b => b.id === selA)
+    if (!booking?.customerId) { setSelPackages([]); return }
+    api.get(`/packages/business/${bid}/client/${booking.customerId}`).then(r => {
+      setSelPackages(r.packages || [])
+    }).catch(() => setSelPackages([]))
+  }, [selA, bid, data])
 
   /* ── Time updater ── */
   useEffect(() => { const iv = setInterval(() => { setTp(gtp()); setTs(gts()) }, 30000); return () => clearInterval(iv) }, [])
@@ -504,6 +515,24 @@ const Calendar = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#888' }}><UserIcon />{staff?.full || staff?.name}</div>
           </div>
           <div style={{ fontSize: 20, fontWeight: 800, color: '#111111', marginBottom: 12 }}>£{a.price || 0}</div>
+          {selPackages.length > 0 && (
+            <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {selPackages.map(p => (
+                <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#F9FAFB', borderRadius: 8, border: '1px solid #F0F0F0' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#111', letterSpacing: 0.3 }}>{p.name}</div>
+                    <div style={{ fontSize: 10, color: '#888', marginTop: 1 }}>{p.used_sessions} of {p.total_sessions} used</div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 2 }}>
+                    {Array.from({ length: p.total_sessions }, (_, i) => (
+                      <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: i < p.used_sessions ? '#111' : '#E5E7EB' }} />
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: p.remaining > 0 ? '#111' : '#EF4444' }}>{p.remaining}</div>
+                </div>
+              ))}
+            </div>
+          )}
           <div style={{ display: 'flex', gap: 8, borderTop: '1px solid #F0F0F0', paddingTop: 12 }}>
             <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '10px 0', borderRadius: 10, border: '1px solid #EBEBEB', background: '#fff', fontSize: 12, fontWeight: 600, color: '#111111', cursor: 'pointer' }}><EditIcon /> Edit</button>
             <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '10px 0', borderRadius: 10, border: 'none', background: '#111111', fontSize: 12, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(17,17,17,0.2)' }}><CheckIcon /> Check In</button>

@@ -522,7 +522,7 @@ async def place_online_order(
                 total=round(total_with_delivery, 2),
                 estimated_minutes=est_mins,
                 delivery_address=addr_str,
-                track_url=f"https://rezvo.co.uk/track/{order_id}",
+                track_url=f"https://reevenow.com/track/{order_id}",
             ))
         except Exception as email_err:
             logger.warning(f"Order confirmation email failed: {email_err}")

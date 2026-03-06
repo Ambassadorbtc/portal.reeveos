@@ -26,6 +26,7 @@ export const isBookingDomain = () =>
 /** Are we running on the dedicated admin subdomain? */
 export const isAdminDomain = () =>
   host === 'adminportal.reeveos.app' ||
+  host === 'portaladmin.reeveos.app' ||
   host === 'portaladmin.rezvo.app' ||
   host === 'admin.rezvo.app'
 
@@ -45,9 +46,9 @@ export const adminPath = (path) => {
 
 export const getDomainConfig = () => ({
   domain: 'reeveos.app',
-  baseUrl: 'https://webportal.reeveos.app',
+  baseUrl: 'https://portal.reeveos.app',
   bookingBaseUrl: 'https://book.reeveos.app',
-  adminBaseUrl: 'https://adminportal.reeveos.app',
+  adminBaseUrl: 'https://portaladmin.reeveos.app',
   supportEmail: 'support@reeveos.app',
   bookingPathPrefix: isBookingDomain() ? '/' : '/book/',
 })

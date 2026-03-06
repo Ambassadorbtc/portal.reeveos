@@ -73,7 +73,7 @@ def _merge_defaults(bp):
 
 
 def _base_url():
-    return os.environ.get("REZVO_PUBLIC_URL", "https://portal.rezvo.app")
+    return os.environ.get("REEVEOS_PUBLIC_URL", "https://portal.reeveos.app")
 
 
 @router.get("/{business_id}")
@@ -84,7 +84,7 @@ async def get_booking_page(business_id: str, tenant: TenantContext = Depends(ver
     slug = business.get("slug", "your-business")
     bp = _merge_defaults(business.get("bookingPage"))
     base = _base_url()
-    api_base = os.environ.get("REZVO_API_URL", "https://portal.rezvo.app/api")
+    api_base = os.environ.get("REEVEOS_API_URL", "https://portal.reeveos.app/api")
     url = f"{base}/book/{slug}"
     return {
         **bp,
@@ -116,7 +116,7 @@ async def update_booking_page(business_id: str, payload: dict = Body(default={})
     )
     slug = business.get("slug", "your-business")
     base = _base_url()
-    api_base = os.environ.get("REZVO_API_URL", "https://portal.rezvo.app/api")
+    api_base = os.environ.get("REEVEOS_API_URL", "https://portal.reeveos.app/api")
     return {
         **_merge_defaults(new_bp),
         "share": {"slug": slug, "url": f"{base}/book/{slug}", "qrCodeUrl": f"{api_base}/booking-page/{business_id}/qr"},
@@ -186,7 +186,7 @@ async def get_qr_code(business_id: str, tenant: TenantContext = Depends(verify_b
     sdb = get_scoped_db(tenant.business_id)
     business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     slug = business.get("slug", "your-business")
-    url = f"https://book.rezvo.app/{slug}"
+    url = f"https://portal.reeveos.app/book/{slug}"
     try:
         import qrcode
         qr = qrcode.QRCode(version=1, box_size=10, border=2)
@@ -209,7 +209,7 @@ async def get_embed_code(business_id: str, tenant: TenantContext = Depends(verif
     sdb = get_scoped_db(tenant.business_id)
     business = await _get_business(db, business_id, {"_id": tenant.user_id, "role": tenant.role})
     slug = business.get("slug", "your-business")
-    url = f"https://book.rezvo.app/{slug}"
+    url = f"https://portal.reeveos.app/book/{slug}"
     accent = (business.get("bookingPage") or {}).get("branding") or {}
     accent = accent.get("accentColour", "#1B4332")
     iframe = f'<iframe src="{url}" width="100%" height="600" frameborder="0"></iframe>'

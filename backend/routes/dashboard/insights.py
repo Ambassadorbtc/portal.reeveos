@@ -71,7 +71,7 @@ def get_collection():
 
 
 def build_report_url(slug: str, token: str) -> str:
-    return f"https://rezvo.app/insights/{slug}/{token}"
+    return f"https://portal.reeveos.app/insights/{slug}/{token}"
 
 
 def estimate_commission_savings(
@@ -221,7 +221,7 @@ async def view_report(slug: str, token: str):
                 "message": "This report has expired",
                 "business_name": report["business_name"],
                 "expired_at": report["expires_at"].isoformat(),
-                "cta": "Contact us at hello@rezvo.app to get a fresh report and discuss how Rezvo can help your business."
+                "cta": "Contact us at hello@reeveos.app to get a fresh report and discuss how ReeveOS can help your business."
             }
         )
 

@@ -42,8 +42,8 @@ class Settings(BaseSettings):
     gemini_api_key: Optional[str] = None
     floor_plan_llm_provider: str = "gemini"
     
-    frontend_url: str = "https://rezvo.app"
-    backend_url: str = "https://rezvo.app/api"
+    frontend_url: str = "https://portal.reeveos.app"
+    backend_url: str = "https://portal.reeveos.app/api"
     
     encryption_key: Optional[str] = None   # Fernet key for PII at-rest encryption
     

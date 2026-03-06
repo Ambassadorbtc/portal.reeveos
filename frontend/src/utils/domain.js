@@ -46,9 +46,9 @@ export const adminPath = (path) => {
 
 export const getDomainConfig = () => ({
   domain: 'reeveos.app',
-  baseUrl: 'https://portal.reeveos.app',
+  baseUrl: 'https://webportal.reeveos.app',
   bookingBaseUrl: 'https://book.reeveos.app',
-  adminBaseUrl: 'https://portaladmin.reeveos.app',
+  adminBaseUrl: 'https://adminportal.reeveos.app',
   supportEmail: 'support@reeveos.app',
   bookingPathPrefix: isBookingDomain() ? '/' : '/book/',
 })

@@ -73,7 +73,7 @@ def _merge_defaults(bp):
 
 
 def _base_url():
-    return os.environ.get("REEVEOS_PUBLIC_URL", "https://portal.reeveos.app")
+    return os.environ.get("REEVEOS_PUBLIC_URL", "https://webportal.reeveos.app")
 
 
 @router.get("/{business_id}")
@@ -84,7 +84,7 @@ async def get_booking_page(business_id: str, tenant: TenantContext = Depends(ver
     slug = business.get("slug", "your-business")
     bp = _merge_defaults(business.get("bookingPage"))
     base = _base_url()
-    api_base = os.environ.get("REEVEOS_API_URL", "https://portal.reeveos.app/api")
+    api_base = os.environ.get("REEVEOS_API_URL", "https://webportal.reeveos.app/api")
     url = f"{base}/book/{slug}"
     return {
         **bp,
@@ -116,7 +116,7 @@ async def update_booking_page(business_id: str, payload: dict = Body(default={})
     )
     slug = business.get("slug", "your-business")
     base = _base_url()
-    api_base = os.environ.get("REEVEOS_API_URL", "https://portal.reeveos.app/api")
+    api_base = os.environ.get("REEVEOS_API_URL", "https://webportal.reeveos.app/api")
     return {
         **_merge_defaults(new_bp),
         "share": {"slug": slug, "url": f"{base}/book/{slug}", "qrCodeUrl": f"{api_base}/booking-page/{business_id}/qr"},

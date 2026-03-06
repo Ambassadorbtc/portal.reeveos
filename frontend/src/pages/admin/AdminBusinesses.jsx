@@ -127,8 +127,8 @@ export default function AdminBusinesses() {
                       </a>
                     )}
                     {b.slug && (
-                      <a href={`https://book.reeveos.app/${b.slug}`} target="_blank" rel="noopener" className="text-xs text-emerald-400 flex items-center gap-1 hover:underline">
-                        <ExternalLink size={10} /> book.reeveos.app/{b.slug}
+                      <a href={`https://portal.rezvo.app/book/${b.slug}`} target="_blank" rel="noopener" className="text-xs text-emerald-400 flex items-center gap-1 hover:underline">
+                        <ExternalLink size={10} /> portal.rezvo.app/book/{b.slug}
                       </a>
                     )}
                   </div>

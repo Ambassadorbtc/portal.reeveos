@@ -350,7 +350,7 @@ async def _execute_campaign_send(campaign_id: str, business_id: str):
     # Add business_name and booking_link to each recipient's variables
     business = await db.businesses.find_one({"_id": ObjectId(business_id)}) if ObjectId.is_valid(business_id) else None
     business_name = business.get("name", "") if business else campaign.get("business_name", "")
-    booking_link = f"https://webportal.reeveos.app/book/{business.get('slug', business_id)}" if business else ""
+    booking_link = f"https://portal.rezvo.app/book/{business.get('slug', business_id)}" if business else ""
 
     for r in recipients:
         r["business_name"] = business_name
@@ -469,7 +469,7 @@ async def send_test_email(
         "client_name": "Test User",
         "name": "Test User",
         "business_name": business_name,
-        "booking_link": f"https://webportal.reeveos.app/book/test",
+        "booking_link": f"https://portal.rezvo.app/book/test",
         "email": test_email,
     }
 
@@ -771,7 +771,7 @@ async def process_drip_queue():
             "client_name": enrollment.get("name", "there"),
             "name": enrollment.get("name", "there"),
             "business_name": business_name,
-            "booking_link": f"https://webportal.reeveos.app/book/{business.get('slug', enrollment['business_id'])}" if business else "",
+            "booking_link": f"https://portal.rezvo.app/book/{business.get('slug', enrollment['business_id'])}" if business else "",
             "email": enrollment["email"],
         }
 

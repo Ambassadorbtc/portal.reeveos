@@ -64,7 +64,7 @@ async def notify_booking_created(booking: dict, business: dict):
         status = nb["status"]
         formatted_date = _format_date(date_str)
         formatted_time = _format_time(time_str)
-        manage_url = f"https://portal.reeveos.app/book/{business.get('slug', '')}/booking/{booking.get('_id', '')}"
+        manage_url = f"https://portal.rezvo.app/book/{business.get('slug', '')}/booking/{booking.get('_id', '')}"
 
         # ── Customer confirmation email ──
         if cust_email:
@@ -187,7 +187,7 @@ async def notify_booking_cancelled(booking: dict, business: dict, cancelled_by: 
               <p style="margin:0;"><strong>Date:</strong> {formatted_date}</p>
               <p style="margin:4px 0 0;"><strong>Time:</strong> {formatted_time}</p>
             </div>
-            <p>Want to rebook? <a href="https://portal.reeveos.app/book/{business.get('slug', '')}" class="cta">Book Again</a></p>
+            <p>Want to rebook? <a href="https://portal.rezvo.app/book/{business.get('slug', '')}" class="cta">Book Again</a></p>
             """
             html = wrap_html(body, preheader=f"Your booking at {biz_name} has been cancelled")
             tasks.append(send_email(
@@ -303,7 +303,7 @@ async def _send_owner_alert_email(**kwargs) -> Dict:
           {occasion_html}
           {notes_html}
         </div>
-        <p style="text-align:center;"><a href="https://portal.reeveos.app/dashboard/bookings" class="cta">View in Dashboard</a></p>
+        <p style="text-align:center;"><a href="https://portal.rezvo.app/dashboard/bookings" class="cta">View in Dashboard</a></p>
         """
 
         html = wrap_html(body, preheader=f"New booking: {kwargs['client_name']} — {kwargs['booking_date']}")

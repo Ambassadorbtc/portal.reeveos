@@ -30,7 +30,7 @@ KNOWLEDGE_BASE = {
     "delivery": "ReeveOS uses **Uber Direct** for delivery at 5-8% commission — compared to 25-35% on Deliveroo/JustEat. Your restaurant keeps the customer relationship and most of the margin.",
     "payments": "Payments go directly to your **Stripe Connect** account. ReeveOS never holds your money. Stripe fees apply (1.4% + 20p for UK cards). Payouts hit your bank account on Stripe's standard schedule.",
     "deposits": "Deposits are available on the **Growth plan** (£29/mo) and above. You set the deposit amount per booking. Money goes straight to your Stripe account — we never touch it.",
-    "booking": "Your booking page is live at **book.reeveos.app/{your-slug}**. Share it on social media, add it to your website, or use the QR code from your dashboard. Customers can book 24/7.",
+    "booking": "Your booking page is live at **portal.rezvo.app/book/{your-slug}**. Share it on social media, add it to your website, or use the QR code from your dashboard. Customers can book 24/7.",
     "staff": "Manage your team under **People → Staff**. Add staff members, set their roles and permissions, assign services they can perform, and manage their working hours and rota.",
     "support": "For account issues, email **support@reeveos.app**. For urgent help, use this chat — I can answer questions about your bookings, covers, and platform features.",
     "cancel": "No contracts, cancel anytime. Go to **Settings → Subscription** to manage your plan. Your data stays available for 30 days after cancellation.",

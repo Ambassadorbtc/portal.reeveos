@@ -101,8 +101,8 @@ FEATURES = [
         ],
     },
     {
-        "name": "Fix booking link: verify book.reeveos.app + test public flow",
-        "desc": "BookingRedirect in App.jsx sends /book/* to book.reeveos.app. DNS/nginx may not be configured. BookingLink.jsx generates URLs to book.reeveos.app/:slug. Need to verify entire public booking flow works end-to-end with seeded Rejuvenate data.",
+        "name": "Fix booking link: verify portal.rezvo.app/book + test public flow",
+        "desc": "BookingRedirect in App.jsx sends /book/* to portal.rezvo.app/book. DNS/nginx may not be configured. BookingLink.jsx generates URLs to portal.rezvo.app/book/:slug. Need to verify entire public booking flow works end-to-end with seeded Rejuvenate data.",
         "cat": "Local Services",
         "pri": "P0",
         "stage": "backlog",
@@ -112,9 +112,9 @@ FEATURES = [
         "assignee": "Claude",
         "target_date": "2026-03-07",
         "checks": [
-            {"t": "Verify book.reeveos.app DNS resolves correctly", "d": False},
-            {"t": "Verify nginx serves booking app on book.reeveos.app", "d": False},
-            {"t": "Test: book.reeveos.app/rejuvenate-skin-experts loads services list", "d": False},
+            {"t": "Verify portal.rezvo.app/book DNS resolves correctly", "d": False},
+            {"t": "Verify nginx serves booking app on portal.rezvo.app/book", "d": False},
+            {"t": "Test: portal.rezvo.app/book/rejuvenate-skin-experts loads services list", "d": False},
             {"t": "Test: pick service → pick date/time → enter details → confirm booking", "d": False},
             {"t": "Test: booking appears in staff calendar and bookings page", "d": False},
             {"t": "Test: confirmation page shows with manage link", "d": False},

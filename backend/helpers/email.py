@@ -705,7 +705,7 @@ async def send_welcome_business(
     to: str,
     owner_name: str,
     business_name: str,
-    dashboard_url: str = "https://portal.reeveos.app",
+    dashboard_url: str = "https://portal.rezvo.app",
 ):
     """Welcome email for newly registered businesses."""
     body = f"""

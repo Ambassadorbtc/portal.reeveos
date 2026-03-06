@@ -493,7 +493,7 @@ async def _trigger_dunning_email(business_id, attempt_number=1):
     body = f"""<p>Hi {name},</p>
 <p>We tried to process your ReeveOS subscription payment but it didn't go through.</p>
 <p>This usually happens when a card expires or there's a temporary issue with your bank.</p>
-<p><a href="https://portal.reeveos.app/dashboard/payments" style="background:#1B4332;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;">Update Payment Method</a></p>
+<p><a href="https://portal.rezvo.app/dashboard/payments" style="background:#1B4332;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;">Update Payment Method</a></p>
 <p>If you need any help, just reply to this email.</p>
 <p>Cheers,<br>The ReeveOS Team</p>"""
     
@@ -523,7 +523,7 @@ async def _send_upgrade_nudge(business_id, reason, current_plan=None, suggested_
     body = f"""<p>Hi {biz.get('name', 'there')},</p>
 <p>{reason}</p>
 <p>Your current {current_plan or 'plan'} has been working well — upgrading to {suggested_plan or 'the next tier'} would unlock everything you need to keep growing.</p>
-<p><a href="https://portal.reeveos.app/dashboard/settings" style="background:#1B4332;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;">View Plans</a></p>
+<p><a href="https://portal.rezvo.app/dashboard/settings" style="background:#1B4332;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;">View Plans</a></p>
 <p>Cheers,<br>The ReeveOS Team</p>"""
     
     return await _send_email(to=email, subject="You're outgrowing your plan 🚀", body_html=body)

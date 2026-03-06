@@ -501,7 +501,7 @@ const Settings = () => {
             </div>
             <div className="mt-4">
               <label className="block text-sm font-bold text-primary mb-1.5">Booking page URL</label>
-              <p className="text-sm text-gray-500 mb-1">https://book.reeveos.app/</p>
+              <p className="text-sm text-gray-500 mb-1">https://portal.rezvo.app/book/</p>
               <input value={biz.slug || ""}
                 onChange={(e) => updateBusiness("slug", e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
                 placeholder="your-business"

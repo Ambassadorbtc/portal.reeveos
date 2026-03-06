@@ -40,7 +40,7 @@ const OnlineBooking = () => {
   const imageBase = API_BASE_URL
   const slug = business?.slug || data?.share?.slug || 'your-business'
   const { baseUrl } = getDomainConfig()
-  const bookingUrl = `https://book.reeveos.app/${slug}`
+  const bookingUrl = `https://portal.rezvo.app/book/${slug}`
 
   const hasDeposits = isFeatureUnlocked(tier, 'growth')
   const hasIntegrations = isFeatureUnlocked(tier, 'scale')
@@ -648,7 +648,7 @@ const EmbedModal = ({ businessId, accentColour, onClose, onCopy }) => {
     api.get(`/booking-page/${businessId}/embed`).then(setEmbed)
   }, [businessId])
   const { baseUrl: base } = getDomainConfig()
-  const bookBase = 'https://book.reeveos.app'
+  const bookBase = 'https://portal.rezvo.app/book'
   const iframeCode = embed?.embedCode || `<iframe src="${bookBase}/your-business" width="100%" height="600" frameborder="0"></iframe>`
   const buttonCode = embed?.buttonCode || `<a href="${bookBase}/your-business" style="background:${accentColour};color:#FEFBF4;padding:12px 24px;border-radius:10px;">Book Now</a>`
   return (

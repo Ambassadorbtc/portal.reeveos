@@ -3,7 +3,7 @@ import { useBusiness } from "../contexts/BusinessContext";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../utils/api";
 
-const API_BASE = import.meta.env.VITE_API_URL || "https://webportal.reeveos.app/api";
+const API_BASE = import.meta.env.VITE_API_URL || "https://portal.rezvo.app/api";
 // AI calls routed through backend — never expose API keys client-side
 
 const REEVEOS_KNOWLEDGE = `You are ReeveOS's AI support assistant. You help restaurant owners, salon owners, barbers, spa owners and their customers with questions about the ReeveOS booking platform.
@@ -51,7 +51,7 @@ FEATURES:
 - API access for custom integrations (Unlimited plan)
 
 GETTING STARTED:
-1. Sign up free at reeveos.app — no credit card required
+1. Sign up free at rezvo.app — no credit card required
 2. Add your business details, services, and staff
 3. Connect your Stripe account for payments
 4. Share your booking link with customers
@@ -324,7 +324,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
       }));
 
       // Route through backend API (handles Anthropic key + CORS)
-      const API_URL = import.meta.env.VITE_API_URL || "https://webportal.reeveos.app/api";
+      const API_URL = import.meta.env.VITE_API_URL || "https://portal.rezvo.app/api";
       const response = await fetch(`${API_URL}/chatbot/chat`, {
         method: "POST",
         headers: {

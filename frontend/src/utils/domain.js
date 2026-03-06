@@ -1,17 +1,14 @@
 /**
- * Domain config — ReeveOS + legacy Rezvo domains.
+ * Domain config — ReeveOS platform on rezvo.app domains.
  *
- * PRIMARY (ReeveOS):
- *   adminportal.reeveos.app  = admin panel (Dojo-style, no /admin prefix)
- *   webportal.reeveos.app    = business dashboard
- *   book.reeveos.app         = booking subdomain
- *   reeveos.app              = marketing site
+ * PRODUCTION:
+ *   portaladmin.rezvo.app  = admin panel (Dojo-style, no /admin prefix)
+ *   portal.rezvo.app       = business dashboard
+ *   book.rezvo.app         = booking subdomain
+ *   rezvo.app              = marketing site
  *
- * LEGACY (Rezvo — staging / redirects):
- *   portaladmin.rezvo.app    = admin (legacy)
- *   portal.rezvo.app         = business dashboard (legacy)
- *   book.rezvo.app           = booking (legacy)
- *   staging.reeveos.app      = staging environment
+ * FUTURE (reeveos.app — not yet active):
+ *   adminportal.reeveos.app, webportal.reeveos.app, book.reeveos.app
  */
 
 const host = typeof window !== 'undefined' ? window.location.hostname : ''
@@ -21,14 +18,14 @@ export const isDirectoryDomain = () => false
 
 /** Are we running on a booking subdomain? */
 export const isBookingDomain = () =>
-  host === 'book.reeveos.app' || host === 'book.rezvo.app'
+  host === 'book.rezvo.app' || host === 'book.reeveos.app'
 
 /** Are we running on the dedicated admin subdomain? */
 export const isAdminDomain = () =>
-  host === 'adminportal.reeveos.app' ||
-  host === 'portaladmin.reeveos.app' ||
   host === 'portaladmin.rezvo.app' ||
-  host === 'admin.rezvo.app'
+  host === 'admin.rezvo.app' ||
+  host === 'adminportal.reeveos.app' ||
+  host === 'portaladmin.reeveos.app'
 
 /** Admin route prefix: empty on admin domain, '/admin' on portal domain */
 export const ADMIN_BASE = isAdminDomain() ? '' : '/admin'
@@ -45,13 +42,13 @@ export const adminPath = (path) => {
 }
 
 export const getDomainConfig = () => ({
-  domain: 'reeveos.app',
-  baseUrl: 'https://webportal.reeveos.app',
-  bookingBaseUrl: 'https://book.reeveos.app',
-  adminBaseUrl: 'https://adminportal.reeveos.app',
+  domain: 'rezvo.app',
+  baseUrl: 'https://portal.rezvo.app',
+  bookingBaseUrl: 'https://book.rezvo.app',
+  adminBaseUrl: 'https://portaladmin.rezvo.app',
   supportEmail: 'support@reeveos.app',
   bookingPathPrefix: isBookingDomain() ? '/' : '/book/',
 })
 
 /** Build the public booking URL for a business slug */
-export const getBookingUrl = (slug) => `https://book.reeveos.app/${slug}`
+export const getBookingUrl = (slug) => `https://portal.rezvo.app/book/${slug}`

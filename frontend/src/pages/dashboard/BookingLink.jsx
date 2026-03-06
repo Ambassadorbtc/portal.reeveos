@@ -12,7 +12,7 @@ const BookingLink = () => {
   const [copied, setCopied] = useState(false)
   const [activeChannelTab, setActiveChannelTab] = useState('channels')
   const slug = business?.slug || 'your-business'
-  const bookingUrl = `https://book.reeveos.app/${slug}`
+  const bookingUrl = `https://portal.rezvo.app/book/${slug}`
 
   const handleCopy = () => {
     navigator.clipboard.writeText(bookingUrl).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })

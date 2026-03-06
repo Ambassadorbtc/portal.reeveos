@@ -71,7 +71,7 @@ def get_collection():
 
 
 def build_report_url(slug: str, token: str) -> str:
-    return f"https://webportal.reeveos.app/insights/{slug}/{token}"
+    return f"https://portal.rezvo.app/insights/{slug}/{token}"
 
 
 def estimate_commission_savings(

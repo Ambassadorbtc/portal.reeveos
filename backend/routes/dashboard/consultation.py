@@ -215,25 +215,38 @@ async def submit_form_public(slug: str, data: dict = Body(...)):
     now = datetime.utcnow()
     expires_at = now + timedelta(days=validity_months * 30)
 
-    # Upsert client record
-    client = await db.clients.find_one({"email": client_email, "business_id": biz_id})
+    # Encryption for PII
+    enc = TenantEncryption(biz_id)
+
+    # Upsert client record — search both encrypted and plaintext email
+    enc_email = enc.encrypt_deterministic(client_email) if enc.enabled else client_email
+    client = await db.clients.find_one({"email": enc_email, "business_id": biz_id})
+    if not client and enc.enabled:
+        client = await db.clients.find_one({"email": client_email, "business_id": biz_id})
+
+    # Encrypt PII for storage
+    store_name = enc.encrypt(client_name) if enc.enabled else client_name
+    store_email = enc_email
+    store_phone = enc.encrypt(client_phone) if enc.enabled else client_phone
+
     if client:
         client_id = str(client["_id"])
         await db.clients.update_one(
             {"_id": client["_id"]},
             {"$set": {
-                "name": client_name,
-                "phone": client_phone,
+                "name": store_name,
+                "phone": store_phone,
                 "consultation_status": status,
                 "consultation_expires": expires_at,
                 "updated_at": now,
+                "encrypted": enc.enabled,
             }}
         )
     else:
         result = await db.clients.insert_one({
-            "name": client_name,
-            "email": client_email,
-            "phone": client_phone,
+            "name": store_name,
+            "email": store_email,
+            "phone": store_phone,
             "business_id": biz_id,
             "tags": ["new"],
             "consultation_status": status,
@@ -244,11 +257,11 @@ async def submit_form_public(slug: str, data: dict = Body(...)):
             "visit_count": 0,
             "created_at": now,
             "updated_at": now,
+            "encrypted": enc.enabled,
         })
         client_id = str(result.inserted_id)
 
-    # Encrypt PII fields before storing
-    enc = TenantEncryption(biz_id)
+    # Encrypt PII fields in form_data before storing
     encrypted_form_data = dict(form_data)
     if enc.enabled:
         for pii_field in ["fullName", "address", "mobile", "emergencyContactName", "emergencyContactNumber", "gpName", "gpAddress"]:
@@ -475,15 +488,24 @@ async def check_client_form_status(
     Email sent in POST body — never in URL (GDPR: no PII in URLs).
     """
     db = get_database()
+    enc = TenantEncryption(business_id)
     email = (data.get("email") or "").strip().lower()
     if not email:
         raise HTTPException(400, "Email required")
     now = datetime.utcnow()
 
+    # Search both encrypted and plaintext (backward compat with pre-encryption data)
+    search_email = enc.encrypt_deterministic(email) if enc.enabled else email
     latest = await db.consultation_submissions.find_one(
-        {"business_id": business_id, "client_email": email, "expires_at": {"$gte": now}},
+        {"business_id": business_id, "client_email": search_email, "expires_at": {"$gte": now}},
         sort=[("submitted_at", -1)],
     )
+    # Fallback: try plaintext if encrypted search found nothing (pre-encryption records)
+    if not latest and enc.enabled:
+        latest = await db.consultation_submissions.find_one(
+            {"business_id": business_id, "client_email": email, "expires_at": {"$gte": now}},
+            sort=[("submitted_at", -1)],
+        )
 
     if not latest:
         return {"has_valid_form": False, "status": None, "expires_at": None}

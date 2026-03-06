@@ -14,6 +14,7 @@ Routes:
 from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException, Depends, Body
 from middleware.medical_audit import log_medical_access
+from middleware.encryption import TenantEncryption
 from database import get_database
 from bson import ObjectId
 import bcrypt
@@ -313,11 +314,18 @@ async def get_my_data(slug: str, user=Depends(_get_consumer)):
     email = user.get("email", "")
     now = datetime.utcnow()
 
-    # Consultation form status
+    # Consultation form status (search encrypted + plaintext for backward compat)
+    enc = TenantEncryption(biz_id)
+    search_email = enc.encrypt_deterministic(email) if enc.enabled else email
     latest_form = await db.consultation_submissions.find_one(
-        {"business_id": biz_id, "client_email": email},
+        {"business_id": biz_id, "client_email": search_email},
         sort=[("submitted_at", -1)],
     )
+    if not latest_form and enc.enabled:
+        latest_form = await db.consultation_submissions.find_one(
+            {"business_id": biz_id, "client_email": email},
+            sort=[("submitted_at", -1)],
+        )
 
     form_status = None
     if latest_form:
@@ -855,11 +863,18 @@ async def get_portal_client_detail(business_id: str, consumer_id: str, authoriza
             "status": b.get("status", ""),
         })
 
-    # Consultation
+    # Consultation (search encrypted + plaintext for backward compat)
+    enc_detail = TenantEncryption(business_id)
+    search_email_detail = enc_detail.encrypt_deterministic(email) if enc_detail.enabled else email
     form = await db.consultation_submissions.find_one(
-        {"business_id": business_id, "client_email": email},
+        {"business_id": business_id, "client_email": search_email_detail},
         sort=[("submitted_at", -1)],
     )
+    if not form and enc_detail.enabled:
+        form = await db.consultation_submissions.find_one(
+            {"business_id": business_id, "client_email": email},
+            sort=[("submitted_at", -1)],
+        )
     consultation = None
     if form:
         consultation = {

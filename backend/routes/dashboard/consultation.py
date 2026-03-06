@@ -40,6 +40,7 @@ DEFAULT_CONTRA_MATRIX = {
     "sunbed":             {"peel": "BLOCK", "microneedling": "FLAG", "rf": "FLAG"},
     "fishAllergy":        {"polynucleotides": "BLOCK"},
     "fillersRecent":      {"rf": "BLOCK", "polynucleotides": "FLAG"},
+    "uncontrolledDiabetes": {"microneedling": "FLAG", "peel": "FLAG", "rf": "FLAG", "polynucleotides": "FLAG"},
 }
 
 TREATMENT_LABELS = {

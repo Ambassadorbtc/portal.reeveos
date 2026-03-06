@@ -270,7 +270,7 @@ app.include_router(consultation_router)
 app.include_router(client_portal_router)
 
 # Static uploads for booking page logo/cover
-static_dir = Path("/opt/rezvo-app/uploads")
+static_dir = Path("/opt/reeveos-portal/uploads")
 try:
     static_dir.mkdir(parents=True, exist_ok=True)
 except OSError:

@@ -43,7 +43,7 @@ DEFAULTS = {
     },
 }
 
-UPLOADS_DIR = Path("/opt/rezvo-app/uploads/bookings")
+UPLOADS_DIR = Path("/opt/reeveos-portal/uploads/bookings")
 try:
     UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 except OSError:

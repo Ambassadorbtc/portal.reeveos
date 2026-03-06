@@ -40,7 +40,7 @@ async def scan_tenant_isolation():
     """
     routes_dir = os.path.join(os.path.dirname(__file__), "..", "..", "routes")
     if not os.path.isdir(routes_dir):
-        routes_dir = "/opt/rezvo-app/backend/routes"
+        routes_dir = "/opt/reeveos-portal/backend/routes"
     if not os.path.isdir(routes_dir):
         return {"error": "Cannot find routes directory", "pass": False}
 

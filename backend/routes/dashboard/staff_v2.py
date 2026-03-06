@@ -363,7 +363,7 @@ async def reinvite_staff(business_id: str, staff_id: str, tenant: TenantContext 
     return {"detail": "Invite resent", "staff": staff_list[idx]}
 
 
-UPLOADS_DIR = Path("/opt/rezvo-app/uploads/staff")
+UPLOADS_DIR = Path("/opt/reeveos-portal/uploads/staff")
 try:
     UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 except OSError:

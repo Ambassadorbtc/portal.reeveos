@@ -56,6 +56,44 @@ def _decode_token(token: str) -> dict:
         raise HTTPException(401, "Invalid token")
 
 
+async def _verify_business_access(authorization: str, business_id: str) -> dict:
+    """Verify the caller is authenticated AND has access to the requested business.
+    Returns the user dict. Raises 401/403 on failure."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Authentication required")
+    token = authorization.split(" ", 1)[1]
+    payload = _decode_token(token)
+    user_id = payload.get("sub") or payload.get("user_id")
+    if not user_id:
+        raise HTTPException(401, "Invalid token — no user ID")
+
+    db = get_database()
+
+    # Look up the user (try both users and consumer_accounts)
+    user = None
+    try:
+        user = await db.users.find_one({"_id": ObjectId(user_id)})
+    except Exception:
+        pass
+    if not user:
+        raise HTTPException(401, "User not found")
+
+    # Check role — platform_admin and super_admin can access any business
+    role = str(user.get("role", "")).lower()
+    if role in ("platform_admin", "super_admin"):
+        return user
+
+    # Check business_owner has access to THIS specific business
+    if role == "business_owner":
+        user_biz = str(user.get("business_id", ""))
+        user_biz_list = [str(x) for x in user.get("business_ids", [])]
+        if user_biz == business_id or business_id in user_biz_list:
+            return user
+
+    # No access
+    raise HTTPException(403, "Not authorized to access this business")
+
+
 async def get_current_consumer(authorization: str = None):
     """Extract consumer from JWT. Used as dependency."""
     from fastapi import Header
@@ -664,11 +702,7 @@ async def update_notification_prefs(data: dict = Body(...), user=Depends(_get_co
 @router.get("/business/{business_id}/messages")
 async def get_business_messages(business_id: str, authorization: str = Header(None)):
     """Business owner reads all client message threads."""
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Authentication required")
-    token = authorization.split(" ", 1)[1]
-    payload = _decode_token(token)
-
+    await _verify_business_access(authorization, business_id)
     db = get_database()
 
     # Get unique consumer threads
@@ -706,9 +740,7 @@ async def get_business_messages(business_id: str, authorization: str = Header(No
 @router.get("/business/{business_id}/messages/{consumer_id}")
 async def get_thread_messages(business_id: str, consumer_id: str, authorization: str = Header(None)):
     """Business reads a specific message thread."""
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Authentication required")
-
+    await _verify_business_access(authorization, business_id)
     db = get_database()
     messages = []
     cursor = db.client_messages.find({
@@ -736,11 +768,7 @@ async def get_thread_messages(business_id: str, consumer_id: str, authorization:
 @router.post("/business/{business_id}/messages/{consumer_id}")
 async def business_reply(business_id: str, consumer_id: str, data: dict = Body(...), authorization: str = Header(None)):
     """Business sends a reply to a client."""
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Authentication required")
-    token = authorization.split(" ", 1)[1]
-    payload = _decode_token(token)
-
+    await _verify_business_access(authorization, business_id)
     db = get_database()
     text = (data.get("text") or "").strip()
     staff_name = data.get("staff_name", "")
@@ -775,9 +803,7 @@ async def business_reply(business_id: str, consumer_id: str, data: dict = Body(.
 @router.get("/business/{business_id}/portal-clients")
 async def list_portal_clients(business_id: str, authorization: str = Header(None)):
     """List all consumer accounts linked to this business."""
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Auth required")
-
+    await _verify_business_access(authorization, business_id)
     db = get_database()
     clients = []
     cursor = db.consumer_accounts.find({"business_ids": business_id}).sort("created_at", -1)
@@ -800,9 +826,7 @@ async def list_portal_clients(business_id: str, authorization: str = Header(None
 @router.get("/business/{business_id}/portal-clients/{consumer_id}")
 async def get_portal_client_detail(business_id: str, consumer_id: str, authorization: str = Header(None)):
     """Full client profile — bookings, forms, stats."""
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Auth required")
-
+    await _verify_business_access(authorization, business_id)
     db = get_database()
     consumer = await db.consumer_accounts.find_one({"_id": ObjectId(consumer_id)})
     if not consumer:
@@ -863,9 +887,7 @@ async def get_portal_client_detail(business_id: str, consumer_id: str, authoriza
 @router.post("/business/{business_id}/send-email")
 async def send_client_email(business_id: str, data: dict = Body(...), authorization: str = Header(None)):
     """Send email to selected portal clients."""
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Auth required")
-
+    await _verify_business_access(authorization, business_id)
     db = get_database()
     client_ids = data.get("client_ids", [])
     subject = data.get("subject", "")
@@ -902,9 +924,7 @@ async def send_client_email(business_id: str, data: dict = Body(...), authorizat
 @router.get("/business/{business_id}/email-history")
 async def get_email_history(business_id: str, authorization: str = Header(None)):
     """Get email send history."""
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Auth required")
-
+    await _verify_business_access(authorization, business_id)
     db = get_database()
     emails = []
     cursor = db.client_email_log.find({"business_id": business_id}).sort("sent_at", -1).limit(20)
@@ -924,9 +944,7 @@ async def get_email_history(business_id: str, authorization: str = Header(None))
 @router.post("/business/{business_id}/send-push")
 async def send_push_notification(business_id: str, data: dict = Body(...), authorization: str = Header(None)):
     """Send push notification to portal clients (stored in DB, shown in portal)."""
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Auth required")
-
+    await _verify_business_access(authorization, business_id)
     db = get_database()
     ntype = data.get("type", "announcement")
     title = data.get("title", "")
@@ -976,9 +994,7 @@ async def send_push_notification(business_id: str, data: dict = Body(...), autho
 @router.get("/business/{business_id}/push-history")
 async def get_push_history(business_id: str, authorization: str = Header(None)):
     """Get push notification history."""
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Auth required")
-
+    await _verify_business_access(authorization, business_id)
     db = get_database()
     notifications = []
     cursor = db.client_push_log.find({"business_id": business_id}).sort("sent_at", -1).limit(20)

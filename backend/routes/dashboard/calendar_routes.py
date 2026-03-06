@@ -88,8 +88,12 @@ async def get_calendar(
             "endTime": nb["endTime"],
             "duration": nb["service"].get("duration", 60) if isinstance(nb["service"], dict) else 60,
             "customerName": nb["customer"]["name"],
+            "customerPhone": nb["customer"].get("phone", ""),
+            "customerId": nb.get("customerId") or nb.get("clientId", ""),
             "service": nb["service"].get("name", "Booking") if isinstance(nb["service"], dict) else "Booking",
+            "price": nb["service"].get("price", 0) if isinstance(nb["service"], dict) else 0,
             "status": nb["status"],
+            "notes": nb.get("notes", ""),
             "colour": STATUS_COLOURS.get(nb["status"], "#22C55E"),
         })
 

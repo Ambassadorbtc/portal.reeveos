@@ -138,6 +138,7 @@ async def get_calendar(
             "endTime": nb["endTime"],
             "duration": svc_duration,
             "customerName": nb["customer"]["name"],
+            "customerId": nb.get("customerId") or b.get("customerId", ""),
             "service": service_name,
             "status": nb["status"],
             "colour": STATUS_COLOURS.get(nb["status"], "#22C55E"),

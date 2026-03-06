@@ -538,6 +538,7 @@ const Calendar = () => {
             <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '10px 0', borderRadius: 10, border: 'none', background: '#111111', fontSize: 12, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(17,17,17,0.2)' }}><CheckIcon /> Check In</button>
             <button style={{ width: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, border: '1px solid #EF444420', background: '#FEF2F2', color: '#EF4444', cursor: 'pointer' }}><TrashIcon /></button>
           </div>
+          {a.notes && <div style={{ marginTop: 8, padding: '8px 10px', background: '#FFFBEB', borderRadius: 8, border: '1px solid #FDE68A', fontSize: 11, color: '#92400E', lineHeight: '16px' }}>{a.notes}</div>}
         </div>
       </div>
     )

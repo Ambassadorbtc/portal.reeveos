@@ -434,8 +434,8 @@ async def add_note(business_id: str, client_id: str, payload: dict = Body(...), 
     note = {
         "id": f"note_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
         "text": text,
-        "createdBy": str(user.get("_id", "")),
-        "createdByName": user.get("name", "Staff"),
+        "createdBy": str(tenant.user_id),
+        "createdByName": payload.get("staff_name", "Staff"),
         "createdAt": datetime.utcnow(),
     }
     notes = c.get("notes", []) + [note]

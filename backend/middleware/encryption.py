@@ -5,7 +5,7 @@ Encrypts PII fields BEFORE they hit MongoDB. The database never sees plaintext
 for customer names, emails, phones, or booking notes.
 
 Architecture:
-- Master key from environment variable (REZVO_MASTER_KEY)
+- Master key from environment variable (REEVEOS_MASTER_KEY)
 - Per-tenant Data Encryption Keys (DEKs) derived from master + tenant_id
 - Sensitive fields encrypted with Fernet (AES-128-CBC + HMAC-SHA256)
 - Deterministic mode for email (enables exact-match lookups)
@@ -36,9 +36,9 @@ from cryptography.fernet import Fernet
 logger = logging.getLogger("encryption")
 
 # ─── Master Key ───
-# In production: set REZVO_MASTER_KEY as a 32-byte base64 string
+# In production: set REEVEOS_MASTER_KEY as a 32-byte base64 string
 # Generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-_MASTER_KEY = os.getenv("REZVO_MASTER_KEY", "")
+_MASTER_KEY = os.getenv("REEVEOS_MASTER_KEY", "")
 
 # Prefix for encrypted values — lets us know a field is encrypted
 ENCRYPTED_PREFIX = "ENC::"
@@ -49,7 +49,7 @@ def _get_master_key() -> bytes:
     """Get the master encryption key. Raises if not configured."""
     if not _MASTER_KEY:
         raise RuntimeError(
-            "REZVO_MASTER_KEY not set. Generate with: "
+            "REEVEOS_MASTER_KEY not set. Generate with: "
             "python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\""
         )
     return base64.urlsafe_b64decode(_MASTER_KEY)
@@ -133,7 +133,7 @@ class TenantEncryption:
             return f"{ENCRYPTED_PREFIX}{ct.decode()}"
         except Exception as e:
             logger.error(f"Encryption failed: {e}")
-            return plaintext  # Fail open for availability — log for investigation
+            raise RuntimeError(f"Encryption failed — refusing to store plaintext: {e}")
     
     def decrypt(self, ciphertext: str) -> str:
         """Decrypt a field value. Handles both encrypted and plaintext gracefully."""
@@ -142,7 +142,7 @@ class TenantEncryption:
         
         if isinstance(ciphertext, str) and ciphertext.startswith(ENCRYPTED_PREFIX):
             if not self._enabled:
-                logger.warning("Encrypted data found but REZVO_MASTER_KEY not set")
+                logger.warning("Encrypted data found but REEVEOS_MASTER_KEY not set")
                 return "[ENCRYPTED]"
             try:
                 raw = ciphertext[len(ENCRYPTED_PREFIX):]
@@ -155,11 +155,18 @@ class TenantEncryption:
             if not self._enabled:
                 return "[ENCRYPTED]"
             try:
+                from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+                from cryptography.hazmat.primitives import padding as sym_padding
                 raw = ciphertext[len(DETERMINISTIC_PREFIX):]
-                ct_bytes = base64.urlsafe_b64decode(raw)
-                # XOR with key stream to decrypt
+                raw_bytes = base64.urlsafe_b64decode(raw)
+                iv = raw_bytes[:16]
+                ct_bytes = raw_bytes[16:]
                 key = self._get_det_key()
-                pt_bytes = bytes(a ^ b for a, b in zip(ct_bytes, key * (len(ct_bytes) // len(key) + 1)))
+                cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+                decryptor = cipher.decryptor()
+                padded = decryptor.update(ct_bytes) + decryptor.finalize()
+                unpadder = sym_padding.PKCS7(128).unpadder()
+                pt_bytes = unpadder.update(padded) + unpadder.finalize()
                 return pt_bytes.decode()
             except Exception as e:
                 logger.error(f"Deterministic decryption failed: {e}")
@@ -173,6 +180,7 @@ class TenantEncryption:
     def encrypt_deterministic(self, plaintext: str) -> str:
         """
         Deterministic encryption — same input always gives same output.
+        Uses AES-CBC with IV derived from HMAC(key, plaintext) for determinism.
         Use ONLY for fields that need exact-match queries (email).
         """
         if not self._enabled or not plaintext:
@@ -181,15 +189,23 @@ class TenantEncryption:
             return plaintext
         
         try:
+            from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+            from cryptography.hazmat.primitives import padding as sym_padding
             key = self._get_det_key()
-            pt_bytes = plaintext.encode()
-            # XOR with key stream (deterministic, no IV)
-            ct_bytes = bytes(a ^ b for a, b in zip(pt_bytes, key * (len(pt_bytes) // len(key) + 1)))
-            encoded = base64.urlsafe_b64encode(ct_bytes).decode()
+            pt_bytes = plaintext.lower().strip().encode()
+            # Derive a deterministic IV from HMAC(key, plaintext)
+            iv = hmac.new(key, pt_bytes, hashlib.sha256).digest()[:16]
+            # AES-CBC with PKCS7 padding
+            padder = sym_padding.PKCS7(128).padder()
+            padded = padder.update(pt_bytes) + padder.finalize()
+            cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+            encryptor = cipher.encryptor()
+            ct_bytes = encryptor.update(padded) + encryptor.finalize()
+            encoded = base64.urlsafe_b64encode(iv + ct_bytes).decode()
             return f"{DETERMINISTIC_PREFIX}{encoded}"
         except Exception as e:
             logger.error(f"Deterministic encryption failed: {e}")
-            return plaintext
+            raise RuntimeError(f"Encryption failed — refusing to store plaintext: {e}")
     
     # ─── Auto-encrypt/decrypt helpers for documents ───
     

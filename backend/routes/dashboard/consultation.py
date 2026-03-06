@@ -7,10 +7,12 @@ Collections:
 """
 
 from datetime import datetime, timedelta
-from fastapi import APIRouter, HTTPException, Depends, Body, Query
+from fastapi import APIRouter, HTTPException, Depends, Body, Query, Request
 from database import get_database
 from middleware.auth import get_current_owner, get_current_user
 from middleware.tenant import verify_business_access, TenantContext
+from middleware.encryption import TenantEncryption, is_encryption_enabled
+from middleware.medical_audit import log_medical_access
 from bson import ObjectId
 
 router = APIRouter(prefix="/consultation", tags=["Consultation Forms"])
@@ -245,13 +247,23 @@ async def submit_form_public(slug: str, data: dict = Body(...)):
         })
         client_id = str(result.inserted_id)
 
-    # Store submission
+    # Encrypt PII fields before storing
+    enc = TenantEncryption(biz_id)
+    encrypted_form_data = dict(form_data)
+    if enc.enabled:
+        for pii_field in ["fullName", "address", "mobile", "emergencyContactName", "emergencyContactNumber", "gpName", "gpAddress"]:
+            if encrypted_form_data.get(pii_field):
+                encrypted_form_data[pii_field] = enc.encrypt(encrypted_form_data[pii_field])
+        if encrypted_form_data.get("email"):
+            encrypted_form_data["email"] = enc.encrypt_deterministic(encrypted_form_data["email"])
+
+    # Store submission with encrypted form data
     submission = {
         "business_id": biz_id,
         "client_id": client_id,
-        "client_name": client_name,
-        "client_email": client_email,
-        "form_data": form_data,
+        "client_name": enc.encrypt(client_name) if enc.enabled else client_name,
+        "client_email": enc.encrypt_deterministic(client_email) if enc.enabled else client_email,
+        "form_data": encrypted_form_data,
         "alerts": alerts,
         "status": status,
         "submitted_at": now,
@@ -263,9 +275,22 @@ async def submit_form_public(slug: str, data: dict = Body(...)):
         "signature_captured": bool(form_data.get("signed")),
         "ip_address": data.get("ip_address"),
         "user_agent": data.get("user_agent"),
+        "encrypted": enc.enabled,
     }
 
     result = await db.consultation_submissions.insert_one(submission)
+
+    # Audit log: form submitted
+    await log_medical_access(
+        event_type="form_submitted",
+        business_id=biz_id,
+        accessed_by="client",
+        accessor_role="client",
+        client_email=client_email,
+        client_name=client_name,
+        submission_id=str(result.inserted_id),
+        ip_address=data.get("ip_address", ""),
+    )
 
     return {
         "submission_id": str(result.inserted_id),
@@ -286,6 +311,7 @@ async def list_submissions(
 ):
     """List all consultation form submissions for a business."""
     db = get_database()
+    enc = TenantEncryption(business_id)
     query = {"business_id": business_id}
     if status:
         query["status"] = status
@@ -294,7 +320,21 @@ async def list_submissions(
     submissions = []
     async for doc in cursor:
         doc["_id"] = str(doc["_id"])
+        # Decrypt PII for display
+        if doc.get("encrypted") and enc.enabled:
+            doc["client_name"] = enc.decrypt(doc.get("client_name", ""))
+            doc["client_email"] = enc.decrypt(doc.get("client_email", ""))
         submissions.append(doc)
+
+    # Audit: listing submissions (bulk view)
+    await log_medical_access(
+        event_type="submissions_listed",
+        business_id=business_id,
+        accessed_by=tenant.user_id,
+        accessor_role=tenant.role,
+        accessor_email=tenant.user_email,
+        details=f"Listed {len(submissions)} submissions (skip={skip}, limit={limit})",
+    )
 
     total = await db.consultation_submissions.count_documents({"business_id": business_id})
     pending = await db.consultation_submissions.count_documents({"business_id": business_id, "reviewed": False, "status": {"$in": ["flagged", "blocked"]}})
@@ -318,10 +358,35 @@ async def get_submission(
 ):
     """Get a single submission with full form data."""
     db = get_database()
+    enc = TenantEncryption(business_id)
     doc = await db.consultation_submissions.find_one({"_id": ObjectId(submission_id), "business_id": business_id})
     if not doc:
         raise HTTPException(404, "Submission not found")
     doc["_id"] = str(doc["_id"])
+
+    # Decrypt PII for display
+    if doc.get("encrypted") and enc.enabled:
+        doc["client_name"] = enc.decrypt(doc.get("client_name", ""))
+        doc["client_email"] = enc.decrypt(doc.get("client_email", ""))
+        fd = doc.get("form_data", {})
+        for field in ["fullName", "address", "mobile", "emergencyContactName", "emergencyContactNumber", "gpName", "gpAddress"]:
+            if fd.get(field):
+                fd[field] = enc.decrypt(fd[field])
+        if fd.get("email"):
+            fd["email"] = enc.decrypt(fd["email"])
+
+    # Audit: viewing individual submission with full medical data
+    await log_medical_access(
+        event_type="form_viewed",
+        business_id=business_id,
+        accessed_by=tenant.user_id,
+        accessor_role=tenant.role,
+        accessor_email=tenant.user_email,
+        client_email=doc.get("client_email", ""),
+        client_name=doc.get("client_name", ""),
+        submission_id=submission_id,
+    )
+
     return doc
 
 
@@ -353,6 +418,17 @@ async def review_submission(
     )
     if result.matched_count == 0:
         raise HTTPException(404, "Submission not found")
+
+    # Audit: form reviewed
+    await log_medical_access(
+        event_type="form_reviewed",
+        business_id=business_id,
+        accessed_by=tenant.user_id,
+        accessor_role=tenant.role,
+        accessor_email=tenant.user_email,
+        submission_id=submission_id,
+        details=f"reviewed_by={data.get('reviewed_by','therapist')}, override={data.get('override_status','none')}",
+    )
 
     return {"reviewed": True}
 
@@ -388,17 +464,20 @@ async def get_stats(business_id: str, tenant: TenantContext = Depends(verify_bus
 # CLIENT CHECK — does this client have a valid consultation form?
 # ═══════════════════════════════════════════════════════════════
 
-@router.get("/business/{business_id}/check/{client_email}")
+@router.post("/business/{business_id}/check-form")
 async def check_client_form_status(
-    business_id: str, client_email: str,
+    business_id: str, data: dict = Body(...),
     tenant: TenantContext = Depends(verify_business_access),
 ):
     """
     Check if a client has a valid (non-expired) consultation form.
     Used by booking flow to enforce form-before-booking.
+    Email sent in POST body — never in URL (GDPR: no PII in URLs).
     """
     db = get_database()
-    email = client_email.strip().lower()
+    email = (data.get("email") or "").strip().lower()
+    if not email:
+        raise HTTPException(400, "Email required")
     now = datetime.utcnow()
 
     latest = await db.consultation_submissions.find_one(

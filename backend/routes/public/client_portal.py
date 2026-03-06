@@ -13,6 +13,7 @@ Routes:
 
 from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException, Depends, Body
+from middleware.medical_audit import log_medical_access
 from database import get_database
 from bson import ObjectId
 import bcrypt
@@ -826,7 +827,7 @@ async def list_portal_clients(business_id: str, authorization: str = Header(None
 @router.get("/business/{business_id}/portal-clients/{consumer_id}")
 async def get_portal_client_detail(business_id: str, consumer_id: str, authorization: str = Header(None)):
     """Full client profile — bookings, forms, stats."""
-    await _verify_business_access(authorization, business_id)
+    caller = await _verify_business_access(authorization, business_id)
     db = get_database()
     consumer = await db.consumer_accounts.find_one({"_id": ObjectId(consumer_id)})
     if not consumer:
@@ -866,6 +867,19 @@ async def get_portal_client_detail(business_id: str, consumer_id: str, authoriza
             "submitted_at": form.get("submitted_at", "").isoformat() if form.get("submitted_at") else "",
             "alerts": form.get("alerts", {"blocks": [], "flags": []}),
         }
+
+    # Audit: viewing client profile with potential medical data
+    if consultation:
+        await log_medical_access(
+            event_type="client_detail_viewed",
+            business_id=business_id,
+            accessed_by=str(caller.get("_id", "")),
+            accessor_role=str(caller.get("role", "")),
+            accessor_email=str(caller.get("email", "")),
+            client_email=email,
+            client_name=consumer.get("name", ""),
+            details="Client profile with consultation data viewed",
+        )
 
     return {
         "name": consumer.get("name", ""),

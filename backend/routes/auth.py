@@ -55,10 +55,14 @@ async def register(user_data: UserCreate):
             detail="Email already registered"
         )
     
-    # SECURITY: Force role to 'diner' on public registration.
-    # Admin/owner roles are assigned by super_admins only, never self-selected.
-    ALLOWED_SELF_REGISTRATION_ROLES = {"diner"}
-    safe_role = user_data.role.value if user_data.role.value in ALLOWED_SELF_REGISTRATION_ROLES else "diner"
+    # Business portal registration: allow business_owner and diner roles
+    # Diner accounts are created via the client portal (Reeve Now), not here
+    # but we still accept it for backwards compatibility
+    ALLOWED_SELF_REGISTRATION_ROLES = {"diner", "business_owner", "owner"}
+    safe_role = user_data.role.value if user_data.role.value in ALLOWED_SELF_REGISTRATION_ROLES else "business_owner"
+    # Normalise legacy "owner" to "business_owner"
+    if safe_role == "owner":
+        safe_role = "business_owner"
 
     user_dict = {
         "email": user_data.email,

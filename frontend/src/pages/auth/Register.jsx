@@ -46,7 +46,7 @@ const Register = () => {
     })
 
     if (result.success) {
-      navigate(formData.role === 'owner' ? '/onboarding' : '/dashboard')
+      navigate('/onboarding')
     } else {
       setError(result.error)
     }
@@ -128,31 +128,7 @@ const Register = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Role selector */}
-            <div>
-              <label className="block text-sm font-bold text-primary mb-2">I am a...</label>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { value: 'owner', label: 'Business Owner', desc: 'Manage bookings', Icon: Building2 },
-                  { value: 'diner', label: 'Diner', desc: 'Book venues', Icon: User },
-                ].map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => update('role', opt.value)}
-                    className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${
-                      formData.role === opt.value
-                        ? 'border-primary bg-primary/[0.04]'
-                        : 'border-border bg-white hover:border-primary/30'
-                    }`}
-                  >
-                    <opt.Icon size={20} className={formData.role === opt.value ? 'text-primary' : 'text-gray-400'} />
-                    <p className="font-bold text-primary text-sm mt-2">{opt.label}</p>
-                    <p className="text-gray-400 text-xs">{opt.desc}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Role is always business owner on this portal */}
 
             <div>
               <label className="block text-sm font-bold text-primary mb-1.5">Full Name</label>

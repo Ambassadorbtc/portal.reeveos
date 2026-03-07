@@ -10,7 +10,9 @@ from middleware.tenant import verify_business_access, TenantContext
 from datetime import datetime, date, time, timedelta
 from typing import List, Optional
 from models.normalize import normalize_booking, booking_to_list_item, booking_to_detail
+import logging
 
+logger = logging.getLogger("bookings")
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
 
@@ -374,6 +376,67 @@ async def update_booking_status(
         "bookingId": str(doc_id),
         "timestamp": datetime.utcnow(),
     })
+
+    # ── AFTERCARE AUTO-EMAIL — triggered on completion ──
+    if new_status == "completed":
+        try:
+            svc = b.get("service", {})
+            svc_name = svc.get("name", "") if isinstance(svc, dict) else str(svc)
+            cust_email = nb["customer"].get("email")
+            if cust_email and svc_name:
+                treatment_lower = svc_name.lower()
+                aftercare_type = None
+                if "microneedling" in treatment_lower or "needling" in treatment_lower:
+                    aftercare_type = "microneedling"
+                elif "peel" in treatment_lower or "biorep" in treatment_lower:
+                    aftercare_type = "peel"
+                elif "rf" in treatment_lower or "radio" in treatment_lower:
+                    aftercare_type = "rf"
+                elif "polynuc" in treatment_lower:
+                    aftercare_type = "polynucleotides"
+                elif "lymph" in treatment_lower or "lift" in treatment_lower:
+                    aftercare_type = "lymphatic"
+                elif "derma" in treatment_lower:
+                    aftercare_type = "dermaplaning"
+
+                if aftercare_type:
+                    # Schedule aftercare email (15-30 min delay)
+                    await db.aftercare_queue.insert_one({
+                        "business_id": tenant.business_id,
+                        "booking_id": str(doc_id),
+                        "client_email": cust_email,
+                        "client_name": nb["customer"]["name"],
+                        "treatment_type": aftercare_type,
+                        "treatment_name": svc_name,
+                        "staff_name": nb.get("staffName", ""),
+                        "send_after": datetime.utcnow() + timedelta(minutes=20),
+                        "sent": False,
+                        "created_at": datetime.utcnow(),
+                    })
+        except Exception as e:
+            logger.warning(f"Aftercare queue error: {e}")
+
+    # ── PATCH TEST CHECK — block check-in if patch test not done ──
+    if new_status == "checked_in":
+        svc = b.get("service", {})
+        svc_name = (svc.get("name", "") if isinstance(svc, dict) else str(svc)).lower()
+        needs_patch = "microneedling" in svc_name or "peel" in svc_name or "needling" in svc_name
+        if needs_patch and b.get("firstVisit"):
+            # Check if patch test exists for this client
+            cust_phone = nb["customer"].get("phone")
+            cust_email = nb["customer"].get("email")
+            patch_query = {"business_id": tenant.business_id, "type": "patch_test", "status": "completed"}
+            if cust_phone:
+                patch_query["client_phone"] = cust_phone
+            elif cust_email:
+                patch_query["client_email"] = cust_email
+            patch_done = await db.bookings.find_one(patch_query) if (cust_phone or cust_email) else None
+            if not patch_done:
+                # Don't block — but flag on the booking
+                await sdb.bookings.update_one(
+                    {"_id": doc_id},
+                    {"$set": {"patchTestWarning": True}}
+                )
 
     updated = await sdb.bookings.find_one({"_id": doc_id})
     staff_map = {st.get("id"): st for st in business.get("staff", [])}

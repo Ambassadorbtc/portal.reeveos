@@ -14,7 +14,7 @@ import {
   Camera, Paintbrush, Music, Wrench, Flower2, Baby, GraduationCap
 } from 'lucide-react'
 
-const STEPS = ['Business Type', 'Details', 'Hours', 'Plan', 'Launch']
+const STEPS = ['Business Type', 'Details', 'Hours', 'Plan', 'Services', 'Team', 'Ready!']
 
 const BUSINESS_TYPES = [
   // Food & Drink
@@ -72,6 +72,9 @@ export default function Onboarding() {
   const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [createdBusinessId, setCreatedBusinessId] = useState(null)
+  const [newServices, setNewServices] = useState([{ name: '', duration: 60, price: 0 }])
+  const [newStaff, setNewStaff] = useState([{ name: '', email: '', role: 'staff' }])
   const [form, setForm] = useState({
     category: '',
     name: '',
@@ -92,10 +95,52 @@ export default function Onboarding() {
     }))
   }
 
+  const isRestaurant = ['restaurant', 'cafe', 'bar', 'pub', 'takeaway'].includes(form.category)
+
   const canProceed = () => {
     if (step === 0) return !!form.category
     if (step === 1) return form.name && form.address && form.city && form.postcode && form.phone
     return true
+  }
+
+  const saveServices = async () => {
+    if (!createdBusinessId) return
+    setLoading(true)
+    try {
+      const valid = newServices.filter(s => s.name.trim())
+      for (const svc of valid) {
+        await api.post(`/services/business/${createdBusinessId}/services`, {
+          name: svc.name.trim(),
+          duration_minutes: parseInt(svc.duration) || 60,
+          price: parseFloat(svc.price) || 0,
+          category: 'General',
+          active: true,
+        })
+      }
+    } catch (err) {
+      console.error('Service save error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const saveStaff = async () => {
+    if (!createdBusinessId) return
+    setLoading(true)
+    try {
+      const valid = newStaff.filter(s => s.name.trim())
+      for (const member of valid) {
+        await api.post(`/staff/business/${createdBusinessId}/staff`, {
+          name: member.name.trim(),
+          email: member.email.trim(),
+          role: member.role || 'staff',
+        })
+      }
+    } catch (err) {
+      console.error('Staff save error:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleComplete = async () => {
@@ -127,11 +172,15 @@ export default function Onboarding() {
 
       const created = await api.post('/businesses/', payload)
       
+      // Store created business ID for services/staff steps
+      const bizId = created.id || created._id
+      setCreatedBusinessId(bizId)
+      
       // Refresh user data so business_ids is populated
       const updatedUser = await api.get('/users/me')
       localStorage.setItem('user', JSON.stringify(updatedUser))
       
-      setStep(4)
+      setStep(4) // Move to Add Services step
     } catch (err) {
       console.error('Business creation failed:', err)
       setError(err.message || 'Failed to create business. Please try again.')
@@ -140,11 +189,13 @@ export default function Onboarding() {
     }
   }
 
-  const next = () => {
+  const next = async () => {
     if (step === 3) return handleComplete()
-    setStep((s) => Math.min(s + 1, 4))
+    if (step === 4) { await saveServices(); setStep(5); return }
+    if (step === 5) { await saveStaff(); setStep(6); return }
+    setStep((s) => Math.min(s + 1, 6))
   }
-  const back = () => setStep((s) => Math.max(s - 1, 0))
+  const back = () => { if (step <= 3) setStep((s) => Math.max(s - 1, 0)) }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -156,19 +207,19 @@ export default function Onboarding() {
           </div>
           <span className="font-heading font-bold text-primary text-lg">ReeveOS</span>
         </div>
-        {step < 4 && (
+        {step < 6 && (
           <div className="ml-auto text-sm text-gray-400">
-            Step {step + 1} of 4
+            Step {step + 1} of 6
           </div>
         )}
       </header>
 
       {/* Progress bar */}
-      {step < 4 && (
+      {step < 6 && (
         <div className="h-1 bg-border">
           <div
             className="h-full bg-primary rounded-r-full transition-all duration-500 ease-out"
-            style={{ width: `${((step + 1) / 4) * 100}%` }}
+            style={{ width: `${((step + 1) / 6) * 100}%` }}
           />
         </div>
       )}
@@ -413,8 +464,107 @@ export default function Onboarding() {
             </div>
           )}
 
-          {/* ─── Step 4: Success ─── */}
+          {/* ─── Step 4: Add Services ─── */}
           {step === 4 && (
+            <div className="animate-fadeIn">
+              <div className="text-center mb-8">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Scissors className="w-6 h-6 text-primary" />
+                </div>
+                <h1 className="text-3xl font-heading font-extrabold text-primary mb-2">
+                  {isRestaurant ? 'Add your menu items' : 'Add your services'}
+                </h1>
+                <p className="text-gray-500 font-body text-sm">You can always add more later from your dashboard</p>
+              </div>
+
+              <div className="space-y-3 max-w-lg mx-auto">
+                {newServices.map((svc, i) => (
+                  <div key={i} className="bg-white rounded-xl border border-border p-4">
+                    <div className="flex gap-3 mb-3">
+                      <input value={svc.name} onChange={e => { const s = [...newServices]; s[i].name = e.target.value; setNewServices(s) }}
+                        placeholder={isRestaurant ? 'e.g. Margherita Pizza' : 'e.g. Microneedling Facial'}
+                        className="flex-1 px-3 py-2.5 border border-border rounded-lg text-sm font-medium text-primary bg-white focus:ring-2 focus:ring-primary/15 focus:border-primary outline-none" />
+                      {newServices.length > 1 && (
+                        <button onClick={() => setNewServices(s => s.filter((_, j) => j !== i))}
+                          className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-200">×</button>
+                      )}
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-1">
+                        <label className="text-xs font-bold text-gray-400 mb-1 block">{isRestaurant ? 'Prep time (min)' : 'Duration (min)'}</label>
+                        <input type="number" value={svc.duration} onChange={e => { const s = [...newServices]; s[i].duration = e.target.value; setNewServices(s) }}
+                          className="w-full px-3 py-2 border border-border rounded-lg text-sm text-primary outline-none focus:border-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-xs font-bold text-gray-400 mb-1 block">Price (£)</label>
+                        <input type="number" step="0.01" value={svc.price} onChange={e => { const s = [...newServices]; s[i].price = e.target.value; setNewServices(s) }}
+                          className="w-full px-3 py-2 border border-border rounded-lg text-sm text-primary outline-none focus:border-primary" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button onClick={() => setNewServices(s => [...s, { name: '', duration: 60, price: 0 }])}
+                  className="w-full py-3 rounded-xl border-2 border-dashed border-border hover:border-primary/30 text-sm font-medium text-gray-400 hover:text-primary transition-all">
+                  + Add another {isRestaurant ? 'item' : 'service'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ─── Step 5: Add Staff ─── */}
+          {step === 5 && (
+            <div className="animate-fadeIn">
+              <div className="text-center mb-8">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Building2 className="w-6 h-6 text-primary" />
+                </div>
+                <h1 className="text-3xl font-heading font-extrabold text-primary mb-2">
+                  Add your team
+                </h1>
+                <p className="text-gray-500 font-body text-sm">Invite staff so they can manage bookings and view their schedule</p>
+              </div>
+
+              <div className="space-y-3 max-w-lg mx-auto">
+                {newStaff.map((member, i) => (
+                  <div key={i} className="bg-white rounded-xl border border-border p-4">
+                    <div className="flex gap-3 mb-3">
+                      <input value={member.name} onChange={e => { const s = [...newStaff]; s[i].name = e.target.value; setNewStaff(s) }}
+                        placeholder="Full name"
+                        className="flex-1 px-3 py-2.5 border border-border rounded-lg text-sm font-medium text-primary bg-white focus:ring-2 focus:ring-primary/15 focus:border-primary outline-none" />
+                      {newStaff.length > 1 && (
+                        <button onClick={() => setNewStaff(s => s.filter((_, j) => j !== i))}
+                          className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-200">×</button>
+                      )}
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-1">
+                        <label className="text-xs font-bold text-gray-400 mb-1 block">Email</label>
+                        <input type="email" value={member.email} onChange={e => { const s = [...newStaff]; s[i].email = e.target.value; setNewStaff(s) }}
+                          placeholder="staff@example.com"
+                          className="w-full px-3 py-2 border border-border rounded-lg text-sm text-primary outline-none focus:border-primary" />
+                      </div>
+                      <div className="w-36">
+                        <label className="text-xs font-bold text-gray-400 mb-1 block">Role</label>
+                        <select value={member.role} onChange={e => { const s = [...newStaff]; s[i].role = e.target.value; setNewStaff(s) }}
+                          className="w-full px-3 py-2 border border-border rounded-lg text-sm text-primary outline-none focus:border-primary bg-white">
+                          <option value="staff">{isRestaurant ? 'Server' : 'Therapist'}</option>
+                          <option value="manager">Manager</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button onClick={() => setNewStaff(s => [...s, { name: '', email: '', role: 'staff' }])}
+                  className="w-full py-3 rounded-xl border-2 border-dashed border-border hover:border-primary/30 text-sm font-medium text-gray-400 hover:text-primary transition-all">
+                  + Add another team member
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ─── Step 6: Success ─── */}
+          {step === 6 && (
             <div className="animate-fadeIn text-center">
               <div className="w-20 h-20 rounded-3xl bg-green-50 flex items-center justify-center mx-auto mb-6">
                 <Rocket className="w-9 h-9 text-green-600" />
@@ -426,33 +576,28 @@ export default function Onboarding() {
                 <strong className="text-primary">{form.name || 'Your business'}</strong> is now live on ReeveOS.
               </p>
               <p className="text-gray-400 text-sm mb-10 font-body">
-                Head to your dashboard to add {form.category === 'restaurant' || form.category === 'cafe' || form.category === 'bar' || form.category === 'pub' || form.category === 'takeaway' ? 'your menu' : 'services'}, manage bookings, and customise your listing.
+                Your {isRestaurant ? 'menu' : 'services'} and team are ready. Head to your dashboard to start taking bookings.
               </p>
 
               <div className="bg-white rounded-2xl border border-border p-6 max-w-md mx-auto mb-8">
-                <h3 className="font-heading font-bold text-primary mb-4">Next steps</h3>
                 <div className="space-y-3 text-left">
-                  {[
-                    { label: form.category === 'restaurant' || form.category === 'cafe' || form.category === 'bar' || form.category === 'pub' || form.category === 'takeaway' ? 'Add your menu' : 'Add your services', path: '/dashboard/services' },
-                    { label: 'Invite your staff', path: '/dashboard/staff' },
-                    { label: 'Customise your booking page', path: '/dashboard/online-booking' },
-                    { label: 'Connect Stripe for payments', path: '/dashboard/payments' },
-                  ].map((item) => (
-                    <button
-                      key={item.path}
-                      onClick={() => navigate(item.path)}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-border hover:border-primary/30 hover:bg-primary/[0.02] transition-all group"
-                    >
-                      <span className="text-sm font-medium text-gray-600 group-hover:text-primary">{item.label}</span>
-                      <ChevronRight size={16} className="text-gray-400 group-hover:text-primary" />
-                    </button>
-                  ))}
+                  <div className="flex items-center gap-3 px-4 py-3">
+                    <Check size={16} className="text-green-500 shrink-0" />
+                    <span className="text-sm font-medium text-gray-600">Business created</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-4 py-3">
+                    <Check size={16} className="text-green-500 shrink-0" />
+                    <span className="text-sm font-medium text-gray-600">{newServices.filter(s => s.name.trim()).length > 0 ? `${newServices.filter(s => s.name.trim()).length} ${isRestaurant ? 'menu items' : 'services'} added` : `${isRestaurant ? 'Menu' : 'Services'} — add later`}</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-4 py-3">
+                    <Check size={16} className="text-green-500 shrink-0" />
+                    <span className="text-sm font-medium text-gray-600">{newStaff.filter(s => s.name.trim()).length > 0 ? `${newStaff.filter(s => s.name.trim()).length} team members invited` : 'Team — invite later'}</span>
+                  </div>
                 </div>
               </div>
 
               <button
                 onClick={() => {
-                  // Force full reload so TierContext + BusinessContext pick up the new business
                   window.location.href = '/dashboard'
                 }}
                 className="px-8 py-3.5 bg-primary text-white font-bold rounded-xl hover:bg-primary-hover transition-all shadow-lg text-sm"
@@ -463,14 +608,21 @@ export default function Onboarding() {
           )}
 
           {/* Navigation buttons */}
-          {step < 4 && (
+          {step < 6 && (
             <div className="flex items-center justify-between mt-8">
-              {step > 0 ? (
+              {step > 0 && step <= 3 ? (
                 <button
                   onClick={back}
                   className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-gray-500 hover:text-primary rounded-xl hover:bg-white transition-all"
                 >
                   <ArrowLeft size={16} /> Back
+                </button>
+              ) : step >= 4 ? (
+                <button
+                  onClick={() => setStep(s => s + 1)}
+                  className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-gray-400 hover:text-primary rounded-xl hover:bg-white transition-all"
+                >
+                  Skip for now
                 </button>
               ) : (
                 <div />
@@ -483,10 +635,12 @@ export default function Onboarding() {
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Setting up...
+                    {step === 3 ? 'Creating...' : 'Saving...'}
                   </span>
                 ) : step === 3 ? (
                   <>Complete Setup <Check size={16} /></>
+                ) : step === 4 || step === 5 ? (
+                  <>Save & Continue <ArrowRight size={16} /></>
                 ) : (
                   <>Continue <ArrowRight size={16} /></>
                 )}

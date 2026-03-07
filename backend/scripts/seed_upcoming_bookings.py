@@ -13,12 +13,7 @@ sys.path.insert(0, "/opt/rezvo-app/backend")
 
 BIZ_ID = "699bdb20a2ccbc6589c1d0f7"
 
-STAFF = [
-    {"id": "staff_natalie", "name": "Natalie"},
-    {"id": "staff_grace", "name": "Grace"},
-    {"id": "staff_emily", "name": "Emily"},
-    {"id": "staff_jen", "name": "Jen"},
-]
+# Staff and services loaded from DB at runtime — see seed() function
 
 SERVICES = [
     {"name": "Luxury Lymphatic Lift Facial", "duration": 75, "price": 85, "category": "Facials"},
@@ -57,6 +52,20 @@ async def seed():
     mongo_url = os.environ.get("MONGODB_URL", "mongodb://localhost:27017")
     client = AsyncIOMotorClient(mongo_url)
     db = client.rezvo
+
+    # Load staff from business document
+    from bson import ObjectId
+    biz = await db.businesses.find_one({"_id": BIZ_ID})
+    if not biz:
+        biz = await db.businesses.find_one({"_id": ObjectId(BIZ_ID)})
+    if not biz:
+        print("ERROR: Rejuvenate not found")
+        return
+    STAFF = [{"id": s["id"], "name": s["name"]} for s in biz.get("staff", []) if s.get("active", True)]
+    if not STAFF:
+        print("ERROR: No active staff found")
+        return
+    print(f"Loaded {len(STAFF)} staff: {[s['name'] for s in STAFF]}")
 
     today = datetime.utcnow().date()
     bookings = []

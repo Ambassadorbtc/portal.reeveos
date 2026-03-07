@@ -28,6 +28,7 @@ import OnlineBooking from './pages/dashboard/OnlineBooking'
 import Orders from './pages/dashboard/Orders'
 import Clients from './pages/dashboard/Clients'
 import ClientPipeline from './pages/dashboard/ClientPipeline'
+import CRMPage from './pages/dashboard/CRM'
 import ConsultationForms from './pages/dashboard/ConsultationForms'
 import ClientMessages from './pages/dashboard/ClientMessages'
 import PortalClients from './pages/dashboard/PortalClients'
@@ -189,6 +190,7 @@ const App = () => {
               <Route path="orders" element={<Orders />} />
               <Route path="clients" element={<Clients />} />
               <Route path="pipeline" element={<ClientPipeline />} />
+              <Route path="crm" element={<CRMPage />} />
               <Route path="consultation-forms" element={<ConsultationForms />} />
               <Route path="client-messages" element={<ClientMessages />} />
               <Route path="portal-clients" element={<PortalClients />} />

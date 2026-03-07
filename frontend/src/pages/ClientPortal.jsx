@@ -173,7 +173,7 @@ export default function ClientPortal(){
   const goStep=n=>{setStep(n);topRef.current?.scrollIntoView({behavior:'smooth'})}
   const[msgTab,setMsgTab]=useState('chat'),[msgs,setMsgs]=useState([]),[msgText,setMsgText]=useState('')
   const[services,setServices]=useState([]),[slots,setSlots]=useState([]),[slotStaff,setSlotStaff]=useState([])
-  const[shopProducts,setShopProducts]=useState([]),[shopCart,setShopCart]=useState([]),[shopCats,setShopCats]=useState([]),[shopCatFilter,setShopCatFilter]=useState('all')
+  const[shopProducts,setShopProducts]=useState([]),[shopCart,setShopCart]=useState([]),[shopCats,setShopCats]=useState([]),[shopCatFilter,setShopCatFilter]=useState('all'),[shopTab,setShopTab]=useState('products')
   const[meetings,setMeetings]=useState([])
   const[bookSvc,setBookSvc]=useState(null),[bookDate,setBookDate]=useState(new Date().toISOString().split('T')[0]),[bookTime,setBookTime]=useState(''),[bookStaff,setBookStaff]=useState(''),[bookStep,setBookStep]=useState('list'),[bookLoading,setBookLoading]=useState(false)
   const[notifPrefs,setNotifPrefs]=useState({appointment_reminders:true,aftercare:true,promotions:false,booking_confirmations:true})
@@ -757,112 +757,116 @@ export default function ClientPortal(){
     <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="shop">
       <TopBar biz={biz} user={user} desk={desk}/>
       <div style={{flex:1,overflowY:'auto',paddingBottom:desk?20:140}}>
-        {/* Shop header */}
-        <div style={{padding:desk?'20px 24px':'16px',borderBottom:`1px solid ${$.bdr}`,background:$.card}}>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-            <div style={{display:'flex',alignItems:'center',gap:10}}>
-              <button onClick={()=>navTo('home')} style={{width:32,height:32,borderRadius:8,border:`1px solid ${$.bdr}`,background:$.card,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}}>{I.back($.txtM)}</button>
-              <h2 style={{fontSize:desk?22:18,fontWeight:800,color:$.h,margin:0,fontFamily:$.f}}>Shop</h2>
+        {/* Shop header + tabs */}
+        <div style={{background:$.card,borderBottom:`1px solid ${$.bdr}`}}>
+          <div style={{padding:desk?'20px 24px 0':'16px 16px 0'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <button onClick={()=>navTo('home')} style={{width:32,height:32,borderRadius:8,border:`1px solid ${$.bdr}`,background:$.card,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}}>{I.back($.txtM)}</button>
+                <h2 style={{fontSize:desk?22:18,fontWeight:800,color:$.h,margin:0,fontFamily:$.f}}>Shop</h2>
+              </div>
+              {cartCount>0&&<button onClick={()=>setView('cart')} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>
+                {I.shop('#111',16)} Basket ({cartCount}) — £{cartTotal.toFixed(2)}
+              </button>}
             </div>
-            {cartCount>0&&<button onClick={()=>setView('cart')} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>
-              {I.shop('#111',16)} Basket ({cartCount}) — £{cartTotal.toFixed(2)}
-            </button>}
+            {/* Tabs */}
+            <div style={{display:'flex',gap:0}}>
+              {[
+                {id:'products',label:'Products',count:shopProducts.length},
+                {id:'packages',label:'Packages & Courses',count:services.filter(s=>s.name&&(s.name.toLowerCase().includes('course')||s.name.toLowerCase().includes('package'))).length},
+                {id:'treatments',label:'Treatments',count:services.filter(s=>!s.name?.toLowerCase().includes('course')&&!s.name?.toLowerCase().includes('package')).length},
+              ].map(t=>(
+                <button key={t.id} onClick={()=>setShopTab(t.id)} style={{padding:desk?'10px 20px':'10px 14px',border:'none',borderBottom:shopTab===t.id?`2px solid ${$.acc}`:'2px solid transparent',background:'none',fontSize:desk?13:12,fontWeight:shopTab===t.id?700:500,color:shopTab===t.id?$.h:$.txtM,cursor:'pointer',fontFamily:$.f,whiteSpace:'nowrap'}}>
+                  {t.label}{t.count>0?` (${t.count})`:''}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         <div style={{padding:desk?'20px 24px':'16px'}}>
 
-          {/* ═══ SECTION 1: PRODUCTS ═══ */}
-          {shopProducts.length>0&&(<>
-            <h3 style={{fontSize:desk?18:16,fontWeight:800,color:$.h,margin:'0 0 4px',fontFamily:$.f}}>Products</h3>
-            <p style={{fontSize:12,color:$.txtM,margin:'0 0 14px'}}>{shopProducts.length} skincare products</p>
-            {/* Category pills */}
-            <div style={{display:'flex',gap:6,marginBottom:14,overflowX:'auto',flexWrap:'nowrap',paddingBottom:4}}>
-              <button onClick={()=>setShopCatFilter('all')} style={{padding:'6px 14px',borderRadius:99,border:shopCatFilter==='all'?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,background:shopCatFilter==='all'?`${$.acc}15`:$.card,color:shopCatFilter==='all'?$.acc:$.txtM,fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:$.f,whiteSpace:'nowrap',flexShrink:0}}>All</button>
-              {shopCats.map(c=><button key={c} onClick={()=>setShopCatFilter(c)} style={{padding:'6px 14px',borderRadius:99,border:shopCatFilter===c?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,background:shopCatFilter===c?`${$.acc}15`:$.card,color:shopCatFilter===c?$.acc:$.txtM,fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:$.f,whiteSpace:'nowrap',flexShrink:0}}>{c}</button>)}
-            </div>
-            <div style={{display:'grid',gridTemplateColumns:desk?'repeat(auto-fill,minmax(260px,1fr))':'repeat(2,1fr)',gap:desk?16:10,marginBottom:32}}>
-              {filtered.map(p=>{
-                const inCart=shopCart.find(i=>i.product_id===p.id)
-                return(
-                <div key={p.id} style={{background:$.card,borderRadius:14,border:`1px solid ${$.bdr}`,overflow:'hidden',display:'flex',flexDirection:'column',transition:'box-shadow 0.2s'}} onMouseEnter={e=>e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)'} onMouseLeave={e=>e.currentTarget.style.boxShadow='none'}>
-                  <div style={{height:desk?180:120,background:'#F5F5F3',display:'flex',alignItems:'center',justifyContent:'center',position:'relative'}}>
-                    {p.images&&p.images[0]?<img src={p.images[0]} alt={p.name} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<span style={{fontSize:28,color:'#DDD'}}>{I.shop('#DDD',32)}</span>}
-                    {p.compare_at_price>0&&<div style={{position:'absolute',top:8,right:8,background:'#EF4444',color:'#fff',fontSize:9,fontWeight:800,padding:'2px 8px',borderRadius:99}}>SALE</div>}
-                  </div>
-                  <div style={{padding:desk?'14px 16px':'10px 12px',flex:1,display:'flex',flexDirection:'column'}}>
-                    <div style={{fontSize:desk?14:12,fontWeight:700,color:$.h,marginBottom:2,lineHeight:1.3}}>{p.name}</div>
-                    <div style={{fontSize:10,color:$.txtM,marginBottom:8}}>{p.category}</div>
-                    <div style={{marginTop:'auto',display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-                      <span style={{fontSize:desk?20:16,fontWeight:800,color:$.h}}>£{(p.price||0).toFixed(2)}</span>
-                      {p.compare_at_price>0&&<span style={{fontSize:12,color:$.txtL,textDecoration:'line-through'}}>£{p.compare_at_price.toFixed(2)}</span>}
+          {/* ═══ TAB: PRODUCTS ═══ */}
+          {shopTab==='products'&&(<>
+            {shopProducts.length>0?(<>
+              <div style={{display:'flex',gap:6,marginBottom:14,overflowX:'auto',flexWrap:'nowrap',paddingBottom:4}}>
+                <button onClick={()=>setShopCatFilter('all')} style={{padding:'6px 14px',borderRadius:99,border:shopCatFilter==='all'?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,background:shopCatFilter==='all'?`${$.acc}15`:$.card,color:shopCatFilter==='all'?$.acc:$.txtM,fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:$.f,whiteSpace:'nowrap',flexShrink:0}}>All</button>
+                {shopCats.map(c=><button key={c} onClick={()=>setShopCatFilter(c)} style={{padding:'6px 14px',borderRadius:99,border:shopCatFilter===c?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,background:shopCatFilter===c?`${$.acc}15`:$.card,color:shopCatFilter===c?$.acc:$.txtM,fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:$.f,whiteSpace:'nowrap',flexShrink:0}}>{c}</button>)}
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:desk?'repeat(auto-fill,minmax(260px,1fr))':'repeat(2,1fr)',gap:desk?16:10}}>
+                {filtered.map(p=>{
+                  const inCart=shopCart.find(i=>i.product_id===p.id)
+                  return(
+                  <div key={p.id} style={{background:$.card,borderRadius:14,border:`1px solid ${$.bdr}`,overflow:'hidden',display:'flex',flexDirection:'column',transition:'box-shadow 0.2s'}} onMouseEnter={e=>e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)'} onMouseLeave={e=>e.currentTarget.style.boxShadow='none'}>
+                    <div style={{height:desk?180:120,background:'#F5F5F3',display:'flex',alignItems:'center',justifyContent:'center',position:'relative'}}>
+                      {p.images&&p.images[0]?<img src={p.images[0]} alt={p.name} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<span style={{fontSize:28,color:'#DDD'}}>{I.shop('#DDD',32)}</span>}
+                      {p.compare_at_price>0&&<div style={{position:'absolute',top:8,right:8,background:'#EF4444',color:'#fff',fontSize:9,fontWeight:800,padding:'2px 8px',borderRadius:99}}>SALE</div>}
                     </div>
-                    <button onClick={(e)=>{e.stopPropagation();addToCart(p)}} style={{padding:desk?'10px 0':'8px 0',borderRadius:99,border:'none',background:inCart?'#10B981':$.acc,color:inCart?'#fff':'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f,width:'100%'}}>
-                      {inCart?`In Basket (${inCart.quantity})`:'Add to Basket'}
-                    </button>
+                    <div style={{padding:desk?'14px 16px':'10px 12px',flex:1,display:'flex',flexDirection:'column'}}>
+                      <div style={{fontSize:desk?14:12,fontWeight:700,color:$.h,marginBottom:2,lineHeight:1.3}}>{p.name}</div>
+                      <div style={{fontSize:10,color:$.txtM,marginBottom:8}}>{p.category}</div>
+                      <div style={{marginTop:'auto',display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                        <span style={{fontSize:desk?20:16,fontWeight:800,color:$.h}}>£{(p.price||0).toFixed(2)}</span>
+                        {p.compare_at_price>0&&<span style={{fontSize:12,color:$.txtL,textDecoration:'line-through'}}>£{p.compare_at_price.toFixed(2)}</span>}
+                      </div>
+                      <button onClick={(e)=>{e.stopPropagation();addToCart(p)}} style={{padding:desk?'10px 0':'8px 0',borderRadius:99,border:'none',background:inCart?'#10B981':$.acc,color:inCart?'#fff':'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f,width:'100%'}}>
+                        {inCart?`In Basket (${inCart.quantity})`:'Add to Basket'}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )})}
-            </div>
-            {filtered.length===0&&<div style={{padding:20,textAlign:'center',color:$.txtM,fontSize:13,marginBottom:32}}>No products in this category.</div>}
+                )})}
+              </div>
+              {filtered.length===0&&<div style={{padding:20,textAlign:'center',color:$.txtM,fontSize:13}}>No products in this category.</div>}
+            </>):(<div style={{padding:40,textAlign:'center',color:$.txtM,fontSize:13}}>No products available yet.</div>)}
           </>)}
 
-          {/* ═══ SECTION 2: PACKAGES & COURSES ═══ */}
-          {(()=>{
+          {/* ═══ TAB: PACKAGES & COURSES ═══ */}
+          {shopTab==='packages'&&(()=>{
             const pkgs=services.filter(s=>s.name&&(s.name.toLowerCase().includes('course')||s.name.toLowerCase().includes('package')))
-            if(!pkgs.length)return null
-            return(<>
-              <div style={{height:1,background:$.bdr,margin:'8px 0 24px'}}/>
-              <h3 style={{fontSize:desk?18:16,fontWeight:800,color:$.h,margin:'0 0 4px',fontFamily:$.f}}>Packages & Courses</h3>
-              <p style={{fontSize:12,color:$.txtM,margin:'0 0 14px'}}>Save with multi-session packages</p>
-              <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:32}}>
+            return pkgs.length>0?(
+              <div style={{display:'flex',flexDirection:'column',gap:10}}>
                 {pkgs.map(s=>(
-                  <div key={s.id||s.name} style={{background:$.card,borderRadius:12,border:`2px solid ${$.acc}30`,padding:desk?'16px 18px':'14px 16px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                  <div key={s.id||s.name} style={{background:$.card,borderRadius:14,border:`2px solid ${$.acc}30`,padding:desk?'18px 20px':'14px 16px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                     <div>
-                      <div style={{fontSize:desk?15:14,fontWeight:700,color:$.h}}>{s.name}</div>
-                      <div style={{fontSize:12,color:$.txtM,marginTop:2}}>{s.duration||'—'} min per session</div>
+                      <div style={{fontSize:desk?16:15,fontWeight:700,color:$.h}}>{s.name}</div>
+                      <div style={{fontSize:12,color:$.txtM,marginTop:3}}>{s.duration||'—'} min per session</div>
                     </div>
-                    <div style={{display:'flex',alignItems:'center',gap:10}}>
-                      <span style={{fontSize:desk?18:16,fontWeight:800,color:$.acc}}>£{(s.price||0).toFixed(2)}</span>
-                      <button onClick={()=>{navTo('bookings')}} style={{padding:'8px 18px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book</button>
+                    <div style={{display:'flex',alignItems:'center',gap:12}}>
+                      <span style={{fontSize:desk?20:18,fontWeight:800,color:$.acc}}>£{(s.price||0).toFixed(2)}</span>
+                      <button onClick={()=>{navTo('bookings')}} style={{padding:'8px 20px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book</button>
                     </div>
                   </div>
                 ))}
               </div>
-            </>)
+            ):(<div style={{padding:40,textAlign:'center',color:$.txtM,fontSize:13}}>No packages available yet.</div>)
           })()}
 
-          {/* ═══ SECTION 3: TREATMENTS ═══ */}
-          {(()=>{
+          {/* ═══ TAB: TREATMENTS ═══ */}
+          {shopTab==='treatments'&&(()=>{
             const pkgs=services.filter(s=>s.name&&(s.name.toLowerCase().includes('course')||s.name.toLowerCase().includes('package')))
-            const treatments=services.filter(s=>!pkgs.includes(s))
-            if(!treatments.length)return null
+            const treats=services.filter(s=>!pkgs.includes(s))
+            if(!treats.length)return <div style={{padding:40,textAlign:'center',color:$.txtM,fontSize:13}}>No treatments available yet.</div>
             const cats={}
-            treatments.forEach(s=>{const c=s.category||'Treatments';if(!cats[c])cats[c]=[];cats[c].push(s)})
-            return(<>
-              <div style={{height:1,background:$.bdr,margin:'8px 0 24px'}}/>
-              <h3 style={{fontSize:desk?18:16,fontWeight:800,color:$.h,margin:'0 0 4px',fontFamily:$.f}}>Treatments</h3>
-              <p style={{fontSize:12,color:$.txtM,margin:'0 0 14px'}}>Book individual treatments</p>
-              {Object.keys(cats).sort().map(cat=>(
-                <div key={cat} style={{marginBottom:20}}>
-                  <p style={{fontSize:11,fontWeight:700,color:$.acc,textTransform:'uppercase',letterSpacing:'0.6px',margin:'0 0 8px'}}>{cat}</p>
-                  <div style={{display:'flex',flexDirection:'column',gap:6}}>
-                    {cats[cat].map(s=>(
-                      <div key={s.id||s.name} style={{background:$.card,borderRadius:12,border:`1px solid ${$.bdr}`,padding:desk?'12px 16px':'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                        <div>
-                          <div style={{fontSize:13,fontWeight:600,color:$.h}}>{s.name}</div>
-                          <div style={{fontSize:11,color:$.txtM}}>{s.duration||'—'} min</div>
-                        </div>
-                        <div style={{display:'flex',alignItems:'center',gap:10}}>
-                          <span style={{fontSize:15,fontWeight:800,color:$.h}}>£{(s.price||0).toFixed(2)}</span>
-                          <button onClick={()=>{navTo('bookings')}} style={{padding:'6px 14px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book</button>
-                        </div>
+            treats.forEach(s=>{const c=s.category||'Treatments';if(!cats[c])cats[c]=[];cats[c].push(s)})
+            return Object.keys(cats).sort().map(cat=>(
+              <div key={cat} style={{marginBottom:24}}>
+                <p style={{fontSize:11,fontWeight:700,color:$.acc,textTransform:'uppercase',letterSpacing:'0.6px',margin:'0 0 10px'}}>{cat}</p>
+                <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                  {cats[cat].map(s=>(
+                    <div key={s.id||s.name} style={{background:$.card,borderRadius:12,border:`1px solid ${$.bdr}`,padding:desk?'14px 16px':'12px 14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                      <div>
+                        <div style={{fontSize:desk?14:13,fontWeight:600,color:$.h}}>{s.name}</div>
+                        <div style={{fontSize:11,color:$.txtM,marginTop:2}}>{s.duration||'—'} min</div>
                       </div>
-                    ))}
-                  </div>
+                      <div style={{display:'flex',alignItems:'center',gap:10}}>
+                        <span style={{fontSize:15,fontWeight:800,color:$.h}}>£{(s.price||0).toFixed(2)}</span>
+                        <button onClick={()=>{navTo('bookings')}} style={{padding:'6px 16px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book</button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </>)
+              </div>
+            ))
           })()}
 
         </div>

@@ -59,6 +59,7 @@ export default function CRM() {
   const [view, setViewState] = useState(searchParams.get('view') || 'dashboard')
   const setView = (v) => { setViewState(v); setSearchParams({ view: v }) }
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [dashboard, setDashboard] = useState(null)
   const [pipelineData, setPipelineData] = useState(null)
   const [analyticsData, setAnalyticsData] = useState(null)
@@ -72,22 +73,21 @@ export default function CRM() {
 
   // Load data based on view
   const loadDashboard = useCallback(async () => {
-    if (!bid) return
-    try { const r = await api.get(`/crm/business/${bid}/dashboard`); setDashboard(r) } catch (e) { console.error(e) }
+    if (!bid) { setLoading(false); return }
+    try { const r = await api.get(`/crm/business/${bid}/dashboard`); setDashboard(r); setError(null) } catch (e) { console.error('Dashboard error:', e); setError(`Dashboard: ${e.message}`) }
     setLoading(false)
   }, [bid])
 
   const loadPipeline = useCallback(async () => {
-    if (!bid) return
-    try { const r = await api.get(`/crm/business/${bid}/pipeline`); setPipelineData(r) } catch (e) { console.error(e) }
+    if (!bid) { setLoading(false); return }
+    try { const r = await api.get(`/crm/business/${bid}/pipeline`); setPipelineData(r); setError(null) } catch (e) { console.error('Pipeline error:', e); setError(`Pipeline: ${e.message}`) }
     setLoading(false)
   }, [bid])
 
   const loadClients = useCallback(async () => {
-    if (!bid) return
+    if (!bid) { setLoading(false); return }
     try {
       const r = await api.get(`/crm/business/${bid}/pipeline`)
-      // Flatten all pipeline stages into a single client list
       const all = []
       for (const [stage, stageClients] of Object.entries(r.pipeline || {})) {
         for (const c of stageClients) {
@@ -95,13 +95,14 @@ export default function CRM() {
         }
       }
       setClients(all)
-    } catch (e) { console.error(e) }
+      setError(null)
+    } catch (e) { console.error('Clients error:', e); setError(`Clients: ${e.message}`) }
     setLoading(false)
   }, [bid])
 
   const loadAnalytics = useCallback(async () => {
-    if (!bid) return
-    try { const r = await api.get(`/crm/business/${bid}/analytics`); setAnalyticsData(r) } catch (e) { console.error(e) }
+    if (!bid) { setLoading(false); return }
+    try { const r = await api.get(`/crm/business/${bid}/analytics`); setAnalyticsData(r); setError(null) } catch (e) { console.error('Analytics error:', e); setError(`Analytics: ${e.message}`) }
     setLoading(false)
   }, [bid])
 
@@ -139,7 +140,15 @@ export default function CRM() {
     } catch (e) { console.error(e) }
   }
 
-  if (loading && !dashboard && !pipelineData) return <AppLoader message="Loading CRM..." />
+  if (loading && !dashboard && !pipelineData && !error) return <AppLoader message="Loading CRM..." />
+  if (error) return (
+    <div style={{ fontFamily: "'Figtree', sans-serif", padding: 40, textAlign: 'center' }}>
+      <p style={{ color: '#EF4444', fontWeight: 700, fontSize: 16 }}>CRM Error</p>
+      <p style={{ color: '#666', fontSize: 13, marginTop: 8 }}>{error}</p>
+      <p style={{ color: '#999', fontSize: 12, marginTop: 8 }}>Business ID: {bid || 'NOT SET'}</p>
+      <button onClick={() => { setError(null); setLoading(true); loadDashboard() }} style={{ marginTop: 16, padding: '8px 20px', borderRadius: 8, border: '1px solid #DDD', background: '#fff', cursor: 'pointer', fontFamily: "'Figtree', sans-serif", fontWeight: 600 }}>Retry</button>
+    </div>
+  )
 
   return (
     <div style={{ fontFamily: "'Figtree', sans-serif", height: '100%', display: 'flex', flexDirection: 'column', background: '#FAFAF8' }}>

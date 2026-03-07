@@ -25,6 +25,7 @@ export default function ClientMessages() {
   const [reply, setReply] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const [showEmoji, setShowEmoji] = useState(false)
   const bottomRef = useRef(null)
 
   useEffect(() => {
@@ -84,7 +85,7 @@ export default function ClientMessages() {
     <div style={{ display: 'flex', height: 'calc(100vh - 4rem)', fontFamily: "'Figtree',-apple-system,sans-serif", margin: '-1.5rem -1.5rem 0' }}>
       {/* Thread list */}
       <div style={{
-        width: activeThread ? (window.innerWidth < 768 ? 0 : 340) : '100%',
+        width: 340,
         maxWidth: 400,
         borderRight: '1px solid #E5E7EB',
         display: 'flex',
@@ -140,81 +141,124 @@ export default function ClientMessages() {
         </div>
       </div>
 
-      {/* Chat area */}
-      {activeThread ? (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* Chat header */}
-          <div style={{ padding: '14px 20px', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button onClick={() => setActiveThread(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
-              <ArrowLeft size={20} color="#374151" />
-            </button>
-            <div style={{ width: 36, height: 36, borderRadius: 99, background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <User size={16} color="#6B7280" />
-            </div>
-            <div>
-              <p style={{ fontSize: 15, fontWeight: 600, color: '#111', margin: 0 }}>{activeThread.consumer_name || 'Client'}</p>
-              <p style={{ fontSize: 11, color: '#9CA3AF', margin: 0 }}>{activeThread.consumer_email}</p>
-            </div>
-          </div>
-
-          {/* Messages */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', background: '#FAFAFA' }}>
-            {messages.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#9CA3AF', fontSize: 13, marginTop: 40 }}>No messages in this conversation yet.</p>
-            ) : messages.map((m, i) => (
-              <div key={m.id || i} style={{ display: 'flex', justifyContent: m.from === 'business' ? 'flex-end' : 'flex-start', marginBottom: 10 }}>
-                <div style={{
-                  maxWidth: '70%', padding: '10px 14px',
-                  borderRadius: m.from === 'business' ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
-                  background: m.from === 'business' ? '#111' : '#fff',
-                  color: m.from === 'business' ? '#fff' : '#111',
-                  border: m.from === 'business' ? 'none' : '1px solid #E5E7EB',
-                }}>
-                  <p style={{ fontSize: 14, margin: 0, lineHeight: 1.5 }}>{m.text}</p>
-                  <p style={{ fontSize: 10, margin: '4px 0 0', opacity: 0.6, textAlign: 'right' }}>
-                    {m.staff_name ? `${m.staff_name} · ` : ''}{m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-                  </p>
-                </div>
+      {/* Chat area — ALWAYS visible */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#FAFAFA' }}>
+        {/* Chat header */}
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: 12, background: '#fff', minHeight: 64 }}>
+          {activeThread ? (
+            <>
+              <button onClick={() => setActiveThread(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+                <ArrowLeft size={20} color="#374151" />
+              </button>
+              <div style={{ width: 36, height: 36, borderRadius: 99, background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <User size={16} color="#6B7280" />
               </div>
-            ))}
-            <div ref={bottomRef} />
-          </div>
+              <div>
+                <p style={{ fontSize: 15, fontWeight: 600, color: '#111', margin: 0 }}>{activeThread.consumer_name || 'Client'}</p>
+                <p style={{ fontSize: 11, color: '#9CA3AF', margin: 0 }}>{activeThread.consumer_email}</p>
+              </div>
+            </>
+          ) : (
+            <p style={{ fontSize: 14, fontWeight: 500, color: '#9CA3AF', margin: 0 }}>Select a conversation to start messaging</p>
+          )}
+        </div>
 
-          {/* Reply input */}
-          <div style={{ borderTop: '1px solid #E5E7EB', padding: '12px 20px', display: 'flex', gap: 8, background: '#fff' }}>
+        {/* Messages */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
+          {!activeThread ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <div style={{ textAlign: 'center' }}>
+                <MessageSquare size={40} color="#D1D5DB" />
+                <p style={{ fontSize: 16, fontWeight: 600, color: '#374151', marginTop: 12 }}>Select a conversation</p>
+                <p style={{ fontSize: 13, color: '#9CA3AF' }}>Choose a client thread to view and reply to messages.</p>
+              </div>
+            </div>
+          ) : messages.length === 0 ? (
+            <p style={{ textAlign: 'center', color: '#9CA3AF', fontSize: 13, marginTop: 40 }}>No messages in this conversation yet.</p>
+          ) : messages.map((m, i) => (
+            <div key={m.id || i} style={{ display: 'flex', justifyContent: m.from === 'business' ? 'flex-end' : 'flex-start', marginBottom: 10 }}>
+              <div style={{
+                maxWidth: '70%', padding: '10px 14px',
+                borderRadius: m.from === 'business' ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
+                background: m.from === 'business' ? '#111' : '#fff',
+                color: m.from === 'business' ? '#fff' : '#111',
+                border: m.from === 'business' ? 'none' : '1px solid #E5E7EB',
+              }}>
+                <p style={{ fontSize: 14, margin: 0, lineHeight: 1.5 }}>{m.text}</p>
+                {m.attachment && (
+                  <div style={{ marginTop: 6 }}>
+                    <a href={m.attachment} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: m.from === 'business' ? '#C9A84C' : '#3B82F6', textDecoration: 'underline' }}>
+                      View attachment
+                    </a>
+                  </div>
+                )}
+                <p style={{ fontSize: 10, margin: '4px 0 0', opacity: 0.6, textAlign: 'right' }}>
+                  {m.staff_name ? `${m.staff_name} · ` : ''}{m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                </p>
+              </div>
+            </div>
+          ))}
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Reply input — ALWAYS visible */}
+        <div style={{ borderTop: '1px solid #E5E7EB', padding: '10px 16px', background: '#fff' }}>
+          {showEmoji && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, padding: '8px 0 10px', borderBottom: '1px solid #F3F4F6', marginBottom: 8 }}>
+              {['😊','👍','❤️','🙏','✨','💆‍♀️','💅','🌟','👋','😍','🎉','💕','🔥','✅','📋','💬','📸','⏰','📞','💳'].map(e => (
+                <button key={e} onClick={() => { setReply(r => r + e); setShowEmoji(false) }}
+                  style={{ width: 36, height: 36, borderRadius: 8, border: 'none', background: 'transparent', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  onMouseOver={ev => ev.currentTarget.style.background = '#F3F4F6'}
+                  onMouseOut={ev => ev.currentTarget.style.background = 'transparent'}
+                >{e}</button>
+              ))}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {/* Emoji toggle */}
+            <button onClick={() => setShowEmoji(!showEmoji)} title="Emoji"
+              style={{ width: 36, height: 36, borderRadius: 99, border: 'none', background: showEmoji ? '#FEF3C7' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>
+              😊
+            </button>
+            {/* Attachment */}
+            <label title="Attach file" style={{ width: 36, height: 36, borderRadius: 99, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth={2} strokeLinecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+              <input type="file" style={{ display: 'none' }} onChange={e => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  setReply(r => r + ` [📎 ${file.name}]`)
+                }
+              }} />
+            </label>
+            {/* Text input */}
             <input
               value={reply}
               onChange={e => setReply(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && sendReply()}
-              placeholder="Type a reply..."
+              onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendReply()}
+              placeholder={activeThread ? "Type a reply..." : "Select a conversation first..."}
+              disabled={!activeThread}
               style={{
                 flex: 1, padding: '10px 16px', borderRadius: 99, border: '1px solid #E5E7EB',
-                fontSize: 14, outline: 'none', fontFamily: 'inherit', background: '#F9FAFB',
+                fontSize: 14, outline: 'none', fontFamily: 'inherit', background: activeThread ? '#F9FAFB' : '#F3F4F6',
+                opacity: activeThread ? 1 : 0.5,
               }}
             />
+            {/* Send */}
             <button
               onClick={sendReply}
-              disabled={sending || !reply.trim()}
+              disabled={sending || !reply.trim() || !activeThread}
               style={{
                 width: 40, height: 40, borderRadius: 99, border: 'none',
-                background: reply.trim() ? '#C9A84C' : '#E5E7EB',
+                background: reply.trim() && activeThread ? '#C9A84C' : '#E5E7EB',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: reply.trim() ? 'pointer' : 'default',
+                cursor: reply.trim() && activeThread ? 'pointer' : 'default', flexShrink: 0,
               }}
             >
-              <Send size={16} color={reply.trim() ? '#111' : '#9CA3AF'} />
+              <Send size={16} color={reply.trim() && activeThread ? '#111' : '#9CA3AF'} />
             </button>
           </div>
         </div>
-      ) : (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FAFAFA' }}>
-          <div style={{ textAlign: 'center' }}>
-            <MessageSquare size={40} color="#D1D5DB" />
-            <p style={{ fontSize: 16, fontWeight: 600, color: '#374151', marginTop: 12 }}>Select a conversation</p>
-            <p style={{ fontSize: 13, color: '#9CA3AF' }}>Choose a client thread to view and reply to messages.</p>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   )
 }

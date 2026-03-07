@@ -13,7 +13,8 @@ Covers:
 from fastapi import APIRouter, Depends, Body, Query, HTTPException
 from datetime import datetime, timedelta
 from typing import Optional
-from database import get_database, get_scoped_db
+from database import get_database
+from middleware.tenant_db import get_scoped_db
 from middleware.tenant import verify_business_access, TenantContext
 from helpers.timeline import (
     log_event, calculate_health_score, auto_assign_pipeline_stage,

@@ -418,6 +418,46 @@ async def staff_create_booking(
         "updatedAt": datetime.utcnow(),
     }
 
+    # ── Contraindication check (G10 — mirrors G1 from public booking flow) ──
+    if service_doc and (customer_email or customer_phone):
+        form_query = {"business_id": biz_id}
+        if customer_email:
+            form_query["client_email"] = customer_email.lower()
+        elif customer_phone:
+            form_query["client_phone"] = customer_phone
+        latest_form = await db.consultation_submissions.find_one(
+            {**form_query, "expires_at": {"$gte": datetime.utcnow()}},
+            sort=[("submitted_at", -1)],
+        )
+        if latest_form:
+            from routes.dashboard.consultation import run_contraindication_check, DEFAULT_CONTRA_MATRIX, TREATMENT_LABELS
+            _svc_name = (service_doc.get("name") or "").lower()
+            _combined = _svc_name
+            treatment_key = None
+            if "microneedling" in _combined and "rf" not in _combined:
+                treatment_key = "microneedling"
+            elif "rf" in _combined or "radio frequency" in _combined:
+                treatment_key = "rf"
+            elif "peel" in _combined or "chemical" in _combined:
+                treatment_key = "peel"
+            elif "polynucleotide" in _combined:
+                treatment_key = "polynucleotides"
+            elif "lymphatic" in _combined:
+                treatment_key = "lymphatic"
+
+            if treatment_key:
+                template = await db.consultation_templates.find_one({"business_id": biz_id})
+                matrix = (template or {}).get("contra_matrix", DEFAULT_CONTRA_MATRIX)
+                alerts = run_contraindication_check(latest_form.get("form_data", {}), matrix)
+                relevant_blocks = [b for b in alerts["blocks"] if b["treatment"] == treatment_key]
+                relevant_flags = [f for f in alerts["flags"] if f["treatment"] == treatment_key]
+                if relevant_blocks:
+                    reasons = ", ".join(b["condition"].replace("_", " ") for b in relevant_blocks)
+                    raise HTTPException(400, f"BLOCKED: {TREATMENT_LABELS.get(treatment_key, treatment_key)} contraindicated for this client ({reasons})")
+                if relevant_flags:
+                    doc["contraindication_flags"] = relevant_flags
+                    doc["contraindication_review_required"] = True
+
     await db.bookings.insert_one(doc)
 
     return {
@@ -427,4 +467,64 @@ async def staff_create_booking(
         "firstVisit": is_first_appointment,
         "duration": duration,
         "message": f"Booking created{' (+15min first visit buffer)' if is_first_appointment else ''}",
+    }
+
+
+@router.put("/business/{business_id}/bookings/{booking_id}/override-flags")
+async def override_contraindication_flags(
+    business_id: str,
+    booking_id: str,
+    payload: dict = Body(...),
+    tenant: TenantContext = Depends(verify_business_access),
+):
+    """
+    G7: Therapist acknowledges contraindication flags and overrides to proceed.
+    Requires a reason. Logged to immutable audit trail.
+    """
+    db = get_database()
+    reason = (payload.get("reason") or "").strip()
+    if not reason:
+        raise HTTPException(400, "Override reason is required for audit compliance")
+
+    booking = await db.bookings.find_one({"_id": booking_id, "businessId": business_id})
+    if not booking:
+        raise HTTPException(404, "Booking not found")
+
+    if not booking.get("contraindication_review_required"):
+        return {"message": "No flags to override", "already_clear": True}
+
+    now = datetime.utcnow()
+
+    await db.bookings.update_one(
+        {"_id": booking_id},
+        {"$set": {
+            "contraindication_review_required": False,
+            "contraindication_overridden": True,
+            "contraindication_override": {
+                "reason": reason,
+                "overridden_by": tenant.user_email or tenant.user_id,
+                "overridden_at": now,
+                "original_flags": booking.get("contraindication_flags", []),
+            },
+        }}
+    )
+
+    await db.booking_audit.insert_one({
+        "booking_id": booking_id,
+        "business_id": business_id,
+        "event": "contraindication_override",
+        "details": {
+            "flags_overridden": booking.get("contraindication_flags", []),
+            "reason": reason,
+        },
+        "performed_by": tenant.user_email or tenant.user_id,
+        "performed_at": now,
+    })
+
+    logger.info(f"Contra override on {booking_id} by {tenant.user_email}: {reason}")
+
+    return {
+        "message": "Contraindication flags acknowledged and overridden",
+        "booking_id": booking_id,
+        "overridden_by": tenant.user_email or tenant.user_id,
     }

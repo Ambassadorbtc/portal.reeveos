@@ -587,20 +587,40 @@ export default function ClientPortal(){
                 {/* Left: Service + Staff + Confirm */}
                 <div style={{flex:desk?'0 0 320px':'auto',marginBottom:desk?0:16,display:'flex',flexDirection:'column'}}>
                   <h3 style={{fontSize:desk?14:16,fontWeight:700,color:$.h,margin:'0 0 8px'}}>1. Choose Treatment</h3>
-                  {services.length===0?<div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:20,textAlign:'center',marginBottom:16}}><p style={{fontSize:desk?13:15,color:$.txtM,margin:0}}>No services configured yet. Ask {biz?.name} to add their treatment menu.</p></div>:(
-                    <div style={{maxHeight:desk?300:200,overflowY:'auto',display:'flex',flexDirection:'column',gap:6,marginBottom:12,paddingRight:4}}>
-                      {services.map(s=>{
-                        const isVirtual=s.isVirtual||s.type==='virtual'||s.name?.toLowerCase().includes('virtual')
+                  {services.length===0?<div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:20,textAlign:'center',marginBottom:16}}><p style={{fontSize:desk?13:15,color:$.txtM,margin:0}}>No services configured yet. Ask {biz?.name} to add their treatment menu.</p></div>:(<>
+                    {(()=>{
+                      const pkgs=services.filter(s=>s.name&&(s.name.toLowerCase().includes('course')||s.name.toLowerCase().includes('package')))
+                      const singles=services.filter(s=>!pkgs.includes(s))
+                      const cats={}
+                      singles.forEach(s=>{const c=s.category||'Treatments';if(!cats[c])cats[c]=[];cats[c].push(s)})
+                      const secs=[]
+                      if(pkgs.length)secs.push({title:'Packages & Courses',items:pkgs})
+                      Object.keys(cats).sort().forEach(c=>secs.push({title:c,items:cats[c]}))
+                      const SvcBtn=({s})=>{
+                        const isV=s.isVirtual||s.type==='virtual'||s.name?.toLowerCase().includes('virtual')
                         return(
-                        <button key={s.id} onClick={()=>{setBookSvc(s);setBookTime('');if(bookDate)loadSlots(s.id,bookDate)}} style={{textAlign:'left',background:bookSvc?.id===s.id?'rgba(200,163,76,0.08)':$.card,border:bookSvc?.id===s.id?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,borderRadius:10,padding:desk?'10px 12px':'12px 14px',cursor:'pointer',fontFamily:$.f,flexShrink:0}}>
-                          <div style={{display:'flex',alignItems:'center',gap:6}}>
-                            {isVirtual&&<span style={{fontSize:9,padding:'1px 6px',borderRadius:4,background:'#EDE9FE',color:'#7C3AED',fontWeight:700}}>VIDEO</span>}
-                            <p style={{fontSize:desk?13:15,fontWeight:600,color:$.h,margin:0}}>{s.name}</p>
+                        <button key={s.id} onClick={()=>{setBookSvc(s);setBookTime('');if(bookDate)loadSlots(s.id,bookDate)}} style={{textAlign:'left',width:'100%',background:bookSvc?.id===s.id?'rgba(200,163,76,0.08)':$.card,border:bookSvc?.id===s.id?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,borderRadius:10,padding:desk?'10px 12px':'12px 14px',cursor:'pointer',fontFamily:$.f,flexShrink:0}}>
+                          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
+                            <div style={{display:'flex',alignItems:'center',gap:6,flex:1,minWidth:0}}>
+                              {isV&&<span style={{fontSize:9,padding:'1px 6px',borderRadius:4,background:'#EDE9FE',color:'#7C3AED',fontWeight:700}}>VIDEO</span>}
+                              <p style={{fontSize:desk?13:15,fontWeight:600,color:$.h,margin:0}}>{s.name}</p>
+                            </div>
+                            <span style={{fontSize:desk?12:14,fontWeight:700,color:$.acc,flexShrink:0}}>£{s.price}</span>
                           </div>
-                          <div style={{display:'flex',gap:8,marginTop:2}}><span style={{fontSize:desk?11:12,color:$.txtM}}>{s.duration}min</span><span style={{fontSize:desk?11:12,fontWeight:600,color:$.acc}}>£{s.price}</span></div>
-                        </button>
-                      )})}
-                    </div>
+                          <p style={{fontSize:desk?11:12,color:$.txtM,margin:'3px 0 0'}}>{s.duration} min</p>
+                        </button>)
+                      }
+                      return(
+                        <div style={{maxHeight:desk?400:280,overflowY:'auto',display:'flex',flexDirection:'column',gap:4,marginBottom:12,paddingRight:4}}>
+                          {secs.map((sec,si)=>(
+                            <div key={si}>
+                              <p style={{fontSize:desk?10:11,fontWeight:700,color:$.acc,textTransform:'uppercase',letterSpacing:'0.6px',margin:si===0?'0 0 6px':'16px 0 6px',padding:'0 2px'}}>{sec.title}</p>
+                              {sec.items.map(s=><SvcBtn key={s.id} s={s}/>)}
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    })()}</>
                   )}
 
                   {bookSvc&&slotStaff.length>0&&<div style={{marginBottom:12}}>

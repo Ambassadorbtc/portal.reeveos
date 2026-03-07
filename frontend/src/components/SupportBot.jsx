@@ -84,35 +84,44 @@ TONE:
 - Be honest about limitations — if something isn't available yet, say so
 - Never be pushy about upgrades — mention them only when directly relevant`;
 
-const SUGGESTED_QUESTIONS = [
+const RESTAURANT_QUESTIONS = [
   "Show me tonight's bookings",
   "How many covers do I have today?",
   "Which tables are available at 7pm?",
   "Any special occasions tonight?",
 ];
 
+const SERVICES_QUESTIONS = [
+  "Show me today's appointments",
+  "Who's booked in with Natalie today?",
+  "What's our availability tomorrow?",
+  "How much revenue today?",
+];
+
 export default function SupportBot() {
-  const { business } = useBusiness()
+  const { business, businessType } = useBusiness()
   const { user } = useAuth()
   const bid = business?.id ?? business?._id
+  const isRestaurant = businessType === 'restaurant'
   const [restaurantContext, setRestaurantContext] = useState('')
 
-  // Fetch live restaurant data for bot context
+  // Fetch live business data for bot context — adapts to business type
   useEffect(() => {
     if (!bid) return
     const today = new Date().toISOString().slice(0, 10)
-    api.get(`/calendar/business/${bid}/restaurant?date=${today}&view=day`)
-      .then(d => {
-        const bookings = d.bookings || []
-        const tables = d.tables || []
-        const covers = bookings.reduce((s, b) => s + (b.partySize || 0), 0)
-        const confirmed = bookings.filter(b => b.status === 'confirmed').length
-        const pending = bookings.filter(b => b.status === 'pending').length
-        const seated = bookings.filter(b => b.status === 'seated').length
-        const lunch = bookings.filter(b => { const [h] = (b.time || '0').split(':').map(Number); return h < 15 })
-        const dinner = bookings.filter(b => { const [h] = (b.time || '0').split(':').map(Number); return h >= 17 })
-        
-        setRestaurantContext(`
+
+    if (isRestaurant) {
+      api.get(`/calendar/business/${bid}/restaurant?date=${today}&view=day`)
+        .then(d => {
+          const bookings = d.bookings || []
+          const tables = d.tables || []
+          const covers = bookings.reduce((s, b) => s + (b.partySize || 0), 0)
+          const confirmed = bookings.filter(b => b.status === 'confirmed').length
+          const pending = bookings.filter(b => b.status === 'pending').length
+          const seated = bookings.filter(b => b.status === 'seated').length
+          const lunch = bookings.filter(b => { const [h] = (b.time || '0').split(':').map(Number); return h < 15 })
+          const dinner = bookings.filter(b => { const [h] = (b.time || '0').split(':').map(Number); return h >= 17 })
+          setRestaurantContext(`
 LIVE RESTAURANT DATA (${today}):
 - Business: ${business?.name || 'Restaurant'}
 - Owner/Staff: ${user?.name || 'Manager'}
@@ -126,9 +135,38 @@ LIVE RESTAURANT DATA (${today}):
 - Table zones: ${[...new Set(tables.map(t => t.zone))].join(', ')}
 
 Use this data to answer questions about today's bookings, covers, availability, etc. Be specific with numbers.`)
+        })
+        .catch(() => {})
+    } else {
+      // Services business — fetch calendar + services
+      Promise.all([
+        api.get(`/calendar/business/${bid}?date=${today}&view=day`).catch(() => ({ bookings: [], staff: [] })),
+        api.get(`/services-v2/business/${bid}`).catch(() => ({ categories: [] })),
+      ]).then(([cal, svc]) => {
+        const bookings = cal.bookings || []
+        const staff = cal.staff || []
+        const services = (svc.categories || []).flatMap(c => c.services || [])
+        const confirmed = bookings.filter(b => b.status === 'confirmed').length
+        const inTreatment = bookings.filter(b => b.status === 'checked_in').length
+        const completed = bookings.filter(b => b.status === 'completed').length
+        const revenue = bookings.reduce((s, b) => s + (b.price || 0), 0)
+
+        setRestaurantContext(`
+LIVE BUSINESS DATA (${today}):
+- Business: ${business?.name || 'Clinic'}
+- Business Type: ${business?.category || 'Local Services'} (salon/clinic/spa)
+- Owner/Staff: ${user?.name || 'Manager'}
+- Staff: ${staff.map(s => s.name).join(', ')}
+- Total appointments today: ${bookings.length}
+- Confirmed: ${confirmed}, In Treatment: ${inTreatment}, Completed: ${completed}
+- Estimated revenue today: £${revenue}
+- Services offered: ${services.slice(0, 10).map(s => `${s.name} (£${s.price}, ${s.duration}min)`).join(', ')}
+- Upcoming appointments: ${bookings.filter(b => b.status === 'confirmed').map(b => `${b.customerName} - ${b.service} at ${b.time} with ${b.staffName || 'any'}`).join(', ')}
+
+This is a local services business (salon/clinic/spa), NOT a restaurant. Use "appointments" not "bookings", "clients" not "guests", "therapist/staff" not "server". Answer questions about today's schedule, availability, services, etc. Be specific with numbers.`)
       })
-      .catch(() => {})
-  }, [bid, business?.name, user?.name])
+    }
+  }, [bid, business?.name, user?.name, isRestaurant])
 
   const dynamicSystemPrompt = REEVEOS_KNOWLEDGE + restaurantContext
   const [isOpen, setIsOpen] = useState(false);
@@ -490,10 +528,10 @@ Use this data to answer questions about today's bookings, covers, availability, 
       {fabOpen && !isOpen && !activePanel && (
         <>
           <div onClick={() => setFabOpen(false)} style={{ position:'fixed', inset:0, zIndex:51 }} />
-          <div style={{ position:'fixed', bottom:84, right:20, zIndex:52, display:'flex', flexDirection:'column', gap:8, alignItems:'flex-end' }}>
+          <div style={{ position:'fixed', bottom:154, right:20, zIndex:52, display:'flex', flexDirection:'column', gap:8, alignItems:'flex-end' }}>
             {[
-              { label: 'New Booking', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', action: () => { setActivePanel('booking'); setFabOpen(false); } },
-              { label: 'Walk-in', icon: 'M13 10V3L4 14h7v7l9-11h-7z', action: () => { setActivePanel('walkin'); setFabOpen(false); } },
+              { label: isRestaurant ? 'New Booking' : 'New Appointment', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', action: () => { setActivePanel('booking'); setFabOpen(false); } },
+              { label: isRestaurant ? 'Walk-in' : 'Walk-in Client', icon: 'M13 10V3L4 14h7v7l9-11h-7z', action: () => { setActivePanel('walkin'); setFabOpen(false); } },
               { label: 'Chat Support', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z', action: () => { setIsOpen(true); setFabOpen(false); } },
             ].map((item, i) => (
               <button key={i} onClick={item.action} style={{
@@ -875,7 +913,7 @@ Use this data to answer questions about today's bookings, covers, availability, 
                       paddingLeft: 2,
                     }}
                   >
-                    {SUGGESTED_QUESTIONS.map((q, i) => (
+                    {(isRestaurant ? RESTAURANT_QUESTIONS : SERVICES_QUESTIONS).map((q, i) => (
                       <button
                         key={i}
                         className="suggestion-chip"

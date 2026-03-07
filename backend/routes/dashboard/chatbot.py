@@ -183,29 +183,15 @@ async def build_business_snapshot(business_id: str) -> str:
         today_bookings_raw = await db.bookings.find({**biz_match, "date": today_str}).to_list(500)
         today_bookings = [normalize_booking(b) for b in today_bookings_raw]
 
-        total_covers = sum(b["partySize"] for b in today_bookings)
-
         statuses = {}
         for b in today_bookings:
             st = b["status"]
             statuses[st] = statuses.get(st, 0) + 1
 
-        lunch_c = dinner_c = 0
-        for b in today_bookings:
-            try:
-                hour = int(str(b["time"] or "18:00").split(":")[0])
-            except Exception:
-                hour = 18
-            if hour < 15:
-                lunch_c += b["partySize"]
-            else:
-                dinner_c += b["partySize"]
-
         week_start = today - timedelta(days=today.weekday())
         week_dates = [(week_start + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
         week_bookings_raw = await db.bookings.find({**biz_match, "date": {"$in": week_dates}}).to_list(2000)
         week_bookings = [normalize_booking(b) for b in week_bookings_raw]
-        week_covers = sum(b["partySize"] for b in week_bookings)
 
         total_alltime = await db.bookings.count_documents(biz_match)
         all_bookings_raw = await db.bookings.find(
@@ -213,8 +199,6 @@ async def build_business_snapshot(business_id: str) -> str:
             {"partySize": 1, "party_size": 1, "status": 1, "customerId": 1, "user_id": 1, "customer": 1, "covers": 1, "guests": 1, "customerName": 1}
         ).to_list(10000)
         all_bookings = [normalize_booking(b) for b in all_bookings_raw]
-
-        covers_alltime = sum(b["partySize"] for b in all_bookings)
 
         cust_ids = set()
         for b in all_bookings:
@@ -230,6 +214,9 @@ async def build_business_snapshot(business_id: str) -> str:
         cx_count = sum(1 for b in all_bookings if b["status"] == "cancelled")
         ns_pct = f"{(ns_count / max(ok_count + ns_count, 1)) * 100:.0f}%"
 
+        biz_type = biz.get("type", "services")
+        is_restaurant = biz_type == "restaurant"
+
         tables = biz.get("tables", [])
         if not isinstance(tables, list):
             tables = biz.get("floor_plan", {}).get("tables", [])
@@ -238,18 +225,40 @@ async def build_business_snapshot(business_id: str) -> str:
         num_tables = len(tables)
         total_seats = sum(t.get("seats", t.get("capacity", 4)) for t in tables) if tables else 0
 
+        # Staff list
+        staff_list = [s.get("name", "") for s in biz.get("staff", []) if s.get("active", True)]
+
+        # Services/menu
+        menu = biz.get("menu", [])
+        active_services = [s for s in menu if s.get("active", True)]
+
         upcoming = sorted(
             [b for b in today_bookings if b["status"] in ("confirmed", "pending")],
             key=lambda b: str(b["time"] or "")
         )
-        up_lines = []
-        for b in upcoming[:6]:
-            up_lines.append(f"  - {b['time'] or '?'}: {b['customer']['name'] or 'Guest'} (party of {b['partySize']}) [{b['status']}]")
 
         now = datetime.utcnow()
 
-        return f"""
-LIVE DATABASE — {biz_name}
+        if is_restaurant:
+            total_covers = sum(b["partySize"] for b in today_bookings)
+            week_covers = sum(b["partySize"] for b in week_bookings)
+            lunch_c = dinner_c = 0
+            for b in today_bookings:
+                try:
+                    hour = int(str(b["time"] or "18:00").split(":")[0])
+                except Exception:
+                    hour = 18
+                if hour < 15:
+                    lunch_c += b["partySize"]
+                else:
+                    dinner_c += b["partySize"]
+
+            up_lines = []
+            for b in upcoming[:6]:
+                up_lines.append(f"  - {b['time'] or '?'}: {b['customer']['name'] or 'Guest'} (party of {b['partySize']}) [{b['status']}]")
+
+            return f"""
+LIVE DATABASE — {biz_name} (Restaurant)
 Queried: {now.strftime('%H:%M %d/%m/%Y')} UTC
 
 TODAY ({today.strftime('%A %d %B %Y')}):
@@ -262,7 +271,6 @@ THIS WEEK:
 
 ALL TIME:
   Total bookings: {total_alltime}
-  Total covers: {covers_alltime}
   Unique customers: {total_customers}
   No-show rate: {ns_pct} ({ns_count} no-shows)
   Cancellations: {cx_count}
@@ -275,26 +283,74 @@ NEXT UP TODAY:
 
 These are REAL numbers. Quote them exactly. If 0, say 0. NEVER invent data.
 """
+        else:
+            # Services business — revenue, treatments, therapists
+            total_revenue = sum(
+                (b.get("service", {}).get("price", 0) if isinstance(b.get("service"), dict) else 0)
+                for b in today_bookings_raw
+            )
+            week_revenue = sum(
+                (b.get("service", {}).get("price", 0) if isinstance(b.get("service"), dict) else 0)
+                for b in week_bookings_raw
+            )
+
+            up_lines = []
+            for b in upcoming[:8]:
+                svc_name = b.get("service", {}).get("name", "Treatment") if isinstance(b.get("service"), dict) else "Treatment"
+                staff_name = b.get("staffName") or ""
+                up_lines.append(f"  - {b['time'] or '?'}: {b['customer']['name'] or 'Client'} — {svc_name}{' with ' + staff_name if staff_name else ''} [{b['status']}]")
+
+            svc_summary = ", ".join(s.get("name", "") for s in active_services[:12]) if active_services else "None loaded"
+
+            return f"""
+LIVE DATABASE — {biz_name} ({biz.get('category', 'Local Services')})
+Queried: {now.strftime('%H:%M %d/%m/%Y')} UTC
+
+TODAY ({today.strftime('%A %d %B %Y')}):
+  Appointments: {len(today_bookings)}
+  Revenue today: £{total_revenue}
+  Status: {', '.join(f'{v} {k}' for k, v in statuses.items()) if statuses else 'no appointments today'}
+
+THIS WEEK:
+  Appointments: {len(week_bookings)} | Revenue: £{week_revenue}
+
+ALL TIME:
+  Total appointments: {total_alltime}
+  Unique clients: {total_customers}
+  No-show rate: {ns_pct} ({ns_count} no-shows)
+  Cancellations: {cx_count}
+
+TEAM:
+  Staff: {', '.join(staff_list) if staff_list else 'Not loaded'}
+
+TREATMENTS OFFERED:
+  {svc_summary}
+
+NEXT UP TODAY:
+{chr(10).join(up_lines) if up_lines else '  No upcoming appointments'}
+
+This is a {biz.get('category', 'local services')} business. Use "appointments" not "bookings", "clients" not "guests", "therapist" not "server". These are REAL numbers. Quote them exactly. If 0, say 0. NEVER invent data.
+"""
 
     except Exception as e:
         logger.error(f"Snapshot error: {traceback.format_exc()}")
         return f"[Database error: {e}]"
 
 
-SYSTEM_PROMPT = """You are ReeveOS's AI assistant for restaurant owners, embedded in their dashboard. You have REAL business data below from the live database.
+SYSTEM_PROMPT = """You are ReeveOS's AI assistant, embedded in a business owner's dashboard. You have REAL business data below from the live database.
 
 PERSONALITY: Friendly, warm, British, concise. 2-3 short paragraphs max.
 
 RULES:
 1. ONLY quote numbers from the LIVE DATABASE section. NEVER invent numbers.
 2. If data shows 0, say so honestly.
-3. If asked something not in the data, say you can see bookings but they'd need the dashboard for that detail.
+3. If asked something not in the data, say you can see the data but they'd need the dashboard for that detail.
 4. Keep it SHORT. Use **bold** for key numbers. British English.
+5. Adapt your language to the business type — for salons/clinics use "appointments", "clients", "therapists". For restaurants use "bookings", "guests", "covers".
 
 REEVEOS BASICS:
 - Zero commission platform, flat monthly fee
 - Pricing: Free (£0), Starter (£8.99), Growth (£29), Scale (£59), Enterprise (custom)
-- Delivery via Uber Direct at 5-8% (vs Deliveroo 25-35%)
 - Contact: support@reeveos.app
 """
 

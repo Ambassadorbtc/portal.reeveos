@@ -65,9 +65,18 @@ export default function ClientPipeline() {
   }
 
   if (loading) return <AppLoader message="Loading pipeline..." />
-  if (!data) return <div style={{ padding: 40, textAlign: 'center', color: '#999', fontFamily: "'Figtree', sans-serif" }}>No pipeline data</div>
+  const DEFAULT_STAGES = [
+    { id: 'new_lead', label: 'New Lead', color: '#6B7280' },
+    { id: 'consultation_booked', label: 'Consultation Booked', color: '#3B82F6' },
+    { id: 'first_appointment', label: 'First Appointment', color: '#F59E0B' },
+    { id: 'package_sold', label: 'Package Sold', color: '#8B5CF6' },
+    { id: 'active_client', label: 'Active Client', color: '#10B981' },
+    { id: 'at_risk', label: 'At Risk', color: '#EF4444' },
+    { id: 'win_back', label: 'Win Back', color: '#EC4899' },
+  ]
+  const displayData = data || { stages: DEFAULT_STAGES, pipeline: {}, total_clients: 0, total_value: 0 }
 
-  const stages = [...(data.stages || []), { id: 'unassigned', label: 'Unassigned', color: '#9CA3AF' }]
+  const stages = [...(displayData.stages || []), { id: 'unassigned', label: 'Unassigned', color: '#9CA3AF' }]
 
   return (
     <div style={{ fontFamily: "'Figtree', sans-serif", height: 'calc(100vh - 4rem)', display: 'flex', flexDirection: 'column', margin: '-1.5rem -1.5rem 0', background: '#FAFAF8' }}>
@@ -75,7 +84,7 @@ export default function ClientPipeline() {
       <div style={{ padding: '20px 24px', borderBottom: '1px solid #EBEBEB', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: '#111', margin: 0 }}>Sales Pipeline</h1>
-          <p style={{ fontSize: 13, color: '#888', marginTop: 2 }}>{data.total_clients} clients · £{(data.total_value || 0).toLocaleString()} pipeline value</p>
+          <p style={{ fontSize: 13, color: '#888', marginTop: 2 }}>{displayData.total_clients} clients · £{(displayData.total_value || 0).toLocaleString()} pipeline value</p>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
@@ -88,7 +97,7 @@ export default function ClientPipeline() {
       {/* Kanban Board */}
       <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden', padding: '20px 16px', display: 'flex', gap: 14 }}>
         {stages.map(stage => {
-          const clients = (data.pipeline[stage.id] || []).filter(c =>
+          const clients = (displayData.pipeline[stage.id] || []).filter(c =>
             !search || c.name.toLowerCase().includes(search.toLowerCase()) || (c.email || '').toLowerCase().includes(search.toLowerCase())
           )
           const stageValue = clients.reduce((s, c) => s + (c.value || 0), 0)
@@ -183,7 +192,7 @@ export default function ClientPipeline() {
               <div>
                 <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5 }}>Pipeline Stage</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
-                  {(data?.stages || []).map(s => (
+                  {(displayData?.stages || []).map(s => (
                     <button key={s.id} onClick={() => { moveClient(editClient.id, s.id); setEditClient(prev => ({ ...prev, stage: s.id })) }}
                       style={{ padding: '5px 12px', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: editClient.stage === s.id ? `2px solid ${s.color}` : '1px solid #E5E5E5', background: editClient.stage === s.id ? `${s.color}15` : '#fff', color: editClient.stage === s.id ? s.color : '#666', fontFamily: "'Figtree', sans-serif" }}>
                       {s.label}

@@ -137,16 +137,22 @@ function buildSections(navItems, tier, businessType) {
         })),
       ].filter(Boolean) },
     ]}] : []),
-    ...(!isRestaurant ? [{ label: 'CLIENT PORTAL', items: [
-      { id: 'client-portal-mgmt', Icon: Monitor, label: 'Client Portal', children: [
-        { id: 'portal-clients', label: 'Clients', path: '/dashboard/portal-clients', Icon: BookUser, locked: false },
+    ...(!isRestaurant ? [
+    { label: 'CRM', items: [
+      { id: 'crm-section', Icon: Target, label: 'CRM', children: [
         { id: 'sales-pipeline', label: 'Sales Pipeline', path: '/dashboard/pipeline', Icon: Target, locked: false },
+        { id: 'portal-clients', label: 'Clients', path: '/dashboard/portal-clients', Icon: BookUser, locked: false },
+      ]},
+    ]},
+    { label: 'CLIENT PORTAL', items: [
+      { id: 'client-portal-mgmt', Icon: Monitor, label: 'Client Portal', children: [
         { id: 'consultation-forms', label: 'Consultation Forms', path: '/dashboard/consultation-forms', Icon: ClipboardCheck, locked: false },
         { id: 'client-messages', label: 'Messages', path: '/dashboard/client-messages', Icon: MessageSquare, locked: false },
         { id: 'client-emails', label: 'Email Management', path: '/dashboard/client-emails', Icon: Send, locked: false },
         { id: 'client-push', label: 'Push Notifications', path: '/dashboard/client-push', Icon: Bell, locked: false },
       ]},
-    ]}] : []),
+    ]},
+    ] : []),
     { label: 'MANAGE', items: [
       { id: 'people', Icon: Users, label: 'People', children: [
         ...(navItems.management || []).filter(i => i.id === 'staff').map(i => ({

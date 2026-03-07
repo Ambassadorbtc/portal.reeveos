@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Body
 from database import get_database
 from models.business import BusinessCreate, BusinessUpdate, BusinessResponse, PlatformTier
 from middleware.auth import get_current_owner, get_current_user

@@ -38,6 +38,7 @@ from routes import (
     run7_clients_router,
     crm_router,
     shop_router,
+    meet_router,
     run13_settings_router,
     chatbot_router,
     insights_router,
@@ -245,6 +246,7 @@ app.include_router(run6_booking_page_router)
 app.include_router(run7_clients_router)
 app.include_router(crm_router)
 app.include_router(shop_router)
+app.include_router(meet_router)
 app.include_router(run13_settings_router)
 app.include_router(chatbot_router)
 app.include_router(insights_router)

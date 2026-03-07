@@ -86,8 +86,15 @@ export default function CRM() {
   const loadClients = useCallback(async () => {
     if (!bid) return
     try {
-      const r = await api.get(`/clients-v2/business/${bid}?limit=200`)
-      setClients(r.clients || [])
+      const r = await api.get(`/crm/business/${bid}/pipeline`)
+      // Flatten all pipeline stages into a single client list
+      const all = []
+      for (const [stage, stageClients] of Object.entries(r.pipeline || {})) {
+        for (const c of stageClients) {
+          all.push({ ...c, pipeline_stage: stage })
+        }
+      }
+      setClients(all)
     } catch (e) { console.error(e) }
     setLoading(false)
   }, [bid])

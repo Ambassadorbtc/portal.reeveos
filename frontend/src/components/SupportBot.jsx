@@ -363,10 +363,12 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
 
       // Route through backend API (handles Anthropic key + CORS)
       const API_URL = import.meta.env.VITE_API_URL || "https://portal.rezvo.app/api";
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/chatbot/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           messages: apiMessages,

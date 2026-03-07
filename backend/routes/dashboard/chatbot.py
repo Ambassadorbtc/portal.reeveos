@@ -388,21 +388,34 @@ async def health():
 @router.post("/chat", response_model=ChatResponse)
 @limiter.limit("20/minute")
 async def chat(http_request: FastAPIRequest, request: ChatRequest, user: dict = Depends(get_current_user)):
-    """AI chat — Claude if available, local fallback if not. NEVER fails."""
+    """AI chat — Claude if available, local fallback if not. NEVER fails.
+    
+    SECURITY: Business data is STRICTLY isolated. Regular users can ONLY
+    see their own business data. The business_id is derived server-side
+    from the authenticated user's business_ids — NEVER trusted from client.
+    """
 
-    # Verify caller has access to the requested business
-    if request.business_id:
-        user_role = user.get("role", "")
-        if user_role not in ("super_admin", "platform_admin"):
-            user_biz_ids = [str(b) for b in user.get("business_ids", [])]
-            if request.business_id not in user_biz_ids:
-                raise HTTPException(403, "Access denied to this business")
+    # ── STRICT BUSINESS ISOLATION ──
+    # For business_owner/staff: ALWAYS use their own business, ignore client request
+    # For admins: allow querying specific business if provided
+    user_role = user.get("role", "")
+    user_biz_ids = [str(b) for b in user.get("business_ids", [])]
+    
+    if user_role in ("super_admin", "platform_admin"):
+        # Admins can query any business
+        effective_biz_id = request.business_id or (user_biz_ids[0] if user_biz_ids else None)
+    else:
+        # Regular users: ALWAYS their own business, client request is IGNORED
+        effective_biz_id = user_biz_ids[0] if user_biz_ids else None
+        if request.business_id and request.business_id not in user_biz_ids:
+            logger.warning(f"SECURITY: User {user.get('email')} tried to access business {request.business_id} — BLOCKED")
+            raise HTTPException(403, "Access denied to this business")
 
-    # Build DB snapshot regardless of AI mode
+    # Build DB snapshot — ONLY for the authenticated user's business
     snapshot = ""
-    if request.business_id:
+    if effective_biz_id:
         try:
-            snapshot = await build_business_snapshot(request.business_id)
+            snapshot = await build_business_snapshot(effective_biz_id)
         except Exception as e:
             logger.error(f"Snapshot error: {traceback.format_exc()}")
             snapshot = ""

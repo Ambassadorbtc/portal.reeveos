@@ -4,7 +4,7 @@
  * Click any client → Detail panel slides in from right
  */
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
 import AppLoader from '../../components/shared/AppLoader'
@@ -55,6 +55,7 @@ const fmtCurrency = (v) => `£${(v || 0).toLocaleString('en-GB', { minimumFracti
 export default function CRM() {
   const { business } = useBusiness()
   const bid = business?.id ?? business?._id
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const urlView = searchParams.get('view') || 'dashboard'
   const [view, setViewState] = useState(urlView)
@@ -193,7 +194,9 @@ export default function CRM() {
           <>
             <div onClick={closeClient} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 200, cursor: 'pointer' }} />
             <ClientDetailPanel detail={clientDetail} timeline={timeline} onClose={closeClient} bid={bid}
-              onInteraction={() => setInteractionModal(true)} onReload={() => loadClientDetail(selectedClient.id || selectedClient)} />
+              onInteraction={() => setInteractionModal(true)} onReload={() => loadClientDetail(selectedClient.id || selectedClient)}
+              onBook={() => navigate('/dashboard/calendar')}
+              onMessage={() => navigate('/dashboard/client-messages')} />
           </>
         )}
       </div>
@@ -504,7 +507,7 @@ function AnalyticsView({ data }) {
 // ═══════════════════════════════════════════════════════════════
 // CLIENT DETAIL PANEL
 // ═══════════════════════════════════════════════════════════════
-function ClientDetailPanel({ detail, timeline, onClose, bid, onInteraction, onReload }) {
+function ClientDetailPanel({ detail, timeline, onClose, bid, onInteraction, onReload, onBook, onMessage }) {
   if (!detail) return (
     <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 420, maxWidth: '90vw', background: '#fff', zIndex: 201, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '-4px 0 30px rgba(0,0,0,0.1)' }}>
       <AppLoader message="Loading client..." />
@@ -578,8 +581,8 @@ function ClientDetailPanel({ detail, timeline, onClose, bid, onInteraction, onRe
         <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
           {[
             { label: 'Log Interaction', Icon: Phone, onClick: onInteraction },
-            { label: 'Send Message', Icon: MessageSquare, onClick: () => {} },
-            { label: 'Book', Icon: Calendar, onClick: () => {} },
+            { label: 'Send Message', Icon: MessageSquare, onClick: onMessage },
+            { label: 'Book', Icon: Calendar, onClick: onBook },
           ].map(a => (
             <button key={a.label} onClick={a.onClick} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, padding: '8px 8px', borderRadius: 8, border: '1px solid #EBEBEB', background: '#fff', fontSize: 11, fontWeight: 600, color: '#333', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>
               <a.Icon size={13} /> {a.label}
@@ -667,6 +670,11 @@ function InteractionModal({ bid, clientId, clientName, onClose, onSaved }) {
   const [outcome, setOutcome] = useState('')
   const [followUp, setFollowUp] = useState('')
   const [saving, setSaving] = useState(false)
+  const [show, setShow] = useState(false)
+
+  useEffect(() => { requestAnimationFrame(() => setShow(true)) }, [])
+
+  const handleClose = () => { setShow(false); setTimeout(onClose, 250) }
 
   const types = [
     { id: 'phone_call', label: 'Phone Call' },
@@ -701,29 +709,38 @@ function InteractionModal({ bid, clientId, clientName, onClose, onSaved }) {
 
   return (
     <>
-      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 300 }} />
-      <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 440, maxWidth: '90vw', background: '#fff', borderRadius: 16, zIndex: 301, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', fontFamily: "'Figtree', sans-serif" }}>
-        <div style={{ padding: '18px 22px', borderBottom: '1px solid #EBEBEB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div onClick={handleClose} style={{ position: 'fixed', inset: 0, background: show ? 'rgba(0,0,0,0.2)' : 'transparent', zIndex: 300, transition: 'background 0.25s' }} />
+      <div style={{
+        position: 'fixed', top: 0, right: 0, bottom: 0, width: 420, maxWidth: '90vw',
+        background: '#fff', zIndex: 301, boxShadow: '-4px 0 30px rgba(0,0,0,0.1)',
+        fontFamily: "'Figtree', sans-serif", display: 'flex', flexDirection: 'column',
+        transform: show ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.25s ease-out',
+      }}>
+        {/* Header with back button */}
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #EBEBEB', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+          <button onClick={handleClose} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #EBEBEB', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <ArrowLeft size={16} color="#666" />
+          </button>
           <div>
             <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111', margin: 0 }}>Log Interaction</h3>
             <p style={{ fontSize: 12, color: '#888', margin: '2px 0 0' }}>{clientName}</p>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={18} color="#999" /></button>
         </div>
-        <div style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+        <div style={{ flex: 1, overflowY: 'auto', padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Type */}
           <div>
             <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Type</label>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {types.map(t => (
-                <button key={t.id} onClick={() => setType(t.id)} style={{ padding: '5px 12px', borderRadius: 8, border: type === t.id ? '2px solid #111' : '1px solid #E5E5E5', background: type === t.id ? '#111' : '#fff', color: type === t.id ? '#fff' : '#555', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>{t.label}</button>
+                <button key={t.id} onClick={() => setType(t.id)} style={{ padding: '6px 14px', borderRadius: 8, border: type === t.id ? '2px solid #111' : '1px solid #E5E5E5', background: type === t.id ? '#111' : '#fff', color: type === t.id ? '#fff' : '#555', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>{t.label}</button>
               ))}
             </div>
           </div>
           {/* Summary */}
           <div>
             <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Summary</label>
-            <textarea value={summary} onChange={e => setSummary(e.target.value)} rows={3} placeholder="What was discussed..."
+            <textarea value={summary} onChange={e => setSummary(e.target.value)} rows={4} placeholder="What was discussed..."
               style={{ width: '100%', padding: '10px 12px', border: '1px solid #E5E5E5', borderRadius: 10, fontSize: 13, fontFamily: "'Figtree', sans-serif", resize: 'none', outline: 'none' }} />
           </div>
           {/* Outcome */}
@@ -731,7 +748,7 @@ function InteractionModal({ bid, clientId, clientName, onClose, onSaved }) {
             <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Outcome</label>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {outcomes.map(o => (
-                <button key={o.id} onClick={() => setOutcome(o.id)} style={{ padding: '5px 12px', borderRadius: 8, border: outcome === o.id ? `2px solid ${GOLD}` : '1px solid #E5E5E5', background: outcome === o.id ? `${GOLD}15` : '#fff', color: outcome === o.id ? GOLD : '#555', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>{o.label}</button>
+                <button key={o.id} onClick={() => setOutcome(o.id)} style={{ padding: '6px 14px', borderRadius: 8, border: outcome === o.id ? `2px solid ${GOLD}` : '1px solid #E5E5E5', background: outcome === o.id ? `${GOLD}15` : '#fff', color: outcome === o.id ? GOLD : '#555', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>{o.label}</button>
               ))}
             </div>
           </div>
@@ -739,12 +756,14 @@ function InteractionModal({ bid, clientId, clientName, onClose, onSaved }) {
           {outcome === 'follow_up_needed' && (
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Follow-up Date</label>
-              <input type="date" value={followUp} onChange={e => setFollowUp(e.target.value)} style={{ padding: '8px 12px', border: '1px solid #E5E5E5', borderRadius: 10, fontSize: 13, fontFamily: "'Figtree', sans-serif", outline: 'none' }} />
+              <input type="date" value={followUp} onChange={e => setFollowUp(e.target.value)} style={{ padding: '8px 12px', border: '1px solid #E5E5E5', borderRadius: 10, fontSize: 13, fontFamily: "'Figtree', sans-serif", outline: 'none', width: '100%' }} />
             </div>
           )}
         </div>
-        <div style={{ padding: '14px 22px', borderTop: '1px solid #EBEBEB', display: 'flex', gap: 10 }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid #E5E5E5', background: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Figtree', sans-serif", color: '#555' }}>Cancel</button>
+
+        {/* Bottom actions */}
+        <div style={{ padding: '14px 20px', borderTop: '1px solid #EBEBEB', display: 'flex', gap: 10, flexShrink: 0 }}>
+          <button onClick={handleClose} style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid #E5E5E5', background: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Figtree', sans-serif", color: '#555' }}>Cancel</button>
           <button onClick={save} disabled={saving || !summary.trim()} style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', background: '#111', color: '#fff', fontSize: 13, fontWeight: 600, cursor: summary.trim() ? 'pointer' : 'default', opacity: summary.trim() ? 1 : 0.5, fontFamily: "'Figtree', sans-serif" }}>
             {saving ? 'Saving...' : 'Save'}
           </button>

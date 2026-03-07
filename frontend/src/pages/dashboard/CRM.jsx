@@ -56,8 +56,12 @@ export default function CRM() {
   const { business } = useBusiness()
   const bid = business?.id ?? business?._id
   const [searchParams, setSearchParams] = useSearchParams()
-  const [view, setViewState] = useState(searchParams.get('view') || 'dashboard')
+  const urlView = searchParams.get('view') || 'dashboard'
+  const [view, setViewState] = useState(urlView)
   const setView = (v) => { setViewState(v); setSearchParams({ view: v }) }
+
+  // Sync when sidebar navigation changes the URL
+  useEffect(() => { if (urlView !== view) setViewState(urlView) }, [urlView])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [dashboard, setDashboard] = useState(null)

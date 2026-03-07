@@ -26,6 +26,13 @@ const PAGE_TITLES = {
   '/dashboard/floor-plan': 'Floor Plan',
   '/dashboard/settings': 'Settings',
   '/dashboard/help': 'Help Center',
+  '/dashboard/notifications': 'Notifications',
+  '/dashboard/pipeline': 'Sales Pipeline',
+  '/dashboard/portal-clients': 'Clients',
+  '/dashboard/consultation-forms': 'Consultation Forms',
+  '/dashboard/client-messages': 'Messages',
+  '/dashboard/client-emails': 'Email Management',
+  '/dashboard/client-push': 'Push Notifications',
 }
 
 const TopBar = ({ onMenuClick, sidebarOpen }) => {

@@ -304,7 +304,7 @@ export default function ClientPortal(){
                   </div>
                 </div>}
 
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><h3 style={{fontSize:15,fontWeight:700,color:$.h,margin:0}}>Upcoming Bookings</h3>{upcoming.length>0&&<button style={{background:'none',border:'none',color:$.acc,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:$.f}}>View All</button>}</div>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><h3 style={{fontSize:15,fontWeight:700,color:$.h,margin:0}}>Upcoming Bookings</h3>{upcoming.length>0&&<button onClick={()=>navTo('bookings')} style={{background:'none',border:'none',color:$.acc,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:$.f}}>View All</button>}</div>
                 {upcoming.length>0?upcoming.map((b,i)=><div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:desk?12:20,marginBottom:desk?8:14,overflow:'hidden'}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:desk?14:'14px 14px 10px'}}>
                 <div style={{display:'flex',gap:14,alignItems:'center'}}>
@@ -327,7 +327,7 @@ export default function ClientPortal(){
                 <button style={{flex:1,padding:'10px 0',borderRadius:99,border:`1px solid ${$.bdr}`,background:$.card,color:$.txtM,fontSize:13,fontWeight:500,cursor:'pointer',fontFamily:$.f}}>Cancel</button>
               </div>}
             </div>):<div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:28,textAlign:'center'}}><div style={{width:40,height:40,borderRadius:10,background:'rgba(200,163,76,0.08)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}>{I.cal($.acc,20)}</div><p style={{fontSize:desk?13:17,fontWeight:600,color:$.h}}>No upcoming appointments</p><p style={{fontSize:desk?12:15,color:$.txtM,margin:desk?'3px 0 12px':'6px 0 16px'}}>Book your first treatment to get started</p><button onClick={()=>navTo('bookings')} style={{padding:desk?'7px 18px':'10px 22px',borderRadius:99,border:'none',background:$.acc,color:'#fff',fontSize:desk?12:14,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book Appointment</button></div>}
-                {myData?.past_bookings?.length>0&&<div style={{marginTop:16}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><h3 style={{fontSize:15,fontWeight:700,color:$.h,margin:0}}>Treatment History</h3><button style={{background:'none',border:'none',color:$.acc,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:$.f}}>View All</button></div>{myData.past_bookings.slice(0,4).map((b,i)=><div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',alignItems:'center',justifyContent:'space-between'}}><div style={{display:'flex',gap:10,alignItems:'center'}}><div style={{width:36,height:36,borderRadius:8,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{I.shield($.txtL,16)}</div><div><p style={{fontSize:13,fontWeight:600,color:$.h,margin:0}}>{b.service}</p><p style={{fontSize:11,color:$.txtM,margin:'1px 0 0'}}>{b.staff?`${b.staff} · `:''}{ b.date}</p></div></div><span style={{fontSize:10,fontWeight:700,color:$.ok,textTransform:'uppercase'}}>Completed</span></div>)}</div>}
+                {myData?.past_bookings?.length>0&&<div style={{marginTop:16}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><h3 style={{fontSize:15,fontWeight:700,color:$.h,margin:0}}>Treatment History</h3><button onClick={()=>navTo('bookings')} style={{background:'none',border:'none',color:$.acc,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:$.f}}>View All</button></div>{myData.past_bookings.slice(0,4).map((b,i)=><div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:'10px 14px',marginBottom:6,display:'flex',alignItems:'center',justifyContent:'space-between'}}><div style={{display:'flex',gap:10,alignItems:'center'}}><div style={{width:36,height:36,borderRadius:8,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{I.shield($.txtL,16)}</div><div><p style={{fontSize:13,fontWeight:600,color:$.h,margin:0}}>{b.service}</p><p style={{fontSize:11,color:$.txtM,margin:'1px 0 0'}}>{b.staff?`${b.staff} · `:''}{ b.date}</p></div></div><span style={{fontSize:10,fontWeight:700,color:$.ok,textTransform:'uppercase'}}>Completed</span></div>)}</div>}
               </div>
               {desk&&<div style={{width:320,flexShrink:0,display:'flex',flexDirection:'column',gap:16}}>
                 <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:18,position:'relative',overflow:'hidden'}}><div style={{position:'absolute',top:-12,right:-12,width:80,height:80,borderRadius:99,background:'rgba(200,163,76,0.1)',filter:'blur(28px)',pointerEvents:'none'}}/><div style={{position:'relative'}}><div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}><div style={{width:40,height:40,borderRadius:99,border:`2px solid ${$.acc}`,background:$.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:$.acc}}>{(user?.name||'?').charAt(0)}</div><div><p style={{fontSize:14,fontWeight:700,color:$.h,margin:0}}>{(user?.name||'').split(' ')[0]}</p><p style={{fontSize:12,fontWeight:500,color:$.acc,margin:0}}>Premium Member</p></div></div><div style={{height:1,background:$.bdr,marginBottom:12}}/><div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div><p style={{fontSize:10,fontWeight:700,color:$.txtM,textTransform:'uppercase',margin:0}}>Reward Points</p><p style={{fontSize:20,fontWeight:700,color:$.h,margin:'1px 0 0'}}>2,450</p></div><button style={{background:'rgba(200,163,76,0.08)',border:'1px solid rgba(200,163,76,0.15)',borderRadius:10,padding:'5px 12px',cursor:'pointer'}}><span style={{fontSize:11,fontWeight:700,color:$.acc}}>Redeem</span></button></div></div></div>
@@ -539,8 +539,11 @@ export default function ClientPortal(){
         <TopBar biz={biz} user={user} desk={desk}/>
         <div style={{flex:1,overflowY:'auto',paddingBottom:desk?0:120}}>
           <div style={{maxWidth:1000,margin:'0 auto',padding:desk?'24px 24px 32px':'16px 12px'}}>
-            <h1 style={{fontSize:desk?24:22,fontWeight:700,color:$.h,margin:'0 0 4px'}}>My Bookings</h1>
-            <p style={{fontSize:desk?13:15,color:$.txtM,margin:'0 0 20px'}}>Book treatments, view upcoming and past appointments.</p>
+            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
+              <button onClick={()=>navTo('home')} style={{width:32,height:32,borderRadius:8,border:`1px solid ${$.bdr}`,background:$.card,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}}>{I.back($.txtM)}</button>
+              <h1 style={{fontSize:desk?24:22,fontWeight:700,color:$.h,margin:0}}>My Bookings</h1>
+            </div>
+            <p style={{fontSize:desk?13:15,color:$.txtM,margin:'0 0 20px',paddingLeft:42}}>Book treatments, view upcoming and past appointments.</p>
 
             {bookStep!=='done'&&bookStep!=='list'?(null):null}
             {bookStep!=='done'&&(
@@ -577,20 +580,25 @@ export default function ClientPortal(){
             ):(
               <div style={desk?{display:'flex',gap:24,alignItems:'flex-start',marginBottom:24}:{marginBottom:24}}>
                 {/* Left: Service + Staff + Confirm */}
-                <div style={{flex:desk?'0 0 320px':'auto',marginBottom:desk?0:16}}>
+                <div style={{flex:desk?'0 0 320px':'auto',marginBottom:desk?0:16,display:'flex',flexDirection:'column'}}>
                   <h3 style={{fontSize:desk?14:16,fontWeight:700,color:$.h,margin:'0 0 8px'}}>1. Choose Treatment</h3>
                   {services.length===0?<div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:20,textAlign:'center',marginBottom:16}}><p style={{fontSize:desk?13:15,color:$.txtM,margin:0}}>No services configured yet. Ask {biz?.name} to add their treatment menu.</p></div>:(
-                    <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:16}}>
-                      {services.map(s=>(
-                        <button key={s.id} onClick={()=>{setBookSvc(s);setBookTime('');if(bookDate)loadSlots(s.id,bookDate)}} style={{textAlign:'left',background:bookSvc?.id===s.id?'rgba(200,163,76,0.08)':$.card,border:bookSvc?.id===s.id?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,borderRadius:10,padding:desk?'10px 12px':'12px 14px',cursor:'pointer',fontFamily:$.f}}>
-                          <p style={{fontSize:desk?13:15,fontWeight:600,color:$.h,margin:0}}>{s.name}</p>
+                    <div style={{maxHeight:desk?300:200,overflowY:'auto',display:'flex',flexDirection:'column',gap:6,marginBottom:12,paddingRight:4}}>
+                      {services.map(s=>{
+                        const isVirtual=s.isVirtual||s.type==='virtual'||s.name?.toLowerCase().includes('virtual')
+                        return(
+                        <button key={s.id} onClick={()=>{setBookSvc(s);setBookTime('');if(bookDate)loadSlots(s.id,bookDate)}} style={{textAlign:'left',background:bookSvc?.id===s.id?'rgba(200,163,76,0.08)':$.card,border:bookSvc?.id===s.id?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,borderRadius:10,padding:desk?'10px 12px':'12px 14px',cursor:'pointer',fontFamily:$.f,flexShrink:0}}>
+                          <div style={{display:'flex',alignItems:'center',gap:6}}>
+                            {isVirtual&&<span style={{fontSize:9,padding:'1px 6px',borderRadius:4,background:'#EDE9FE',color:'#7C3AED',fontWeight:700}}>VIDEO</span>}
+                            <p style={{fontSize:desk?13:15,fontWeight:600,color:$.h,margin:0}}>{s.name}</p>
+                          </div>
                           <div style={{display:'flex',gap:8,marginTop:2}}><span style={{fontSize:desk?11:12,color:$.txtM}}>{s.duration}min</span><span style={{fontSize:desk?11:12,fontWeight:600,color:$.acc}}>£{s.price}</span></div>
                         </button>
-                      ))}
+                      )})}
                     </div>
                   )}
 
-                  {bookSvc&&slotStaff.length>0&&<div style={{marginBottom:16}}>
+                  {bookSvc&&slotStaff.length>0&&<div style={{marginBottom:12}}>
                     <h3 style={{fontSize:desk?14:16,fontWeight:700,color:$.h,margin:'0 0 8px'}}>2. Practitioner</h3>
                     <select value={bookStaff} onChange={e=>setBookStaff(e.target.value)} style={{width:'100%',padding:desk?'8px 12px':'12px 14px',borderRadius:10,border:`1px solid ${$.bdr}`,fontSize:desk?12:15,background:$.card,color:$.h,fontFamily:$.f}}>
                       <option value="">Any available</option>
@@ -598,14 +606,17 @@ export default function ClientPortal(){
                     </select>
                   </div>}
 
-                  {bookSvc&&bookDate&&bookTime&&(
-                    <div style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:10,padding:desk?14:16,marginBottom:8}}>
+                  {/* Sticky Booking Summary */}
+                  {bookSvc&&(
+                    <div style={{background:$.card,border:`2px solid ${bookTime?$.acc:$.bdr}`,borderRadius:12,padding:desk?14:16,position:'sticky',bottom:desk?0:80}}>
                       <p style={{fontSize:desk?12:14,fontWeight:700,color:$.h,margin:'0 0 6px'}}>Booking Summary</p>
                       <p style={{fontSize:desk?12:13,color:$.txtM,margin:'2px 0'}}>{bookSvc.name} — {bookSvc.duration}min</p>
-                      <p style={{fontSize:desk?12:13,color:$.txtM,margin:'2px 0'}}>{bookDate} at {bookTime}</p>
+                      {bookDate&&<p style={{fontSize:desk?12:13,color:$.txtM,margin:'2px 0'}}>{new Date(bookDate+'T12:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}{bookTime?` at ${bookTime}`:' — pick a time →'}</p>}
                       <p style={{fontSize:desk?13:15,fontWeight:700,color:$.acc,margin:'4px 0 0'}}>£{bookSvc.price}</p>
+                      {bookSvc.isVirtual&&<p style={{fontSize:10,color:'#7C3AED',margin:'4px 0 0',fontWeight:600}}>Google Meet link will be generated</p>}
                       {err&&<p style={{fontSize:11,color:$.err,marginTop:6}}>{err}</p>}
-                      <button onClick={doBook} disabled={bookLoading} style={{width:'100%',marginTop:10,padding:desk?'9px 0':'12px 0',borderRadius:99,border:'none',background:$.acc,color:'#fff',fontSize:desk?13:15,fontWeight:700,cursor:bookLoading?'wait':'pointer',fontFamily:$.f,opacity:bookLoading?0.6:1}}>{bookLoading?'Booking...':'Confirm Booking'}</button>
+                      {bookTime?<button onClick={doBook} disabled={bookLoading} style={{width:'100%',marginTop:10,padding:desk?'9px 0':'12px 0',borderRadius:99,border:'none',background:$.acc,color:'#fff',fontSize:desk?13:15,fontWeight:700,cursor:bookLoading?'wait':'pointer',fontFamily:$.f,opacity:bookLoading?0.6:1}}>{bookLoading?'Booking...':'Confirm Booking'}</button>
+                      :<p style={{fontSize:11,color:$.txtL,margin:'8px 0 0',textAlign:'center'}}>Select a date and time to continue</p>}
                     </div>
                   )}
                 </div>
@@ -663,7 +674,7 @@ export default function ClientPortal(){
             )}
 
             {/* Upcoming */}
-            <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'0 0 10px'}}>Upcoming</h3>
+            <h3 style={{fontSize:desk?15:17,fontWeight:700,color:$.h,margin:'0 0 10px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>Upcoming <button onClick={()=>navTo('bookings')} style={{fontSize:11,fontWeight:600,color:$.acc,background:'none',border:'none',cursor:'pointer',fontFamily:$.f}}>View All</button></h3>
             {upcoming.length>0?upcoming.map((b,i)=>(
               <div key={i} style={{background:$.card,border:`1px solid ${$.bdr}`,borderRadius:12,padding:desk?16:14,marginBottom:10,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                 <div style={{display:'flex',gap:14,alignItems:'center'}}>
@@ -724,9 +735,12 @@ export default function ClientPortal(){
         {/* Shop header */}
         <div style={{padding:desk?'20px 24px':'16px',borderBottom:`1px solid ${$.bdr}`,background:$.card}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-            <div>
-              <h2 style={{fontSize:desk?22:18,fontWeight:800,color:$.h,margin:0,fontFamily:$.f}}>Shop</h2>
-              <p style={{fontSize:12,color:$.txtM,margin:'4px 0 0'}}>{shopProducts.length} products available</p>
+            <div style={{display:'flex',alignItems:'center',gap:10}}>
+              <button onClick={()=>navTo('home')} style={{width:32,height:32,borderRadius:8,border:`1px solid ${$.bdr}`,background:$.card,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}}>{I.back($.txtM)}</button>
+              <div>
+                <h2 style={{fontSize:desk?22:18,fontWeight:800,color:$.h,margin:0,fontFamily:$.f}}>Shop</h2>
+                <p style={{fontSize:12,color:$.txtM,margin:'4px 0 0'}}>{shopProducts.length} products available</p>
+              </div>
             </div>
             {cartCount>0&&<button onClick={()=>setView('cart')} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>
               {I.shop('#111',16)} Basket ({cartCount}) — £{cartTotal.toFixed(2)}
@@ -834,7 +848,10 @@ export default function ClientPortal(){
     <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="video">
       <TopBar biz={biz} user={user} desk={desk}/>
       <div style={{flex:1,overflowY:'auto',padding:desk?'20px 24px':'16px',paddingBottom:desk?20:140}}>
-        <h2 style={{fontSize:desk?22:18,fontWeight:800,color:$.h,margin:'0 0 4px',fontFamily:$.f}}>Video Consultations</h2>
+        <h2 style={{fontSize:desk?22:18,fontWeight:800,color:$.h,margin:'0 0 4px',fontFamily:$.f,display:'flex',alignItems:'center',gap:10}}>
+          <button onClick={()=>navTo('home')} style={{width:32,height:32,borderRadius:8,border:`1px solid ${$.bdr}`,background:$.card,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}}>{I.back($.txtM)}</button>
+          Video Consultations
+        </h2>
         <p style={{fontSize:13,color:$.txtM,margin:'0 0 20px'}}>Join your virtual appointments via Google Meet — no app download needed.</p>
 
         {meetings.length>0?(

@@ -985,14 +985,7 @@ const Calendar = () => {
         </div>
       </div>
 
-      {/* ═══ FAB ═══ */}
-      <div data-fab="1" style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 60 }}>
-        <button onClick={e => { e.stopPropagation(); openBookModal() }} style={{
-          width: 56, height: 56, borderRadius: '50%', border: 'none', background: '#111111', color: '#fff', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 6px 20px rgba(17,17,17,0.35)', transition: 'all 0.2s',
-        }}><PlusIcon /></button>
-      </div>
+      {/* FAB handled by SupportBot — includes New Appointment, Walk-in, Chat Support */}
     </div>
   )
 }

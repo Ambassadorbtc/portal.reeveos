@@ -98,7 +98,7 @@ const SERVICES_QUESTIONS = [
   "How much revenue today?",
 ];
 
-export default function SupportBot() {
+export default function SupportBot({ externalOpen, onExternalClose, hideBubble } = {}) {
   const { business, businessType } = useBusiness()
   const { user } = useAuth()
   const bid = business?.id ?? business?._id
@@ -170,6 +170,11 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
 
   const dynamicSystemPrompt = REEVEOS_KNOWLEDGE + restaurantContext
   const [isOpen, setIsOpen] = useState(false);
+
+  // External control — Calendar FAB can open/close chat
+  useEffect(() => {
+    if (externalOpen !== undefined) setIsOpen(externalOpen)
+  }, [externalOpen])
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -426,7 +431,7 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
         
         .reeveos-chat-bubble {
           position: fixed;
-          bottom: 90px;
+          bottom: 20px;
           right: 20px;
           z-index: 50;
           width: 52px;
@@ -551,10 +556,10 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
       )}
 
       {/* FAB Button */}
-      <button
+      {!hideBubble && <button
         className={`reeveos-chat-bubble ${(isOpen || fabOpen || activePanel) ? "open" : ""}`}
         onClick={() => {
-          if (isOpen) { setIsOpen(false); return; }
+          if (isOpen) { setIsOpen(false); if (onExternalClose) onExternalClose(); return; }
           if (activePanel) { setActivePanel(null); return; }
           setFabOpen(!fabOpen);
         }}
@@ -570,7 +575,7 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
         )}
-      </button>
+      </button>}
 
       {/* ── New Booking Side Panel ── */}
       {activePanel === "booking" && (

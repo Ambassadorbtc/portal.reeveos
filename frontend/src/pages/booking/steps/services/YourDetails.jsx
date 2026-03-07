@@ -17,6 +17,7 @@ const YourDetails = ({ data, onCreate, onBack }) => {
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [formRequired, setFormRequired] = useState(null)
 
   const svc = service || services?.find((s) => s.id === data.serviceId)
 
@@ -52,7 +53,12 @@ const YourDetails = ({ data, onCreate, onBack }) => {
         window.location.href = `/${slug}/confirm/${res.booking.id}`
       }
     } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.')
+      if (err.formRequired) {
+        setFormRequired({ message: err.message, url: err.formUrl, reason: err.reason, slug: err.slug })
+        setError('')
+      } else {
+        setError(err.message || 'Something went wrong. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -151,6 +157,30 @@ const YourDetails = ({ data, onCreate, onBack }) => {
         </div>
         {error && (
           <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{error}</p>
+        )}
+
+        {/* G4: Consultation form required prompt */}
+        {formRequired && (
+          <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4 mb-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-amber-900 text-sm mb-1">Health Questionnaire Required</h3>
+                <p className="text-amber-800 text-xs leading-relaxed mb-3">{formRequired.message}</p>
+                <a
+                  href={formRequired.url}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white no-underline"
+                  style={{ background: '#C9A84C' }}
+                >
+                  Complete Form
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <p className="text-amber-700 text-xs mt-2">Takes 2-3 minutes. Your booking details will be saved.</p>
+              </div>
+            </div>
+          </div>
         )}
       </form>
 

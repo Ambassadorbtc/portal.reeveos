@@ -517,10 +517,26 @@ async def create_booking(request: Request, business_slug: str, payload: dict):
                 expired_form = await db.consultation_submissions.find_one(
                     form_query, sort=[("submitted_at", -1)]
                 )
+                # G4: Instead of dead-end error, return structured response
+                # Frontend shows inline form instead of bouncing the client
+                slug = business.get("slug", "")
+                form_url = f"/client/{slug}?view=form"
                 if expired_form:
-                    raise HTTPException(400, "Your consultation form has expired. Please complete a new form before booking.")
+                    raise HTTPException(422, detail={
+                        "form_required": True,
+                        "reason": "expired",
+                        "message": "Your consultation form has expired. Please update it before booking.",
+                        "form_url": form_url,
+                        "slug": slug,
+                    })
                 else:
-                    raise HTTPException(400, "Please complete your consultation form before booking. This is required for your safety.")
+                    raise HTTPException(422, detail={
+                        "form_required": True,
+                        "reason": "missing",
+                        "message": "Please complete a quick health questionnaire before booking. This is required for your safety.",
+                        "form_url": form_url,
+                        "slug": slug,
+                    })
 
     # ── Duration (restaurants) ──
     turn_time = bp_s.get("turnTimeMinutes") or bs.get("turn_time_minutes") or DEFAULT_TURN_TIME

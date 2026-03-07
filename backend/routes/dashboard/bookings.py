@@ -625,22 +625,76 @@ async def edit_booking_details(
         elif k == "email":
             update["customer.email"] = v
         elif k == "serviceId":
-            # SERVICE SWAP — Natalie's #1 request
+            # G13: SERVICE SWAP — Natalie's #1 request
+            # Services stored either flat in menu[] or nested in menu[].services[]
             svc_doc = None
-            for cat in (business.get("menu") or []):
-                if not cat.get("active", True):
-                    continue
-                for svc in (cat.get("services") or []):
+            menu = business.get("menu") or []
+            for item in menu:
+                # Flat structure: menu item IS the service
+                if item.get("id") == v or str(item.get("_id", "")) == v:
+                    svc_doc = item
+                    break
+                # Nested structure: menu item has services array
+                for svc in (item.get("services") or []):
                     if svc.get("id") == v or str(svc.get("_id", "")) == v:
                         svc_doc = svc
                         break
+                if svc_doc:
+                    break
+            # Also check standalone services collection
+            if not svc_doc:
+                from bson import ObjectId as OID
+                try:
+                    svc_doc = await db.services.find_one({"_id": OID(v), "business_id": business_id})
+                except Exception:
+                    svc_doc = await db.services.find_one({"_id": v, "business_id": business_id})
+
             if svc_doc:
                 old_svc = b.get("service", {})
                 old_name = old_svc.get("name", "Unknown") if isinstance(old_svc, dict) else str(old_svc)
-                new_svc = {"name": svc_doc["name"], "duration": svc_doc.get("duration", 60), "price": svc_doc.get("price", 0)}
+                new_name = svc_doc.get("name", "Treatment")
+                new_duration = svc_doc.get("duration_minutes") or svc_doc.get("duration", 60)
+                new_price = svc_doc.get("price", 0)
+                new_svc = {"id": v, "name": new_name, "duration": new_duration, "price": new_price}
                 update["service"] = new_svc
-                update["duration"] = svc_doc.get("duration", 60)
-                audit_changes.append(f"service: {old_name} → {svc_doc['name']}")
+                update["duration"] = new_duration
+                audit_changes.append(f"service: {old_name} → {new_name}")
+
+                # Contraindication check on the NEW service
+                cust_email = (b.get("customer") or {}).get("email", "").lower()
+                cust_phone = (b.get("customer") or {}).get("phone", "")
+                if cust_email or cust_phone:
+                    form_q = {"business_id": business_id}
+                    if cust_email:
+                        form_q["client_email"] = cust_email
+                    elif cust_phone:
+                        form_q["client_phone"] = cust_phone
+                    latest_form = await db.consultation_submissions.find_one(
+                        {**form_q, "expires_at": {"$gte": datetime.utcnow()}},
+                        sort=[("submitted_at", -1)],
+                    )
+                    if latest_form:
+                        from routes.dashboard.consultation import run_contraindication_check, DEFAULT_CONTRA_MATRIX, TREATMENT_LABELS
+                        _sw = (new_name + " " + (svc_doc.get("category") or "")).lower()
+                        tx_key = None
+                        if "microneedling" in _sw and "rf" not in _sw: tx_key = "microneedling"
+                        elif "rf" in _sw or "radio frequency" in _sw: tx_key = "rf"
+                        elif "peel" in _sw or "chemical" in _sw: tx_key = "peel"
+                        elif "polynucleotide" in _sw: tx_key = "polynucleotides"
+                        elif "lymphatic" in _sw: tx_key = "lymphatic"
+                        if tx_key:
+                            tmpl = await db.consultation_templates.find_one({"business_id": business_id})
+                            mx = (tmpl or {}).get("contra_matrix", DEFAULT_CONTRA_MATRIX)
+                            alerts = run_contraindication_check(latest_form.get("form_data", {}), mx)
+                            rel_blocks = [x for x in alerts["blocks"] if x["treatment"] == tx_key]
+                            rel_flags = [x for x in alerts["flags"] if x["treatment"] == tx_key]
+                            if rel_blocks:
+                                reasons = ", ".join(x["condition"].replace("_", " ") for x in rel_blocks)
+                                raise HTTPException(400, f"Cannot swap to {new_name} — contraindicated ({reasons})")
+                            if rel_flags:
+                                update["contraindication_flags"] = rel_flags
+                                update["contraindication_review_required"] = True
+                                audit_changes.append(f"WARNING: {new_name} flagged for review")
         elif k == "staffId":
             old_staff = b.get("staffId", "")
             if v != old_staff:

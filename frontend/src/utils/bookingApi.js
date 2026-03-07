@@ -38,7 +38,17 @@ export async function createBooking(slug, payload) {
   })
   if (!r.ok) {
     const err = await r.json().catch(() => ({}))
-    throw new Error(err.detail || 'Booking failed')
+    // G4: Detect form_required response — frontend shows form instead of dead error
+    if (r.status === 422 && err.detail?.form_required) {
+      const e = new Error(err.detail.message || 'Consultation form required')
+      e.formRequired = true
+      e.formUrl = err.detail.form_url
+      e.reason = err.detail.reason
+      e.slug = err.detail.slug
+      throw e
+    }
+    const msg = typeof err.detail === 'string' ? err.detail : (err.detail?.message || 'Booking failed')
+    throw new Error(msg)
   }
   return r.json()
 }

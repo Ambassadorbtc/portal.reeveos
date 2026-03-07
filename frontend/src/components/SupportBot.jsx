@@ -590,8 +590,8 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   </div>
                   <div>
-                    <div style={{ fontSize:18, fontWeight:700, color:'#111111' }}>New Booking</div>
-                    <div style={{ fontSize:12, color:'#666', marginTop:1 }}>Add a reservation</div>
+                    <div style={{ fontSize:18, fontWeight:700, color:'#111111' }}>{isRestaurant ? 'New Booking' : 'New Appointment'}</div>
+                    <div style={{ fontSize:12, color:'#666', marginTop:1 }}>{isRestaurant ? 'Add a reservation' : 'Add an appointment'}</div>
                   </div>
                 </div>
                 <button onClick={() => setActivePanel(null)} style={{ width:32, height:32, borderRadius:'50%', border:'none', background:'transparent', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#666' }}>
@@ -603,7 +603,7 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
             {/* Form — CRM styled */}
             <div style={{ flex:1, overflowY:'auto', padding:24, display:'flex', flexDirection:'column', gap:20 }}>
               <div>
-                <label style={{ fontSize:13, fontWeight:600, color:'#999', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8, display:'block' }}>Guest name</label>
+                <label style={{ fontSize:13, fontWeight:600, color:'#999', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8, display:'block' }}>{isRestaurant ? 'Guest name' : 'Client name'}</label>
                 <input value={bookingForm.name} onChange={e => setBookingForm({...bookingForm, name:e.target.value})} placeholder="Full name" style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', outline:'none' }} />
               </div>
 
@@ -618,7 +618,7 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
                 </div>
               </div>
 
-              <div>
+              {isRestaurant && (<div>
                 <label style={{ fontSize:13, fontWeight:600, color:'#999', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8, display:'block' }}>Party size</label>
                 <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
                   {[1,2,3,4,5,6,7,8].map(n => (
@@ -629,7 +629,7 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
                     }}>{n}</button>
                   ))}
                 </div>
-              </div>
+              </div>)}
 
               <div style={{ display:'flex', gap:12 }}>
                 <div style={{ flex:1 }}>
@@ -685,7 +685,7 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
                 </div>
               </div>
 
-              <div>
+              {isRestaurant && (<div>
                 <label style={{ fontSize:13, fontWeight:600, color:'#999', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8, display:'block' }}>Table (optional)</label>
                 <div style={{ position:'relative' }}>
                   <div onClick={() => setBookingTableDrop(!bookingTableDrop)} style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", background:'#FAFAF8', color: bookingForm.table ? '#111111' : '#999', cursor:'pointer', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
@@ -701,18 +701,18 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
                     </div>
                   )}
                 </div>
-              </div>
+              </div>)}
 
               <div>
                 <label style={{ fontSize:13, fontWeight:600, color:'#999', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8, display:'block' }}>Notes</label>
-                <textarea value={bookingForm.notes} onChange={e => setBookingForm({...bookingForm, notes:e.target.value})} placeholder="Allergies, occasion, preferences..." rows={3} style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", resize:'none', background:'#FAFAF8', outline:'none' }} />
+                <textarea value={bookingForm.notes} onChange={e => setBookingForm({...bookingForm, notes:e.target.value})} placeholder={isRestaurant ? "Allergies, occasion, preferences..." : "Treatment notes, preferences..."} rows={3} style={{ width:'100%', padding:'12px 16px', borderRadius:12, border:'1px solid #EBEBEB', fontSize:14, fontFamily:"'Figtree', sans-serif", resize:'none', background:'#FAFAF8', outline:'none' }} />
               </div>
             </div>
 
             {/* Footer — CRM action bar style */}
             <div style={{ padding:16, borderTop:'1px solid #EBEBEB', flexShrink:0 }}>
               {saveSuccess && <div style={{ marginBottom:8, padding:'10px 16px', borderRadius:10, background: saveSuccess.includes('!') ? '#F5F5F5' : '#FFFBEB', color: saveSuccess.includes('!') ? '#111111' : '#92400E', fontSize:13, fontWeight:600, textAlign:'center' }}>{saveSuccess}</div>}
-              <button onClick={handleSaveBooking} disabled={saving} style={{ width:'100%', padding:'14px', borderRadius:999, border:'none', background: saving ? '#9CA3AF' : '#111111', color:'white', fontSize:14, fontWeight:700, cursor: saving ? 'wait' : 'pointer', fontFamily:"'Figtree', sans-serif", boxShadow:'0 4px 12px rgba(17,17,17,.3)', transition:'all 0.2s' }}>{saving ? 'Saving...' : 'Confirm Booking'}</button>
+              <button onClick={handleSaveBooking} disabled={saving} style={{ width:'100%', padding:'14px', borderRadius:999, border:'none', background: saving ? '#9CA3AF' : '#111111', color:'white', fontSize:14, fontWeight:700, cursor: saving ? 'wait' : 'pointer', fontFamily:"'Figtree', sans-serif", boxShadow:'0 4px 12px rgba(17,17,17,.3)', transition:'all 0.2s' }}>{saving ? 'Saving...' : isRestaurant ? 'Confirm Booking' : 'Confirm Appointment'}</button>
             </div>
           </div>
         </>

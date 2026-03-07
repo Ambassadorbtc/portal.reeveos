@@ -26,6 +26,8 @@ const I={
   mail:(c='currentColor',s=14)=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
   phone:(c='currentColor',s=14)=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>,
   gear:(c='currentColor',s=18)=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>,
+  shop:(c='currentColor',s=18)=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>,
+  video:(c='currentColor',s=18)=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>,
 }
 
 const $={bg:'#F4F5F7',card:'#FFFFFF',bdr:'#E5E7EB',bdr2:'#D1D5DB',h:'#111111',txt:'#374151',txtM:'#6B7280',txtL:'#9CA3AF',acc:'#C9A84C',ok:'#22C55E',err:'#EF4444',wrn:'#F59E0B',f:"'Figtree',-apple-system,sans-serif"}
@@ -82,7 +84,7 @@ const SigPad=({onSign,desk:dk})=>{const ref=useRef(null),dr=useRef(false);const 
 // ═══ SIDEBAR (logged-in pages only) ═══
 const RAIL=56,PANEL=192
 const Sidebar=({biz,user,activeTab,onNav,onLogout})=>{
-  const tabs=[{id:'home',label:'Home',icon:'home'},{id:'bookings',label:'Bookings',icon:'cal'},{id:'form',label:'Consultation',icon:'form'},{id:'messages',label:'Messages',icon:'msg'},{id:'profile',label:'My Profile',icon:'user'}]
+  const tabs=[{id:'home',label:'Home',icon:'home'},{id:'bookings',label:'Bookings',icon:'cal'},{id:'shop',label:'Shop',icon:'shop'},{id:'form',label:'Consultation',icon:'form'},{id:'messages',label:'Messages',icon:'msg'},{id:'profile',label:'My Profile',icon:'user'}]
   const ini=(user?.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2)
   return(
     <div className="client-sidebar" style={{height:'100vh',position:'sticky',top:0,flexShrink:0,fontFamily:$.f}}>
@@ -139,7 +141,7 @@ const Shell=({biz,user,desk,activeTab,onNav,onLogout,tab,children})=>(
     <Sidebar biz={biz} user={user} activeTab={tab||activeTab} onNav={onNav} onLogout={onLogout}/>
     <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column'}}>{children}</div>
     <div className="client-mobnav" style={{position:'fixed',bottom:0,left:0,right:0,background:'#111111',padding:'10px 0 calc(20px + env(safe-area-inset-bottom, 0px))',zIndex:30,display:'flex',justifyContent:'space-around',borderTop:'1px solid rgba(200,163,76,0.1)'}}>
-      {[{id:'home',icon:'home',label:'Home'},{id:'bookings',icon:'cal',label:'Bookings'},{id:'form',icon:'form',label:'Forms'},{id:'messages',icon:'msg',label:'Messages'},{id:'profile',icon:'user',label:'Profile'}].map(t=><button key={t.id} onClick={()=>onNav(t.id)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'2px 6px'}}>{I[t.icon](activeTab===t.id?$.acc:'rgba(255,255,255,0.45)',22)}<span style={{fontSize:11,fontWeight:activeTab===t.id?700:500,color:activeTab===t.id?$.acc:'rgba(255,255,255,0.45)'}}>{t.label}</span></button>)}
+      {[{id:'home',icon:'home',label:'Home'},{id:'bookings',icon:'cal',label:'Bookings'},{id:'shop',icon:'shop',label:'Shop'},{id:'form',icon:'form',label:'Forms'},{id:'messages',icon:'msg',label:'Messages'},{id:'profile',icon:'user',label:'Profile'}].map(t=><button key={t.id} onClick={()=>onNav(t.id)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'2px 6px'}}>{I[t.icon](activeTab===t.id?$.acc:'rgba(255,255,255,0.45)',22)}<span style={{fontSize:11,fontWeight:activeTab===t.id?700:500,color:activeTab===t.id?$.acc:'rgba(255,255,255,0.45)'}}>{t.label}</span></button>)}
     </div>
   </div>
 )
@@ -171,12 +173,15 @@ export default function ClientPortal(){
   const goStep=n=>{setStep(n);topRef.current?.scrollIntoView({behavior:'smooth'})}
   const[msgTab,setMsgTab]=useState('chat'),[msgs,setMsgs]=useState([]),[msgText,setMsgText]=useState('')
   const[services,setServices]=useState([]),[slots,setSlots]=useState([]),[slotStaff,setSlotStaff]=useState([])
+  const[shopProducts,setShopProducts]=useState([]),[shopCart,setShopCart]=useState([]),[shopCats,setShopCats]=useState([]),[shopCatFilter,setShopCatFilter]=useState('all')
   const[bookSvc,setBookSvc]=useState(null),[bookDate,setBookDate]=useState(new Date().toISOString().split('T')[0]),[bookTime,setBookTime]=useState(''),[bookStaff,setBookStaff]=useState(''),[bookStep,setBookStep]=useState('list'),[bookLoading,setBookLoading]=useState(false)
   const[notifPrefs,setNotifPrefs]=useState({appointment_reminders:true,aftercare:true,promotions:false,booking_confirmations:true})
-  const navTo=t=>{setActiveTab(t);if(t==='home')setView('home');else if(t==='form'){setStep(0);setView('form')}else{setView(t);if(t==='messages')loadMsgs();if(t==='bookings'){loadServices();setBookStep('list')}if(t==='profile')loadNotifPrefs()}}
+  const navTo=t=>{setActiveTab(t);if(t==='home')setView('home');else if(t==='form'){setStep(0);setView('form')}else if(t==='shop'){setView('shop');loadShop()}else{setView(t);if(t==='messages')loadMsgs();if(t==='bookings'){loadServices();setBookStep('list')}if(t==='profile')loadNotifPrefs()}}
   const loadMsgs=async()=>{try{const d=await apiFetch(`/client/${slug}/messages`);setMsgs((d.messages||[]).map(m=>({from:m.from==='client'?'me':'them',text:m.text,time:m.created_at?new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'',staff:m.staff_name})))}catch(e){}}
   const sendMsg=async()=>{if(!msgText.trim())return;const text=msgText;setMsgText('');setMsgs(p=>[...p,{from:'me',text,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}]);try{await apiFetch(`/client/${slug}/messages`,{method:'POST',body:JSON.stringify({text})})}catch(e){}}
   const loadServices=async()=>{try{const d=await apiFetch(`/client/${slug}/services`);setServices(d.services||[])}catch(e){}}
+  const loadShop=async()=>{try{const d=await fetch(`/api/shop/public/${slug}/products`).then(r=>r.json());setShopProducts(d.products||[]);setShopCats(d.categories||[])}catch(e){console.error('Shop load error:', e)}}
+  const addToCart=(product)=>{setShopCart(prev=>{const existing=prev.find(i=>i.product_id===product.id);if(existing)return prev.map(i=>i.product_id===product.id?{...i,quantity:i.quantity+1}:i);return[...prev,{product_id:product.id,name:product.name,price:product.price,quantity:1,image:product.images?.[0]}]})}
   const loadSlots=async(svcId,date)=>{try{const d=await apiFetch(`/client/${slug}/slots?service_id=${svcId}&date=${date}`);setSlots(d.slots||[]);setSlotStaff(d.staff||[])}catch(e){setSlots([])}}
   const doBook=async()=>{if(!bookSvc||!bookDate||!bookTime)return;setBookLoading(true);try{await apiFetch(`/client/${slug}/book`,{method:'POST',body:JSON.stringify({service_id:bookSvc.id,date:bookDate,time:bookTime,staff_id:bookStaff||undefined})});setBookStep('done');await loadUser()}catch(e){setErr(e.message)}setBookLoading(false)}
   const toggleNotif=async(key)=>{const nw={...notifPrefs,[key]:!notifPrefs[key]};setNotifPrefs(nw);try{await apiFetch('/client/auth/notifications',{method:'PUT',body:JSON.stringify({prefs:nw})})}catch(e){}}
@@ -254,7 +259,7 @@ export default function ClientPortal(){
   // HOME (Figma 2:849 / 2:674) — sidebar + main
   // ═══════════════════════════════════════════════════════════════
   if(view==='home'){
-    const qa=[{icon:'cal',label:'Book Visit',sub:'Past & upcoming',action:()=>navTo('bookings'),show:true},{icon:'form',label:hasForm?'View Form':'Fill Form',sub:hasForm?'Review details':'Complete paperwork',action:()=>{setStep(0);setView('form')},show:isSalon},{icon:'user',label:'My Profile',sub:'History & settings',action:()=>navTo('profile'),show:true},{icon:'msg',label:'Message Us',sub:'Talk to experts',action:()=>navTo('messages'),show:true}].filter(a=>a.show)
+    const qa=[{icon:'cal',label:'Book Visit',sub:'Past & upcoming',action:()=>navTo('bookings'),show:true},{icon:'shop',label:'Shop',sub:'Products & offers',action:()=>navTo('shop'),show:true},{icon:'form',label:hasForm?'View Form':'Fill Form',sub:hasForm?'Review details':'Complete paperwork',action:()=>{setStep(0);setView('form')},show:isSalon},{icon:'user',label:'My Profile',sub:'History & settings',action:()=>navTo('profile'),show:true},{icon:'msg',label:'Message Us',sub:'Talk to experts',action:()=>navTo('messages'),show:true}].filter(a=>a.show)
     return(
       <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="home">
         <TopBar biz={biz} user={user} desk={desk}/>
@@ -678,6 +683,122 @@ export default function ClientPortal(){
       </Shell>
     )
   }
+
+  // SHOP — products, cart
+  // ═══════════════════════════════════════════════════════════════
+  if(view==='shop'){
+    const filtered=shopCatFilter==='all'?shopProducts:shopProducts.filter(p=>p.category===shopCatFilter)
+    const cartTotal=shopCart.reduce((s,i)=>s+i.price*i.quantity,0)
+    const cartCount=shopCart.reduce((s,i)=>s+i.quantity,0)
+    return(
+    <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="shop">
+      <TopBar biz={biz} user={user} desk={desk}/>
+      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?20:140}}>
+        {/* Shop header */}
+        <div style={{padding:desk?'20px 24px':'16px',borderBottom:`1px solid ${$.bdr}`,background:$.card}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <div>
+              <h2 style={{fontSize:desk?22:18,fontWeight:800,color:$.h,margin:0,fontFamily:$.f}}>Shop</h2>
+              <p style={{fontSize:12,color:$.txtM,margin:'4px 0 0'}}>{shopProducts.length} products available</p>
+            </div>
+            {cartCount>0&&<button onClick={()=>setView('cart')} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>
+              {I.shop('#111',16)} Basket ({cartCount}) — £{cartTotal.toFixed(2)}
+            </button>}
+          </div>
+          {/* Category pills */}
+          <div style={{display:'flex',gap:6,marginTop:12,overflowX:'auto',flexWrap:'nowrap',paddingBottom:4}}>
+            <button onClick={()=>setShopCatFilter('all')} style={{padding:'6px 14px',borderRadius:99,border:shopCatFilter==='all'?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,background:shopCatFilter==='all'?`${$.acc}15`:$.card,color:shopCatFilter==='all'?$.acc:$.txtM,fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:$.f,whiteSpace:'nowrap',flexShrink:0}}>All</button>
+            {shopCats.map(c=><button key={c} onClick={()=>setShopCatFilter(c)} style={{padding:'6px 14px',borderRadius:99,border:shopCatFilter===c?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,background:shopCatFilter===c?`${$.acc}15`:$.card,color:shopCatFilter===c?$.acc:$.txtM,fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:$.f,whiteSpace:'nowrap',flexShrink:0}}>{c}</button>)}
+          </div>
+        </div>
+        {/* Product grid */}
+        <div style={{padding:desk?'16px 24px':'12px',display:'grid',gridTemplateColumns:desk?'repeat(auto-fill,minmax(220px,1fr))':'repeat(2,1fr)',gap:desk?14:10}}>
+          {filtered.map(p=>{
+            const inCart=shopCart.find(i=>i.product_id===p.id)
+            return(
+            <div key={p.id} style={{background:$.card,borderRadius:14,border:`1px solid ${$.bdr}`,overflow:'hidden',display:'flex',flexDirection:'column'}}>
+              {/* Image placeholder */}
+              <div style={{height:desk?140:100,background:'#F5F5F3',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                {p.images&&p.images[0]?<img src={p.images[0]} alt={p.name} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<span style={{fontSize:28,color:'#DDD'}}>{I.shop('#DDD',32)}</span>}
+              </div>
+              <div style={{padding:desk?'12px 14px':'10px 12px',flex:1,display:'flex',flexDirection:'column'}}>
+                <div style={{fontSize:desk?13:11,fontWeight:700,color:$.h,marginBottom:2,lineHeight:1.3}}>{p.name}</div>
+                <div style={{fontSize:10,color:$.txtM,marginBottom:6}}>{p.category}</div>
+                <div style={{marginTop:'auto',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                  <span style={{fontSize:desk?18:16,fontWeight:800,color:$.h}}>£{(p.price||0).toFixed(2)}</span>
+                  {p.compare_at_price>0&&<span style={{fontSize:11,color:$.txtL,textDecoration:'line-through'}}>£{p.compare_at_price.toFixed(2)}</span>}
+                </div>
+                <button onClick={()=>addToCart(p)} style={{marginTop:8,padding:desk?'8px 0':'6px 0',borderRadius:99,border:'none',background:inCart?'#10B981':$.acc,color:inCart?'#fff':'#111',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:$.f,width:'100%'}}>
+                  {inCart?`In Basket (${inCart.quantity})`:'Add to Basket'}
+                </button>
+              </div>
+            </div>
+          )})}
+        </div>
+        {filtered.length===0&&<div style={{padding:40,textAlign:'center',color:$.txtM,fontSize:13}}>No products available in this category.</div>}
+
+        {/* Services section */}
+        {services.length>0&&(
+          <div style={{padding:desk?'16px 24px':'12px'}}>
+            <h3 style={{fontSize:15,fontWeight:700,color:$.h,margin:'16px 0 12px',fontFamily:$.f}}>Book a Treatment</h3>
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              {services.map(s=>(
+                <div key={s.id||s.name} style={{background:$.card,borderRadius:12,border:`1px solid ${$.bdr}`,padding:desk?'14px 16px':'12px 14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                  <div>
+                    <div style={{fontSize:13,fontWeight:600,color:$.h}}>{s.name}</div>
+                    <div style={{fontSize:11,color:$.txtM}}>{s.duration||s.durationMinutes||'—'} min{s.staffName?` · ${s.staffName}`:''}</div>
+                  </div>
+                  <div style={{display:'flex',alignItems:'center',gap:10}}>
+                    <span style={{fontSize:15,fontWeight:800,color:$.h}}>£{(s.price||0).toFixed(2)}</span>
+                    <button onClick={()=>{navTo('bookings')}} style={{padding:'6px 14px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </Shell>
+  )}
+
+  // CART VIEW
+  // ═══════════════════════════════════════════════════════════════
+  if(view==='cart'){
+    const cartTotal=shopCart.reduce((s,i)=>s+i.price*i.quantity,0)
+    return(
+    <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="shop">
+      <TopBar biz={biz} user={user} desk={desk}/>
+      <div style={{flex:1,overflowY:'auto',padding:desk?'20px 24px':'16px',paddingBottom:desk?20:140}}>
+        <button onClick={()=>setView('shop')} style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',fontSize:13,fontWeight:600,color:$.txtM,fontFamily:$.f,marginBottom:16,padding:0}}>{I.back($.txtM)} Back to Shop</button>
+        <h2 style={{fontSize:20,fontWeight:800,color:$.h,margin:'0 0 16px',fontFamily:$.f}}>Your Basket</h2>
+        {shopCart.length===0?<p style={{color:$.txtM,fontSize:13}}>Your basket is empty.</p>:
+        <div style={{display:'flex',flexDirection:'column',gap:10}}>
+          {shopCart.map(item=>(
+            <div key={item.product_id} style={{background:$.card,borderRadius:12,border:`1px solid ${$.bdr}`,padding:'12px 16px',display:'flex',alignItems:'center',gap:12}}>
+              <div style={{width:48,height:48,borderRadius:8,background:'#F5F5F3',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{I.shop('#DDD',20)}</div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:13,fontWeight:600,color:$.h}}>{item.name}</div>
+                <div style={{fontSize:11,color:$.txtM}}>£{item.price.toFixed(2)} each</div>
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <button onClick={()=>setShopCart(prev=>prev.map(i=>i.product_id===item.product_id?{...i,quantity:Math.max(0,i.quantity-1)}:i).filter(i=>i.quantity>0))} style={{width:28,height:28,borderRadius:6,border:`1px solid ${$.bdr}`,background:$.card,cursor:'pointer',fontSize:14,fontWeight:700,fontFamily:$.f,display:'flex',alignItems:'center',justifyContent:'center'}}>−</button>
+                <span style={{fontSize:14,fontWeight:700,color:$.h,minWidth:20,textAlign:'center'}}>{item.quantity}</span>
+                <button onClick={()=>setShopCart(prev=>prev.map(i=>i.product_id===item.product_id?{...i,quantity:i.quantity+1}:i))} style={{width:28,height:28,borderRadius:6,border:`1px solid ${$.bdr}`,background:$.card,cursor:'pointer',fontSize:14,fontWeight:700,fontFamily:$.f,display:'flex',alignItems:'center',justifyContent:'center'}}>+</button>
+              </div>
+              <span style={{fontSize:15,fontWeight:800,color:$.h,minWidth:60,textAlign:'right'}}>£{(item.price*item.quantity).toFixed(2)}</span>
+            </div>
+          ))}
+          <div style={{background:$.card,borderRadius:12,border:`1px solid ${$.bdr}`,padding:'16px',marginTop:8}}>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+              <span style={{fontSize:13,color:$.txtM}}>Subtotal</span>
+              <span style={{fontSize:15,fontWeight:800,color:$.h}}>£{cartTotal.toFixed(2)}</span>
+            </div>
+            <button style={{width:'100%',padding:'12px 0',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Checkout — £{cartTotal.toFixed(2)}</button>
+          </div>
+        </div>}
+      </div>
+    </Shell>
+  )}
 
   // MESSAGES — ticketing + AI support
   // ═══════════════════════════════════════════════════════════════

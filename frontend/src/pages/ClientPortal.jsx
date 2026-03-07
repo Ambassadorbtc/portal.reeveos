@@ -84,7 +84,7 @@ const SigPad=({onSign,desk:dk})=>{const ref=useRef(null),dr=useRef(false);const 
 // ═══ SIDEBAR (logged-in pages only) ═══
 const RAIL=56,PANEL=192
 const Sidebar=({biz,user,activeTab,onNav,onLogout})=>{
-  const tabs=[{id:'home',label:'Home',icon:'home'},{id:'bookings',label:'Bookings',icon:'cal'},{id:'shop',label:'Shop',icon:'shop'},{id:'form',label:'Consultation',icon:'form'},{id:'messages',label:'Messages',icon:'msg'},{id:'profile',label:'My Profile',icon:'user'}]
+  const tabs=[{id:'home',label:'Home',icon:'home'},{id:'bookings',label:'Bookings',icon:'cal'},{id:'shop',label:'Shop',icon:'shop'},{id:'video',label:'Video Call',icon:'video'},{id:'form',label:'Consultation',icon:'form'},{id:'messages',label:'Messages',icon:'msg'},{id:'profile',label:'My Profile',icon:'user'}]
   const ini=(user?.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2)
   return(
     <div className="client-sidebar" style={{height:'100vh',position:'sticky',top:0,flexShrink:0,fontFamily:$.f}}>
@@ -118,17 +118,17 @@ const Sidebar=({biz,user,activeTab,onNav,onLogout})=>{
 const TopBar=({biz,user,desk})=>{
   const ini=(user?.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2)
   return(
-    <div style={{background:'#111111',padding:desk?'12px 24px':'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+    <div style={{background:desk?'#FAFAF8':'#111111',padding:desk?'10px 24px':'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0,borderBottom:desk?`1px solid #EBEBEB`:'none'}}>
       <div style={{display:'flex',alignItems:'center',gap:10}}>
-        <div style={{width:34,height:34,borderRadius:10,background:$.acc,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><span style={{fontSize:13,fontWeight:800,color:'#111'}}>R.</span></div>
+        {!desk&&<div style={{width:34,height:34,borderRadius:10,background:$.acc,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><span style={{fontSize:13,fontWeight:800,color:'#111'}}>R.</span></div>}
         <div>
-          <p style={{fontSize:14,fontWeight:700,color:'#FAF7F2',margin:0}}>{desk?biz?.name||'Portal':`Hi ${(user?.name||'').split(' ')[0]}`}</p>
-          {!desk&&<p style={{fontSize:10,color:'rgba(250,247,242,0.5)',margin:0}}>{biz?.name}</p>}
+          {desk?<p style={{fontSize:13,fontWeight:600,color:'#888',margin:0}}>Welcome back, {(user?.name||'').split(' ')[0]}</p>
+          :<><p style={{fontSize:14,fontWeight:700,color:'#FAF7F2',margin:0}}>Hi {(user?.name||'').split(' ')[0]}</p><p style={{fontSize:10,color:'rgba(250,247,242,0.5)',margin:0}}>{biz?.name}</p></>}
         </div>
       </div>
       <div style={{display:'flex',alignItems:'center',gap:8}}>
-        <button style={{width:36,height:36,borderRadius:99,background:'rgba(255,255,255,0.08)',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative',flexShrink:0}}>{I.bell('rgba(250,247,242,0.6)',16)}<div style={{position:'absolute',top:7,right:7,width:7,height:7,borderRadius:99,background:$.acc}}/></button>
-        <div style={{width:34,height:34,borderRadius:99,border:`2px solid ${$.acc}40`,background:'rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:$.acc,flexShrink:0}}>{ini}</div>
+        <button style={{width:36,height:36,borderRadius:99,background:desk?'#F5F5F3':'rgba(255,255,255,0.08)',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',position:'relative',flexShrink:0}}>{I.bell(desk?'#888':'rgba(250,247,242,0.6)',16)}<div style={{position:'absolute',top:7,right:7,width:7,height:7,borderRadius:99,background:$.acc}}/></button>
+        <div style={{width:34,height:34,borderRadius:99,border:`2px solid ${$.acc}40`,background:desk?'#F5F5F3':'rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:$.acc,flexShrink:0}}>{ini}</div>
       </div>
     </div>
   )
@@ -141,7 +141,7 @@ const Shell=({biz,user,desk,activeTab,onNav,onLogout,tab,children})=>(
     <Sidebar biz={biz} user={user} activeTab={tab||activeTab} onNav={onNav} onLogout={onLogout}/>
     <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column'}}>{children}</div>
     <div className="client-mobnav" style={{position:'fixed',bottom:0,left:0,right:0,background:'#111111',padding:'10px 0 calc(20px + env(safe-area-inset-bottom, 0px))',zIndex:30,display:'flex',justifyContent:'space-around',borderTop:'1px solid rgba(200,163,76,0.1)'}}>
-      {[{id:'home',icon:'home',label:'Home'},{id:'bookings',icon:'cal',label:'Bookings'},{id:'shop',icon:'shop',label:'Shop'},{id:'form',icon:'form',label:'Forms'},{id:'messages',icon:'msg',label:'Messages'},{id:'profile',icon:'user',label:'Profile'}].map(t=><button key={t.id} onClick={()=>onNav(t.id)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'2px 6px'}}>{I[t.icon](activeTab===t.id?$.acc:'rgba(255,255,255,0.45)',22)}<span style={{fontSize:11,fontWeight:activeTab===t.id?700:500,color:activeTab===t.id?$.acc:'rgba(255,255,255,0.45)'}}>{t.label}</span></button>)}
+      {[{id:'home',icon:'home',label:'Home'},{id:'bookings',icon:'cal',label:'Bookings'},{id:'shop',icon:'shop',label:'Shop'},{id:'video',icon:'video',label:'Video'},{id:'messages',icon:'msg',label:'Messages'}].map(t=><button key={t.id} onClick={()=>onNav(t.id)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'2px 6px'}}>{I[t.icon](activeTab===t.id?$.acc:'rgba(255,255,255,0.45)',22)}<span style={{fontSize:11,fontWeight:activeTab===t.id?700:500,color:activeTab===t.id?$.acc:'rgba(255,255,255,0.45)'}}>{t.label}</span></button>)}
     </div>
   </div>
 )
@@ -174,14 +174,16 @@ export default function ClientPortal(){
   const[msgTab,setMsgTab]=useState('chat'),[msgs,setMsgs]=useState([]),[msgText,setMsgText]=useState('')
   const[services,setServices]=useState([]),[slots,setSlots]=useState([]),[slotStaff,setSlotStaff]=useState([])
   const[shopProducts,setShopProducts]=useState([]),[shopCart,setShopCart]=useState([]),[shopCats,setShopCats]=useState([]),[shopCatFilter,setShopCatFilter]=useState('all')
+  const[meetings,setMeetings]=useState([])
   const[bookSvc,setBookSvc]=useState(null),[bookDate,setBookDate]=useState(new Date().toISOString().split('T')[0]),[bookTime,setBookTime]=useState(''),[bookStaff,setBookStaff]=useState(''),[bookStep,setBookStep]=useState('list'),[bookLoading,setBookLoading]=useState(false)
   const[notifPrefs,setNotifPrefs]=useState({appointment_reminders:true,aftercare:true,promotions:false,booking_confirmations:true})
-  const navTo=t=>{setActiveTab(t);if(t==='home')setView('home');else if(t==='form'){setStep(0);setView('form')}else if(t==='shop'){setView('shop');loadShop()}else{setView(t);if(t==='messages')loadMsgs();if(t==='bookings'){loadServices();setBookStep('list')}if(t==='profile')loadNotifPrefs()}}
+  const navTo=t=>{setActiveTab(t);if(t==='home')setView('home');else if(t==='form'){setStep(0);setView('form')}else if(t==='shop'){setView('shop');loadShop()}else if(t==='video'){setView('video');loadMeetings()}else{setView(t);if(t==='messages')loadMsgs();if(t==='bookings'){loadServices();setBookStep('list')}if(t==='profile')loadNotifPrefs()}}
   const loadMsgs=async()=>{try{const d=await apiFetch(`/client/${slug}/messages`);setMsgs((d.messages||[]).map(m=>({from:m.from==='client'?'me':'them',text:m.text,time:m.created_at?new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'',staff:m.staff_name})))}catch(e){}}
   const sendMsg=async()=>{if(!msgText.trim())return;const text=msgText;setMsgText('');setMsgs(p=>[...p,{from:'me',text,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}]);try{await apiFetch(`/client/${slug}/messages`,{method:'POST',body:JSON.stringify({text})})}catch(e){}}
   const loadServices=async()=>{try{const d=await apiFetch(`/client/${slug}/services`);setServices(d.services||[])}catch(e){}}
   const loadShop=async()=>{try{const d=await fetch(`/api/shop/public/${slug}/products`).then(r=>r.json());setShopProducts(d.products||[]);setShopCats(d.categories||[])}catch(e){console.error('Shop load error:', e)}}
   const addToCart=(product)=>{setShopCart(prev=>{const existing=prev.find(i=>i.product_id===product.id);if(existing)return prev.map(i=>i.product_id===product.id?{...i,quantity:i.quantity+1}:i);return[...prev,{product_id:product.id,name:product.name,price:product.price,quantity:1,image:product.images?.[0]}]})}
+  const loadMeetings=async()=>{try{const d=await apiFetch(`/client/${slug}/meetings`);setMeetings(d.meetings||[])}catch(e){setMeetings([])}}
   const loadSlots=async(svcId,date)=>{try{const d=await apiFetch(`/client/${slug}/slots?service_id=${svcId}&date=${date}`);setSlots(d.slots||[]);setSlotStaff(d.staff||[])}catch(e){setSlots([])}}
   const doBook=async()=>{if(!bookSvc||!bookDate||!bookTime)return;setBookLoading(true);try{await apiFetch(`/client/${slug}/book`,{method:'POST',body:JSON.stringify({service_id:bookSvc.id,date:bookDate,time:bookTime,staff_id:bookStaff||undefined})});setBookStep('done');await loadUser()}catch(e){setErr(e.message)}setBookLoading(false)}
   const toggleNotif=async(key)=>{const nw={...notifPrefs,[key]:!notifPrefs[key]};setNotifPrefs(nw);try{await apiFetch('/client/auth/notifications',{method:'PUT',body:JSON.stringify({prefs:nw})})}catch(e){}}
@@ -259,7 +261,7 @@ export default function ClientPortal(){
   // HOME (Figma 2:849 / 2:674) — sidebar + main
   // ═══════════════════════════════════════════════════════════════
   if(view==='home'){
-    const qa=[{icon:'cal',label:'Book Visit',sub:'Past & upcoming',action:()=>navTo('bookings'),show:true},{icon:'shop',label:'Shop',sub:'Products & offers',action:()=>navTo('shop'),show:true},{icon:'form',label:hasForm?'View Form':'Fill Form',sub:hasForm?'Review details':'Complete paperwork',action:()=>{setStep(0);setView('form')},show:isSalon},{icon:'user',label:'My Profile',sub:'History & settings',action:()=>navTo('profile'),show:true},{icon:'msg',label:'Message Us',sub:'Talk to experts',action:()=>navTo('messages'),show:true}].filter(a=>a.show)
+    const qa=[{icon:'cal',label:'Book Visit',sub:'Past & upcoming',action:()=>navTo('bookings'),show:true},{icon:'shop',label:'Shop',sub:'Products & offers',action:()=>navTo('shop'),show:true},{icon:'video',label:'Video Call',sub:'Virtual consultation',action:()=>navTo('video'),show:true},{icon:'form',label:hasForm?'View Form':'Fill Form',sub:hasForm?'Review details':'Complete paperwork',action:()=>{setStep(0);setView('form')},show:isSalon},{icon:'user',label:'My Profile',sub:'History & settings',action:()=>navTo('profile'),show:true},{icon:'msg',label:'Message Us',sub:'Talk to experts',action:()=>navTo('messages'),show:true}].filter(a=>a.show)
     return(
       <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="home">
         <TopBar biz={biz} user={user} desk={desk}/>
@@ -796,6 +798,74 @@ export default function ClientPortal(){
             <button style={{width:'100%',padding:'12px 0',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Checkout — £{cartTotal.toFixed(2)}</button>
           </div>
         </div>}
+      </div>
+    </Shell>
+  )}
+
+  // VIDEO CONSULTATIONS
+  // ═══════════════════════════════════════════════════════════════
+  if(view==='video'){
+    return(
+    <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="video">
+      <TopBar biz={biz} user={user} desk={desk}/>
+      <div style={{flex:1,overflowY:'auto',padding:desk?'20px 24px':'16px',paddingBottom:desk?20:140}}>
+        <h2 style={{fontSize:desk?22:18,fontWeight:800,color:$.h,margin:'0 0 4px',fontFamily:$.f}}>Video Consultations</h2>
+        <p style={{fontSize:13,color:$.txtM,margin:'0 0 20px'}}>Join your virtual appointments via Google Meet — no app download needed.</p>
+
+        {meetings.length>0?(
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {meetings.map(m=>{
+              const dt=m.start_time?new Date(m.start_time):null
+              const isNow=dt&&Math.abs(Date.now()-dt.getTime())<30*60*1000
+              const isPast=dt&&dt.getTime()<Date.now()-60*60*1000
+              return(
+              <div key={m.id} style={{background:$.card,borderRadius:14,border:`1px solid ${isNow?$.acc:$.bdr}`,padding:desk?'16px 20px':'14px 16px',display:'flex',alignItems:'center',gap:14}}>
+                <div style={{width:44,height:44,borderRadius:12,background:isNow?`${$.acc}15`:'#F5F5F3',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                  {I.video(isNow?$.acc:'#BBB',20)}
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:14,fontWeight:700,color:$.h}}>{m.title||'Virtual Consultation'}</div>
+                  <div style={{fontSize:12,color:$.txtM,marginTop:2}}>
+                    {dt?dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+' at '+dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'Date TBC'}
+                    {m.staff_name?` · with ${m.staff_name}`:''}
+                    {m.duration_minutes?` · ${m.duration_minutes} min`:''}
+                  </div>
+                </div>
+                {m.meet_link&&!isPast&&(
+                  <a href={m.meet_link} target="_blank" rel="noopener noreferrer" style={{padding:'8px 20px',borderRadius:99,border:'none',background:isNow?$.acc:'#111',color:isNow?'#111':'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f,textDecoration:'none',display:'flex',alignItems:'center',gap:6}}>
+                    {I.video(isNow?'#111':'#fff',14)} {isNow?'Join Now':'Join'}
+                  </a>
+                )}
+                {isPast&&<span style={{fontSize:11,fontWeight:600,color:'#10B981'}}>Completed</span>}
+              </div>
+            )})}
+          </div>
+        ):(
+          <div style={{background:$.card,borderRadius:16,border:`1px solid ${$.bdr}`,padding:desk?'40px':'30px 20px',textAlign:'center'}}>
+            <div style={{marginBottom:12}}>{I.video('#DDD',40)}</div>
+            <h3 style={{fontSize:16,fontWeight:700,color:$.h,margin:'0 0 6px',fontFamily:$.f}}>No Video Consultations</h3>
+            <p style={{fontSize:13,color:$.txtM,margin:'0 0 16px'}}>When you book a virtual consultation, your Google Meet link will appear here.</p>
+            <button onClick={()=>navTo('bookings')} style={{padding:'10px 24px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book a Consultation</button>
+          </div>
+        )}
+
+        {/* How it works */}
+        <div style={{marginTop:24,background:$.card,borderRadius:14,border:`1px solid ${$.bdr}`,padding:desk?'18px 20px':'14px 16px'}}>
+          <h3 style={{fontSize:14,fontWeight:700,color:$.h,margin:'0 0 12px',fontFamily:$.f}}>How Video Consultations Work</h3>
+          {[
+            {step:'1',text:'Book a "Virtual Consultation" from the Bookings tab'},
+            {step:'2',text:'You\'ll receive a confirmation email with your Google Meet link'},
+            {step:'3',text:'At your appointment time, click "Join Now" above or use the link in your email'},
+            {step:'4',text:'No downloads needed — Google Meet works in your browser on any device'},
+          ].map(s=>(
+            <div key={s.step} style={{display:'flex',gap:10,marginBottom:10,alignItems:'flex-start'}}>
+              <div style={{width:24,height:24,borderRadius:99,background:`${$.acc}15`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                <span style={{fontSize:11,fontWeight:800,color:$.acc}}>{s.step}</span>
+              </div>
+              <p style={{fontSize:13,color:$.txtM,margin:0,lineHeight:1.5}}>{s.text}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </Shell>
   )}

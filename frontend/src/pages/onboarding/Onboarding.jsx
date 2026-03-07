@@ -426,14 +426,14 @@ export default function Onboarding() {
                 <strong className="text-primary">{form.name || 'Your business'}</strong> is now live on ReeveOS.
               </p>
               <p className="text-gray-400 text-sm mb-10 font-body">
-                Head to your dashboard to add services, manage bookings, and customise your listing.
+                Head to your dashboard to add {form.category === 'restaurant' || form.category === 'cafe' || form.category === 'bar' || form.category === 'pub' || form.category === 'takeaway' ? 'your menu' : 'services'}, manage bookings, and customise your listing.
               </p>
 
               <div className="bg-white rounded-2xl border border-border p-6 max-w-md mx-auto mb-8">
                 <h3 className="font-heading font-bold text-primary mb-4">Next steps</h3>
                 <div className="space-y-3 text-left">
                   {[
-                    { label: 'Add your services or menu', path: '/dashboard/services' },
+                    { label: form.category === 'restaurant' || form.category === 'cafe' || form.category === 'bar' || form.category === 'pub' || form.category === 'takeaway' ? 'Add your menu' : 'Add your services', path: '/dashboard/services' },
                     { label: 'Invite your staff', path: '/dashboard/staff' },
                     { label: 'Customise your booking page', path: '/dashboard/online-booking' },
                     { label: 'Connect Stripe for payments', path: '/dashboard/payments' },

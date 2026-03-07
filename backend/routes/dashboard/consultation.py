@@ -518,3 +518,207 @@ async def check_client_form_status(
         "alerts": latest.get("alerts", {"blocks": [], "flags": []}),
         "submission_id": str(latest["_id"]),
     }
+
+
+# ═══════════════════════════════════════════════════════════════
+# MEDICAL QUICK-UPDATE — "Any changes since last visit?"
+# ═══════════════════════════════════════════════════════════════
+
+@router.post("/business/{business_id}/quick-update")
+async def submit_medical_quick_update(
+    business_id: str,
+    data: dict = Body(...),
+    tenant: TenantContext = Depends(verify_business_access),
+):
+    """Staff or client submits a medical quick-update instead of full form redo.
+    Flags upcoming bookings so therapist knows to check."""
+    db = get_database()
+
+    client_id = data.get("client_id") or data.get("clientId")
+    client_email = data.get("email")
+    client_phone = data.get("phone")
+    has_changes = data.get("has_changes", False)
+    description = (data.get("description") or "").strip()
+    conditions = data.get("conditions", [])  # list of condition keys e.g. ["pregnant", "coldSore"]
+
+    if not client_id and not client_email and not client_phone:
+        raise HTTPException(400, "Client identifier required (client_id, email, or phone)")
+
+    # Find the client's latest consultation submission
+    query = {"business_id": business_id}
+    if client_id:
+        query["client_id"] = client_id
+    elif client_email:
+        query["client_email"] = client_email
+    elif client_phone:
+        query["client_phone"] = client_phone
+
+    latest = await db.consultation_submissions.find_one(
+        query, sort=[("submitted_at", -1)]
+    )
+
+    now = datetime.utcnow()
+    update_doc = {
+        "date": now,
+        "has_changes": has_changes,
+        "description": description,
+        "conditions": conditions,
+        "submitted_by": tenant.user_email or tenant.user_id,
+        "reviewed": False,
+    }
+
+    # Run contraindication check on flagged conditions
+    alerts = {"blocks": [], "flags": []}
+    if has_changes and conditions:
+        template = await db.consultation_templates.find_one({"business_id": business_id})
+        matrix = (template or {}).get("contraindication_matrix") or DEFAULT_CONTRA_MATRIX
+        for cond in conditions:
+            if cond in matrix:
+                for treatment, level in matrix[cond].items():
+                    entry = {"condition": cond, "treatment": treatment}
+                    if level == "BLOCK":
+                        alerts["blocks"].append(entry)
+                    elif level == "FLAG":
+                        alerts["flags"].append(entry)
+        update_doc["alerts"] = alerts
+
+    if latest:
+        # Append to existing submission
+        await db.consultation_submissions.update_one(
+            {"_id": latest["_id"]},
+            {
+                "$push": {"medical_updates": update_doc},
+                "$set": {
+                    "has_unreviewed_update": has_changes,
+                    "last_update_at": now,
+                    "updatedAt": now,
+                }
+            }
+        )
+    else:
+        # No submission yet — create a minimal record
+        await db.consultation_submissions.insert_one({
+            "business_id": business_id,
+            "client_id": client_id,
+            "client_email": client_email,
+            "client_phone": client_phone,
+            "medical_updates": [update_doc],
+            "has_unreviewed_update": has_changes,
+            "last_update_at": now,
+            "submitted_at": now,
+            "status": "update_only",
+        })
+
+    # Flag upcoming bookings for this client
+    if has_changes:
+        biz_match = {"$or": [{"businessId": business_id}, {"business_id": business_id}]}
+        client_match = {}
+        if client_phone:
+            client_match["customer.phone"] = client_phone
+        elif client_email:
+            client_match["customer.email"] = client_email
+        elif client_id:
+            client_match["customerId"] = client_id
+
+        if client_match:
+            today = now.strftime("%Y-%m-%d")
+            await db.bookings.update_many(
+                {**biz_match, **client_match, "date": {"$gte": today}, "status": {"$in": ["confirmed", "pending"]}},
+                {"$set": {
+                    "medicalAlert": True,
+                    "medicalAlertDesc": description[:200] if description else "Medical update flagged",
+                    "medicalAlertBlocks": alerts.get("blocks", []),
+                }}
+            )
+
+    return {
+        "status": "updated",
+        "has_changes": has_changes,
+        "alerts": alerts,
+        "message": "Medical update recorded" + (f" — {len(alerts['blocks'])} treatment blocks detected" if alerts["blocks"] else ""),
+    }
+
+
+@router.post("/public/{slug}/quick-update")
+async def public_medical_quick_update(slug: str, data: dict = Body(...)):
+    """Public endpoint for clients to submit medical updates via email link."""
+    db = get_database()
+    biz = await db.businesses.find_one({"slug": slug})
+    if not biz:
+        raise HTTPException(404, "Business not found")
+
+    business_id = str(biz["_id"])
+    has_changes = data.get("has_changes", False)
+    description = (data.get("description") or "").strip()
+    conditions = data.get("conditions", [])
+    client_email = data.get("email")
+    client_phone = data.get("phone")
+    token = data.get("token")  # verification token from email link
+
+    if not client_email and not client_phone:
+        raise HTTPException(400, "Email or phone required")
+
+    now = datetime.utcnow()
+    update_doc = {
+        "date": now,
+        "has_changes": has_changes,
+        "description": description,
+        "conditions": conditions,
+        "submitted_by": "client",
+        "reviewed": False,
+    }
+
+    # Run contraindication check
+    alerts = {"blocks": [], "flags": []}
+    if has_changes and conditions:
+        template = await db.consultation_templates.find_one({"business_id": business_id})
+        matrix = (template or {}).get("contraindication_matrix") or DEFAULT_CONTRA_MATRIX
+        for cond in conditions:
+            if cond in matrix:
+                for treatment, level in matrix[cond].items():
+                    entry = {"condition": cond, "treatment": treatment}
+                    if level == "BLOCK":
+                        alerts["blocks"].append(entry)
+                    elif level == "FLAG":
+                        alerts["flags"].append(entry)
+        update_doc["alerts"] = alerts
+
+    # Find or create submission
+    query = {"business_id": business_id}
+    if client_email:
+        query["client_email"] = client_email
+    else:
+        query["client_phone"] = client_phone
+
+    latest = await db.consultation_submissions.find_one(query, sort=[("submitted_at", -1)])
+
+    if latest:
+        await db.consultation_submissions.update_one(
+            {"_id": latest["_id"]},
+            {"$push": {"medical_updates": update_doc}, "$set": {"has_unreviewed_update": has_changes, "last_update_at": now}}
+        )
+    else:
+        await db.consultation_submissions.insert_one({
+            "business_id": business_id,
+            "client_email": client_email, "client_phone": client_phone,
+            "medical_updates": [update_doc],
+            "has_unreviewed_update": has_changes, "last_update_at": now,
+            "submitted_at": now, "status": "update_only",
+        })
+
+    # Flag upcoming bookings
+    if has_changes:
+        biz_match = {"$or": [{"businessId": business_id}, {"business_id": business_id}]}
+        client_match = {"customer.phone": client_phone} if client_phone else {"customer.email": client_email}
+        today = now.strftime("%Y-%m-%d")
+        await db.bookings.update_many(
+            {**biz_match, **client_match, "date": {"$gte": today}, "status": {"$in": ["confirmed", "pending"]}},
+            {"$set": {"medicalAlert": True, "medicalAlertDesc": description[:200] or "Medical update flagged", "medicalAlertBlocks": alerts.get("blocks", [])}}
+        )
+
+    return {
+        "status": "updated",
+        "has_changes": has_changes,
+        "alerts": alerts,
+        "blocks_detected": len(alerts.get("blocks", [])),
+    }

@@ -599,6 +599,15 @@ const Calendar = () => {
               setCancelConfirm(a.id)
             }} style={{ width: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, border: '1px solid #EF444420', background: '#FEF2F2', color: '#EF4444', cursor: 'pointer' }}><TrashIcon /></button>
           </div>
+          {a.medicalAlert && (
+            <div style={{ marginTop: 8, padding: '8px 10px', background: '#FEF2F2', borderRadius: 8, border: '1px solid #FECACA', fontSize: 11, color: '#DC2626', lineHeight: '16px', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+              <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div><strong>Medical update flagged</strong>{a.medicalAlertDesc ? ` — ${a.medicalAlertDesc}` : ''}</div>
+            </div>
+          )}
+          {a.firstVisit && (
+            <div style={{ marginTop: 8, padding: '6px 10px', background: '#EFF6FF', borderRadius: 8, border: '1px solid #BFDBFE', fontSize: 11, color: '#1D4ED8', fontWeight: 600 }}>First visit — 15min consultation buffer added</div>
+          )}
           {a.notes && <div style={{ marginTop: 8, padding: '8px 10px', background: '#FFFBEB', borderRadius: 8, border: '1px solid #FDE68A', fontSize: 11, color: '#92400E', lineHeight: '16px' }}>{a.notes}</div>}
         </div>
       </div>

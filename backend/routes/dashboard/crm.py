@@ -61,7 +61,19 @@ async def get_crm_dashboard(
         "businessId": biz_id, "status": "completed",
         "date": {"$gte": month_start.strftime("%Y-%m-%d")}
     }).to_list(5000)
-    revenue_mtd = sum(float(b.get("price", 0) or b.get("service", {}).get("price", 0) or 0) for b in completed_this_month)
+    treatment_revenue_mtd = sum(float(b.get("price", 0) or b.get("service", {}).get("price", 0) or 0) for b in completed_this_month)
+
+    # Shop revenue this month
+    shop_orders_mtd = await db.shop_orders.find({
+        "business_id": biz_id, "payment_status": "paid",
+        "created_at": {"$gte": month_start}
+    }).to_list(5000)
+    shop_revenue_mtd = sum(float(o.get("total", 0)) for o in shop_orders_mtd)
+    revenue_mtd = treatment_revenue_mtd + shop_revenue_mtd
+
+    # Shop totals
+    total_shop_orders = await db.shop_orders.count_documents({"business_id": biz_id})
+    pending_shop_orders = await db.shop_orders.count_documents({"business_id": biz_id, "status": {"$in": ["pending", "processing"]}})
 
     # Pipeline stage counts
     pipeline_counts = {}
@@ -142,9 +154,13 @@ async def get_crm_dashboard(
             "total_clients": total_clients,
             "new_this_week": new_this_week,
             "revenue_mtd": round(revenue_mtd, 2),
+            "treatment_revenue_mtd": round(treatment_revenue_mtd, 2),
+            "shop_revenue_mtd": round(shop_revenue_mtd, 2),
             "at_risk_count": at_risk_count,
             "forms_expiring": forms_expiring,
             "tasks_due": tasks_due,
+            "shop_orders": total_shop_orders,
+            "pending_shop_orders": pending_shop_orders,
         },
         "pipeline": {
             "stages": CRM_PIPELINE_STAGES,
@@ -597,10 +613,29 @@ async def get_client_crm_detail(
     # Referral info
     referral_count = await db.clients.count_documents({**_biz_match(biz_id), "referrer_id": cid})
 
-    # LTV breakdown (simplified — expand later)
+    # Shop orders for this client (match by email)
+    shop_order_list = []
+    if email:
+        shop_orders = await db.shop_orders.find({
+            "business_id": biz_id, "customer.email": {"$regex": email, "$options": "i"}
+        }).sort("created_at", -1).limit(20).to_list(20)
+        for so in shop_orders:
+            shop_order_list.append({
+                "id": str(so.get("_id", "")),
+                "order_number": so.get("order_number", ""),
+                "date": so.get("created_at", "").isoformat() if hasattr(so.get("created_at", ""), "isoformat") else str(so.get("created_at", "")),
+                "items": len(so.get("items", [])),
+                "total": so.get("total", 0),
+                "status": so.get("status", ""),
+                "item_names": [i.get("name", "") for i in so.get("items", [])[:3]],
+            })
+        retail_revenue = sum(float(o.get("total", 0)) for o in shop_orders if o.get("payment_status") == "paid")
+    else:
+        retail_revenue = client.get("retail_revenue", 0)
+
+    # LTV breakdown
     treatment_revenue = stats.get("totalSpent", 0) or stats.get("spend", 0) or 0
     package_revenue = client.get("package_revenue", 0)
-    retail_revenue = client.get("retail_revenue", 0)
 
     return {
         "client": {
@@ -630,6 +665,7 @@ async def get_client_crm_detail(
         "pipeline_stage": stage,
         "consultation_form_status": form_status,
         "bookings": booking_list,
+        "shop_orders": shop_order_list,
         "tasks": tasks,
         "referral_count": referral_count,
         "ltv": {
@@ -809,6 +845,29 @@ async def get_analytics(
     retained = current_visitors & prev_visitors
     retention_rate = round(len(retained) / len(prev_visitors) * 100, 1) if prev_visitors else 0
 
+    # Shop analytics
+    shop_orders = await db.shop_orders.find({
+        "business_id": biz_id, "payment_status": "paid",
+        "created_at": {"$gte": period_start}
+    }).to_list(5000)
+    shop_revenue = sum(float(o.get("total", 0)) for o in shop_orders)
+    treatment_revenue_total = round(sum(float(b.get("price", 0) or b.get("service", {}).get("price", 0) or 0) for b in completed), 2)
+
+    # Top selling products
+    product_sales = {}
+    for o in shop_orders:
+        for item in o.get("items", []):
+            name = item.get("name", "Unknown")
+            if name not in product_sales:
+                product_sales[name] = {"quantity": 0, "revenue": 0}
+            product_sales[name]["quantity"] += item.get("quantity", 1)
+            product_sales[name]["revenue"] += float(item.get("price", 0)) * item.get("quantity", 1)
+    top_products = sorted([{"name": k, **v} for k, v in product_sales.items()], key=lambda x: x["revenue"], reverse=True)[:10]
+
+    # Discount usage
+    discounts_used = await db.shop_discounts.find({"business_id": biz_id, "used": {"$gt": 0}}).to_list(100)
+    discount_stats = [{"code": d.get("code"), "used": d.get("used", 0), "type": d.get("type"), "value": d.get("value")} for d in discounts_used]
+
     return {
         "period_days": period_days,
         "funnel": funnel,
@@ -816,7 +875,19 @@ async def get_analytics(
         "staff_performance": staff_list,
         "retention_rate": retention_rate,
         "total_clients": len(all_clients),
-        "total_revenue_period": round(sum(float(b.get("price", 0) or b.get("service", {}).get("price", 0) or 0) for b in completed), 2),
+        "total_revenue_period": round(treatment_revenue_total + shop_revenue, 2),
+        "revenue_breakdown": {
+            "treatments": treatment_revenue_total,
+            "shop": round(shop_revenue, 2),
+            "total": round(treatment_revenue_total + shop_revenue, 2),
+        },
+        "shop_stats": {
+            "orders": len(shop_orders),
+            "revenue": round(shop_revenue, 2),
+            "avg_order_value": round(shop_revenue / len(shop_orders), 2) if shop_orders else 0,
+            "top_products": top_products,
+            "discounts": discount_stats,
+        },
     }
 
 

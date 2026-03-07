@@ -255,9 +255,9 @@ function DashboardView({ data, onClientClick }) {
         {[
           { label: 'Total Clients', value: kpis.total_clients, Icon: Users, color: '#111' },
           { label: 'New This Week', value: kpis.new_this_week, Icon: UserPlus, color: '#3B82F6' },
-          { label: 'Revenue MTD', value: fmtCurrency(kpis.revenue_mtd), Icon: TrendingUp, color: '#10B981' },
+          { label: 'Revenue MTD', value: fmtCurrency(kpis.revenue_mtd), Icon: TrendingUp, color: '#10B981', sub: kpis.shop_revenue_mtd > 0 ? `Treatments ${fmtCurrency(kpis.treatment_revenue_mtd)} · Shop ${fmtCurrency(kpis.shop_revenue_mtd)}` : null },
           { label: 'At Risk', value: kpis.at_risk_count, Icon: AlertTriangle, color: '#EF4444' },
-          { label: 'Forms Expiring', value: kpis.forms_expiring, Icon: FileText, color: '#F59E0B' },
+          { label: 'Shop Orders', value: kpis.shop_orders || 0, Icon: ShoppingBag, color: GOLD, sub: kpis.pending_shop_orders > 0 ? `${kpis.pending_shop_orders} pending` : null },
           { label: 'Tasks Due', value: kpis.tasks_due, Icon: CheckCircle, color: '#8B5CF6' },
         ].map(k => (
           <div key={k.label} style={{ background: '#fff', borderRadius: 14, padding: '16px 18px', border: '1px solid #EBEBEB' }}>
@@ -266,6 +266,7 @@ function DashboardView({ data, onClientClick }) {
               <k.Icon size={16} color={k.color} />
             </div>
             <div style={{ fontSize: 24, fontWeight: 800, color: '#111' }}>{k.value}</div>
+            {k.sub && <div style={{ fontSize: 10, color: '#999', marginTop: 4 }}>{k.sub}</div>}
           </div>
         ))}
       </div>
@@ -526,14 +527,18 @@ function AnalyticsView({ data }) {
           {(data.staff_performance || []).length === 0 && <p style={{ fontSize: 12, color: '#999', textAlign: 'center' }}>No data yet</p>}
         </div>
 
-        {/* Retention */}
+        {/* Retention + Revenue */}
         <div style={{ background: '#fff', borderRadius: 14, padding: 18, border: '1px solid #EBEBEB' }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: '#111', margin: '0 0 14px' }}>Key Metrics</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             {[
               { label: 'Retention Rate', value: `${data.retention_rate || 0}%`, color: '#10B981' },
-              { label: 'Period Revenue', value: fmtCurrency(data.total_revenue_period), color: '#111' },
+              { label: 'Total Revenue', value: fmtCurrency(data.revenue_breakdown?.total || data.total_revenue_period), color: '#111' },
+              { label: 'Treatment Revenue', value: fmtCurrency(data.revenue_breakdown?.treatments || 0), color: '#3B82F6' },
+              { label: 'Shop Revenue', value: fmtCurrency(data.revenue_breakdown?.shop || 0), color: GOLD },
               { label: 'Total Clients', value: data.total_clients, color: '#3B82F6' },
+              { label: 'Shop Orders', value: data.shop_stats?.orders || 0, color: GOLD },
+              { label: 'Avg Order Value', value: fmtCurrency(data.shop_stats?.avg_order_value || 0), color: '#888' },
               { label: 'Period', value: `${data.period_days} days`, color: '#888' },
             ].map(m => (
               <div key={m.label} style={{ background: '#FAFAF8', borderRadius: 10, padding: '12px 14px', border: '1px solid #EBEBEB' }}>
@@ -542,6 +547,34 @@ function AnalyticsView({ data }) {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Top Selling Products */}
+        <div style={{ background: '#fff', borderRadius: 14, padding: 18, border: '1px solid #EBEBEB' }}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, color: '#111', margin: '0 0 14px' }}>Top Selling Products</h3>
+          {(data.shop_stats?.top_products || []).map((p, i) => (
+            <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: '1px solid #F5F5F5' }}>
+              <span style={{ width: 20, fontSize: 11, fontWeight: 700, color: '#BBB', textAlign: 'center' }}>#{i + 1}</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#333', flex: 1 }}>{p.name}</span>
+              <span style={{ fontSize: 11, color: '#888' }}>{p.quantity} sold</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#111' }}>{fmtCurrency(p.revenue)}</span>
+            </div>
+          ))}
+          {(data.shop_stats?.top_products || []).length === 0 && <p style={{ fontSize: 12, color: '#999', textAlign: 'center' }}>No product sales yet</p>}
+
+          {/* Discount Usage */}
+          {(data.shop_stats?.discounts || []).length > 0 && (
+            <div style={{ marginTop: 14 }}>
+              <h4 style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', marginBottom: 8 }}>Discount Code Usage</h4>
+              {data.shop_stats.discounts.map(d => (
+                <div key={d.code} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, color: '#111', background: '#F5F5F3', padding: '2px 6px', borderRadius: 4 }}>{d.code}</span>
+                  <span style={{ fontSize: 11, color: '#888' }}>{d.used}× used</span>
+                  <span style={{ fontSize: 11, color: '#555' }}>{d.type === 'percentage' ? `${d.value}%` : fmtCurrency(d.value)} off</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -558,7 +591,7 @@ function ClientDetailPanel({ detail, timeline, onClose, bid, onInteraction, onRe
     </div>
   )
 
-  const { client, stats, health_score, pipeline_stage, consultation_form_status, bookings, tasks, ltv, referral_count } = detail
+  const { client, stats, health_score, pipeline_stage, consultation_form_status, bookings, shop_orders, tasks, ltv, referral_count } = detail
 
   return (
     <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 440, maxWidth: '90vw', background: '#fff', zIndex: 201, display: 'flex', flexDirection: 'column', boxShadow: '-4px 0 30px rgba(0,0,0,0.1)' }}>
@@ -616,7 +649,7 @@ function ClientDetailPanel({ detail, timeline, onClose, bid, onInteraction, onRe
             <div style={{ display: 'flex', gap: 8, fontSize: 10, color: '#666' }}>
               {ltv.treatments > 0 && <span>Treatments: {fmtCurrency(ltv.treatments)}</span>}
               {ltv.packages > 0 && <span>Packages: {fmtCurrency(ltv.packages)}</span>}
-              {ltv.retail > 0 && <span>Retail: {fmtCurrency(ltv.retail)}</span>}
+              {ltv.retail > 0 && <span>Shop: {fmtCurrency(ltv.retail)}</span>}
             </div>
           </div>
         )}
@@ -660,6 +693,26 @@ function ClientDetailPanel({ detail, timeline, onClose, bid, onInteraction, onRe
                   <div style={{ fontSize: 10, color: '#999' }}>{fmtDate(b.date)} · {b.staff || 'Any'}</div>
                 </div>
                 <span style={{ fontSize: 10, fontWeight: 600, color: b.status === 'completed' ? '#10B981' : b.status === 'cancelled' ? '#EF4444' : '#F59E0B', textTransform: 'capitalize' }}>{b.status}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Shop Orders */}
+        {shop_orders && shop_orders.length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <h4 style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', marginBottom: 8 }}>Shop Orders</h4>
+            {shop_orders.slice(0, 8).map(o => (
+              <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid #F5F5F5' }}>
+                <ShoppingBag size={13} color="#BBB" />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#333' }}>{o.order_number} — {o.items} item{o.items !== 1 ? 's' : ''}</div>
+                  <div style={{ fontSize: 10, color: '#999' }}>{fmtDate(o.date)}{o.item_names?.length > 0 ? ` · ${o.item_names.join(', ')}` : ''}</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#111' }}>{fmtCurrency(o.total)}</div>
+                  <span style={{ fontSize: 9, fontWeight: 600, color: o.status === 'delivered' ? '#10B981' : o.status === 'cancelled' ? '#EF4444' : '#F59E0B', textTransform: 'capitalize' }}>{o.status}</span>
+                </div>
               </div>
             ))}
           </div>

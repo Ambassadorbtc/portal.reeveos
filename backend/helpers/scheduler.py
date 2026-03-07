@@ -4,6 +4,7 @@ ReeveOS Background Scheduler
 Runs periodic tasks:
 - Process drip email queue (every 15 min)
 - Send booking reminders (every hour)
+- Process aftercare email queue (every 5 min)
 - Check insights report expiry for drip emails (daily)
 """
 
@@ -25,10 +26,12 @@ async def _run_scheduler():
 
     drip_interval = 15 * 60     # 15 minutes
     reminder_interval = 60 * 60  # 1 hour
+    aftercare_interval = 5 * 60  # 5 minutes
     insights_interval = 24 * 60 * 60  # 24 hours
 
     last_drip = datetime.utcnow()
     last_reminder = datetime.utcnow()
+    last_aftercare = datetime.utcnow()
     last_insights = datetime.utcnow()
 
     while True:
@@ -52,6 +55,14 @@ async def _run_scheduler():
                     last_reminder = now
                 except Exception as e:
                     logger.error(f"Booking reminder error: {e}")
+
+            # ─── Process Aftercare Email Queue ─── #
+            if (now - last_aftercare).total_seconds() >= aftercare_interval:
+                try:
+                    await _process_aftercare_queue()
+                    last_aftercare = now
+                except Exception as e:
+                    logger.error(f"Aftercare queue error: {e}")
 
             # ─── Insights Report Drip ─── #
             if (now - last_insights).total_seconds() >= insights_interval:
@@ -79,7 +90,7 @@ async def _run_scheduler():
 
 
 async def _send_booking_reminders():
-    """Send 24h and 2h booking reminders."""
+    """Send 24h and 2h booking reminders via email AND SMS."""
     from database import get_database
     from helpers.email import send_booking_reminder
 
@@ -99,12 +110,13 @@ async def _send_booking_reminders():
         "reminder_24h_sent": {"$ne": True},
     }).to_list(100)
 
+    sms_sent = 0
     for booking in bookings_24h:
         from models.normalize import normalize_booking
         nb = normalize_booking(booking)
         email = nb["customer"]["email"]
-        if not email:
-            continue
+        phone = nb["customer"].get("phone", "")
+        client_name = nb["customer"]["name"] or "there"
 
         # Get business name
         business = await db.businesses.find_one({"_id": nb["businessId"]})
@@ -116,15 +128,35 @@ async def _send_booking_reminders():
                 pass
         business_name = business.get("name", "") if business else ""
 
-        await send_booking_reminder(
-            to=email,
-            client_name=nb["customer"]["name"] or "there",
-            business_name=business_name,
-            booking_date=nb["date"],
-            booking_time=nb["time"],
-            hours_until=24,
-            manage_url=f"https://reeveos.app/bookings/{booking['_id']}",
-        )
+        # Email reminder
+        if email:
+            try:
+                await send_booking_reminder(
+                    to=email,
+                    client_name=client_name,
+                    business_name=business_name,
+                    booking_date=nb["date"],
+                    booking_time=nb["time"],
+                    hours_until=24,
+                    manage_url=f"https://reeveos.app/bookings/{booking['_id']}",
+                )
+            except Exception as e:
+                logger.error(f"Email reminder failed for {email}: {e}")
+
+        # SMS reminder (parallel to email)
+        if phone:
+            try:
+                from helpers.sms import send_sms, booking_reminder_sms
+                sms_body = booking_reminder_sms(
+                    client_name=client_name.split()[0] if client_name != "there" else "there",
+                    business_name=business_name,
+                    booking_date=nb["date"],
+                    booking_time=nb["time"],
+                )
+                await send_sms(phone, sms_body)
+                sms_sent += 1
+            except Exception as e:
+                logger.error(f"SMS reminder failed for {phone}: {e}")
 
         await db.bookings.update_one(
             {"_id": booking["_id"]},
@@ -139,7 +171,76 @@ async def _send_booking_reminders():
     # This is simplified — in production you'd combine date + time fields
 
     if bookings_24h:
-        logger.info(f"Sent {len(bookings_24h)} booking reminders (24h)")
+        logger.info(f"Sent {len(bookings_24h)} booking reminders (24h email + {sms_sent} SMS)")
+
+
+async def _process_aftercare_queue():
+    """
+    Process queued aftercare emails — sent 15-30 min after appointment completion.
+    Templates per treatment type: microneedling, peel, rf, polynucleotides, lymphatic, dermaplaning.
+    """
+    from database import get_database
+    from scripts.send_aftercare import AFTERCARE_CONTENT
+
+    db = get_database()
+    if not db:
+        return
+
+    now = datetime.utcnow()
+    queue = await db.aftercare_queue.find({
+        "sent": False,
+        "send_after": {"$lte": now},
+    }).to_list(50)
+
+    if not queue:
+        return
+
+    sent_count = 0
+    for item in queue:
+        treatment_type = item.get("treatment_type", "")
+        content = AFTERCARE_CONTENT.get(treatment_type)
+        if not content:
+            await db.aftercare_queue.update_one({"_id": item["_id"]}, {"$set": {"sent": True, "skipped": True}})
+            continue
+
+        client_email = item.get("client_email")
+        client_name = item.get("client_name", "")
+        business_id = item.get("business_id")
+
+        biz = await db.businesses.find_one({"_id": business_id}) if business_id else None
+        biz_name = (biz or {}).get("name", "Your Clinic")
+
+        try:
+            from helpers.email import send_email
+            await send_email(
+                to=client_email,
+                subject=content["subject"],
+                body=f"Hi {client_name},\n\n{content['body']}\n\nWarm regards,\n{biz_name}",
+                from_name=biz_name,
+            )
+            sent_count += 1
+        except Exception as e:
+            logger.error(f"Aftercare email failed for {client_email}: {e}")
+
+        await db.aftercare_queue.update_one(
+            {"_id": item["_id"]},
+            {"$set": {"sent": True, "sent_at": now}}
+        )
+
+        # Insurance documentation log
+        await db.aftercare_log.insert_one({
+            "business_id": business_id,
+            "booking_id": item.get("booking_id"),
+            "client_email": client_email,
+            "client_name": client_name,
+            "treatment_type": treatment_type,
+            "treatment_name": item.get("treatment_name", treatment_type),
+            "sent_at": now,
+            "template_subject": content["subject"],
+        })
+
+    if sent_count:
+        logger.info(f"Aftercare: sent {sent_count}/{len(queue)} emails")
 
 
 async def _send_insights_drip_emails():

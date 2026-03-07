@@ -499,6 +499,7 @@ async def create_booking(request: Request, business_slug: str, payload: dict):
         raise HTTPException(400, "Customer name is required")
 
     # ── Consultation form check (services businesses only) ──
+    latest_form = None  # stored for contraindication check below
     if biz_type == "services" and bs.get("require_consultation_form", True):
         if cust_email or cust_phone:
             now = datetime.utcnow()
@@ -633,11 +634,66 @@ async def create_booking(request: Request, business_slug: str, payload: dict):
     }
 
     # Services-specific fields
+    svc = None
     if biz_type == "services":
         svc = next((s for s in business.get("menu", []) if s.get("id") == payload.get("serviceId")), None)
         doc["service"] = {"id": payload.get("serviceId"), "name": svc.get("name") if svc else "", "duration": (svc or {}).get("duration_minutes", 60)}
         doc["endTime"] = _add_minutes(booking_time, (svc or {}).get("duration_minutes", 60))
         doc["duration"] = (svc or {}).get("duration_minutes", 60)
+
+    # ── Contraindication check (services businesses with consultation forms) ──
+    # Natalie's pregnant client story: the engine exists but was never called at booking time.
+    # This block maps the booked service to a treatment key, runs the check, and BLOCK/FLAG.
+    if biz_type == "services" and latest_form and svc:
+        from routes.dashboard.consultation import run_contraindication_check, DEFAULT_CONTRA_MATRIX, TREATMENT_LABELS
+
+        # Map service category/name to treatment key via keyword matching
+        _svc_name = (svc.get("name") or "").lower()
+        _svc_cat = (svc.get("category") or "").lower()
+        _combined = f"{_svc_cat} {_svc_name}"
+
+        treatment_key = None
+        if "microneedling" in _combined and "rf" not in _combined:
+            treatment_key = "microneedling"
+        elif "rf" in _combined or "radio frequency" in _combined:
+            treatment_key = "rf"
+        elif "peel" in _combined or "chemical" in _combined:
+            treatment_key = "peel"
+        elif "polynucleotide" in _combined:
+            treatment_key = "polynucleotides"
+        elif "lymphatic" in _combined:
+            treatment_key = "lymphatic"
+        # Services can also store an explicit treatment_key (future-proofing)
+        if svc.get("treatment_key"):
+            treatment_key = svc["treatment_key"]
+
+        if treatment_key:
+            # Load business-specific matrix if customised, else default
+            template = await db.consultation_templates.find_one({"business_id": biz_id})
+            matrix = (template or {}).get("contra_matrix", DEFAULT_CONTRA_MATRIX)
+
+            form_data = latest_form.get("form_data", {})
+            alerts = run_contraindication_check(form_data, matrix)
+
+            if alerts["blocks"]:
+                # Find treatments blocked that match the one being booked
+                relevant_blocks = [b for b in alerts["blocks"] if b["treatment"] == treatment_key]
+                if relevant_blocks:
+                    reasons = ", ".join(b["condition"].replace("_", " ") for b in relevant_blocks)
+                    treatment_name = TREATMENT_LABELS.get(treatment_key, treatment_key)
+                    raise HTTPException(
+                        400,
+                        f"{treatment_name} is not suitable for you based on your consultation form "
+                        f"({reasons}). Please contact the clinic to discuss alternatives."
+                    )
+
+            if alerts["flags"]:
+                relevant_flags = [f for f in alerts["flags"] if f["treatment"] == treatment_key]
+                if relevant_flags:
+                    # Allow booking but tag it so therapist sees the warning
+                    doc["contraindication_flags"] = relevant_flags
+                    doc["contraindication_review_required"] = True
+                    logger.info(f"Booking {doc.get('reference')} flagged: {[f['condition'] for f in relevant_flags]}")
 
     await db.bookings.insert_one(doc)
 

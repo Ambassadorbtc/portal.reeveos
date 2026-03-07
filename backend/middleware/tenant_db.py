@@ -43,7 +43,9 @@ class ScopedCollection:
     
     # Collections where tenant field is "business_id" (snake_case legacy)
     SNAKE_CASE_COLLECTIONS = {
-        "reservations",
+        "reservations", "consultation_submissions", "consultation_templates",
+        "client_timeline", "client_tasks", "pipeline_config",
+        "support_conversations",
     }
     
     def __init__(self, collection: AsyncIOMotorCollection, tenant_id: str, tenant_field: str = "businessId"):

@@ -140,10 +140,7 @@ function buildSections(navItems, tier, businessType) {
     ...(!isRestaurant ? [
     { label: 'CRM', items: [
       { id: 'crm-section', Icon: Target, label: 'CRM', children: [
-        { id: 'crm-dashboard', label: 'Dashboard', path: '/dashboard/crm', Icon: LayoutDashboard, locked: false },
-        { id: 'crm-pipeline', label: 'Pipeline', path: '/dashboard/crm', Icon: Target, locked: false },
-        { id: 'crm-clients', label: 'Clients', path: '/dashboard/crm', Icon: BookUser, locked: false },
-        { id: 'crm-analytics', label: 'Analytics', path: '/dashboard/crm', Icon: BarChart3, locked: false },
+        { id: 'crm-main', label: 'CRM Dashboard', path: '/dashboard/crm', Icon: Target, locked: false },
       ]},
     ]},
     { label: 'CLIENT PORTAL', items: [

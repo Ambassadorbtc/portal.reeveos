@@ -1,0 +1,552 @@
++-----------------------------------------------------------------------+
+| **ReeveOS**                                                           |
+|                                                                       |
+| **Consultation & Consent Form Specification**                         |
+|                                                                       |
+| *Field-by-field spec for Rejuvenate Skin Experts*                     |
++-----------------------------------------------------------------------+
+
+This document specifies every field, conditional logic rule, and
+contraindication mapping needed to build the digital consultation and
+consent form system for Rejuvenate Skin Experts. It covers two form
+types: the Client Consultation Form (completed once, reviewed
+periodically) and Treatment-Specific Consent Forms (signed per
+treatment/course).
+
+  -----------------------------------------------------------------------
+  **Logic Key:** **BLOCK** = auto-prevents booking for that treatment \|
+  **FLAG** = warns therapist, requires manual override \| **SHOW** =
+  reveals conditional follow-up fields
+
+  -----------------------------------------------------------------------
+
+**Form 1: Client Consultation Form**
+
+*Completed by every new client before their first treatment. Reviewed
+and re-signed every 6 months or if medical circumstances change. GDPR
+special category data --- requires explicit consent, 6-year minimum
+retention.*
+
+**Section 1: Personal Details**
+
+  ----------------- ---------------- --------- ------------------------------------
+  **Field**         **Type**         **Req**   **Notes / Logic**
+
+  **Full name**     Text             ✓         
+
+  **Date of birth** Date picker      ✓         Auto-calculate age. If under 18:
+                                               FLAG --- parental consent form
+                                               required
+
+  **Address**       Text (multiline) ✓         
+
+  **Mobile number** Tel              ✓         Used for SMS reminders via Sendly
+
+  **Email address** Email            ✓         Used for aftercare emails, booking
+                                               confirmations
+
+  **Emergency       Text             ✓         
+  contact name**                               
+
+  **Emergency       Tel              ✓         
+  contact number**                             
+
+  **GP name**       Text             ✓         Required for insurance compliance
+
+  **GP surgery      Text                       Recommended but not mandatory
+  address**                                    
+
+  **How did you     Dropdown                   Options: Instagram, TikTok, Google,
+  hear about us?**                             Friend, Returning Client, Other
+
+  **Photo consent** Multi-checkbox   ✓         Separate checkboxes: Treatment
+                                               records / Training / Marketing &
+                                               social media. Each independently
+                                               withdrawable under GDPR
+  ----------------- ---------------- --------- ------------------------------------
+
+**Section 2: Medical History**
+
+**Critical section --- answers here drive contraindication logic across
+all treatment types.**
+
+  ----------------- ----------- --------- ------------------------------------
+  **Field**         **Type**    **Req**   **Contraindication Logic**
+
+  **Pregnant,       Yes/No      ✓         If YES: BLOCK microneedling, RF
+  breastfeeding, or                       needling, chemical peels,
+  trying to                               polynucleotides
+  conceive?**                             
+
+  **Heart condition Yes/No +    ✓         If YES: SHOW
+  or high blood     detail                'controlled/uncontrolled' dropdown.
+  pressure?**                             If uncontrolled: FLAG all treatments
+
+  **Pacemaker or    Yes/No      ✓         If YES: BLOCK RF needling. FLAG
+  electronic                              microneedling (check device
+  implant?**                              proximity)
+
+  **Metal implants, Yes/No +    ✓         If YES: SHOW 'location' text field.
+  plates, or        location              BLOCK RF needling in that area
+  screws?**                               
+
+  **Diabetes?**     Yes/No +    ✓         If YES: SHOW Type 1/Type 2 +
+                    type                  controlled/uncontrolled. If
+                                          uncontrolled: FLAG microneedling
+                                          (wound healing risk)
+
+  **Epilepsy?**     Yes/No      ✓         If YES: FLAG all treatments (seizure
+                                          risk with light/stimulation)
+
+  **Autoimmune      Yes/No +    ✓         If YES: SHOW detail field.
+  disorder?**       detail                Lupus/scleroderma: BLOCK
+                                          microneedling. Other: FLAG
+
+  **Blood clotting  Yes/No      ✓         If YES: BLOCK microneedling
+  disorder?**                             (bleeding risk)
+
+  **Cancer          Yes/No +    ✓         If YES: SHOW type + when. Active
+  history?**        detail                cancer: BLOCK all. In remission 5+
+                                          years: FLAG
+
+  **HIV/AIDS or     Yes/No      ✓         If YES: FLAG microneedling
+  hepatitis?**                            (needlestick protocol). Requires
+                                          enhanced infection control
+
+  **Liver or kidney Yes/No      ✓         If YES: FLAG chemical peels
+  disease?**                              (impaired metabolism of chemical
+                                          agents)
+
+  **History of      Yes/No      ✓         If YES: FLAG microneedling + peels
+  herpes simplex                          (can reactivate HSV). May need
+  (cold sores)?**                         antiviral prophylaxis
+
+  **History of      Yes/No      ✓         If YES: BLOCK microneedling (risk of
+  keloid or                               worsening scarring). FLAG RF
+  hypertrophic                            needling
+  scarring?**                             
+
+  **Any other       Yes/No +    ✓         Free text if YES. Therapist to
+  medical           text                  review manually
+  conditions?**                           
+  ----------------- ----------- --------- ------------------------------------
+
+**Section 3: Current Medications**
+
+**Highest-risk section for skin treatments. Medication interactions
+cause the most adverse events.**
+
+  ------------------------- ----------- --------- ------------------------------------
+  **Field**                 **Type**    **Req**   **Contraindication Logic**
+
+  **Currently taking any    Yes/No      ✓         If YES: SHOW medication list fields
+  medications?**                                  
+
+  **Roaccutane /            Yes/No +    ✓         If YES and still taking: BLOCK ALL
+  Isotretinoin?**           stop date             skin treatments. If stopped: SHOW
+                                                  date picker. If \<6 months ago:
+                                                  BLOCK microneedling, peels, RF. If
+                                                  \<12 months: FLAG
+
+  **Blood thinners?**       Yes/No +    ✓         Warfarin, heparin, clopidogrel,
+                            detail                rivaroxaban, aspirin (daily). If
+                                                  YES: BLOCK microneedling. FLAG RF
+                                                  needling
+
+  **Photosensitising        Yes/No +    ✓         Tetracyclines, doxycycline, St
+  medications?**            detail                John's Wort, amiodarone. If YES:
+                                                  BLOCK chemical peels. FLAG
+                                                  microneedling
+
+  **Topical retinoids?**    Yes/No +    ✓         Retin-A, Tretinoin, Differin,
+                            detail                Epiduo. If YES: SHOW 'last used'
+                                                  date. If \<7 days: BLOCK chemical
+                                                  peels. FLAG microneedling
+
+  **Steroids (oral or       Yes/No +    ✓         If YES: FLAG microneedling (impaired
+  topical)?**               detail                healing). FLAG chemical peels
+
+  **Immunosuppressants?**   Yes/No      ✓         If YES: BLOCK microneedling. FLAG
+                                                  all treatments
+
+  **Herbal supplements?**   Yes/No +    ✓         Garlic, ginkgo biloba, fish oils
+                            detail                affect bleeding. If YES: FLAG
+                                                  microneedling
+
+  **Any other               Free text             Therapist to review. Catch-all for
+  medications?**                                  unlisted medications
+  ------------------------- ----------- --------- ------------------------------------
+
+**Section 4: Skin History**
+
+  ----------------- ------------------ --------- ------------------------------------
+  **Field**         **Type**           **Req**   **Logic**
+
+  **Fitzpatrick     Visual selector    ✓         Auto-set from photo or manual
+  skin type**       (I--VI)                      selection. Types V--VI: FLAG
+                                                 chemical peels (higher PIH risk).
+                                                 Affects laser parameter settings
+
+  **Active acne,    Yes/No + detail    ✓         If YES in treatment area: FLAG
+  eczema,                                        microneedling + peels. Active
+  psoriasis, or                                  infection: BLOCK
+  dermatitis?**                                  
+
+  **Active skin     Yes/No             ✓         If YES: BLOCK ALL treatments until
+  infection?**                                   resolved
+
+  **Raised moles or Yes/No             ✓         If YES: FLAG --- therapist must
+  warts in                                       avoid area
+  treatment area?**                              
+
+  **Tattoos or      Yes/No             ✓         If YES: FLAG microneedling (avoid
+  permanent makeup                               area). BLOCK laser over tattooed
+  in treatment                                   skin
+  area?**                                        
+
+  **Previous        Yes/No + detail    ✓         If YES: SHOW detail field. FLAG
+  adverse reactions                              relevant treatment types
+  to skin                                        
+  treatments?**                                  
+
+  **Current         Text (multiline)             Useful context for therapist. Look
+  skincare                                       for active acids, retinol, AHAs/BHAs
+  routine**                                      
+
+  **Skin concerns / Multi-checkbox +   ✓         Options: Acne, Scarring,
+  goals**           text                         Pigmentation, Rosacea, Fine lines,
+                                                 Texture, Pores, Dullness, Other.
+                                                 Drives treatment recommendations
+  ----------------- ------------------ --------- ------------------------------------
+
+**Section 5: Lifestyle**
+
+  ----------------- ----------- --------- ------------------------------------
+  **Field**         **Type**    **Req**   **Logic**
+
+  **Sun exposure in Yes/No      ✓         If YES: FLAG microneedling + peels.
+  last 2 weeks?**                         Active sunburn: BLOCK ALL
+
+  **Sunbed use in   Yes/No      ✓         If YES: BLOCK chemical peels. FLAG
+  last 4 weeks?**                         microneedling + RF
+
+  **Current tan     Yes/No      ✓         If YES: FLAG chemical peels (uneven
+  (natural or                             results). Self-tan: must be removed
+  self-tan)?**                            before treatment
+
+  **Planned sun     Yes/No      ✓         If YES: FLAG --- therapist to advise
+  exposure in next                        SPF 50 protocol. May defer treatment
+  4 weeks?**                              
+
+  **Smoker?**       Yes/No                If YES: FLAG microneedling (impaired
+                                          healing)
+  ----------------- ----------- --------- ------------------------------------
+
+**Section 6: Consent Declarations**
+
+*Each statement must be individually acknowledged with a checkbox. No
+pre-ticked boxes (GDPR requirement). Digital signature captured at the
+end.*
+
+**1.** I confirm that the information I have provided is accurate and
+complete to the best of my knowledge.
+
+**2.** I understand that withholding or providing inaccurate information
+may result in adverse reactions for which the practitioner cannot be
+held liable.
+
+**3.** I will inform my therapist immediately if my medical
+circumstances change before my next appointment.
+
+**4.** I understand the nature, purpose, and potential risks of the
+treatments discussed with me.
+
+**5.** I consent to the taking of clinical photographs for treatment
+monitoring purposes.
+
+**6.** I understand and agree to follow all pre-treatment and
+post-treatment care instructions provided.
+
+**7.** I understand the cancellation policy: 72 hours' notice required
+for advanced treatments. Late cancellation may result in forfeiture of
+booking fee.
+
+**8.** I consent to my data being stored securely in accordance with UK
+GDPR for the purposes of treatment planning and safety.
+
+**9.** I understand that results vary between individuals and no
+specific outcome is guaranteed.
+
+**10.** I confirm I am over 18 years of age (or have provided
+parental/guardian consent).
+
+**Digital signature:** Touch/draw signature pad + timestamp + IP address
+logged
+
+**Form validity:** 6 months. System auto-prompts client to review and
+re-sign at expiry.
+
+**Form 2: Treatment-Specific Consent Forms**
+
+*Signed before each new treatment type or course. Shorter than the
+consultation form --- focused on treatment-specific risks, expected
+outcomes, and pre/post care. One form per treatment category.*
+
+**2A: Microneedling Consent**
+
+**Covers:** Microneedling Facial, Microneedling for Hands, RF
+Microneedling (Body/Neck), all microneedling courses
+
+  ----------------- ---------------- --------- ------------------------------------
+  **Field**         **Type**         **Req**   **Notes**
+
+  **Treatment       Multi-checkbox   ✓         Face, Neck, Décolletage, Hands, Body
+  area(s)**                                    (specify)
+
+  **Needle depth    Checkbox         ✓         Client confirms therapist has
+  acknowledged**                               explained depth settings to be used
+
+  **Patch test      Yes/No + date    ✓         If NO and first treatment: BLOCK
+  completed?**                                 until patch test done. SHOW date
+                                               picker
+
+  **Expected side   Checkbox         ✓         Redness 24--48hrs, mild swelling,
+  effects                                      pinpoint bleeding, skin tightness,
+  acknowledged**                               peeling days 3--5
+
+  **Rare            Checkbox         ✓         Infection, prolonged redness,
+  complications                                hyperpigmentation, scarring (rare),
+  acknowledged**                               cold sore reactivation
+
+  **Pre-care        Checkbox         ✓         No retinoids 7 days, no sun exposure
+  confirmed**                                  2 weeks, no blood thinners (if
+                                               possible), clean skin
+
+  **Post-care       Checkbox         ✓         No makeup 48hrs, gentle cleanser
+  understood**                                 only, SPF 50 reapplied throughout
+                                               day, no active products 7 days, no
+                                               picking/peeling skin
+
+  **Number of       Dropdown                   If course: 3 / 6 / 8 sessions.
+  sessions in                                  Triggers package tracking
+  course**                                     
+
+  **Treatment       Checkbox                   Min 2 weeks, typically 4--6 weeks
+  interval                                     between sessions
+  acknowledged**                               
+
+  **Digital         Signature pad    ✓         Timestamp + IP logged
+  signature**                                  
+  ----------------- ---------------- --------- ------------------------------------
+
+**2B: Chemical Peel Consent**
+
+**Covers:** BioRePeelCI3, Dermalogica Pro Power Peel, Power Eye Peel,
+MelanoPro Peel
+
+  ----------------- --------------- --------- ------------------------------------
+  **Field**         **Type**        **Req**   **Notes**
+
+  **Peel type**     Dropdown        ✓         BioRePeelCI3, Pro Power Peel, Power
+                                              Eye Peel, MelanoPro Peel
+
+  **Fitzpatrick     Display (from   ✓         Auto-populated. Types V--VI:
+  type confirmed**  consultation)             therapist must confirm suitability
+
+  **Patch test      Yes/No + date   ✓         Required for first peel of each
+  completed?**                                type. If NO: BLOCK
+
+  **Expected        Checkbox        ✓         Tingling/warmth during, redness 1--3
+  reactions                                   days, peeling/flaking 3--7 days,
+  acknowledged**                              temporary sensitivity
+
+  **Rare            Checkbox        ✓         Blistering, burns, hyperpigmentation
+  complications                               (esp. darker skin types), prolonged
+  acknowledged**                              redness, scarring
+
+  **Pre-care        Checkbox        ✓         No retinoids 5--7 days, no
+  confirmed**                                 waxing/threading 7 days, no other
+                                              peels 2 weeks, no laser 3 months
+
+  **Post-care       Checkbox        ✓         No makeup same day, SPF 50 daily, no
+  understood**                                exfoliating 2 weeks, no picking
+                                              peeling skin, avoid heat 24--48hrs
+
+  **Digital         Signature pad   ✓         
+  signature**                                 
+  ----------------- --------------- --------- ------------------------------------
+
+**2C: RF Needling Consent**
+
+**Covers:** Radio Frequency Microneedling --- Body and Neck tightening
+
+  ------------------------ ---------------- --------- ------------------------------------
+  **Field**                **Type**         **Req**   **Notes**
+
+  **Treatment area**       Multi-checkbox   ✓         Neck, Jawline, Body (specify area)
+
+  **Pacemaker/electronic   Checkbox         ✓         Auto-populated from consultation. If
+  implant confirmed NO**                              YES on consultation: BLOCK ---
+                                                      cannot proceed
+
+  **Metal in treatment     Checkbox         ✓         Auto-populated. If YES: BLOCK for
+  area confirmed NO**                                 that area
+
+  **Fillers in last 6      Yes/No + date    ✓         If YES and \<6 months: BLOCK in
+  months?**                                           filler area
+
+  **Expected side effects  Checkbox         ✓         Redness, warmth, mild swelling
+  acknowledged**                                      24--48hrs, grid marks (temporary)
+
+  **Rare complications     Checkbox         ✓         Burns, blistering, nerve damage
+  acknowledged**                                      (very rare), fat atrophy, scarring
+
+  **Post-care understood** Checkbox         ✓         Keep hydrated, avoid hot
+                                                      baths/saunas 48hrs, SPF 50, avoid
+                                                      makeup 24hrs
+
+  **Digital signature**    Signature pad    ✓         
+  ------------------------ ---------------- --------- ------------------------------------
+
+**2D: Polynucleotide Consent**
+
+**Covers:** Full face skin booster injections
+
+  ------------------- ---------------- --------- ------------------------------------
+  **Field**           **Type**         **Req**   **Notes**
+
+  **Allergy to        Yes/No           ✓         Polynucleotides derived from salmon
+  fish/salmon                                    DNA. If YES: BLOCK
+  products?**                                    
+
+  **Treatment area**  Multi-checkbox   ✓         Under-eye, Full face, Neck
+
+  **Previous          Yes/No + detail  ✓         If YES: FLAG --- therapist to assess
+  filler/injectable                              before proceeding
+  reactions?**                                   
+
+  **Blood thinners    Display (from    ✓         Auto-populated. If YES: FLAG
+  confirmed?**        consultation)              (increased bruising risk)
+
+  **Expected side     Checkbox         ✓         Injection site redness, swelling,
+  effects                                        bruising, mild tenderness 24--72hrs
+  acknowledged**                                 
+
+  **Post-care         Checkbox         ✓         No makeup 12hrs, no intense exercise
+  understood**                                   24hrs, no alcohol 24hrs, no
+                                                 saunas/steam 48hrs
+
+  **Digital           Signature pad    ✓         
+  signature**                                    
+  ------------------- ---------------- --------- ------------------------------------
+
+**Contraindication Matrix**
+
+*Master reference showing which medical conditions and medications
+affect which treatments. The system uses this to auto-flag or auto-block
+bookings based on consultation form answers.*
+
+  ---------------------------- -------------------- ------------ ------------ ---------------------- -------------
+  **Condition**                **Micro-needling**   **Chemical   **RF         **Polynucleo-tides**   **Lymphatic
+                                                    Peel**       Needling**                          Lift**
+
+  **Pregnant/breastfeeding**   **BLOCK**            **BLOCK**    **BLOCK**    **BLOCK**              **FLAG**
+
+  **Pacemaker/implant**        **FLAG**             OK           **BLOCK**    OK                     OK
+
+  **Metal in treatment area**  OK                   OK           **BLOCK**    OK                     OK
+
+  **Blood clotting disorder**  **BLOCK**            **FLAG**     **FLAG**     **FLAG**               OK
+
+  **Active cancer**            **BLOCK**            **BLOCK**    **BLOCK**    **BLOCK**              **BLOCK**
+
+  **Keloid scarring history**  **BLOCK**            **FLAG**     **FLAG**     **FLAG**               OK
+
+  **Active skin infection**    **BLOCK**            **BLOCK**    **BLOCK**    **BLOCK**              **BLOCK**
+
+  **Uncontrolled diabetes**    **FLAG**             **FLAG**     **FLAG**     **FLAG**               OK
+
+  **Autoimmune (lupus etc)**   **BLOCK**            **FLAG**     **FLAG**     **FLAG**               OK
+
+  **Epilepsy**                 **FLAG**             **FLAG**     **FLAG**     **FLAG**               **FLAG**
+
+  **Herpes simplex history**   **FLAG**             **FLAG**     OK           OK                     OK
+
+  **Roaccutane (\<6 months)**  **BLOCK**            **BLOCK**    **BLOCK**    **FLAG**               OK
+
+  **Blood thinners**           **BLOCK**            OK           **FLAG**     **FLAG**               OK
+
+  **Topical retinoids (\<7     **FLAG**             **BLOCK**    OK           OK                     OK
+  days)**                                                                                            
+
+  **Photosensitising meds**    **FLAG**             **BLOCK**    OK           OK                     OK
+
+  **Immunosuppressants**       **BLOCK**            **FLAG**     **FLAG**     **FLAG**               OK
+
+  **Active sunburn**           **BLOCK**            **BLOCK**    **BLOCK**    **FLAG**               OK
+
+  **Recent sunbed (\<4         **FLAG**             **BLOCK**    **FLAG**     OK                     OK
+  weeks)**                                                                                           
+
+  **Fish/salmon allergy**      OK                   OK           OK           **BLOCK**              OK
+
+  **Fillers in area (\<6       OK                   OK           **BLOCK**    **FLAG**               OK
+  months)**                                                                                          
+  ---------------------------- -------------------- ------------ ------------ ---------------------- -------------
+
+**System Behaviour**
+
+**Form Flow**
+
+**New client online booking:** Client books via Rejuvenate website →
+system checks if consultation form exists → if NO, redirects to digital
+consultation form before confirming booking → form submitted → system
+runs contraindication check against booked treatment → if BLOCK,
+appointment auto-cancelled with explanation → if FLAG, appointment
+confirmed but therapist receives alert → booking confirmed with SMS +
+email.
+
+**Returning client:** System checks form expiry (6-month validity) → if
+expired, prompts re-review before next appointment → if medical changes
+flagged, re-runs contraindication logic.
+
+**Walk-in client:** Therapist sends consultation form link via SMS to
+client's phone → client fills on their device in-clinic → therapist
+reviews on their dashboard → proceeds or flags issues.
+
+**Patch Test Tracking**
+
+First-time clients for microneedling and chemical peels require a patch
+test. The system should auto-schedule a patch test appointment (15 min,
+no charge) 48 hours before the treatment appointment. If patch test not
+completed, treatment appointment status changes to 'Pending Patch Test'
+and cannot be checked in.
+
+**Aftercare Automation**
+
+On appointment completion, the system auto-sends treatment-specific
+aftercare instructions via email (15--30 mins after). Content is
+pre-configured per treatment type. Delivery is logged for insurance
+documentation. Natalie already has aftercare content on her website ---
+we pull this into the system as templates.
+
+**Treatment Record Per Session**
+
+**Microneedling:** Needle cartridge type, depth per area, serum applied,
+skin response notes, before/after photos
+
+**Chemical peel:** Peel type/brand, concentration, application time,
+layers, neutralisation time, skin response
+
+**RF Needling:** Device/handpiece, temperature settings, passes per
+area, energy level, skin response
+
+**Polynucleotides:** Product/brand, volume injected, injection sites
+(mark on face diagram), batch number
+
++-----------------------------------------------------------------------+
+| *ReeveOS • Consultation Form Specification • Rejuvenate Skin Experts  |
+| • March 2026*                                                         |
+|                                                                       |
+| **reeveos.app**                                                       |
++-----------------------------------------------------------------------+

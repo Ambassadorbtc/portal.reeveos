@@ -325,16 +325,16 @@ function PipelineView({ data, onClientClick, moveClient, dragItem, setDragItem }
 
   const goPrev = () => {
     const d = new Date(selectedDate + 'T12:00')
-    if (period === 'day') d.setDate(d.getDate() - 1)
-    else if (period === 'week') d.setDate(d.getDate() - 7)
+    if (period === 'week') d.setDate(d.getDate() - 7)
     else if (period === 'month') d.setMonth(d.getMonth() - 1)
+    else d.setDate(d.getDate() - 1)
     setSelectedDate(d.toISOString().slice(0, 10))
   }
   const goNext = () => {
     const d = new Date(selectedDate + 'T12:00')
-    if (period === 'day') d.setDate(d.getDate() + 1)
-    else if (period === 'week') d.setDate(d.getDate() + 7)
+    if (period === 'week') d.setDate(d.getDate() + 7)
     else if (period === 'month') d.setMonth(d.getMonth() + 1)
+    else d.setDate(d.getDate() + 1)
     setSelectedDate(d.toISOString().slice(0, 10))
   }
   const goToday = () => setSelectedDate(new Date().toISOString().slice(0, 10))
@@ -361,17 +361,13 @@ function PipelineView({ data, onClientClick, moveClient, dragItem, setDragItem }
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Date Pill Bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', flexShrink: 0, borderBottom: '1px solid #EBEBEB', background: '#fff' }}>
-        {period !== 'all' && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 2, background: '#F5F5F5', borderRadius: 24, padding: '3px 4px' }}>
-            <button onClick={goPrev} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#111', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}><ChevL /></button>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#111', padding: '0 6px', whiteSpace: 'nowrap' }}>{dateLabel}</span>
-            <button onClick={goNext} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#111', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}><ChevR /></button>
-          </div>
-        )}
-        {period !== 'all' && (
-          <button onClick={goToday} style={{ padding: '7px 16px', borderRadius: 20, border: 'none', background: isToday ? '#111' : '#F5F5F5', color: isToday ? '#fff' : '#111', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Today</button>
-        )}
-        {period !== 'all' && <div style={{ width: 1, height: 24, background: '#EBEBEB' }} />}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2, background: '#F5F5F5', borderRadius: 24, padding: '3px 4px' }}>
+          <button onClick={goPrev} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#111', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}><ChevL /></button>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#111', padding: '0 6px', whiteSpace: 'nowrap' }}>{dateLabel}</span>
+          <button onClick={goNext} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#111', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}><ChevR /></button>
+        </div>
+        <button onClick={goToday} style={{ padding: '7px 16px', borderRadius: 20, border: 'none', background: isToday ? '#111' : '#F5F5F5', color: isToday ? '#fff' : '#111', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Today</button>
+        <div style={{ width: 1, height: 24, background: '#EBEBEB' }} />
         <div style={{ display: 'flex', background: '#F5F5F5', borderRadius: 20, padding: 3 }}>
           {['All', 'Day', 'Week', 'Month'].map(v => {
             const val = v.toLowerCase()

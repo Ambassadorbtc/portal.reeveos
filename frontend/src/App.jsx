@@ -30,6 +30,7 @@ import Clients from './pages/dashboard/Clients'
 import ClientPipeline from './pages/dashboard/ClientPipeline'
 import CRMPage from './pages/dashboard/CRM'
 import ShopManager from './pages/dashboard/ShopManager'
+import VideoMeetings from './pages/dashboard/VideoMeetings'
 import ConsultationForms from './pages/dashboard/ConsultationForms'
 import ClientMessages from './pages/dashboard/ClientMessages'
 import PortalClients from './pages/dashboard/PortalClients'
@@ -193,6 +194,7 @@ const App = () => {
               <Route path="pipeline" element={<ClientPipeline />} />
               <Route path="crm" element={<CRMPage />} />
               <Route path="shop" element={<ShopManager />} />
+              <Route path="video-meetings" element={<VideoMeetings />} />
               <Route path="consultation-forms" element={<ConsultationForms />} />
               <Route path="client-messages" element={<ClientMessages />} />
               <Route path="portal-clients" element={<PortalClients />} />

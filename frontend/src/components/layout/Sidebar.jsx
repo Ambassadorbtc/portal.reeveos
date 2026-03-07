@@ -14,7 +14,7 @@ import {
   LayoutGrid, Megaphone, Settings, HelpCircle,
   ChevronLeft, ChevronRight, ChevronDown, Lock,
   Send, Bot, Linkedin, Bell,
-  Package, Flame, Clock, Wallet, ClipboardCheck, MessageSquare, Monitor, Target, Columns3, Tag
+  Package, Flame, Clock, Wallet, ClipboardCheck, MessageSquare, Monitor, Target, Columns3, Tag, Video
 } from 'lucide-react'
 
 /* ── Color tokens ── */
@@ -157,6 +157,7 @@ function buildSections(navItems, tier, businessType) {
     { label: 'CLIENT PORTAL', items: [
       { id: 'client-portal-mgmt', Icon: Monitor, label: 'Client Portal', children: [
         { id: 'consultation-forms', label: 'Consultation Forms', path: '/dashboard/consultation-forms', Icon: ClipboardCheck, locked: false },
+        { id: 'video-meetings', label: 'Video Meetings', path: '/dashboard/video-meetings', Icon: Video, locked: false },
         { id: 'client-messages', label: 'Messages', path: '/dashboard/client-messages', Icon: MessageSquare, locked: false },
         { id: 'client-emails', label: 'Email Management', path: '/dashboard/client-emails', Icon: Send, locked: false },
         { id: 'client-push', label: 'Push Notifications', path: '/dashboard/client-push', Icon: Bell, locked: false },

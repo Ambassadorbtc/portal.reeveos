@@ -176,7 +176,6 @@ async def seed():
     now = datetime.utcnow()
     six_months_ago = now - timedelta(days=180)
     bookable_services = [s for s in SERVICES if s["price"] > 0]
-    staff_names = [s["name"] for s in STAFF]
 
     bookings = []
     current_date = six_months_ago
@@ -198,21 +197,25 @@ async def seed():
 
         for _ in range(num_bookings):
             svc = random.choice(bookable_services)
-            staff = random.choice(staff_names)
+            staff_rec = random.choice(staff_records)
             client = random.choice(CLIENT_NAMES)
             hour = random.randint(open_hour, close_hour - 1)
             minute = random.choice([0, 15, 30, 45])
 
             booking = {
                 "businessId": biz_id,
-                "service": svc["name"],
-                "service_id": "",
+                "service": {
+                    "name": svc["name"],
+                    "duration": svc["duration"],
+                    "price": svc["price"],
+                    "category": svc.get("category", ""),
+                },
                 "date": current_date.strftime("%Y-%m-%d"),
                 "time": f"{hour:02d}:{minute:02d}",
                 "duration": svc["duration"],
-                "price": svc["price"],
+                "staffId": staff_rec["id"],
+                "staffName": staff_rec["name"],
                 "status": "completed" if current_date < now - timedelta(days=1) else "confirmed",
-                "staff_name": staff,
                 "customer": {
                     "name": client,
                     "email": client.lower().replace(" ", ".") + "@gmail.com",
@@ -220,8 +223,8 @@ async def seed():
                 },
                 "notes": "",
                 "source": "seed",
-                "created_at": current_date,
-                "updated_at": current_date,
+                "createdAt": current_date,
+                "updatedAt": current_date,
             }
             bookings.append(booking)
 

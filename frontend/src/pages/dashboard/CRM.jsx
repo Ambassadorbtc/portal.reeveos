@@ -218,7 +218,7 @@ export default function CRM() {
         </div>
 
         {/* ── Client Detail Panel ── */}
-        {selectedClient && (
+        {selectedClient && !interactionModal && (
           <>
             <div onClick={closeClient} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 200, cursor: 'pointer' }} />
             <ClientDetailPanel detail={clientDetail} timeline={timeline} onClose={closeClient} bid={bid}
@@ -234,7 +234,8 @@ export default function CRM() {
         <InteractionModal bid={bid} clientId={clientDetail?.client?.id || selectedClient.id || selectedClient}
           clientName={clientDetail?.client?.name || selectedClient.name || ''}
           onClose={() => setInteractionModal(false)}
-          onSaved={() => { setInteractionModal(false); loadClientDetail(selectedClient.id || selectedClient) }} />
+          onSaved={() => { setInteractionModal(false); loadClientDetail(selectedClient.id || selectedClient) }}
+          onBack={() => setInteractionModal(false)} />
       )}
     </div>
   )
@@ -707,7 +708,7 @@ function ClientDetailPanel({ detail, timeline, onClose, bid, onInteraction, onRe
 // ═══════════════════════════════════════════════════════════════
 // INTERACTION MODAL — log calls, DMs, walk-ins
 // ═══════════════════════════════════════════════════════════════
-function InteractionModal({ bid, clientId, clientName, onClose, onSaved }) {
+function InteractionModal({ bid, clientId, clientName, onClose, onSaved, onBack }) {
   const [type, setType] = useState('phone_call')
   const [summary, setSummary] = useState('')
   const [outcome, setOutcome] = useState('')
@@ -717,7 +718,7 @@ function InteractionModal({ bid, clientId, clientName, onClose, onSaved }) {
 
   useEffect(() => { requestAnimationFrame(() => setShow(true)) }, [])
 
-  const handleClose = () => { setShow(false); setTimeout(onClose, 250) }
+  const handleClose = () => { setShow(false); setTimeout(onBack || onClose, 250) }
 
   const types = [
     { id: 'phone_call', label: 'Phone Call' },

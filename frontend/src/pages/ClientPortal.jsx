@@ -84,14 +84,15 @@ const SigPad=({onSign,desk:dk})=>{const ref=useRef(null),dr=useRef(false);const 
 // ═══ SIDEBAR (logged-in pages only) ═══
 const RAIL=56,PANEL=192
 const Sidebar=({biz,user,activeTab,onNav,onLogout})=>{
-  const tabs=[{id:'home',label:'Home',icon:'home'},{id:'bookings',label:'Bookings',icon:'cal'},{id:'shop',label:'Shop',icon:'shop'},{id:'video',label:'Video Call',icon:'video'},{id:'form',label:'Consultation',icon:'form'},{id:'messages',label:'Messages',icon:'msg'},{id:'profile',label:'My Profile',icon:'user'}]
+  const tabs=[{id:'home',label:'Home',icon:'home'},{id:'bookings',label:'Bookings',icon:'cal'},{id:'shop',label:'Shop',icon:'shop',subs:[{id:'shop-products',label:'Products'},{id:'shop-packages',label:'Packages & Courses'},{id:'shop-treatments',label:'Treatments'}]},{id:'video',label:'Video Call',icon:'video'},{id:'form',label:'Consultation',icon:'form'},{id:'messages',label:'Messages',icon:'msg'},{id:'profile',label:'My Profile',icon:'user'}]
   const ini=(user?.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2)
+  const isShopActive=activeTab==='shop'||activeTab?.startsWith?.('shop-')
   return(
     <div className="client-sidebar" style={{height:'100vh',position:'sticky',top:0,flexShrink:0,fontFamily:$.f}}>
       <div style={{width:RAIL,background:'#111',display:'flex',flexDirection:'column',flexShrink:0}}>
         <div style={{height:56,display:'flex',alignItems:'center',justifyContent:'center',borderBottom:'1px solid rgba(255,255,255,0.08)'}}><div style={{width:30,height:30,borderRadius:8,background:$.acc,display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{color:'#111',fontWeight:700,fontSize:13}}>R.</span></div></div>
         <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',paddingTop:12,gap:2}}>
-          {tabs.map(t=>{const a=activeTab===t.id;return<button key={t.id} onClick={()=>onNav(t.id)} style={{width:40,height:40,borderRadius:10,border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',background:a?'rgba(255,255,255,0.12)':'transparent'}} onMouseEnter={e=>{if(!a)e.currentTarget.style.background='rgba(255,255,255,0.06)'}} onMouseLeave={e=>{if(!a)e.currentTarget.style.background='transparent'}}>{a&&<div style={{position:'absolute',left:0,top:8,bottom:8,width:3,borderRadius:'0 3px 3px 0',background:'#FAF7F2'}}/>}{I[t.icon](a?'#FAF7F2':'rgba(250,247,242,0.35)',18)}</button>})}
+          {tabs.map(t=>{const a=activeTab===t.id||(t.id==='shop'&&activeTab?.startsWith?.('shop-'));return<button key={t.id} onClick={()=>onNav(t.subs?'shop-products':t.id)} style={{width:40,height:40,borderRadius:10,border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',background:a?'rgba(255,255,255,0.12)':'transparent'}} onMouseEnter={e=>{if(!a)e.currentTarget.style.background='rgba(255,255,255,0.06)'}} onMouseLeave={e=>{if(!a)e.currentTarget.style.background='transparent'}}>{a&&<div style={{position:'absolute',left:0,top:8,bottom:8,width:3,borderRadius:'0 3px 3px 0',background:'#FAF7F2'}}/>}{I[t.icon](a?'#FAF7F2':'rgba(250,247,242,0.35)',18)}</button>})}
         </div>
         <div style={{borderTop:'1px solid rgba(255,255,255,0.08)',padding:'10px 0',display:'flex',justifyContent:'center'}}><div style={{width:32,height:32,borderRadius:'50%',background:'rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{color:'#FAF7F2',fontWeight:600,fontSize:11}}>{ini}</span></div></div>
       </div>
@@ -99,7 +100,7 @@ const Sidebar=({biz,user,activeTab,onNav,onLogout})=>{
         <div style={{height:56,display:'flex',alignItems:'center',padding:'0 14px',borderBottom:`1px solid ${$.bdr}`}}><span style={{fontWeight:700,fontSize:14,color:'#111'}}>{biz?.name||'Portal'}</span></div>
         <div style={{flex:1,padding:'10px 8px'}}>
           <div style={{padding:'0 6px',marginBottom:8,fontSize:9,fontWeight:600,letterSpacing:'0.1em',color:'#7A776F',textTransform:'uppercase'}}>MENU</div>
-          {tabs.map(t=>{const a=activeTab===t.id;return<button key={t.id} onClick={()=>onNav(t.id)} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'7px 8px',borderRadius:8,border:'none',cursor:'pointer',fontSize:12,fontWeight:a?600:500,color:a?'#111':'#7A776F',background:a?'rgba(17,17,17,0.05)':'transparent',fontFamily:$.f,textAlign:'left'}} onMouseEnter={e=>{if(!a){e.currentTarget.style.background='rgba(232,228,221,0.5)';e.currentTarget.style.color='#2C2C2A'}}} onMouseLeave={e=>{if(!a){e.currentTarget.style.background='transparent';e.currentTarget.style.color='#7A776F'}}}>{I[t.icon](a?'#111':'#7A776F',15)}<span>{t.label}</span></button>})}
+          {tabs.map(t=>{const a=activeTab===t.id||(t.subs&&activeTab?.startsWith?.('shop-'));return<div key={t.id}><button onClick={()=>onNav(t.subs?'shop-products':t.id)} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'7px 8px',borderRadius:8,border:'none',cursor:'pointer',fontSize:12,fontWeight:a?600:500,color:a?'#111':'#7A776F',background:a?'rgba(17,17,17,0.05)':'transparent',fontFamily:$.f,textAlign:'left'}} onMouseEnter={e=>{if(!a){e.currentTarget.style.background='rgba(232,228,221,0.5)';e.currentTarget.style.color='#2C2C2A'}}} onMouseLeave={e=>{if(!a){e.currentTarget.style.background='transparent';e.currentTarget.style.color='#7A776F'}}}>{I[t.icon](a?'#111':'#7A776F',15)}<span>{t.label}</span></button>{t.subs&&isShopActive&&<div style={{paddingLeft:30,display:'flex',flexDirection:'column',gap:1,marginBottom:4}}>{t.subs.map(s=>{const sa=activeTab===s.id;return<button key={s.id} onClick={()=>onNav(s.id)} style={{width:'100%',textAlign:'left',padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',fontSize:11,fontWeight:sa?600:400,color:sa?'#111':'#9A978F',background:sa?'rgba(17,17,17,0.04)':'transparent',fontFamily:$.f}} onMouseEnter={e=>{if(!sa)e.currentTarget.style.color='#2C2C2A'}} onMouseLeave={e=>{if(!sa)e.currentTarget.style.color='#9A978F'}}>{s.label}</button>})}</div>}</div>})}
         </div>
         <div style={{borderTop:`1px solid ${$.bdr}`,padding:10}}>
           <div style={{display:'flex',alignItems:'center',gap:8,padding:4}}>
@@ -141,7 +142,7 @@ const Shell=({biz,user,desk,activeTab,onNav,onLogout,tab,children})=>(
     <Sidebar biz={biz} user={user} activeTab={tab||activeTab} onNav={onNav} onLogout={onLogout}/>
     <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column'}}>{children}</div>
     <div className="client-mobnav" style={{position:'fixed',bottom:0,left:0,right:0,background:'#111111',padding:'10px 0 calc(20px + env(safe-area-inset-bottom, 0px))',zIndex:30,display:'flex',justifyContent:'space-around',borderTop:'1px solid rgba(200,163,76,0.1)'}}>
-      {[{id:'home',icon:'home',label:'Home'},{id:'bookings',icon:'cal',label:'Bookings'},{id:'shop',icon:'shop',label:'Shop'},{id:'video',icon:'video',label:'Video'},{id:'messages',icon:'msg',label:'Messages'}].map(t=><button key={t.id} onClick={()=>onNav(t.id)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'2px 6px'}}>{I[t.icon](activeTab===t.id?$.acc:'rgba(255,255,255,0.45)',22)}<span style={{fontSize:11,fontWeight:activeTab===t.id?700:500,color:activeTab===t.id?$.acc:'rgba(255,255,255,0.45)'}}>{t.label}</span></button>)}
+      {[{id:'home',icon:'home',label:'Home'},{id:'bookings',icon:'cal',label:'Bookings'},{id:'shop-products',icon:'shop',label:'Shop'},{id:'video',icon:'video',label:'Video'},{id:'messages',icon:'msg',label:'Messages'}].map(t=><button key={t.id} onClick={()=>onNav(t.id)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'2px 6px'}}>{I[t.icon](activeTab===t.id||(['shop-products','shop-packages','shop-treatments'].includes(activeTab)&&t.id==='shop-products')?$.acc:'rgba(255,255,255,0.45)',22)}<span style={{fontSize:11,fontWeight:activeTab===t.id||(['shop-products','shop-packages','shop-treatments'].includes(activeTab)&&t.id==='shop-products')?700:500,color:activeTab===t.id||(['shop-products','shop-packages','shop-treatments'].includes(activeTab)&&t.id==='shop-products')?$.acc:'rgba(255,255,255,0.45)'}}>{t.label}</span></button>)}
     </div>
   </div>
 )
@@ -177,7 +178,7 @@ export default function ClientPortal(){
   const[meetings,setMeetings]=useState([])
   const[bookSvc,setBookSvc]=useState(null),[bookDate,setBookDate]=useState(new Date().toISOString().split('T')[0]),[bookTime,setBookTime]=useState(''),[bookStaff,setBookStaff]=useState(''),[bookStep,setBookStep]=useState('list'),[bookLoading,setBookLoading]=useState(false)
   const[notifPrefs,setNotifPrefs]=useState({appointment_reminders:true,aftercare:true,promotions:false,booking_confirmations:true})
-  const navTo=t=>{setActiveTab(t);if(t==='home')setView('home');else if(t==='form'){setStep(0);setView('form')}else if(t==='shop'){setView('shop');loadShop()}else if(t==='video'){setView('video');loadMeetings()}else{setView(t);if(t==='messages')loadMsgs();if(t==='bookings'){loadServices();setBookStep('list')}if(t==='profile')loadNotifPrefs()}}
+  const navTo=t=>{setActiveTab(t);if(t==='home')setView('home');else if(t==='form'){setStep(0);setView('form')}else if(t==='shop'){setView('shop-products');setActiveTab('shop-products');loadShop()}else if(t==='shop-products'){setView('shop-products');loadShop()}else if(t==='shop-packages'){setView('shop-packages');loadShop();loadServices()}else if(t==='shop-treatments'){setView('shop-treatments');loadShop();loadServices()}else if(t==='video'){setView('video');loadMeetings()}else{setView(t);if(t==='messages')loadMsgs();if(t==='bookings'){loadServices();setBookStep('list')}if(t==='profile')loadNotifPrefs()}}
   const loadMsgs=async()=>{try{const d=await apiFetch(`/client/${slug}/messages`);setMsgs((d.messages||[]).map(m=>({from:m.from==='client'?'me':'them',text:m.text,time:m.created_at?new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'',staff:m.staff_name})))}catch(e){}}
   const sendMsg=async()=>{if(!msgText.trim())return;const text=msgText;setMsgText('');setMsgs(p=>[...p,{from:'me',text,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}]);try{await apiFetch(`/client/${slug}/messages`,{method:'POST',body:JSON.stringify({text})})}catch(e){}}
   const loadServices=async()=>{try{const d=await apiFetch(`/client/${slug}/services`);setServices(d.services||[])}catch(e){}}
@@ -261,7 +262,7 @@ export default function ClientPortal(){
   // HOME (Figma 2:849 / 2:674) — sidebar + main
   // ═══════════════════════════════════════════════════════════════
   if(view==='home'){
-    const qa=[{icon:'cal',label:'Book Visit',sub:'Past & upcoming',action:()=>navTo('bookings'),show:true},{icon:'shop',label:'Shop',sub:'Products & offers',action:()=>navTo('shop'),show:true},{icon:'video',label:'Video Call',sub:'Virtual consultation',action:()=>navTo('video'),show:true},{icon:'form',label:hasForm?'View Form':'Fill Form',sub:hasForm?'Review details':'Complete paperwork',action:()=>{setStep(0);setView('form')},show:isSalon},{icon:'user',label:'My Profile',sub:'History & settings',action:()=>navTo('profile'),show:true},{icon:'msg',label:'Message Us',sub:'Talk to experts',action:()=>navTo('messages'),show:true}].filter(a=>a.show)
+    const qa=[{icon:'cal',label:'Book Visit',sub:'Past & upcoming',action:()=>navTo('bookings'),show:true},{icon:'shop',label:'Shop',sub:'Products & offers',action:()=>navTo('shop-products'),show:true},{icon:'video',label:'Video Call',sub:'Virtual consultation',action:()=>navTo('video'),show:true},{icon:'form',label:hasForm?'View Form':'Fill Form',sub:hasForm?'Review details':'Complete paperwork',action:()=>{setStep(0);setView('form')},show:isSalon},{icon:'user',label:'My Profile',sub:'History & settings',action:()=>navTo('profile'),show:true},{icon:'msg',label:'Message Us',sub:'Talk to experts',action:()=>navTo('messages'),show:true}].filter(a=>a.show)
     return(
       <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="home">
         <TopBar biz={biz} user={user} desk={desk}/>
@@ -747,128 +748,122 @@ export default function ClientPortal(){
     )
   }
 
-  // SHOP — products, cart
+  // SHOP — PRODUCTS PAGE
   // ═══════════════════════════════════════════════════════════════
-  if(view==='shop'){
+  if(view==='shop-products'){
     const filtered=shopCatFilter==='all'?shopProducts:shopProducts.filter(p=>p.category===shopCatFilter)
     const cartTotal=shopCart.reduce((s,i)=>s+i.price*i.quantity,0)
     const cartCount=shopCart.reduce((s,i)=>s+i.quantity,0)
     return(
-    <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="shop">
+    <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab={activeTab}>
       <TopBar biz={biz} user={user} desk={desk}/>
       <div style={{flex:1,overflowY:'auto',paddingBottom:desk?20:140}}>
-        {/* Shop header + tabs */}
-        <div style={{background:$.card,borderBottom:`1px solid ${$.bdr}`}}>
-          <div style={{padding:desk?'20px 24px 0':'16px 16px 0'}}>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
-              <div style={{display:'flex',alignItems:'center',gap:10}}>
-                <button onClick={()=>navTo('home')} style={{width:32,height:32,borderRadius:8,border:`1px solid ${$.bdr}`,background:$.card,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}}>{I.back($.txtM)}</button>
-                <h2 style={{fontSize:desk?22:18,fontWeight:800,color:$.h,margin:0,fontFamily:$.f}}>Shop</h2>
-              </div>
-              {cartCount>0&&<button onClick={()=>setView('cart')} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>
-                {I.shop('#111',16)} Basket ({cartCount}) — £{cartTotal.toFixed(2)}
-              </button>}
-            </div>
-            {/* Tabs */}
-            <div style={{display:'flex',gap:0}}>
-              {[
-                {id:'products',label:'Products',count:shopProducts.length},
-                {id:'packages',label:'Packages & Courses',count:services.filter(s=>s.name&&(s.name.toLowerCase().includes('course')||s.name.toLowerCase().includes('package'))).length},
-                {id:'treatments',label:'Treatments',count:services.filter(s=>!s.name?.toLowerCase().includes('course')&&!s.name?.toLowerCase().includes('package')).length},
-              ].map(t=>(
-                <button key={t.id} onClick={()=>setShopTab(t.id)} style={{padding:desk?'10px 20px':'10px 14px',border:'none',borderBottom:shopTab===t.id?`2px solid ${$.acc}`:'2px solid transparent',background:'none',fontSize:desk?13:12,fontWeight:shopTab===t.id?700:500,color:shopTab===t.id?$.h:$.txtM,cursor:'pointer',fontFamily:$.f,whiteSpace:'nowrap'}}>
-                  {t.label}{t.count>0?` (${t.count})`:''}
-                </button>
-              ))}
-            </div>
+        <div style={{padding:desk?'20px 24px':'16px',borderBottom:`1px solid ${$.bdr}`,background:$.card}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <h2 style={{fontSize:desk?22:18,fontWeight:800,color:$.h,margin:0,fontFamily:$.f}}>Products</h2>
+            {cartCount>0&&<button onClick={()=>setView('cart')} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>
+              {I.shop('#111',16)} Basket ({cartCount}) — £{cartTotal.toFixed(2)}
+            </button>}
+          </div>
+          <p style={{fontSize:12,color:$.txtM,margin:'4px 0 0'}}>{shopProducts.length} skincare products</p>
+          <div style={{display:'flex',gap:6,marginTop:12,overflowX:'auto',flexWrap:'nowrap',paddingBottom:4}}>
+            <button onClick={()=>setShopCatFilter('all')} style={{padding:'6px 14px',borderRadius:99,border:shopCatFilter==='all'?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,background:shopCatFilter==='all'?`${$.acc}15`:$.card,color:shopCatFilter==='all'?$.acc:$.txtM,fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:$.f,whiteSpace:'nowrap',flexShrink:0}}>All</button>
+            {shopCats.map(c=><button key={c} onClick={()=>setShopCatFilter(c)} style={{padding:'6px 14px',borderRadius:99,border:shopCatFilter===c?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,background:shopCatFilter===c?`${$.acc}15`:$.card,color:shopCatFilter===c?$.acc:$.txtM,fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:$.f,whiteSpace:'nowrap',flexShrink:0}}>{c}</button>)}
           </div>
         </div>
+        <div style={{padding:desk?'16px 24px':'12px',display:'grid',gridTemplateColumns:desk?'repeat(auto-fill,minmax(260px,1fr))':'repeat(2,1fr)',gap:desk?16:10}}>
+          {filtered.map(p=>{
+            const inCart=shopCart.find(i=>i.product_id===p.id)
+            return(
+            <div key={p.id} style={{background:$.card,borderRadius:14,border:`1px solid ${$.bdr}`,overflow:'hidden',display:'flex',flexDirection:'column',transition:'box-shadow 0.2s'}} onMouseEnter={e=>e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)'} onMouseLeave={e=>e.currentTarget.style.boxShadow='none'}>
+              <div style={{height:desk?180:120,background:'#F5F5F3',display:'flex',alignItems:'center',justifyContent:'center',position:'relative'}}>
+                {p.images&&p.images[0]?<img src={p.images[0]} alt={p.name} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<span style={{fontSize:28,color:'#DDD'}}>{I.shop('#DDD',32)}</span>}
+                {p.compare_at_price>0&&<div style={{position:'absolute',top:8,right:8,background:'#EF4444',color:'#fff',fontSize:9,fontWeight:800,padding:'2px 8px',borderRadius:99}}>SALE</div>}
+              </div>
+              <div style={{padding:desk?'14px 16px':'10px 12px',flex:1,display:'flex',flexDirection:'column'}}>
+                <div style={{fontSize:desk?14:12,fontWeight:700,color:$.h,marginBottom:2,lineHeight:1.3}}>{p.name}</div>
+                <div style={{fontSize:10,color:$.txtM,marginBottom:8}}>{p.category}</div>
+                <div style={{marginTop:'auto',display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                  <span style={{fontSize:desk?20:16,fontWeight:800,color:$.h}}>£{(p.price||0).toFixed(2)}</span>
+                  {p.compare_at_price>0&&<span style={{fontSize:12,color:$.txtL,textDecoration:'line-through'}}>£{p.compare_at_price.toFixed(2)}</span>}
+                </div>
+                <button onClick={(e)=>{e.stopPropagation();addToCart(p)}} style={{padding:desk?'10px 0':'8px 0',borderRadius:99,border:'none',background:inCart?'#10B981':$.acc,color:inCart?'#fff':'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f,width:'100%'}}>
+                  {inCart?`In Basket (${inCart.quantity})`:'Add to Basket'}
+                </button>
+              </div>
+            </div>
+          )})}
+        </div>
+        {filtered.length===0&&<div style={{padding:40,textAlign:'center',color:$.txtM,fontSize:13}}>No products in this category.</div>}
+      </div>
+    </Shell>
+  )}
 
+  // SHOP — PACKAGES & COURSES PAGE
+  // ═══════════════════════════════════════════════════════════════
+  if(view==='shop-packages'){
+    const pkgs=services.filter(s=>s.name&&(s.name.toLowerCase().includes('course')||s.name.toLowerCase().includes('package')))
+    return(
+    <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab={activeTab}>
+      <TopBar biz={biz} user={user} desk={desk}/>
+      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?20:140}}>
+        <div style={{padding:desk?'20px 24px':'16px',borderBottom:`1px solid ${$.bdr}`,background:$.card}}>
+          <h2 style={{fontSize:desk?22:18,fontWeight:800,color:$.h,margin:0,fontFamily:$.f}}>Packages & Courses</h2>
+          <p style={{fontSize:12,color:$.txtM,margin:'4px 0 0'}}>Save with multi-session treatment packages</p>
+        </div>
+        <div style={{padding:desk?'20px 24px':'16px',display:'flex',flexDirection:'column',gap:10}}>
+          {pkgs.length>0?pkgs.map(s=>(
+            <div key={s.id||s.name} style={{background:$.card,borderRadius:14,border:`2px solid ${$.acc}30`,padding:desk?'18px 20px':'14px 16px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div>
+                <div style={{fontSize:desk?16:15,fontWeight:700,color:$.h}}>{s.name}</div>
+                <div style={{fontSize:12,color:$.txtM,marginTop:3}}>{s.duration||'—'} min per session</div>
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:12}}>
+                <span style={{fontSize:desk?20:18,fontWeight:800,color:$.acc}}>£{(s.price||0).toFixed(2)}</span>
+                <button onClick={()=>{navTo('bookings')}} style={{padding:'8px 20px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book</button>
+              </div>
+            </div>
+          )):<div style={{padding:40,textAlign:'center',color:$.txtM,fontSize:13}}>No packages available yet.</div>}
+        </div>
+      </div>
+    </Shell>
+  )}
+
+  // SHOP — TREATMENTS PAGE
+  // ═══════════════════════════════════════════════════════════════
+  if(view==='shop-treatments'){
+    const pkgs=services.filter(s=>s.name&&(s.name.toLowerCase().includes('course')||s.name.toLowerCase().includes('package')))
+    const treats=services.filter(s=>!pkgs.includes(s))
+    const cats={}
+    treats.forEach(s=>{const c=s.category||'Treatments';if(!cats[c])cats[c]=[];cats[c].push(s)})
+    return(
+    <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab={activeTab}>
+      <TopBar biz={biz} user={user} desk={desk}/>
+      <div style={{flex:1,overflowY:'auto',paddingBottom:desk?20:140}}>
+        <div style={{padding:desk?'20px 24px':'16px',borderBottom:`1px solid ${$.bdr}`,background:$.card}}>
+          <h2 style={{fontSize:desk?22:18,fontWeight:800,color:$.h,margin:0,fontFamily:$.f}}>Treatments</h2>
+          <p style={{fontSize:12,color:$.txtM,margin:'4px 0 0'}}>Book individual treatments</p>
+        </div>
         <div style={{padding:desk?'20px 24px':'16px'}}>
-
-          {/* ═══ TAB: PRODUCTS ═══ */}
-          {shopTab==='products'&&(<>
-            {shopProducts.length>0?(<>
-              <div style={{display:'flex',gap:6,marginBottom:14,overflowX:'auto',flexWrap:'nowrap',paddingBottom:4}}>
-                <button onClick={()=>setShopCatFilter('all')} style={{padding:'6px 14px',borderRadius:99,border:shopCatFilter==='all'?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,background:shopCatFilter==='all'?`${$.acc}15`:$.card,color:shopCatFilter==='all'?$.acc:$.txtM,fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:$.f,whiteSpace:'nowrap',flexShrink:0}}>All</button>
-                {shopCats.map(c=><button key={c} onClick={()=>setShopCatFilter(c)} style={{padding:'6px 14px',borderRadius:99,border:shopCatFilter===c?`2px solid ${$.acc}`:`1px solid ${$.bdr}`,background:shopCatFilter===c?`${$.acc}15`:$.card,color:shopCatFilter===c?$.acc:$.txtM,fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:$.f,whiteSpace:'nowrap',flexShrink:0}}>{c}</button>)}
-              </div>
-              <div style={{display:'grid',gridTemplateColumns:desk?'repeat(auto-fill,minmax(260px,1fr))':'repeat(2,1fr)',gap:desk?16:10}}>
-                {filtered.map(p=>{
-                  const inCart=shopCart.find(i=>i.product_id===p.id)
-                  return(
-                  <div key={p.id} style={{background:$.card,borderRadius:14,border:`1px solid ${$.bdr}`,overflow:'hidden',display:'flex',flexDirection:'column',transition:'box-shadow 0.2s'}} onMouseEnter={e=>e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)'} onMouseLeave={e=>e.currentTarget.style.boxShadow='none'}>
-                    <div style={{height:desk?180:120,background:'#F5F5F3',display:'flex',alignItems:'center',justifyContent:'center',position:'relative'}}>
-                      {p.images&&p.images[0]?<img src={p.images[0]} alt={p.name} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<span style={{fontSize:28,color:'#DDD'}}>{I.shop('#DDD',32)}</span>}
-                      {p.compare_at_price>0&&<div style={{position:'absolute',top:8,right:8,background:'#EF4444',color:'#fff',fontSize:9,fontWeight:800,padding:'2px 8px',borderRadius:99}}>SALE</div>}
-                    </div>
-                    <div style={{padding:desk?'14px 16px':'10px 12px',flex:1,display:'flex',flexDirection:'column'}}>
-                      <div style={{fontSize:desk?14:12,fontWeight:700,color:$.h,marginBottom:2,lineHeight:1.3}}>{p.name}</div>
-                      <div style={{fontSize:10,color:$.txtM,marginBottom:8}}>{p.category}</div>
-                      <div style={{marginTop:'auto',display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-                        <span style={{fontSize:desk?20:16,fontWeight:800,color:$.h}}>£{(p.price||0).toFixed(2)}</span>
-                        {p.compare_at_price>0&&<span style={{fontSize:12,color:$.txtL,textDecoration:'line-through'}}>£{p.compare_at_price.toFixed(2)}</span>}
-                      </div>
-                      <button onClick={(e)=>{e.stopPropagation();addToCart(p)}} style={{padding:desk?'10px 0':'8px 0',borderRadius:99,border:'none',background:inCart?'#10B981':$.acc,color:inCart?'#fff':'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f,width:'100%'}}>
-                        {inCart?`In Basket (${inCart.quantity})`:'Add to Basket'}
-                      </button>
-                    </div>
-                  </div>
-                )})}
-              </div>
-              {filtered.length===0&&<div style={{padding:20,textAlign:'center',color:$.txtM,fontSize:13}}>No products in this category.</div>}
-            </>):(<div style={{padding:40,textAlign:'center',color:$.txtM,fontSize:13}}>No products available yet.</div>)}
-          </>)}
-
-          {/* ═══ TAB: PACKAGES & COURSES ═══ */}
-          {shopTab==='packages'&&(()=>{
-            const pkgs=services.filter(s=>s.name&&(s.name.toLowerCase().includes('course')||s.name.toLowerCase().includes('package')))
-            return pkgs.length>0?(
-              <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                {pkgs.map(s=>(
-                  <div key={s.id||s.name} style={{background:$.card,borderRadius:14,border:`2px solid ${$.acc}30`,padding:desk?'18px 20px':'14px 16px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          {treats.length>0?Object.keys(cats).sort().map(cat=>(
+            <div key={cat} style={{marginBottom:24}}>
+              <p style={{fontSize:11,fontWeight:700,color:$.acc,textTransform:'uppercase',letterSpacing:'0.6px',margin:'0 0 10px'}}>{cat}</p>
+              <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                {cats[cat].map(s=>(
+                  <div key={s.id||s.name} style={{background:$.card,borderRadius:12,border:`1px solid ${$.bdr}`,padding:desk?'14px 16px':'12px 14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                     <div>
-                      <div style={{fontSize:desk?16:15,fontWeight:700,color:$.h}}>{s.name}</div>
-                      <div style={{fontSize:12,color:$.txtM,marginTop:3}}>{s.duration||'—'} min per session</div>
+                      <div style={{fontSize:desk?14:13,fontWeight:600,color:$.h}}>{s.name}</div>
+                      <div style={{fontSize:11,color:$.txtM,marginTop:2}}>{s.duration||'—'} min</div>
                     </div>
-                    <div style={{display:'flex',alignItems:'center',gap:12}}>
-                      <span style={{fontSize:desk?20:18,fontWeight:800,color:$.acc}}>£{(s.price||0).toFixed(2)}</span>
-                      <button onClick={()=>{navTo('bookings')}} style={{padding:'8px 20px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book</button>
+                    <div style={{display:'flex',alignItems:'center',gap:10}}>
+                      <span style={{fontSize:15,fontWeight:800,color:$.h}}>£{(s.price||0).toFixed(2)}</span>
+                      <button onClick={()=>{navTo('bookings')}} style={{padding:'6px 16px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book</button>
                     </div>
                   </div>
                 ))}
               </div>
-            ):(<div style={{padding:40,textAlign:'center',color:$.txtM,fontSize:13}}>No packages available yet.</div>)
-          })()}
-
-          {/* ═══ TAB: TREATMENTS ═══ */}
-          {shopTab==='treatments'&&(()=>{
-            const pkgs=services.filter(s=>s.name&&(s.name.toLowerCase().includes('course')||s.name.toLowerCase().includes('package')))
-            const treats=services.filter(s=>!pkgs.includes(s))
-            if(!treats.length)return <div style={{padding:40,textAlign:'center',color:$.txtM,fontSize:13}}>No treatments available yet.</div>
-            const cats={}
-            treats.forEach(s=>{const c=s.category||'Treatments';if(!cats[c])cats[c]=[];cats[c].push(s)})
-            return Object.keys(cats).sort().map(cat=>(
-              <div key={cat} style={{marginBottom:24}}>
-                <p style={{fontSize:11,fontWeight:700,color:$.acc,textTransform:'uppercase',letterSpacing:'0.6px',margin:'0 0 10px'}}>{cat}</p>
-                <div style={{display:'flex',flexDirection:'column',gap:6}}>
-                  {cats[cat].map(s=>(
-                    <div key={s.id||s.name} style={{background:$.card,borderRadius:12,border:`1px solid ${$.bdr}`,padding:desk?'14px 16px':'12px 14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                      <div>
-                        <div style={{fontSize:desk?14:13,fontWeight:600,color:$.h}}>{s.name}</div>
-                        <div style={{fontSize:11,color:$.txtM,marginTop:2}}>{s.duration||'—'} min</div>
-                      </div>
-                      <div style={{display:'flex',alignItems:'center',gap:10}}>
-                        <span style={{fontSize:15,fontWeight:800,color:$.h}}>£{(s.price||0).toFixed(2)}</span>
-                        <button onClick={()=>{navTo('bookings')}} style={{padding:'6px 16px',borderRadius:99,border:'none',background:$.acc,color:'#111',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:$.f}}>Book</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))
-          })()}
-
+            </div>
+          )):<div style={{padding:40,textAlign:'center',color:$.txtM,fontSize:13}}>No treatments available yet.</div>}
         </div>
       </div>
     </Shell>
@@ -882,7 +877,7 @@ export default function ClientPortal(){
     <Shell biz={biz} user={user} desk={desk} activeTab={activeTab} onNav={navTo} onLogout={logout} tab="shop">
       <TopBar biz={biz} user={user} desk={desk}/>
       <div style={{flex:1,overflowY:'auto',padding:desk?'20px 24px':'16px',paddingBottom:desk?20:140}}>
-        <button onClick={()=>setView('shop')} style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',fontSize:13,fontWeight:600,color:$.txtM,fontFamily:$.f,marginBottom:16,padding:0}}>{I.back($.txtM)} Back to Shop</button>
+        <button onClick={()=>{setView('shop-products');setActiveTab('shop-products')}} style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',fontSize:13,fontWeight:600,color:$.txtM,fontFamily:$.f,marginBottom:16,padding:0}}>{I.back($.txtM)} Back to Shop</button>
         <h2 style={{fontSize:20,fontWeight:800,color:$.h,margin:'0 0 16px',fontFamily:$.f}}>Your Basket</h2>
         {shopCart.length===0?<p style={{color:$.txtM,fontSize:13}}>Your basket is empty.</p>:
         <div style={{display:'flex',flexDirection:'column',gap:10}}>

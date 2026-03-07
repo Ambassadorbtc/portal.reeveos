@@ -874,7 +874,7 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
                     }}
                   />
                   <span style={{ color: "#74C69D", fontSize: 12, fontWeight: 500 }}>
-                    Your restaurant assistant
+                    {isRestaurant ? 'Your restaurant assistant' : 'Your clinic assistant'}
                   </span>
                 </div>
               </div>
@@ -911,7 +911,7 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
                   <span style={{ fontSize: 20, display: "block", marginBottom: 6 }}>👋</span>
                   <strong style={{ color: "#111111" }}>Hey! I'm your ReeveOS assistant.</strong>
                   <br />
-                  I can help with tonight's bookings, table availability, covers, and managing your restaurant. What do you need?
+                  I can help with {isRestaurant ? "tonight's bookings, table availability, covers, and managing your restaurant" : "today's appointments, availability, client info, and managing your schedule"}. What do you need?
                 </div>
 
                 {/* Suggestions */}
@@ -1021,7 +1021,7 @@ This is a local services business (salon/clinic/spa), NOT a restaurant. Use "app
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask about tonight's bookings..."
+                placeholder={isRestaurant ? "Ask about tonight's bookings..." : "Ask about today's appointments..."}
                 disabled={isLoading}
                 style={{
                   flex: 1,

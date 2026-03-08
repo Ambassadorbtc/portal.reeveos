@@ -22,10 +22,10 @@ function getSteps(businessType) {
   const steps = [
     {
       id: 'welcome',
-      path: null, // modal, no navigation
+      path: null,
       target: null,
       title: 'Welcome to ReeveOS!',
-      body: `I'm your setup guide. I'll walk you through every part of your portal in about 3 minutes. You can skip at any time, and restart this tour from Settings whenever you like.`,
+      body: `I'm your setup guide. I'll walk you through every part of your portal in about 3 minutes. You'll get to try each feature as we go. Ready?`,
       type: 'modal',
     },
     {
@@ -33,7 +33,9 @@ function getSteps(businessType) {
       path: '/dashboard',
       target: '[data-tour="sidebar"]',
       title: 'Your Command Centre',
-      body: `Everything in your business lives here — bookings, clients, shop, messages, settings. The sections adapt to your business type, so you'll only see what's relevant to you.`,
+      body: `Everything in your business lives here — bookings, clients, shop, messages, settings. The sections adapt to your business type.`,
+      task: 'Click the sidebar to explore — notice how sections are grouped by function.',
+      interactive: true,
       position: 'right',
     },
     {
@@ -41,7 +43,9 @@ function getSteps(businessType) {
       path: '/dashboard',
       target: '[data-tour="dashboard-stats"]',
       title: 'Dashboard Overview',
-      body: `This is your home. At a glance you can see today's bookings, revenue, new clients, and any alerts that need attention. Everything here is live data.`,
+      body: `Your home page. Today's bookings, revenue, new clients, and alerts — all live data at a glance.`,
+      task: 'Click on any stat card to see more detail.',
+      interactive: true,
       position: 'bottom',
     },
     {
@@ -49,7 +53,9 @@ function getSteps(businessType) {
       path: '/dashboard/calendar',
       target: '[data-tour="calendar"]',
       title: isFood ? 'Reservations' : 'Calendar',
-      body: `Your calendar shows every booking across all your ${staff}s. We've loaded sample data so you can see how it'll look. Try clicking any appointment to see the detail panel.`,
+      body: `Every booking across all your ${staff}s. We've loaded sample data so you can see how it looks in action.`,
+      task: 'Click on any appointment to open the booking detail panel.',
+      interactive: true,
       position: 'bottom',
     },
     {
@@ -57,7 +63,9 @@ function getSteps(businessType) {
       path: '/dashboard/online-booking',
       target: '[data-tour="booking-link"]',
       title: 'Your Booking Link',
-      body: `This is your online booking page — clients use this to book themselves in 24/7. Share the link on your website, Instagram bio, or WhatsApp. Customise the look and control which ${svcs} are bookable.`,
+      body: `This is how clients book themselves in 24/7. Share it on your website, Instagram, or WhatsApp.`,
+      task: 'Click "Copy Link" to grab your booking URL — try pasting it in a new tab!',
+      interactive: true,
       position: 'bottom',
     },
     {
@@ -65,7 +73,9 @@ function getSteps(businessType) {
       path: '/dashboard/services',
       target: '[data-tour="services"]',
       title: isFood ? 'Your Menu' : 'Your Services',
-      body: `Manage your ${svcs} here. Each one has a name, duration, price, and category. You added some during setup — edit, reorder, or add new ones at any time.`,
+      body: `Each ${svc} has a name, duration, price, and category. You added some during setup — you can always add more.`,
+      task: `Click on any ${svc} to edit it, or try the "Add" button to create a new one.`,
+      interactive: true,
       position: 'bottom',
     },
     {
@@ -73,7 +83,9 @@ function getSteps(businessType) {
       path: '/dashboard/crm?view=clients',
       target: '[data-tour="crm"]',
       title: 'Client Management',
-      body: `Your CRM tracks every client interaction. See who's booked, who's overdue, their lifetime spend, and which ${svcs} they love most. Turn one-time visitors into regulars.`,
+      body: `Track every client — who's booked, who's overdue, lifetime spend, and favourite ${svcs}. Turn one-timers into regulars.`,
+      task: 'Click on any client row to see their full profile and history.',
+      interactive: true,
       position: 'bottom',
     },
     {
@@ -81,7 +93,7 @@ function getSteps(businessType) {
       path: '/dashboard/shop?tab=products',
       target: '[data-tour="shop"]',
       title: 'Shop',
-      body: `Sell products, gift vouchers, and ${svc} packages online. Clients can browse and buy from their portal — no third-party checkout needed.`,
+      body: `Sell products, gift vouchers, and ${svc} packages online. Clients buy directly from their portal.`,
       position: 'bottom',
     },
     {
@@ -90,8 +102,10 @@ function getSteps(businessType) {
       target: '[data-tour="consultation-forms"]',
       title: 'Consultation Forms',
       body: isBeauty
-        ? `When a client fills in their health questionnaire, it appears here. The system automatically checks their medical answers against your treatments — contraindications are flagged or blocked automatically.`
-        : `Manage client intake forms here. When someone submits a form, review and approve it directly from this screen.`,
+        ? `Client health questionnaires appear here. The system auto-checks for contraindications — flags or blocks unsafe bookings automatically.`
+        : `Client intake forms land here. Review, approve, and trigger follow-up emails or texts.`,
+      task: isBeauty ? 'Click on any submitted form to see the contraindication status.' : 'Click to view a submitted form.',
+      interactive: true,
       position: 'bottom',
     },
     {
@@ -99,7 +113,9 @@ function getSteps(businessType) {
       path: '/dashboard/client-messages',
       target: '[data-tour="messages"]',
       title: 'Messages',
-      body: `Chat directly with your clients. Messages, appointment reminders, aftercare instructions — all in one inbox. Your clients see these in their portal too.`,
+      body: `Two-way chat with your clients. Reminders, aftercare, follow-ups — one inbox for everything.`,
+      task: 'Click on a conversation to see the message thread.',
+      interactive: true,
       position: 'bottom',
     },
     {
@@ -107,7 +123,9 @@ function getSteps(businessType) {
       path: '/dashboard/staff',
       target: '[data-tour="staff"]',
       title: 'Your Team',
-      body: `Manage your team here. Each ${staff} has their own schedule, ${svcs} they can perform, and availability. Clients choose their preferred ${staff} when booking.`,
+      body: `Each ${staff} has their own schedule, ${svcs} they perform, and availability. Clients pick their preferred ${staff} when booking.`,
+      task: 'Click on a team member to see their profile and schedule.',
+      interactive: true,
       position: 'bottom',
     },
     {
@@ -115,7 +133,9 @@ function getSteps(businessType) {
       path: '/dashboard/settings',
       target: '[data-tour="settings"]',
       title: 'Settings',
-      body: `Fine-tune everything — business hours, cancellation policy, booking rules, notifications, and payment settings. This is also where you'll find the Guided Tour toggle to run through this again.`,
+      body: `Business hours, cancellation policy, booking rules, notifications, and the Guided Tour toggle all live here.`,
+      task: 'Click on the "Preferences" tab to find the tour toggle.',
+      interactive: true,
       position: 'bottom',
     },
   ]
@@ -127,7 +147,9 @@ function getSteps(businessType) {
       path: '/dashboard/consultation-forms',
       target: '[data-tour="consultation-forms"]',
       title: 'Medical Safety System',
-      body: `Because you're in aesthetics, ReeveOS checks every client's health form against a contraindication matrix — 20 conditions across 5 treatment types. BLOCK means unsafe, FLAG means review needed. Every override is logged for your insurance.`,
+      body: `ReeveOS checks every client's health form against a contraindication matrix — 20 conditions across 5 treatment types. BLOCK = unsafe, FLAG = review needed. Every override is logged for insurance.`,
+      task: 'Look for any flagged forms — click one to see the contraindication details and override options.',
+      interactive: true,
       position: 'top',
     })
   }
@@ -137,8 +159,8 @@ function getSteps(businessType) {
     id: 'complete',
     path: null,
     target: null,
-    title: "You're Ready!",
-    body: `Your portal is fully set up and ready for clients. If you ever want to run through this again, head to Settings. We're always here if you need us.`,
+    title: "You're Ready, {firstName}!",
+    body: `You've explored every section of your portal. Your business is live and ready for clients. Restart this tour anytime from the compass icon in the top bar.`,
     type: 'modal',
   })
 

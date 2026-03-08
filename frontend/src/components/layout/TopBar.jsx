@@ -8,6 +8,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useBusiness } from '../../contexts/BusinessContext'
 import { getNavItems } from '../../config/navigation'
 import api from '../../utils/api'
+import { useWalkthrough } from '../../contexts/WalkthroughContext'
 
 const PAGE_TITLES = {
   '/dashboard': 'Dashboard',
@@ -41,6 +42,7 @@ const PAGE_TITLES = {
 const TopBar = ({ onMenuClick, sidebarOpen }) => {
   const { user, logout } = useAuth()
   const { business, businessType, tier, setBusinessType, cycleTier } = useBusiness()
+  const { active, restart, skip } = useWalkthrough()
   const location = useLocation()
   const navigate = useNavigate()
   const [unreadCount, setUnreadCount] = useState(0)
@@ -113,6 +115,17 @@ const TopBar = ({ onMenuClick, sidebarOpen }) => {
             </button>
           </div>
         )}
+
+        {/* Guided Tour toggle */}
+        <button
+          className={`relative p-2 rounded-lg transition-colors ${active ? 'text-[#C9A84C] bg-[#C9A84C]/10' : 'text-muted hover:text-primary hover:bg-border'}`}
+          aria-label="Guided Tour"
+          title={active ? 'Tour active — click to stop' : 'Start guided tour'}
+          onClick={() => active ? skip() : restart()}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+          {active && <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#C9A84C] animate-pulse" />}
+        </button>
 
         <button
           className="relative p-2 text-muted hover:text-primary hover:bg-border rounded-lg transition-colors"

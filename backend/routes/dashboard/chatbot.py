@@ -387,7 +387,7 @@ async def health():
 
 @router.post("/chat", response_model=ChatResponse)
 @limiter.limit("20/minute")
-async def chat(http_request: FastAPIRequest, request: ChatRequest, user: dict = Depends(get_current_user)):
+async def chat(request: FastAPIRequest, chat_request: ChatRequest, user: dict = Depends(get_current_user)):
     """AI chat — Claude if available, local fallback if not. NEVER fails.
     
     SECURITY: Business data is STRICTLY isolated. Regular users can ONLY
@@ -403,12 +403,12 @@ async def chat(http_request: FastAPIRequest, request: ChatRequest, user: dict = 
     
     if user_role in ("super_admin", "platform_admin"):
         # Admins can query any business
-        effective_biz_id = request.business_id or (user_biz_ids[0] if user_biz_ids else None)
+        effective_biz_id = chat_request.business_id or (user_biz_ids[0] if user_biz_ids else None)
     else:
         # Regular users: ALWAYS their own business, client request is IGNORED
         effective_biz_id = user_biz_ids[0] if user_biz_ids else None
-        if request.business_id and request.business_id not in user_biz_ids:
-            logger.warning(f"SECURITY: User {user.get('email')} tried to access business {request.business_id} — BLOCKED")
+        if chat_request.business_id and chat_request.business_id not in user_biz_ids:
+            logger.warning(f"SECURITY: User {user.get('email')} tried to access business {chat_request.business_id} — BLOCKED")
             raise HTTPException(403, "Access denied to this business")
 
     # Build DB snapshot — ONLY for the authenticated user's business
@@ -420,7 +420,7 @@ async def chat(http_request: FastAPIRequest, request: ChatRequest, user: dict = 
             logger.error(f"Snapshot error: {traceback.format_exc()}")
             snapshot = ""
 
-    last_message = request.messages[-1].content if request.messages else ""
+    last_message = chat_request.messages[-1].content if chat_request.messages else ""
 
     # ─── Try Claude API first (if key is configured) ───
     if settings.anthropic_api_key:
@@ -432,7 +432,7 @@ async def chat(http_request: FastAPIRequest, request: ChatRequest, user: dict = 
             allowed_roles = {"user", "assistant"}
             api_messages = [
                 {"role": m.role, "content": m.content}
-                for m in request.messages[-20:]
+                for m in chat_request.messages[-20:]
                 if m.role in allowed_roles
             ]
 
@@ -456,7 +456,7 @@ async def chat(http_request: FastAPIRequest, request: ChatRequest, user: dict = 
                 data = response.json()
                 reply = "".join(b.get("text", "") for b in data.get("content", []) if b.get("type") == "text")
                 if reply:
-                    return ChatResponse(reply=reply, session_id=request.session_id)
+                    return ChatResponse(reply=reply, session_id=chat_request.session_id)
 
             # API returned non-200 — fall through to local
             logger.warning(f"Claude API {response.status_code}: {response.text[:200]}")
@@ -468,4 +468,4 @@ async def chat(http_request: FastAPIRequest, request: ChatRequest, user: dict = 
 
     # ─── Local fallback — always works ───
     reply = build_local_reply(last_message, snapshot)
-    return ChatResponse(reply=reply, session_id=request.session_id)
+    return ChatResponse(reply=reply, session_id=chat_request.session_id)

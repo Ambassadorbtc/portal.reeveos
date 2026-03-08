@@ -8,7 +8,7 @@ import { Link2, Copy, Check, QrCode, Eye, MousePointer, CalendarCheck, TrendingU
 import { useBusiness } from '../../contexts/BusinessContext'
 
 const BookingLink = () => {
-  const { business } = useBusiness()
+  const { business, businessType } = useBusiness()
   const [copied, setCopied] = useState(false)
   const [activeChannelTab, setActiveChannelTab] = useState('channels')
   const [showQr, setShowQr] = useState(false)
@@ -171,17 +171,23 @@ const BookingLink = () => {
                   <CalendarCheck className="w-4 h-4 text-white" />
                 </div>
                 <h4 className="text-white font-bold text-sm">{business?.name || 'Your Business'}</h4>
-                <p className="text-white/70 text-[10px] mt-0.5">Book a table</p>
+                <p className="text-white/70 text-[10px] mt-0.5">{['restaurant','cafe','bar','pub','takeaway'].includes(businessType) ? 'Book a table' : 'Book an appointment'}</p>
               </div>
               <div className="flex-1 p-3 space-y-2">
-                <div className="bg-gray-50 rounded-lg p-2 text-center">
-                  <p className="text-[10px] font-bold text-primary">Party Size</p>
-                </div>
+                {['restaurant','cafe','bar','pub','takeaway'].includes(businessType) ? (
+                  <div className="bg-gray-50 rounded-lg p-2 text-center">
+                    <p className="text-[10px] font-bold text-primary">Party Size</p>
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-2 text-center">
+                    <p className="text-[10px] font-bold text-primary">Choose Service</p>
+                  </div>
+                )}
                 <div className="bg-gray-50 rounded-lg p-2 text-center">
                   <p className="text-[10px] font-bold text-primary">Pick a Date</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-2 text-center">
-                  <p className="text-[10px] font-bold text-primary">Select Time Slot</p>
+                  <p className="text-[10px] font-bold text-primary">{['restaurant','cafe','bar','pub','takeaway'].includes(businessType) ? 'Select Time Slot' : 'Choose Time & Therapist'}</p>
                 </div>
                 <div className="mt-auto">
                   <div className="bg-primary rounded-lg py-2 text-center">

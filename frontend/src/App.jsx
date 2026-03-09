@@ -73,6 +73,7 @@ import AdminErrors from './pages/admin/AdminErrors'
 import AdminSettings from './pages/admin/AdminSettings'
 import AdminSecurity from './pages/admin/AdminSecurity'
 import Library from './pages/admin/Library'
+import AdminPartners from './pages/admin/AdminPartners'
 
 import Onboarding from './pages/onboarding/Onboarding'
 
@@ -142,6 +143,7 @@ const App = () => {
             <Route path="settings" element={<AdminSettings />} />
             <Route path="security" element={<AdminSecurity />} />
             <Route path="library" element={<Library />} />
+              <Route path="partners" element={<AdminPartners />} />
           </Route>
           {/* Catch /admin/* and redirect to root-level routes */}
           <Route path="/admin" element={<Navigate to="/" replace />} />
@@ -240,6 +242,7 @@ const App = () => {
               <Route path="settings" element={<AdminSettings />} />
               <Route path="security" element={<AdminSecurity />} />
               <Route path="library" element={<Library />} />
+              <Route path="partners" element={<AdminPartners />} />
             </Route>
 
             {/* Old /book/ routes → redirect to book.rezvo.app */}

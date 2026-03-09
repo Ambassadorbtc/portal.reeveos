@@ -13,6 +13,7 @@ from middleware.cors import setup_cors
 from middleware.rate_limit import limiter
 from routes import (
     auth_router,
+    admin_partners_router,
     book_router,
     dashboard_router,
     calendar_router,
@@ -269,6 +270,7 @@ app.include_router(pay_at_table_router)
 app.include_router(cash_and_tax_router)
 app.include_router(ops_router)
 app.include_router(library_router)
+app.include_router(admin_partners_router)
 app.include_router(studio_router)
 app.include_router(notifications_router)
 app.include_router(allergen_management_router)

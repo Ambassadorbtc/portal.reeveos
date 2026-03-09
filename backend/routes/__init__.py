@@ -40,6 +40,7 @@ from .admin.core import router as admin_router
 from .admin.extended import router as admin_extended_router
 from .admin.command_centre import router as command_centre_router
 from .admin.library import router as library_router
+from .admin.partners import router as admin_partners_router
 
 # ─── Public ───
 from .public.directory import router as directory_router
@@ -108,6 +109,7 @@ from .platform.linkedin import router as linkedin_router
 __all__ = [
     "auth_router",
     "admin_router", "admin_extended_router", "command_centre_router", "library_router",
+    "admin_partners_router",
     "directory_router", "book_router", "voice_search_router", "email_webhooks_router",
     "dashboard_router", "bookings_router", "calendar_router", "users_router",
     "businesses_router", "tables_router", "staff_router", "services_router",

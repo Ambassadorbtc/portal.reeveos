@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback } from 'react'
 import {
   Users, Clock, CheckCircle, XCircle, PauseCircle,
   Search, RefreshCw, ExternalLink, ChevronDown, ChevronUp,
-  Handshake, BadgePound, UserCheck, TrendingUp, BarChart3,
+  Handshake, PoundSterling, UserCheck, TrendingUp, BarChart3,
   Mail, Phone, Globe, Calendar, ArrowLeft
 } from 'lucide-react'
 
@@ -332,7 +332,7 @@ function CommissionsTab() {
 
       {status === 'pending' && total > 0 && (
         <div style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <BadgePound size={16} color={GOLD} />
+          <PoundSterling size={16} color={GOLD} />
           <span style={{ fontSize: 13, color: '#aaa' }}>Total pending payouts: </span>
           <span style={{ fontSize: 15, fontWeight: 700, color: GOLD }}>{fCur(total)}</span>
         </div>
@@ -405,7 +405,7 @@ function Detail({ icon: Icon, label, value }) {
 const TABS = [
   { id: 'applications', label: 'Applications', icon: Clock },
   { id: 'active', label: 'Active Partners', icon: UserCheck },
-  { id: 'commissions', label: 'Commissions', icon: BadgePound },
+  { id: 'commissions', label: 'Commissions', icon: PoundSterling },
 ]
 
 export default function AdminPartners() {
@@ -442,7 +442,7 @@ export default function AdminPartners() {
           <StatCard icon={Users} label="Total Partners" value={overview.total_affiliates} />
           <StatCard icon={UserCheck} label="Active" value={overview.active_affiliates} />
           <StatCard icon={Clock} label="Pending Review" value={overview.pending_applications} sub="Awaiting approval" />
-          <StatCard icon={BadgePound} label="Pending Payouts"
+          <StatCard icon={PoundSterling} label="Pending Payouts"
             value={overview.commission_stats?.pending ? fCur(overview.commission_stats.pending.total) : '£0'}
             sub={`${overview.commission_stats?.pending?.count ?? 0} commissions`} />
         </div>

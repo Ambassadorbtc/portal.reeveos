@@ -67,7 +67,7 @@ export default function Deleted() {
   const restoreProduct = async (id) => {
     setRestoring(id)
     try {
-      await api.patch(`/shop/business/${bid}/products/${id}`, { status: 'active' })
+      await api.put(`/shop/business/${bid}/products/${id}`, { status: 'active' })
       load()
     } catch (e) { console.error('Restore error:', e) }
     setRestoring(null)

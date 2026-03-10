@@ -101,12 +101,19 @@ export default function ShopManager() {
 
   const archiveProduct = async (id) => {
     try {
-      await api.patch(`/shop/business/${bid}/products/${id}`, { status: 'archived' })
+      await api.put(`/shop/business/${bid}/products/${id}`, { status: 'archived' })
       setDeleteConfirm(null)
       load()
     } catch (e) {
       console.error('Archive failed:', e)
-      alert('Failed to archive product. Please try again.')
+      // Fallback: try delete endpoint which also sets archived
+      try {
+        await api.delete(`/shop/business/${bid}/products/${id}`)
+        setDeleteConfirm(null)
+        load()
+      } catch (e2) {
+        alert('Failed to archive product. Please try again.')
+      }
     }
   }
 
@@ -117,14 +124,7 @@ export default function ShopManager() {
       load()
     } catch (e) {
       console.error('Delete failed:', e)
-      // Fallback: try archive instead
-      try {
-        await api.patch(`/shop/business/${bid}/products/${id}`, { status: 'archived' })
-        setDeleteConfirm(null)
-        load()
-      } catch (e2) {
-        alert('Failed to delete product. Please try again.')
-      }
+      alert('Failed to delete product. Please try again.')
     }
   }
 

@@ -22,6 +22,7 @@ const Services = () => {
   const [activeCategory, setActiveCategory] = useState('all')
   const [editing, setEditing] = useState({})
   const [saving, setSaving] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   const bid = business?.id ?? business?._id
   const isFood = businessType === 'food' || businessType === 'restaurant'
@@ -91,6 +92,42 @@ const Services = () => {
       setServices(prev => prev.map(s => s.id === selected.id ? { ...s, ...editing } : s))
     } catch (e) { console.error(e) }
     finally { setSaving(false) }
+  }
+
+  const handleArchiveService = async () => {
+    if (!bid || !deleteConfirm) return
+    const sid = deleteConfirm.id || deleteConfirm._id
+    try {
+      // Try to set inactive via v2
+      await api.patch(`/services/business/${bid}/${sid}`, { active: false, status: 'archived' }).catch(() => null)
+      setServices(prev => prev.filter(s => (s.id || s._id) !== sid))
+      setSelected(null)
+      setDeleteConfirm(null)
+    } catch (e) {
+      console.error('Archive service failed:', e)
+      alert('Failed to archive service.')
+    }
+  }
+
+  const handleDeleteService = async () => {
+    if (!bid || !deleteConfirm) return
+    const sid = deleteConfirm.id || deleteConfirm._id
+    try {
+      await api.delete(`/services-v2/business/${bid}/${sid}`)
+      setServices(prev => prev.filter(s => (s.id || s._id) !== sid))
+      setSelected(null)
+      setDeleteConfirm(null)
+    } catch {
+      try {
+        await api.delete(`/services/business/${bid}/${sid}`)
+        setServices(prev => prev.filter(s => (s.id || s._id) !== sid))
+        setSelected(null)
+        setDeleteConfirm(null)
+      } catch (e2) {
+        console.error('Delete service failed:', e2)
+        alert('Failed to delete service.')
+      }
+    }
   }
 
   if (loading) {
@@ -285,7 +322,7 @@ const Services = () => {
                 </div>
 
                 <div className="px-6 py-4 bg-gray-50 border-t border-border flex items-center justify-between">
-                  <button className="text-sm font-bold text-red-500 hover:bg-red-50 px-4 py-2 rounded-lg transition-colors">Delete {isFood ? 'Item' : 'Service'}</button>
+                  <button onClick={() => setDeleteConfirm(selected)} className="text-sm font-bold text-red-500 hover:bg-red-50 px-4 py-2 rounded-lg transition-colors">Delete {isFood ? 'Item' : 'Service'}</button>
                   <div className="flex gap-3">
                     <button onClick={() => { setSelected(null); setEditing({}) }} className="text-sm font-bold text-primary bg-white border border-border px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
                     <button onClick={handleSave} disabled={saving} className="text-sm font-bold text-white bg-primary px-6 py-2 rounded-lg hover:bg-primary-hover transition-colors shadow-md disabled:opacity-50">{saving ? 'Saving...' : 'Save Changes'}</button>
@@ -304,6 +341,32 @@ const Services = () => {
           )}
         </div>
       </div>
+
+      {/* Delete / Archive Service Modal */}
+      {deleteConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, backdropFilter: 'blur(4px)' }} onClick={() => setDeleteConfirm(null)}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 28, width: 400, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', fontFamily: "'Figtree', sans-serif" }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#111' }}>Remove Service</div>
+            </div>
+            <div style={{ fontSize: 13, color: '#666', lineHeight: '20px', marginBottom: 8 }}>
+              What would you like to do with <strong style={{ color: '#111' }}>{deleteConfirm.name || 'this service'}</strong>?
+            </div>
+            <div style={{ fontSize: 12, color: '#999', lineHeight: '18px', marginBottom: 24, padding: 12, background: '#FAFAFA', borderRadius: 10, border: '1px solid #F0F0F0' }}>
+              <strong style={{ color: '#666' }}>Archive</strong> — hides from booking, can be restored later<br/>
+              <strong style={{ color: '#666' }}>Delete</strong> — permanently removes the service
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '12px 0', borderRadius: 10, border: '1px solid #E5E5E5', background: '#fff', fontSize: 13, fontWeight: 600, color: '#333', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>Cancel</button>
+              <button onClick={handleArchiveService} style={{ flex: 1, padding: '12px 0', borderRadius: 10, border: '1px solid #111', background: '#fff', fontSize: 13, fontWeight: 600, color: '#111', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>Archive</button>
+              <button onClick={handleDeleteService} style={{ flex: 1, padding: '12px 0', borderRadius: 10, border: 'none', background: '#EF4444', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

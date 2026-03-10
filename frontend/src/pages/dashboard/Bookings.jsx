@@ -143,8 +143,8 @@ const Bookings = () => {
   }
 
   useEffect(() => { const t = setTimeout(() => setSearchDebounce(search), 300); return () => clearTimeout(t) }, [search])
-  useEffect(() => { fetchBookings(false) }, [bid, status, searchDebounce])
-  useEffect(() => { if (bookingId) fetchDetail(bookingId); else setDetail(null) }, [bookingId, bid])
+  useEffect(() => { if (bid) fetchBookings(false) }, [bid, status, searchDebounce])
+  useEffect(() => { if (bookingId && bid) fetchDetail(bookingId); else setDetail(null) }, [bookingId, bid])
 
   // Live polling — silently refresh every 15 seconds
   useEffect(() => {
@@ -330,48 +330,76 @@ const Bookings = () => {
 
       {detail && <div className="fixed inset-0 bg-black/20 z-30" onClick={closeDetail} />}
       <div className={`fixed inset-y-0 right-0 w-full sm:w-[450px] bg-white shadow-2xl transform transition-transform duration-300 z-40 border-l border-gray-200 flex flex-col ${detail ? 'translate-x-0' : 'translate-x-full'}`}>
-        {detail && (
-          <>
-            <div className="h-16 border-b border-gray-200 flex items-center justify-between px-6 bg-gray-50 shrink-0">
-              <div className="flex items-center gap-2">
-                {(() => { const sc = STATUS_CONFIG[detail.status] || STATUS_CONFIG.confirmed; const label = detail.status === 'checked_in' ? STATUS_LABELS.checked_in : sc.label; return <span className={`px-2.5 py-1 rounded-full ${sc.bg} ${sc.text} text-xs font-bold border ${sc.border}`}>{label}</span> })()}
-                <span className="text-xs text-gray-400 font-mono">{detail.reference}</span>
-              </div>
-              <button className="w-8 h-8 rounded hover:bg-gray-200 flex items-center justify-center text-gray-400" onClick={closeDetail}><X className="w-4 h-4" /></button>
-            </div>
-            {detailLoading ? <AppLoader message="Loading..." size="sm" /> : (
+        {detail && (() => {
+          try {
+            const dStatus = detail.status || 'pending'
+            const dRef = detail.reference || detail.id || ''
+            const dName = detail.customer?.name || detail.customerName || 'Client'
+            const dPhone = detail.customer?.phone || detail.phone || ''
+            const dEmail = detail.customer?.email || detail.email || ''
+            const dDate = detail.date || ''
+            const dTime = detail.time ? formatTime(detail.time) : ''
+            const dService = detail.service || detail.serviceName || '—'
+            const dStaff = detail.staffName || 'Any available'
+            const dNotes = detail.notes || ''
+            const dGuests = detail.guests || detail.partySize || '—'
+            const dTable = detail.table || detail.tableName || 'Unassigned'
+            const sc = STATUS_CONFIG[dStatus] || STATUS_CONFIG.confirmed
+            const statusLabel = dStatus === 'checked_in' ? STATUS_LABELS.checked_in : sc.label
+            const av = getAvatarColor(dName)
+
+            return (
               <>
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                  <div className="flex items-start gap-4">
-                    {(() => { const n = detail.customer?.name || detail.customerName || ''; const av = getAvatarColor(n); return <div className={`w-14 h-14 rounded-full ${av.bg} flex items-center justify-center ${av.text} font-bold text-xl shadow-sm`}>{getInitials(n)}</div> })()}
-                    <div className="flex-1">
-                      <h2 className="text-xl font-heading font-bold text-primary">{detail.customer?.name || detail.customerName}</h2>
-                      <p className="text-sm text-gray-500 mt-1">{[detail.customer?.phone || detail.phone, detail.customer?.email || detail.email].filter(Boolean).join(' • ')}</p>
-                    </div>
+                <div className="h-16 border-b border-gray-200 flex items-center justify-between px-6 bg-gray-50 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2.5 py-1 rounded-full ${sc.bg} ${sc.text} text-xs font-bold border ${sc.border}`}>{statusLabel}</span>
+                    <span className="text-xs text-gray-400 font-mono">{dRef}</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    {(isRestaurant
-                      ? [{l:'Date',v:detail.date},{l:'Time',v:formatTime(detail.time)},{l:'Guests',v:detail.guests||detail.partySize||'—'},{l:'Table',v:detail.table||detail.tableName||'Unassigned'}]
-                      : [{l:'Date',v:detail.date},{l:'Time',v:formatTime(detail.time)},{l:'Service',v:detail.service||detail.serviceName||'—'},{l:'Therapist',v:detail.staffName||'Any available'}]
-                    ).map(d => (
-                      <div key={d.l} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase">{d.l}</p>
-                        <p className="text-sm font-bold text-primary mt-1">{d.v}</p>
+                  <button className="w-8 h-8 rounded hover:bg-gray-200 flex items-center justify-center text-gray-400" onClick={closeDetail}><X className="w-4 h-4" /></button>
+                </div>
+                {detailLoading ? <AppLoader message="Loading..." size="sm" /> : (
+                  <>
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                      <div className="flex items-start gap-4">
+                        <div className={`w-14 h-14 rounded-full ${av.bg} flex items-center justify-center ${av.text} font-bold text-xl shadow-sm`}>{getInitials(dName)}</div>
+                        <div className="flex-1">
+                          <h2 className="text-xl font-heading font-bold text-primary">{dName}</h2>
+                          <p className="text-sm text-gray-500 mt-1">{[dPhone, dEmail].filter(Boolean).join(' • ')}</p>
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                  {detail.notes && <div className="bg-gray-50 p-3 rounded-lg border border-gray-200"><label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Notes</label><p className="text-sm text-primary/80">{detail.notes}</p></div>}
-                </div>
-                <div className="p-4 border-t border-gray-200 bg-gray-50 flex gap-3 shrink-0">
-                  <button className="flex-1 bg-white border border-gray-200 text-primary font-bold py-2.5 rounded-lg hover:bg-gray-100 transition-colors text-sm">Reschedule</button>
-                  {detail.status === 'confirmed' && <button onClick={() => updateStatus(detail.id, 'checked_in')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>{STATUS_LABELS.seat_action}</span><ChevronRight className="w-4 h-4" /></button>}
-                  {detail.status === 'checked_in' && <button onClick={() => updateStatus(detail.id, 'completed')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>{STATUS_LABELS.checkout_action}</span><ChevronRight className="w-4 h-4" /></button>}
-                  {detail.status === 'pending' && <button onClick={() => updateStatus(detail.id, 'confirmed')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>Confirm</span><Check className="w-4 h-4" /></button>}
-                </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        {(isRestaurant
+                          ? [{l:'Date',v:dDate},{l:'Time',v:dTime},{l:'Guests',v:dGuests},{l:'Table',v:dTable}]
+                          : [{l:'Date',v:dDate},{l:'Time',v:dTime},{l:'Service',v:dService},{l:'Therapist',v:dStaff}]
+                        ).map(d => (
+                          <div key={d.l} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase">{d.l}</p>
+                            <p className="text-sm font-bold text-primary mt-1">{d.v || '—'}</p>
+                          </div>
+                        ))}
+                      </div>
+                      {dNotes && <div className="bg-gray-50 p-3 rounded-lg border border-gray-200"><label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Notes</label><p className="text-sm text-primary/80">{dNotes}</p></div>}
+                    </div>
+                    <div className="p-4 border-t border-gray-200 bg-gray-50 flex gap-3 shrink-0">
+                      <button className="flex-1 bg-white border border-gray-200 text-primary font-bold py-2.5 rounded-lg hover:bg-gray-100 transition-colors text-sm">Reschedule</button>
+                      {dStatus === 'confirmed' && <button onClick={() => updateStatus(detail.id, 'checked_in')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>{STATUS_LABELS.seat_action}</span><ChevronRight className="w-4 h-4" /></button>}
+                      {dStatus === 'checked_in' && <button onClick={() => updateStatus(detail.id, 'completed')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>{STATUS_LABELS.checkout_action}</span><ChevronRight className="w-4 h-4" /></button>}
+                      {dStatus === 'pending' && <button onClick={() => updateStatus(detail.id, 'confirmed')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>Confirm</span><Check className="w-4 h-4" /></button>}
+                    </div>
+                  </>
+                )}
               </>
-            )}
-          </>
-        )}
+            )
+          } catch (e) {
+            console.error('Detail panel render error:', e)
+            return (
+              <div className="p-6 text-center">
+                <p className="text-gray-500">Could not load booking details.</p>
+                <button onClick={closeDetail} className="mt-4 px-4 py-2 bg-[#111] text-white rounded-lg text-sm font-bold">Close</button>
+              </div>
+            )
+          }
+        })()}
       </div>
     </div>
   )

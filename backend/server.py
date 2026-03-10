@@ -279,6 +279,10 @@ app.include_router(consultation_router)
 app.include_router(client_portal_router)
 app.include_router(packages_router)
 
+# Public support chat (no auth required — marketing site AI)
+from routes.support_chat import router as public_support_chat_router
+app.include_router(public_support_chat_router)
+
 # Static uploads for booking page logo/cover
 static_dir = Path("/opt/rezvo-app/uploads")
 try:

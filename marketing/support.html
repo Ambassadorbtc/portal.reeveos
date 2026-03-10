@@ -77,7 +77,7 @@
                     </button>
                 </div>
                 <div class="hidden lg:flex items-center gap-3">
-                    <a href="https://webportal.reeveos.app/login" class="text-rezvo-forest font-semibold text-sm hover:text-rezvo-mint transition-colors">Log in</a>
+                    <a href="https://portal.rezvo.app/login" class="text-rezvo-forest font-semibold text-sm hover:text-rezvo-mint transition-colors">Log in</a>
                     <a href="https://webportal.reeveos.app/signup" class="bg-rezvo-forest hover:bg-rezvo-dark text-white font-semibold text-sm py-2.5 px-6 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl">
                         Get Started Free
                     </a>
@@ -740,90 +740,205 @@
     </footer>
 
 <script>window.scrollTo(0,0);</script>
-<script id="scroll-to-top-handler">document.addEventListener("click",function(e){var a=e.target.closest("a");if(a&&a.href&&a.href.startsWith(window.location.origin)&&!a.href.includes("#")){sessionStorage.setItem("scrollTop","1")}});if(sessionStorage.getItem("scrollTop")){sessionStorage.removeItem("scrollTop");window.scrollTo(0,0)}</script>
 <script>
 (function(){
-  const KB = [
-    {keys:['service','add service','new service','create service'],answer:"To add a new service:\n\n1. Go to **Dashboard → Services**\n2. Click **\"+ Add Service\"**\n3. Enter the service name, duration, and price\n4. Assign staff members who offer it\n5. Click **Save**\n\nYour service will immediately appear on your booking page!"},
-    {keys:['stripe','connect stripe','payment','pay','card','deposit'],answer:"To connect Stripe:\n\n1. Go to **Dashboard → Settings → Payments**\n2. Click **\"Connect with Stripe\"**\n3. Follow the Stripe onboarding (takes ~5 minutes)\n4. Once connected, payments and deposits go directly to your bank\n\nReeveOS never touches your money — it flows straight to your Stripe account."},
-    {keys:['colour','color','brand','customise','customize','theme','booking page','look'],answer:"Yes! You can customize your booking page:\n\n1. Go to **Dashboard → Settings → Branding**\n2. Upload your logo\n3. Choose your primary and accent colours\n4. Preview changes in real-time\n5. Click **Save**\n\nOn the **Scale plan**, you get full white-label branding with custom domain support."},
-    {keys:['price','pricing','cost','how much','plan','plans','subscription','free'],answer:"**Rezvo Pricing:**\n\n• **Free** — £0/mo · 1 staff, 100 bookings\n• **Starter** — £8.99/mo · 3 staff, reminders\n• **Growth** — £29/mo · 5 staff, deposits, CRM\n• **Scale** — £59/mo · Unlimited staff, floor plans, white-label\n• **Enterprise** — Custom pricing\n\nAll plans: zero commission, no contracts, 30-day free trial."},
-    {keys:['booking','book','appointment','reserve','calendar','reschedule','cancel'],answer:"**Managing Bookings:**\n\n• **View all bookings** in your drag-and-drop calendar\n• **Reschedule** by dragging to a new time slot\n• **Cancel** with one click — customers are notified automatically\n• **Walk-ins** can be quick-added from the calendar\n• **SMS & email reminders** are sent automatically to reduce no-shows"},
-    {keys:['staff','team','member','employee','invite','permission'],answer:"**Adding Staff:**\n\n1. Go to **Dashboard → Team**\n2. Click **\"+ Invite Member\"**\n3. Enter their name and email\n4. Set their role and permissions\n5. They'll get an email invite to join\n\nEach staff member gets their own calendar column."},
-    {keys:['delivery','uber','order','ordering','takeaway'],answer:"**Zero-Commission Delivery:**\n\nRezvo integrates with Uber Direct for delivery. Customers order from YOUR branded page, payments go to YOUR Stripe account, and Uber handles the driver. No 25-30% commission like Deliveroo or JustEat."},
-    {keys:['restaurant','table','floor plan','covers'],answer:"**Restaurant Features:**\n\n• Floor plan view with real-time table status\n• Covers tracking by party size\n• Service period management (lunch, dinner, late)\n• Online booking widget\n• Kitchen orders board\n• Analytics & cover trends"},
-    {keys:['no show','no-show','deposit','cancellation'],answer:"**No-show Protection:**\n\n• Collect card-on-file deposits at booking\n• Set custom deposit amounts\n• Automated reminders reduce no-shows by up to 70%\n• Charge no-show fees automatically\n\nAvailable on Growth plan and above."},
-    {keys:['analytics','report','data','insight','crm','customer'],answer:"**CRM & Analytics:**\n\n• Full customer database with visit history\n• Booking trends and peak time analysis\n• Revenue tracking and forecasting\n• Staff performance metrics\n• No-show rate monitoring\n\nYOU own your data — unlike third-party platforms."},
-    {keys:['launch','when launch','live','go live','release','ready','when available'],answer:"Ha! You're asking the chatbot when we launch? 😂 God knows — I'm the dumb one. The Smart AI wakes up when you click the mic 🎙️ and talk to us. That one might actually know things. Or email hello@reeveos.app and ask the humans who are actually building this thing!"},
-    {keys:['who are you','what are you','bot','robot','ai'],answer:"I'm the Rezvo chatbot — basically a FAQ page that got promoted. For the really smart conversations, hit the 🎙️ mic button. That one has brains. 😄"},
-    {keys:['joke','funny','bored'],answer:"Why did the restaurant switch to Rezvo? Because paying 30% commission was no laughing matter! 🥁 ...I'll stick to answering questions."},
-    {keys:['hello','hi','hey','yo','sup','alright'],answer:"Hey! 👋 I'm the budget bot — I know the basics. For the clever stuff, hit the mic 🎙️ and talk to our Smart AI. What can I help with?"},
-    {keys:['thank','thanks','cheers','ta'],answer:"Aww, cheers! 😊 That means a lot to a little chatbot like me. I'm literally always here — no holidays, no sleep, no complaints."},
-    {keys:['love','amazing','great','awesome','brilliant','cool'],answer:"Aww stop it, you'll make me blush! 😊 Glad you like what you see — wait until you try the actual platform!"},
-    {keys:['rubbish','useless','terrible','bad','hate','stupid','dumb','suck'],answer:"Fair enough 😅 I never claimed to be the smart one! For a proper conversation, hit the 🎙️ mic button — or email hello@reeveos.app for human-grade intelligence."},
-    {keys:['contact','help','email','phone','speak','human','person'],answer:"**Get in touch:**\n\n• **Email:** hello@reeveos.app\n• **Contact page:** reeveos.app/contact.html\n• We typically reply within a few hours\n\nOur UK-based team is always happy to help!"},
-    {keys:['start','get started','sign up','register','trial','begin'],answer:"**Getting Started:**\n\n1. Sign up free at reeveos.app — no credit card needed\n2. Set up your profile, services, and staff\n3. Start accepting bookings immediately\n\n30-day free trial on any plan!"}
+  // ═══ ARTICLE DATABASE ═══
+  const ARTICLES = [
+    {id:'a1',cat:'getting-started',icon:'fa-book-open',title:'Setting up your booking page',time:'5 min read',summary:'Learn how to customize your booking page, add services, and set your availability.',content:'<h4>Step 1: Go to Dashboard → Booking Link</h4><p>Your booking page is automatically created when you sign up. Click "Booking Link" in the sidebar to see it.</p><h4>Step 2: Customise your page</h4><p>Add your logo, choose brand colours, write a welcome message, and set your booking rules (advance notice, cancellation policy).</p><h4>Step 3: Add services</h4><p>Go to Services and add each service with name, duration, price, and assign staff.</p><h4>Step 4: Set availability</h4><p>In Settings → Opening Hours, set when you\'re open. Each staff member can have individual availability too.</p><h4>Step 5: Share your link</h4><p>Copy your booking link from the Booking Link page and share it on social media, your website, or via text.</p>'},
+    {id:'a2',cat:'getting-started',icon:'fa-users',title:'Adding staff members',time:'3 min read',summary:'Invite your team, set permissions, and manage individual calendars.',content:'<h4>Invite your team</h4><p>Go to Dashboard → Staff and click "+ Add Staff". Enter their name, email, and role.</p><h4>Set permissions</h4><p>Choose what each staff member can access: their own calendar only, all calendars, settings, or full admin access.</p><h4>Individual calendars</h4><p>Each staff member gets their own column in the calendar view. Clients can book directly with a specific team member.</p><h4>Staff availability</h4><p>Set individual working hours, days off, and holidays for each team member.</p>'},
+    {id:'a3',cat:'bookings',icon:'fa-chart-line',title:'Understanding your analytics',time:'4 min read',summary:'Track bookings, revenue, and customer behavior with detailed insights.',content:'<h4>Dashboard overview</h4><p>Your main dashboard shows today\'s appointments, revenue, and key metrics at a glance.</p><h4>Analytics page</h4><p>Go to Business → Analytics for deeper insights: booking trends over 30/90 days, staff performance, booking channels, and top services.</p><h4>CRM insights</h4><p>The CRM tracks every client interaction — visit history, spending patterns, and engagement. Use this to identify your best clients and those at risk of leaving.</p>'},
+    {id:'a4',cat:'payments',icon:'fa-stripe',title:'Connecting your payment account',time:'6 min read',summary:'Step-by-step guide to connecting Stripe and accepting payments.',content:'<h4>Why Stripe?</h4><p>ReeveOS uses Stripe Connect so payments and deposits go directly to YOUR bank account. We never touch your money.</p><h4>Setup steps</h4><p>1. Go to Settings → Payments<br>2. Click "Connect with Stripe"<br>3. Follow the Stripe onboarding (takes ~5 minutes)<br>4. Verify your identity and bank details<br>5. Once approved, you can accept deposits and payments</p><h4>Card processing</h4><p>For in-person card payments, ReeveOS partners with Dojo: 0.3% debit, 0.7% credit, 2.5p per transaction. These are some of the lowest rates in the UK.</p>'},
+    {id:'a5',cat:'bookings',icon:'fa-shield-heart',title:'Managing client allergies and patch tests',time:'4 min read',summary:'Store important client information and set up safety reminders.',content:'<h4>Consultation forms</h4><p>Create digital consultation forms that clients fill in before their appointment. Forms can include medical history, allergies, and consent.</p><h4>Contraindication logic</h4><p>The system automatically flags when a client\'s medical conditions conflict with a treatment. 20 conditions × 5 treatments with BLOCK/FLAG/OK logic.</p><h4>Patch test reminders</h4><p>Set automatic patch test requirements for specific services. The system won\'t allow booking until the patch test period has passed.</p>'},
+    {id:'a6',cat:'getting-started',icon:'fa-share-nodes',title:'Sharing your booking link',time:'2 min read',summary:'Get your custom booking link and share it with clients.',content:'<h4>Find your link</h4><p>Go to Dashboard → Booking Link. Your unique URL is portal.rezvo.app/book/your-business-name.</p><h4>Share everywhere</h4><p>• Add it to your Instagram bio<br>• Put it on your website<br>• Include it in emails and texts<br>• Print a QR code for your reception<br>• Add it to Google Business Profile</p><h4>Custom domain</h4><p>On the Scale plan, you can use your own domain (e.g. book.yourbusiness.com) for a fully white-labelled experience.</p>'},
+    {id:'a7',cat:'settings',icon:'fa-palette',title:'Customising your branding',time:'3 min read',summary:'Make your booking page match your brand identity.',content:'<h4>Brand colours</h4><p>Go to Settings → Branding to set your primary and accent colours. These apply to your booking page, emails, and client portal.</p><h4>Logo upload</h4><p>Upload your logo in PNG or SVG format. It appears on your booking page, confirmation emails, and receipts.</p><h4>White-label (Scale plan)</h4><p>Remove all ReeveOS branding and use your own domain, logo, and colours throughout the entire client experience.</p>'},
+    {id:'a8',cat:'payments',icon:'fa-receipt',title:'Understanding deposits and cancellation fees',time:'5 min read',summary:'Set up booking fees to protect against no-shows.',content:'<h4>How deposits work</h4><p>On Growth plan and above, you can require a booking fee (deposit) when clients book. This is charged via Stripe and goes directly to your account.</p><h4>Cancellation tiers</h4><p>• Basic: 24-hour cancellation policy<br>• Mid: 48-hour cancellation policy<br>• Advanced: 72-hour cancellation policy</p><h4>No-show protection</h4><p>If a client doesn\'t show up, you keep the deposit. Automated SMS reminders reduce no-shows by up to 70%.</p>'},
+    {id:'a9',cat:'bookings',icon:'fa-calendar-days',title:'Using the calendar effectively',time:'4 min read',summary:'Master the drag-and-drop calendar for managing your schedule.',content:'<h4>Calendar views</h4><p>Switch between Day, Week, and Month views. Day view shows staff columns with time slots.</p><h4>Drag and drop</h4><p>Move appointments by dragging them to a new time or staff member. The system checks for conflicts automatically.</p><h4>Quick actions</h4><p>Click any empty slot to create a new appointment. Click an existing appointment to see details, check in, complete, or cancel.</p><h4>Filters</h4><p>Filter by status (confirmed, pending, completed), staff member, or service type.</p>'},
+    {id:'a10',cat:'settings',icon:'fa-bell',title:'Setting up SMS reminders',time:'3 min read',summary:'Reduce no-shows with automated appointment reminders.',content:'<h4>How it works</h4><p>ReeveOS sends automatic SMS reminders to clients before their appointment. You choose when: 24 hours, 48 hours, or both.</p><h4>Setup</h4><p>Go to Settings → Notifications and enable SMS reminders. Choose your reminder timing and customise the message template.</p><h4>Cost</h4><p>SMS are sent via Sendly at competitive UK rates. Cost is per message and added to your monthly bill.</p>'},
+    {id:'a11',cat:'getting-started',icon:'fa-store',title:'Setting up your online shop',time:'5 min read',summary:'Sell products alongside your services.',content:'<h4>Add products</h4><p>Go to Shop → Products and click "+ Add Product". Enter name, description, price, images, and stock quantity.</p><h4>Categories</h4><p>Organise products into categories for easy browsing. Clients can buy products from your booking page.</p><h4>Orders</h4><p>View and manage orders in Shop → Orders. Track fulfilment, mark as shipped, and handle refunds.</p>'},
+    {id:'a12',cat:'settings',icon:'fa-people-group',title:'Managing team permissions',time:'3 min read',summary:'Control what each staff member can see and do.',content:'<h4>Role types</h4><p>• Staff/Therapist: View own calendar and bookings only<br>• Manager: View all calendars, manage bookings and clients<br>• Admin: Full access including settings, billing, and analytics</p><h4>Change permissions</h4><p>Go to Staff → click a team member → Edit Role. Changes take effect immediately.</p>'},
   ];
 
-  const FALLBACKS = [
-    "Okay that one's above my pay grade 😅 I handle pricing, features, and getting started. For the brainy stuff, tap the 🎙️ mic — the Smart AI actually went to university.",
-    "You've officially outsmarted me, and honestly that's not hard. 😂 Hit the mic button for our Smart AI, or drop us a line at hello@reeveos.app.",
-    "I genuinely have no idea. I'm basically a FAQ with a chat bubble. Try our Smart AI via the mic button — it's the one with the actual brain cells.",
-    "Right... that's not in my tiny brain. The Smart AI (🎙️ mic button) is way sharper, or you can email the actual humans at hello@reeveos.app!",
-    "I wish I could help but I'm literally a keyword matcher pretending to be intelligent. 😄 Use the mic button for our Smart AI — it actually understands things."
-  ];
+  // ═══ SEARCH ═══
+  const searchInput = document.querySelector('#hero-support input[type="text"]');
+  const searchBtn = document.querySelector('#hero-support button');
+  const articlesSection = document.getElementById('popular-articles');
+  const articlesGrid = articlesSection ? articlesSection.querySelector('.grid') : null;
 
-  function findAnswer(q){
-    const low=q.toLowerCase();
-    let best=null,bestScore=0;
-    for(const t of KB){
-      let score=0;
-      for(const k of t.keys){if(low.includes(k))score+=k.split(' ').length;}
-      if(score>bestScore){bestScore=score;best=t;}
+  function renderArticles(filtered) {
+    if (!articlesGrid) return;
+    articlesGrid.innerHTML = '';
+    if (filtered.length === 0) {
+      articlesGrid.innerHTML = '<div class="col-span-3 text-center py-12"><p class="text-rezvo-forest/50 text-lg">No articles found. Try a different search or ask our AI below!</p></div>';
+      return;
     }
-    return best?best.answer:FALLBACKS[Math.floor(Math.random()*FALLBACKS.length)];
+    filtered.forEach(a => {
+      const div = document.createElement('div');
+      div.className = 'article-card bg-rezvo-cream p-6 rounded-2xl border border-rezvo-border hover:border-rezvo-forest transition-all duration-300 shadow-sm hover:shadow-lg group cursor-pointer';
+      div.setAttribute('data-id', a.id);
+      div.innerHTML = `
+        <div class="flex items-start gap-4 mb-4">
+          <div class="w-12 h-12 bg-white border border-rezvo-border rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+            <i class="fa-solid ${a.icon} text-xl text-rezvo-forest"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-sans font-bold text-lg text-rezvo-forest mb-2 group-hover:text-rezvo-mint transition-colors">${a.title}</h3>
+            <p class="text-sm text-rezvo-forest/60">${a.time}</p>
+          </div>
+          <i class="fa-solid fa-chevron-down text-rezvo-forest/30 transition-transform duration-300 article-chevron"></i>
+        </div>
+        <p class="text-rezvo-forest/70 text-sm leading-relaxed">${a.summary}</p>
+        <div class="article-content hidden mt-4 pt-4 border-t border-rezvo-border text-rezvo-forest/80 text-sm leading-relaxed">${a.content}</div>
+      `;
+      div.addEventListener('click', function() {
+        const content = this.querySelector('.article-content');
+        const chevron = this.querySelector('.article-chevron');
+        const isOpen = !content.classList.contains('hidden');
+        // Close all others
+        document.querySelectorAll('.article-content').forEach(c => c.classList.add('hidden'));
+        document.querySelectorAll('.article-chevron').forEach(c => c.style.transform = '');
+        if (!isOpen) {
+          content.classList.remove('hidden');
+          chevron.style.transform = 'rotate(180deg)';
+        }
+      });
+      articlesGrid.appendChild(div);
+    });
   }
 
-  function fmt(t){return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>').replace(/• /g,'<span class="inline-block w-1.5 h-1.5 bg-rezvo-forest rounded-full mr-2 relative top-[-2px]"></span>');}
+  function doSearch() {
+    const q = (searchInput ? searchInput.value : '').toLowerCase().trim();
+    if (!q) { renderArticles(ARTICLES); return; }
+    const filtered = ARTICLES.filter(a =>
+      a.title.toLowerCase().includes(q) ||
+      a.summary.toLowerCase().includes(q) ||
+      a.content.toLowerCase().includes(q) ||
+      a.cat.includes(q)
+    );
+    renderArticles(filtered);
+    if (articlesSection) articlesSection.scrollIntoView({behavior:'smooth',block:'start'});
+  }
 
-  const msgs=document.getElementById('support-messages');
-  const input=document.getElementById('support-chat-input');
-  const sendBtn=document.getElementById('support-chat-send');
-  if(!msgs||!input||!sendBtn)return;
+  if (searchBtn) searchBtn.addEventListener('click', doSearch);
+  if (searchInput) searchInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); doSearch(); } });
 
-  function addMsg(text,sender){
-    const wrap=document.createElement('div');
-    wrap.className='flex gap-4'+(sender==='user'?' flex-row-reverse':'');
-    if(sender==='bot'){
-      wrap.innerHTML='<div class="w-10 h-10 bg-rezvo-mint rounded-full flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-robot text-lg text-rezvo-forest"></i></div><div class="bg-rezvo-cream p-5 rounded-3xl rounded-tl-none max-w-xl"><p class="text-rezvo-forest leading-relaxed text-sm">'+fmt(text)+'</p></div>';
+  // ═══ CATEGORY CARDS ═══
+  const catMap = {
+    'category-getting-started': 'getting-started',
+    'category-bookings': 'bookings',
+    'category-payments': 'payments',
+    'category-settings': 'settings'
+  };
+  Object.entries(catMap).forEach(([elId, cat]) => {
+    const el = document.getElementById(elId);
+    if (el) {
+      el.addEventListener('click', function() {
+        const filtered = ARTICLES.filter(a => a.cat === cat);
+        renderArticles(filtered);
+        if (articlesSection) articlesSection.scrollIntoView({behavior:'smooth',block:'start'});
+        // Update heading
+        const heading = articlesSection.querySelector('h2');
+        const names = {'getting-started':'Getting Started','bookings':'Managing Bookings','payments':'Payments & Billing','settings':'Account & Settings'};
+        if (heading) heading.textContent = names[cat] || 'Articles';
+        // Show "Show All" button
+        const showAllBtn = articlesSection.querySelector('.show-all-btn');
+        if (showAllBtn) showAllBtn.classList.remove('hidden');
+      });
+    }
+  });
+
+  // ═══ VIEW ALL / SHOW ALL ═══
+  const viewAllBtn = articlesSection ? articlesSection.querySelector('button') : null;
+  if (viewAllBtn) {
+    viewAllBtn.className = 'show-all-btn bg-rezvo-forest hover:bg-rezvo-dark text-white font-semibold py-4 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl';
+    viewAllBtn.textContent = 'Show All Articles';
+    viewAllBtn.addEventListener('click', function() {
+      renderArticles(ARTICLES);
+      const heading = articlesSection.querySelector('h2');
+      if (heading) heading.textContent = 'All Articles';
+    });
+  }
+
+  // Initial render
+  renderArticles(ARTICLES);
+
+  // ═══ AI CHAT — wired to backend proxy ═══
+  const msgs = document.getElementById('support-messages');
+  const input = document.getElementById('support-chat-input');
+  const sendBtn = document.getElementById('support-chat-send');
+  if (!msgs || !input || !sendBtn) return;
+
+  function fmt(t) {
+    return t
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>')
+      .replace(/• /g, '<span class="inline-block w-1.5 h-1.5 bg-rezvo-forest rounded-full mr-2 relative top-[-2px]"></span>');
+  }
+
+  function addMsg(text, sender) {
+    const wrap = document.createElement('div');
+    wrap.className = 'flex gap-4' + (sender === 'user' ? ' flex-row-reverse' : '');
+    if (sender === 'bot') {
+      wrap.innerHTML = '<div class="w-10 h-10 bg-rezvo-mint rounded-full flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-robot text-lg text-rezvo-forest"></i></div><div class="bg-rezvo-cream p-5 rounded-3xl rounded-tl-none max-w-xl"><p class="text-rezvo-forest leading-relaxed text-sm">' + fmt(text) + '</p></div>';
     } else {
-      wrap.innerHTML='<div class="bg-rezvo-forest p-5 rounded-3xl rounded-tr-none max-w-xl"><p class="text-white leading-relaxed text-sm">'+text.replace(/</g,'&lt;')+'</p></div>';
+      wrap.innerHTML = '<div class="bg-rezvo-forest p-5 rounded-3xl rounded-tr-none max-w-xl"><p class="text-white leading-relaxed text-sm">' + text.replace(/</g, '&lt;') + '</p></div>';
     }
     msgs.appendChild(wrap);
-    msgs.scrollTop=msgs.scrollHeight;
-    msgs.parentElement.scrollIntoView({behavior:'smooth',block:'center'});
+    msgs.scrollTop = msgs.scrollHeight;
+    msgs.parentElement.scrollIntoView({behavior: 'smooth', block: 'center'});
   }
 
-  function send(text){
-    if(!text.trim())return;
-    addMsg(text,'user');
-    input.value='';
-    const dots=document.createElement('div');
-    dots.className='flex gap-4';
-    dots.id='support-typing';
-    dots.innerHTML='<div class="w-10 h-10 bg-rezvo-mint rounded-full flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-robot text-lg text-rezvo-forest"></i></div><div class="bg-rezvo-cream p-4 rounded-3xl rounded-tl-none"><div class="flex gap-1"><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0s"></span><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.15s"></span><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.3s"></span></div></div>';
+  async function send(text) {
+    if (!text.trim()) return;
+    addMsg(text, 'user');
+    input.value = '';
+
+    // Show typing indicator
+    const dots = document.createElement('div');
+    dots.className = 'flex gap-4';
+    dots.id = 'support-typing';
+    dots.innerHTML = '<div class="w-10 h-10 bg-rezvo-mint rounded-full flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-robot text-lg text-rezvo-forest"></i></div><div class="bg-rezvo-cream p-4 rounded-3xl rounded-tl-none"><div class="flex gap-1"><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0s"></span><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.15s"></span><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.3s"></span></div></div>';
     msgs.appendChild(dots);
-    msgs.scrollTop=msgs.scrollHeight;
-    setTimeout(function(){
-      var t=document.getElementById('support-typing');if(t)t.remove();
-      addMsg(findAnswer(text),'bot');
-    },400+Math.random()*600);
+    msgs.scrollTop = msgs.scrollHeight;
+
+    try {
+      const resp = await fetch('https://portal.rezvo.app/api/public-support/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: text})
+      });
+      const data = await resp.json();
+      const typing = document.getElementById('support-typing');
+      if (typing) typing.remove();
+      addMsg(data.reply || 'Sorry, I had trouble with that. Please try again!', 'bot');
+    } catch (e) {
+      const typing = document.getElementById('support-typing');
+      if (typing) typing.remove();
+      // Fallback to keyword matching if API fails
+      addMsg(findLocalAnswer(text), 'bot');
+    }
   }
 
-  sendBtn.addEventListener('click',function(){send(input.value);});
-  input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();send(input.value);}});
-  document.querySelectorAll('.support-quick-btn').forEach(function(b){
-    b.addEventListener('click',function(){send(b.getAttribute('data-q'));});
+  // Local fallback KB
+  const KB = [
+    {keys:['service','add service'],answer:"To add a service: Go to **Dashboard → Services**, click **\"+ Add Service\"**, enter name, duration and price, assign staff, then Save."},
+    {keys:['stripe','payment','deposit'],answer:"Go to **Dashboard → Settings → Payments** and click **\"Connect with Stripe\"**. Payments flow directly to your bank. Card processing via Dojo: 0.3% debit, 0.7% credit."},
+    {keys:['price','pricing','cost','plan','free'],answer:"**Free** — £0/mo · **Starter** — £8.99/mo · **Growth** — £29/mo · **Scale** — £59/mo · **Enterprise** — Custom. All plans: zero commission."},
+    {keys:['booking','calendar','reschedule'],answer:"Manage bookings in the drag-and-drop calendar. Reschedule by dragging, cancel with one click, and clients get notified automatically."},
+    {keys:['staff','team','invite'],answer:"Go to **Dashboard → Staff**, click **\"+ Add Staff\"**, enter name and email, set role and permissions."},
+    {keys:['contact','email','help','human'],answer:"Email us at **hello@reeveos.app** — we typically reply within a few hours. UK-based team!"},
+    {keys:['start','sign up','register'],answer:"Sign up free at **portal.rezvo.app/signup** — no credit card needed. 30-day free trial on any plan!"},
+  ];
+  function findLocalAnswer(q) {
+    const low = q.toLowerCase();
+    for (const t of KB) { for (const k of t.keys) { if (low.includes(k)) return t.answer; } }
+    return "I'm having trouble connecting right now. Please try again in a moment, or email **hello@reeveos.app** for help!";
+  }
+
+  sendBtn.addEventListener('click', function() { send(input.value); });
+  input.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); send(input.value); } });
+  document.querySelectorAll('.support-quick-btn').forEach(function(b) {
+    b.addEventListener('click', function() { send(b.getAttribute('data-q')); });
   });
 })();
 </script>

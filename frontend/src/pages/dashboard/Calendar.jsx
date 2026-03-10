@@ -643,7 +643,7 @@ const Calendar = () => {
             setSelA(sel ? null : a.id)
           }}
           style={{
-            position: 'absolute', top: top + 1, left: 4, right: 4, height: h - 2,
+            position: 'absolute', top: top + 1, left: 4, right: 4, height: Math.max(h - 2, 34),
             borderRadius: 6, background: done ? `${bg}60` : bg,
             opacity: isDragging ? 0.85 : done ? 0.7 : a.status === 'no_show' ? 0.55 : 1,
             cursor: isDragging ? 'grabbing' : 'grab',

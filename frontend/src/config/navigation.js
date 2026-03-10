@@ -18,6 +18,7 @@ export const getNavItems = (businessType) => {
     management: [
       { id: 'staff', label: 'Staff', icon: 'fa-users', path: '/dashboard/staff', minTier: 'starter' },
       { id: 'online-booking', label: 'Online Booking', icon: 'fa-globe', path: '/dashboard/online-booking', minTier: 'starter' },
+      { id: 'deleted', label: 'Deleted Items', icon: 'fa-trash-can', path: '/dashboard/deleted', minTier: 'free' },
     ],
     epos: isRestaurant ? [
       { id: 'epos-inventory', label: 'Inventory', icon: 'fa-boxes-stacked', path: '/dashboard/inventory', minTier: 'free' },

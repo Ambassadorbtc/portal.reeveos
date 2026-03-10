@@ -40,6 +40,7 @@ import Notifications from './pages/dashboard/Notifications'
 import Marketing from './pages/dashboard/Marketing'
 import Payments from './pages/dashboard/Payments'
 import Help from './pages/dashboard/Help'
+import Deleted from './pages/dashboard/Deleted'
 
 /* EPOS pages — restaurant only */
 import EposInventory from './pages/dashboard/EposInventory'
@@ -208,6 +209,7 @@ const App = () => {
               <Route path="marketing" element={<Marketing />} />
               <Route path="settings" element={<Settings />} />
               <Route path="help" element={<Help />} />
+              <Route path="deleted" element={<Deleted />} />
               {/* EPOS pages */}
               <Route path="inventory" element={<EposInventory />} />
               <Route path="kds" element={<EposKDS />} />

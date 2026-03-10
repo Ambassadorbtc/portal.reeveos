@@ -65,6 +65,7 @@ export default function ShopManager() {
   const [search, setSearch] = useState('')
   const [panel, setPanel] = useState(null) // { type: 'product'|'discount', data: {...} }
   const [error, setError] = useState(null)
+  const [deleteConfirm, setDeleteConfirm] = useState(null) // { id, name }
 
   const load = useCallback(async () => {
     if (!bid) { setLoading(false); return }
@@ -99,8 +100,8 @@ export default function ShopManager() {
   }
 
   const deleteProduct = async (id) => {
-    if (!confirm('Archive this product?')) return
     await api.delete(`/shop/business/${bid}/products/${id}`)
+    setDeleteConfirm(null)
     load()
   }
 
@@ -161,7 +162,7 @@ export default function ShopManager() {
 
       {/* Content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
-        {tab === 'products' && <ProductsView products={products} search={search} setSearch={setSearch} onEdit={p => setPanel({ type: 'product', data: { ...p, tags: (p.tags || []).join(', ') } })} onDelete={deleteProduct} />}
+        {tab === 'products' && <ProductsView products={products} search={search} setSearch={setSearch} onEdit={p => setPanel({ type: 'product', data: { ...p, tags: (p.tags || []).join(', ') } })} onDelete={(id, name) => setDeleteConfirm({ id, name })} />}
         {tab === 'orders' && <OrdersView orders={orders} onUpdate={updateOrder} />}
         {tab === 'discounts' && <DiscountsView discounts={discounts} />}
         {tab === 'vouchers' && <VouchersView vouchers={vouchers} />}
@@ -170,6 +171,25 @@ export default function ShopManager() {
       {/* Slide Panels */}
       {panel?.type === 'product' && <ProductPanel data={panel.data} onSave={saveProduct} onClose={() => setPanel(null)} />}
       {panel?.type === 'discount' && <DiscountPanel data={panel.data} onSave={saveDiscount} onClose={() => setPanel(null)} />}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, backdropFilter: 'blur(4px)' }} onClick={() => setDeleteConfirm(null)}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 28, width: 380, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', fontFamily: "'Figtree', sans-serif" }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Archive size={20} color="#EF4444" /></div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#111' }}>Archive Product?</div>
+            </div>
+            <div style={{ fontSize: 13, color: '#666', lineHeight: '20px', marginBottom: 24 }}>
+              <strong style={{ color: '#111' }}>{deleteConfirm.name || 'This product'}</strong> will be archived and hidden from your shop. You can restore it later from the Deleted Items page.
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '12px 0', borderRadius: 10, border: '1px solid #E5E5E5', background: '#fff', fontSize: 13, fontWeight: 600, color: '#333', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>Cancel</button>
+              <button onClick={() => deleteProduct(deleteConfirm.id)} style={{ flex: 1, padding: '12px 0', borderRadius: 10, border: 'none', background: '#EF4444', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>Archive Product</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -221,7 +241,7 @@ function ProductsView({ products, search, setSearch, onEdit, onDelete }) {
               <button onClick={() => onEdit(p)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, padding: 6, borderRadius: 8, border: '1px solid #E5E5E5', background: '#fff', fontSize: 11, fontWeight: 600, color: '#333', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>
                 <Edit3 size={12} /> Edit
               </button>
-              <button onClick={() => onDelete(p.id)} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #FEE2E2', background: '#FFF5F5', color: '#EF4444', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+              <button onClick={() => onDelete(p.id, p.name)} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #FEE2E2', background: '#FFF5F5', color: '#EF4444', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                 <Archive size={12} />
               </button>
             </div>

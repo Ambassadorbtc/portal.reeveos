@@ -14,7 +14,7 @@ import {
   LayoutGrid, Megaphone, Settings, HelpCircle,
   ChevronLeft, ChevronRight, ChevronDown, Lock,
   Send, Bot, Linkedin, Bell,
-  Package, Flame, Clock, Wallet, ClipboardCheck, MessageSquare, Monitor, Target, Columns3, Tag, Video
+  Package, Flame, Clock, Wallet, ClipboardCheck, MessageSquare, Monitor, Target, Columns3, Tag, Video, Trash2
 } from 'lucide-react'
 
 /* ── Color tokens ── */
@@ -46,6 +46,7 @@ const ICON_MAP = {
   'fa-bullhorn': Megaphone,
   'fa-gear': Settings,
   'fa-circle-question': HelpCircle,
+  'fa-trash-can': Trash2,
   'fa-paper-plane': Send,
   'fa-robot': Bot,
   'fa-linkedin': Linkedin,

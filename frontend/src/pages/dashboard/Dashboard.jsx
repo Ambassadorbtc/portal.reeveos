@@ -194,7 +194,7 @@ const FloorStatusWidget = ({ navigate }) => {
 
 const Dashboard = () => {
   const navigate = useNavigate()
-  const { business, businessType } = useBusiness()
+  const { business, businessType, loading: bizLoading } = useBusiness()
   const bid = business?.id ?? business?._id
   const isRestaurant = businessType === 'restaurant'
   const [summary, setSummary] = useState(null)
@@ -205,18 +205,63 @@ const Dashboard = () => {
   const [searchFilter, setSearchFilter] = useState('')
 
   const loadDashboard = useCallback(async () => {
-    if (!bid) { setLoading(false); return }
+    if (!bid) return // Don't clear loading — wait for bid
     try {
-      const [sumRes, todayRes, actRes, floorRes] = await Promise.allSettled([
+      const [sumRes, todayRes, actRes, floorRes, bkRes] = await Promise.allSettled([
         api.get(`/dashboard/business/${bid}/summary`),
         api.get(`/dashboard/business/${bid}/today`),
         api.get(`/dashboard/business/${bid}/activity?limit=10`),
         api.get(`/tables/business/${bid}/floor-plan`),
+        api.get(`/bookings/business/${bid}?limit=20&status=all`),
       ])
       if (sumRes.status === 'fulfilled') setSummary(sumRes.value)
       if (todayRes.status === 'fulfilled') setTodayBookings(todayRes.value?.bookings || [])
       if (actRes.status === 'fulfilled') setActivity(actRes.value?.events || [])
       if (floorRes.status === 'fulfilled') setFloorPlan(floorRes.value)
+
+      // Build fallback data from bookings if summary/today came back empty
+      const bks = bkRes.status === 'fulfilled' ? (bkRes.value?.bookings || []) : []
+      if ((!sumRes.value || !sumRes.value?.today?.bookings) && bks.length) {
+        const todayStr = new Date().toISOString().split('T')[0]
+        const todayBks = bks.filter(b => b.date === todayStr && b.status !== 'cancelled')
+        const upcoming = bks.filter(b => ['confirmed','pending'].includes(b.status))
+        setSummary(prev => prev && prev.today?.bookings ? prev : {
+          today: {
+            bookings: todayBks.length,
+            upcomingBookings: upcoming.length,
+            revenue: todayBks.reduce((s, b) => s + (b.price || b.service?.price || 0), 0),
+            noShows: todayBks.filter(b => b.status === 'no_show').length,
+          },
+          nextBooking: upcoming[0] ? {
+            customerName: upcoming[0].customerName || upcoming[0].customer?.name,
+            time: upcoming[0].time,
+            guests: upcoming[0].guests || upcoming[0].partySize,
+          } : null,
+        })
+        if (!todayRes.value?.bookings?.length) {
+          setTodayBookings(upcoming.slice(0, 10).map(b => ({
+            id: b.id || b._id,
+            time: b.time, start_time: b.time,
+            customerName: b.customerName || b.customer?.name || 'Client',
+            service_name: b.service?.name || b.serviceName || '',
+            staff_name: b.staff?.name || b.staffName || '',
+            guests: b.guests || b.partySize || 2,
+            table: b.table || b.tableName,
+            status: b.status,
+            notes: b.notes || '',
+            phone: b.customer?.phone || b.phone || '',
+            isVip: b.isVip || b.tags?.includes('VIP'),
+          })))
+        }
+      }
+      if ((!actRes.value?.events?.length) && bks.length) {
+        setActivity(bks.slice(0, 8).map(b => ({
+          id: b.id || b._id, type: 'booking',
+          message: `Booking ${b.status}: ${b.customerName || b.customer?.name || 'Client'}`,
+          sub: `${b.service?.name || b.serviceName || 'Service'}, ${b.date} at ${b.time}`,
+          timestamp: b.createdAt || b.created_at,
+        })))
+      }
     } catch (e) { console.error('Dashboard load error:', e) }
     setLoading(false)
   }, [bid])
@@ -230,59 +275,7 @@ const Dashboard = () => {
     return () => clearInterval(interval)
   }, [loadDashboard, bid])
 
-  // Also load from bookings as fallback for activity
-  useEffect(() => {
-    if (!bid || activity.length > 0) return
-    const loadFallback = async () => {
-      try {
-        const res = await api.get(`/bookings/business/${bid}?limit=10&status=all`)
-        const bks = res.bookings || []
-        if (bks.length && !activity.length) {
-          setActivity(bks.slice(0, 8).map(b => ({
-            id: b.id || b._id,
-            type: 'booking',
-            message: `New booking: ${b.customerName || b.customer?.name || 'Client'}`,
-            sub: `Booking, ${b.date} at ${b.time}`,
-            timestamp: b.createdAt,
-          })))
-        }
-        if (!summary) {
-          const todayStr = new Date().toISOString().split('T')[0]
-          const todayBks = bks.filter(b => b.date === todayStr && b.status !== 'cancelled')
-          const upcoming = bks.filter(b => ['confirmed','pending'].includes(b.status))
-          setSummary({
-            today: {
-              bookings: todayBks.length,
-              upcomingBookings: upcoming.length,
-              revenue: todayBks.reduce((s, b) => s + (b.price || b.service?.price || 0), 0),
-              noShows: todayBks.filter(b => b.status === 'no_show').length,
-            },
-            nextBooking: upcoming[0] ? {
-              customerName: upcoming[0].customerName || upcoming[0].customer?.name,
-              time: upcoming[0].time,
-              guests: upcoming[0].guests || upcoming[0].partySize,
-            } : null,
-          })
-          if (!todayBookings.length) {
-            setTodayBookings(upcoming.slice(0, 10).map(b => ({
-              id: b.id || b._id,
-              time: b.time,
-              customerName: b.customerName || b.customer?.name || 'Client',
-              guests: b.guests || b.partySize || 2,
-              table: b.table || b.tableName,
-              status: b.status,
-              notes: b.notes || '',
-              phone: b.customer?.phone || b.phone || '',
-              isVip: b.isVip || b.tags?.includes('VIP'),
-            })))
-          }
-        }
-      } catch {}
-    }
-    loadFallback()
-  }, [bid, activity.length, summary, todayBookings.length])
-
-  if (loading) return <AppLoader message="Loading dashboard..." />
+  if (loading || bizLoading) return <AppLoader message="Loading dashboard..." />
 
   const t = summary?.today || {}
   const totalCovers = t.bookings || 0

@@ -73,7 +73,7 @@ const MothershipSettings = () => {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-lg font-bold text-primary">Self-Employed Mode</div>
-              <div className="text-sm text-gray-400 mt-0.5">Self-employed operators get their own portal. You keep the overview.</div>
+              <div className="text-sm text-gray-400 mt-0.5">Operators manage their own clients privately. You track revenue, bookings, and performance.</div>
             </div>
             <button onClick={toggleMode}
               className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${enabled ? 'bg-green-500' : 'bg-gray-300'}`}>

@@ -69,7 +69,7 @@ async def get_operator_context(
     # Business IS in mothership mode. Is this user the owner or an operator?
     owner_id = str(biz.get("owner_id", ""))
     if owner_id == tenant.user_id:
-        # Owner — sees everything within their business
+        # Owner — sees aggregate revenue, bookings, performance per operator. NOT operator client details.
         return OperatorContext(tenant=tenant, is_mothership_owner=True)
 
     # Check if user is an operator

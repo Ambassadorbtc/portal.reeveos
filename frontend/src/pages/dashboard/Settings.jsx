@@ -715,14 +715,14 @@ const Settings = () => {
           <div className="bg-white border border-gray-100 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)] p-6 space-y-6">
             <div>
               <h2 className="text-xl font-heading font-semibold mb-1">Self-Employed Mode</h2>
-              <p className="text-sm text-gray-500">Let self-employed operators run their own bookings, clients, and payments — while you keep the overview.</p>
+              <p className="text-sm text-gray-500">Let self-employed operators run their own bookings, clients, and payments — while you track revenue, performance, and commissions.</p>
             </div>
 
             {/* Enable toggle */}
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
               <div>
                 <div className="text-sm font-bold text-primary">Enable Self-Employed Mode</div>
-                <div className="text-xs text-gray-400 mt-0.5">Your operators get their own portal. You see everything.</div>
+                <div className="text-xs text-gray-400 mt-0.5">Operators manage their own clients privately. You see revenue, bookings, and performance only.</div>
               </div>
               <button onClick={async () => {
                 try {

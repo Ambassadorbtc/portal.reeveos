@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 import httpx
 import os
 
-router = APIRouter(prefix="/api/public-support", tags=["public-support"])
+router = APIRouter(prefix="/public-support", tags=["public-support"])
 
 SYSTEM_PROMPT = """You are ReeveOS AI Support — a helpful, friendly UK-based assistant for the ReeveOS booking platform.
 

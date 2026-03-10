@@ -64,6 +64,8 @@ const EditIcon = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="non
 const CheckIcon = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
 const TrashIcon = () => <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
 const UserIcon = () => <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+const PhoneIcon = () => <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+const MailIcon = () => <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
 const GripIcon = () => <svg width={10} height={10} viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><circle cx="8" cy="4" r="2"/><circle cx="16" cy="4" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="8" cy="20" r="2"/><circle cx="16" cy="20" r="2"/></svg>
 const UndoIcon = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
 
@@ -152,7 +154,7 @@ const Calendar = () => {
   const [bookSaving, setBookSaving] = useState(false)
   const [bookError, setBookError] = useState('')
   const [selPackages, setSelPackages] = useState([])
-
+  const [selClient, setSelClient] = useState(null)
   const openBookModal = () => {
     setEditingId(null)
     setBookForm(f => ({ ...f, date: selectedDate, time: '', serviceId: '', staffId: '', customerName: '', customerPhone: '', customerEmail: '', notes: '' }))
@@ -286,14 +288,19 @@ const Calendar = () => {
     return () => clearTimeout(t)
   }, [newCalBookingIds])
 
-  /* ── Fetch packages when booking selected ── */
+  /* ── Fetch packages + CRM client when booking selected ── */
   useEffect(() => {
-    if (!selA || !bid) { setSelPackages([]); return }
+    if (!selA || !bid) { setSelPackages([]); setSelClient(null); return }
     const booking = (data?.bookings || []).find(b => b.id === selA)
-    if (!booking?.customerId) { setSelPackages([]); return }
+    if (!booking?.customerId) { setSelPackages([]); setSelClient(null); return }
+    // Packages
     api.get(`/packages/business/${bid}/client/${booking.customerId}`).then(r => {
       setSelPackages(r.packages || [])
     }).catch(() => setSelPackages([]))
+    // CRM client detail — notes, visit history, consultation status
+    api.get(`/crm/business/${bid}/client/${booking.customerId}`).then(r => {
+      setSelClient(r)
+    }).catch(() => setSelClient(null))
   }, [selA, bid, data])
 
   /* ── Time updater ── */
@@ -548,6 +555,71 @@ const Calendar = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#888' }}><UserIcon />{staff?.full || staff?.name}</div>
           </div>
           <div style={{ fontSize: 20, fontWeight: 800, color: '#111111', marginBottom: 12 }}>£{a.price || 0}</div>
+          {/* ── Client Details from CRM ── */}
+          {(a.customerPhone || a.customerEmail) && (
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+              {a.customerPhone && <a href={`tel:${a.customerPhone}`} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#666', textDecoration: 'none', padding: '3px 8px', background: '#F5F5F5', borderRadius: 6 }}><PhoneIcon />{a.customerPhone}</a>}
+              {a.customerEmail && <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#666', padding: '3px 8px', background: '#F5F5F5', borderRadius: 6 }}><MailIcon />{a.customerEmail}</span>}
+            </div>
+          )}
+          {selClient && (
+            <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {/* Visit count + lifetime spend */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                {selClient.stats?.total_visits != null && (
+                  <div style={{ flex: 1, padding: '7px 10px', background: '#F9FAFB', borderRadius: 8, border: '1px solid #F0F0F0' }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: 0.5 }}>Visits</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#111' }}>{selClient.stats.total_visits}</div>
+                  </div>
+                )}
+                {selClient.ltv?.total != null && (
+                  <div style={{ flex: 1, padding: '7px 10px', background: '#F9FAFB', borderRadius: 8, border: '1px solid #F0F0F0' }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: 0.5 }}>Lifetime</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#111' }}>£{Math.round(selClient.ltv.total || 0)}</div>
+                  </div>
+                )}
+                {selClient.pipeline_stage && (
+                  <div style={{ flex: 1, padding: '7px 10px', background: '#F9FAFB', borderRadius: 8, border: '1px solid #F0F0F0' }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: 0.5 }}>Stage</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{selClient.pipeline_stage?.replace(/_/g, ' ')}</div>
+                  </div>
+                )}
+              </div>
+              {/* Consultation form status */}
+              {selClient.consultation_form_status && (
+                <div style={{
+                  padding: '7px 10px', borderRadius: 8,
+                  background: selClient.consultation_form_status === 'valid' ? '#F0FDF4' : selClient.consultation_form_status === 'expiring_soon' ? '#FFFBEB' : selClient.consultation_form_status === 'expired' ? '#FEF2F2' : '#F9FAFB',
+                  border: `1px solid ${selClient.consultation_form_status === 'valid' ? '#BBF7D0' : selClient.consultation_form_status === 'expiring_soon' ? '#FDE68A' : selClient.consultation_form_status === 'expired' ? '#FECACA' : '#F0F0F0'}`,
+                  display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600,
+                  color: selClient.consultation_form_status === 'valid' ? '#15803D' : selClient.consultation_form_status === 'expiring_soon' ? '#92400E' : selClient.consultation_form_status === 'expired' ? '#DC2626' : '#666',
+                }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'currentColor', flexShrink: 0 }} />
+                  Consultation: {selClient.consultation_form_status === 'valid' ? 'Valid' : selClient.consultation_form_status === 'expiring_soon' ? 'Expiring soon — renewal needed' : selClient.consultation_form_status === 'expired' ? 'Expired — needs renewal' : selClient.consultation_form_status === 'none' ? 'Not completed' : selClient.consultation_form_status}
+                </div>
+              )}
+              {/* Therapist / staff notes */}
+              {selClient.client?.notes?.length > 0 && (
+                <div style={{ padding: '7px 10px', background: '#F5F3FF', borderRadius: 8, border: '1px solid #DDD6FE', fontSize: 11, color: '#5B21B6', lineHeight: '16px' }}>
+                  <strong>Staff notes:</strong> {Array.isArray(selClient.client.notes) ? selClient.client.notes.join(' · ') : selClient.client.notes}
+                </div>
+              )}
+              {/* Preferences */}
+              {selClient.preferences?.bed_setup && (
+                <div style={{ padding: '7px 10px', background: '#FFF7ED', borderRadius: 8, border: '1px solid #FED7AA', fontSize: 11, color: '#9A3412', lineHeight: '16px' }}>
+                  <strong>Preference:</strong> {selClient.preferences.bed_setup}
+                </div>
+              )}
+              {/* Tags */}
+              {selClient.client?.tags?.length > 0 && (
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  {selClient.client.tags.map(t => (
+                    <span key={t} style={{ padding: '2px 8px', background: t === 'VIP' ? '#C9A84C' : '#F0F0F0', color: t === 'VIP' ? '#fff' : '#666', borderRadius: 10, fontSize: 10, fontWeight: 600 }}>{t}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           {selPackages.length > 0 && (
             <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
               {selPackages.map(p => (

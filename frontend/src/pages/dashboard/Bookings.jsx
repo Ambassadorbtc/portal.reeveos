@@ -128,19 +128,29 @@ const Bookings = () => {
       const res = await api.get(`/bookings/business/${bid}/detail/${id}`)
       const b = res?.booking || res || null
       if (b) {
-        // Ensure all required fields exist with defaults
+        // Backend returns service/staff/customer as OBJECTS — extract strings
+        const serviceName = typeof b.service === 'object' ? b.service?.name : (b.service || b.serviceName || b.service_name || '')
+        const servicePrice = typeof b.service === 'object' ? b.service?.price : b.servicePrice
+        const serviceDuration = typeof b.service === 'object' ? b.service?.duration : b.serviceDuration
+        const staffName = typeof b.staff === 'object' ? b.staff?.name : (b.staffName || b.staff_name || 'Any available')
+        const custName = typeof b.customer === 'object' ? b.customer?.name : (b.customerName || b.customer_name || 'Unknown')
+        const custPhone = typeof b.customer === 'object' ? b.customer?.phone : (b.customerPhone || b.phone || '')
+        const custEmail = typeof b.customer === 'object' ? b.customer?.email : (b.customerEmail || b.email || '')
+
         setDetail({
           ...b,
           id: b.id || b._id || id,
           status: b.status || 'pending',
           reference: b.reference || b.id || b._id || '',
-          customerName: b.customerName || b.customer?.name || b.customer_name || 'Unknown',
+          customerName: custName,
           date: b.date || b.booking_date || '',
           time: b.time || b.start_time || '',
-          service: b.service || b.serviceName || b.service_name || '',
-          staffName: b.staffName || b.staff_name || b.staff?.name || 'Any available',
+          service: serviceName,
+          servicePrice: servicePrice,
+          serviceDuration: serviceDuration,
+          staffName: staffName,
           notes: b.notes || '',
-          customer: b.customer || { name: b.customerName || 'Unknown', phone: b.phone || '', email: b.email || '' },
+          customer: { name: custName, phone: custPhone, email: custEmail },
         })
       } else {
         setDetail(null)
@@ -163,7 +173,7 @@ const Bookings = () => {
 
   useEffect(() => { const t = setTimeout(() => setSearchDebounce(search), 300); return () => clearTimeout(t) }, [search])
   useEffect(() => { if (bid) fetchBookings(false) }, [bid, status, searchDebounce])
-  // bookingId from URL is ignored — detail opens via click only (prevents crash on refresh)
+  useEffect(() => { if (bookingId && bid) fetchDetail(bookingId); else if (!bookingId) setDetail(null) }, [bookingId, bid])
 
   // Live polling — silently refresh every 15 seconds
   useEffect(() => {
@@ -179,14 +189,8 @@ const Bookings = () => {
     return () => clearTimeout(t)
   }, [newBookingIds])
 
-  const openDetail = (id) => {
-    if (!bid || !id) return
-    fetchDetail(id)
-  }
-  const closeDetail = () => {
-    setDetail(null)
-    setSearchParams({})
-  }
+  const openDetail = (id) => setSearchParams({ booking: id })
+  const closeDetail = () => { setDetail(null); setSearchParams({}) }
 
   const displayBookings = bookings
 

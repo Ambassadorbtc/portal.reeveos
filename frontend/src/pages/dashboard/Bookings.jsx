@@ -4,8 +4,8 @@ import AppLoader from "../../components/shared/AppLoader"
  */
 
 import { useState, useEffect, useRef, useCallback, Component } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { Search, ChevronRight, RefreshCw, Download, X, Check, Users, Armchair, Phone, Mail, Cake, Pencil, SlidersHorizontal, Clock } from 'lucide-react'
+import { useSearchParams, useNavigate } from 'react-router-dom'
+import { Search, ChevronRight, RefreshCw, Download, X, Check, Users, Armchair, Phone, Mail, Cake, Pencil, SlidersHorizontal, Clock, Calendar, Save, AlertTriangle, ExternalLink } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
 
@@ -77,6 +77,7 @@ const formatTime = (timeStr) => {
 const Bookings = () => {
   const { business, businessType, loading: bizLoading } = useBusiness()
   const isRestaurant = businessType === 'restaurant'
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [bookings, setBookings] = useState([])
   const [pagination, setPagination] = useState({})
@@ -89,6 +90,12 @@ const Bookings = () => {
   const [detail, setDetail] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [updating, setUpdating] = useState(false)
+  const [editMode, setEditMode] = useState(false)
+  const [editFields, setEditFields] = useState({})
+  const [rescheduleMode, setRescheduleMode] = useState(false)
+  const [rescheduleFields, setRescheduleFields] = useState({})
+  const [cancelConfirm, setCancelConfirm] = useState(null)
+  const [saving, setSaving] = useState(false)
 
   const bookingId = searchParams.get('booking')
   const bid = business?.id ?? business?._id
@@ -167,9 +174,56 @@ const Bookings = () => {
       await api.patch(`/bookings/business/${bid}/detail/${id}/status`, { status: newStatus })
       fetchBookings()
       if (detail?.id === id) setDetail(d => d ? { ...d, status: newStatus } : null)
+      if (newStatus === 'cancelled') setCancelConfirm(null)
     } catch (err) { alert(err.message || 'Failed to update') }
     finally { setUpdating(false) }
   }
+
+  const startEdit = () => {
+    if (!detail) return
+    setEditFields({
+      customerName: detail.customerName || '',
+      phone: detail.customer?.phone || '',
+      email: detail.customer?.email || '',
+      notes: detail.notes || '',
+    })
+    setEditMode(true)
+    setRescheduleMode(false)
+  }
+
+  const saveEdit = async () => {
+    if (!bid || !detail?.id) return
+    setSaving(true)
+    try {
+      await api.patch(`/bookings/business/${bid}/detail/${detail.id}/edit`, editFields)
+      setDetail(d => d ? { ...d, ...editFields, customerName: editFields.customerName, customer: { ...d.customer, name: editFields.customerName, phone: editFields.phone, email: editFields.email } } : null)
+      setEditMode(false)
+      fetchBookings()
+    } catch (err) { alert(err.message || 'Failed to save') }
+    finally { setSaving(false) }
+  }
+
+  const startReschedule = () => {
+    if (!detail) return
+    setRescheduleFields({ date: detail.date || '', time: detail.time || '' })
+    setRescheduleMode(true)
+    setEditMode(false)
+  }
+
+  const saveReschedule = async () => {
+    if (!bid || !detail?.id) return
+    setSaving(true)
+    try {
+      await api.patch(`/bookings/business/${bid}/detail/${detail.id}/move`, rescheduleFields)
+      setDetail(d => d ? { ...d, date: rescheduleFields.date, time: rescheduleFields.time } : null)
+      setRescheduleMode(false)
+      fetchBookings()
+    } catch (err) { alert(err.message || 'Failed to reschedule') }
+    finally { setSaving(false) }
+  }
+
+  const confirmCancel = (id) => { setCancelConfirm(id) }
+  const doCancel = () => { if (cancelConfirm) updateStatus(cancelConfirm, 'cancelled') }
 
   useEffect(() => { const t = setTimeout(() => setSearchDebounce(search), 300); return () => clearTimeout(t) }, [search])
   useEffect(() => { if (bid) fetchBookings(false) }, [bid, status, searchDebounce])
@@ -190,7 +244,7 @@ const Bookings = () => {
   }, [newBookingIds])
 
   const openDetail = (id) => setSearchParams({ booking: id })
-  const closeDetail = () => { setDetail(null); setSearchParams({}) }
+  const closeDetail = () => { setDetail(null); setEditMode(false); setRescheduleMode(false); setSearchParams({}) }
 
   const displayBookings = bookings
 
@@ -336,8 +390,8 @@ const Bookings = () => {
                         {primary.label}
                       </button>
                     )}
-                    <button className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-[#111111] hover:bg-[#111111]/5 transition-all" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => updateStatus(b.id, 'cancelled')} className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all" title="Cancel"><X className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => { openDetail(b.id); setTimeout(startEdit, 500) }} className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-[#111111] hover:bg-[#111111]/5 transition-all" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => confirmCancel(b.id)} className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all" title="Cancel"><X className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>
               )
@@ -357,10 +411,28 @@ const Bookings = () => {
         )}
       </div>
 
+      {/* Cancel confirmation modal */}
+      {cancelConfirm && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center"><AlertTriangle className="w-5 h-5 text-red-500" /></div>
+              <h3 className="font-bold text-lg text-gray-900">Cancel Booking?</h3>
+            </div>
+            <p className="text-sm text-gray-500 mb-6">This will cancel the appointment and notify the client. This action cannot be undone.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setCancelConfirm(null)} className="flex-1 bg-gray-100 text-gray-700 font-bold py-2.5 rounded-lg text-sm hover:bg-gray-200 transition-colors">Keep It</button>
+              <button onClick={doCancel} disabled={updating} className="flex-1 bg-red-500 text-white font-bold py-2.5 rounded-lg text-sm hover:bg-red-600 transition-colors">{updating ? 'Cancelling...' : 'Yes, Cancel'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {detail && <div className="fixed inset-0 bg-black/20 z-30" onClick={closeDetail} />}
       <div className={`fixed inset-y-0 right-0 w-full sm:w-[450px] bg-white shadow-2xl transform transition-transform duration-300 z-40 border-l border-gray-200 flex flex-col ${detail ? 'translate-x-0' : 'translate-x-full'}`}>
         {detail && (
           <DetailErrorBoundary key={detail.id || 'detail'} onClose={closeDetail}>
+            {/* Header */}
             <div className="h-16 border-b border-gray-200 flex items-center justify-between px-6 bg-gray-50 shrink-0">
               <div className="flex items-center gap-2">
                 <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${(STATUS_CONFIG[detail.status || 'pending'] || STATUS_CONFIG.confirmed).bg} ${(STATUS_CONFIG[detail.status || 'pending'] || STATUS_CONFIG.confirmed).text} border ${(STATUS_CONFIG[detail.status || 'pending'] || STATUS_CONFIG.confirmed).border}`}>
@@ -368,45 +440,165 @@ const Bookings = () => {
                 </span>
                 <span className="text-xs text-gray-400 font-mono">{detail.reference || detail.id || ''}</span>
               </div>
-              <button className="w-8 h-8 rounded hover:bg-gray-200 flex items-center justify-center text-gray-400" onClick={closeDetail}><X className="w-4 h-4" /></button>
+              <div className="flex items-center gap-1">
+                {!editMode && !rescheduleMode && <button onClick={startEdit} className="w-8 h-8 rounded hover:bg-gray-200 flex items-center justify-center text-gray-400 hover:text-[#111]" title="Edit"><Pencil className="w-4 h-4" /></button>}
+                <button className="w-8 h-8 rounded hover:bg-gray-200 flex items-center justify-center text-gray-400" onClick={closeDetail}><X className="w-4 h-4" /></button>
+              </div>
             </div>
+
             {detailLoading ? <AppLoader message="Loading..." size="sm" /> : (
               <>
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div className="flex-1 overflow-y-auto p-6 space-y-5">
+                  {/* Customer header */}
                   <div className="flex items-start gap-4">
                     <div className={`w-14 h-14 rounded-full ${getAvatarColor(detail.customerName || 'C').bg} flex items-center justify-center ${getAvatarColor(detail.customerName || 'C').text} font-bold text-xl shadow-sm`}>
                       {getInitials(detail.customerName || 'Client')}
                     </div>
                     <div className="flex-1">
-                      <h2 className="text-xl font-heading font-bold text-primary">{detail.customerName || 'Client'}</h2>
-                      <p className="text-sm text-gray-500 mt-1">{[detail.customer?.phone || detail.phone || '', detail.customer?.email || detail.email || ''].filter(Boolean).join(' • ') || '—'}</p>
+                      {editMode ? (
+                        <input value={editFields.customerName || ''} onChange={e => setEditFields(f => ({ ...f, customerName: e.target.value }))}
+                          className="text-xl font-bold text-gray-900 bg-transparent border-b-2 border-[#111]/20 focus:border-[#111] outline-none w-full pb-1" />
+                      ) : (
+                        <h2 className="text-xl font-heading font-bold text-primary">{detail.customerName || 'Client'}</h2>
+                      )}
+                      {editMode ? (
+                        <div className="mt-2 space-y-2">
+                          <input value={editFields.phone || ''} onChange={e => setEditFields(f => ({ ...f, phone: e.target.value }))} placeholder="Phone"
+                            className="text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 w-full focus:border-[#111] outline-none" />
+                          <input value={editFields.email || ''} onChange={e => setEditFields(f => ({ ...f, email: e.target.value }))} placeholder="Email"
+                            className="text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 w-full focus:border-[#111] outline-none" />
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500 mt-1">{[detail.customer?.phone, detail.customer?.email].filter(Boolean).join(' • ') || '—'}</p>
+                      )}
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">Date</p>
-                      <p className="text-sm font-bold text-primary mt-1">{detail.date || '—'}</p>
+
+                  {/* Reschedule mode */}
+                  {rescheduleMode && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3">
+                      <h3 className="text-sm font-bold text-blue-800 flex items-center gap-2"><Calendar className="w-4 h-4" /> Reschedule Appointment</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-[10px] font-bold text-blue-600 uppercase block mb-1">New Date</label>
+                          <input type="date" value={rescheduleFields.date || ''} onChange={e => setRescheduleFields(f => ({ ...f, date: e.target.value }))}
+                            className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm focus:border-blue-500 outline-none bg-white" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-blue-600 uppercase block mb-1">New Time</label>
+                          <input type="time" value={rescheduleFields.time || ''} onChange={e => setRescheduleFields(f => ({ ...f, time: e.target.value }))}
+                            className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm focus:border-blue-500 outline-none bg-white" />
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => setRescheduleMode(false)} className="flex-1 bg-white border border-gray-200 text-gray-600 font-bold py-2 rounded-lg text-sm">Cancel</button>
+                        <button onClick={saveReschedule} disabled={saving} className="flex-1 bg-blue-600 text-white font-bold py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                          {saving ? 'Saving...' : <><Save className="w-3.5 h-3.5" /> Save</>}
+                        </button>
+                      </div>
                     </div>
-                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">Time</p>
-                      <p className="text-sm font-bold text-primary mt-1">{detail.time ? formatTime(detail.time) : '—'}</p>
+                  )}
+
+                  {/* Booking details grid */}
+                  {!rescheduleMode && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase">Date</p>
+                        <p className="text-sm font-bold text-primary mt-1">{detail.date || '—'}</p>
+                      </div>
+                      <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase">Time</p>
+                        <p className="text-sm font-bold text-primary mt-1">{detail.time ? formatTime(detail.time) : '—'}</p>
+                      </div>
+                      <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase">{isRestaurant ? 'Guests' : 'Service'}</p>
+                        <p className="text-sm font-bold text-primary mt-1">{isRestaurant ? (detail.guests || detail.partySize || '—') : (detail.service || '—')}</p>
+                      </div>
+                      <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase">{isRestaurant ? 'Table' : 'Therapist'}</p>
+                        <p className="text-sm font-bold text-primary mt-1">{isRestaurant ? (detail.table || detail.tableName || 'Unassigned') : (detail.staffName || 'Any available')}</p>
+                      </div>
+                      {detail.servicePrice && (
+                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase">Price</p>
+                          <p className="text-sm font-bold text-primary mt-1">£{detail.servicePrice}</p>
+                        </div>
+                      )}
+                      {detail.serviceDuration && (
+                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase">Duration</p>
+                          <p className="text-sm font-bold text-primary mt-1">{detail.serviceDuration} min</p>
+                        </div>
+                      )}
+                      {detail.source && (
+                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase">Source</p>
+                          <p className="text-sm font-bold text-primary mt-1 capitalize">{detail.source}</p>
+                        </div>
+                      )}
+                      {detail.occasion && (
+                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase">Occasion</p>
+                          <p className="text-sm font-bold text-primary mt-1 capitalize">{detail.occasion}</p>
+                        </div>
+                      )}
                     </div>
-                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">{isRestaurant ? 'Guests' : 'Service'}</p>
-                      <p className="text-sm font-bold text-primary mt-1">{isRestaurant ? (detail.guests || detail.partySize || '—') : (detail.service || detail.serviceName || '—')}</p>
+                  )}
+
+                  {/* Notes */}
+                  {editMode ? (
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Notes</label>
+                      <textarea value={editFields.notes || ''} onChange={e => setEditFields(f => ({ ...f, notes: e.target.value }))} rows={3}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#111] outline-none resize-none" />
                     </div>
+                  ) : (
+                    detail.notes && <div className="bg-gray-50 p-3 rounded-lg border border-gray-200"><label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Notes</label><p className="text-sm text-primary/80">{detail.notes}</p></div>
+                  )}
+
+                  {/* Deposit / allergens */}
+                  {detail.deposit?.status && (
                     <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">{isRestaurant ? 'Table' : 'Therapist'}</p>
-                      <p className="text-sm font-bold text-primary mt-1">{isRestaurant ? (detail.table || detail.tableName || 'Unassigned') : (detail.staffName || 'Any available')}</p>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Booking Fee</label>
+                      <p className="text-sm font-bold text-primary capitalize">{detail.deposit.status} {detail.deposit.amount ? `— £${detail.deposit.amount}` : ''}</p>
                     </div>
-                  </div>
-                  {detail.notes && <div className="bg-gray-50 p-3 rounded-lg border border-gray-200"><label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Notes</label><p className="text-sm text-primary/80">{detail.notes}</p></div>}
+                  )}
+                  {detail.allergens?.length > 0 && (
+                    <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                      <label className="text-[10px] font-bold text-red-500 uppercase block mb-1">Allergens</label>
+                      <p className="text-sm font-bold text-red-700">{detail.allergens.join(', ')}</p>
+                    </div>
+                  )}
+
+                  {/* CRM link */}
+                  {detail.customer && (
+                    <button onClick={() => navigate('/dashboard/crm')} className="w-full flex items-center justify-between bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg px-4 py-3 transition-colors group">
+                      <span className="text-sm font-bold text-gray-600 group-hover:text-[#111]">View in CRM</span>
+                      <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-[#111]" />
+                    </button>
+                  )}
                 </div>
-                <div className="p-4 border-t border-gray-200 bg-gray-50 flex gap-3 shrink-0">
-                  <button className="flex-1 bg-white border border-gray-200 text-primary font-bold py-2.5 rounded-lg hover:bg-gray-100 transition-colors text-sm">Reschedule</button>
-                  {(detail.status === 'confirmed' || detail.status === 'late') && <button onClick={() => updateStatus(detail.id, 'checked_in')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>{isRestaurant ? 'Seat' : 'Check In'}</span><ChevronRight className="w-4 h-4" /></button>}
-                  {detail.status === 'checked_in' && <button onClick={() => updateStatus(detail.id, 'completed')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>{isRestaurant ? 'Checkout' : 'Complete'}</span><ChevronRight className="w-4 h-4" /></button>}
-                  {detail.status === 'pending' && <button onClick={() => updateStatus(detail.id, 'confirmed')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>Confirm</span><Check className="w-4 h-4" /></button>}
+
+                {/* Footer actions */}
+                <div className="p-4 border-t border-gray-200 bg-gray-50 shrink-0">
+                  {editMode ? (
+                    <div className="flex gap-3">
+                      <button onClick={() => setEditMode(false)} className="flex-1 bg-white border border-gray-200 text-gray-600 font-bold py-2.5 rounded-lg text-sm hover:bg-gray-100 transition-colors">Cancel</button>
+                      <button onClick={saveEdit} disabled={saving} className="flex-1 bg-[#111] text-white font-bold py-2.5 rounded-lg text-sm hover:bg-[#222] transition-colors flex items-center justify-center gap-2">
+                        {saving ? 'Saving...' : <><Save className="w-3.5 h-3.5" /> Save Changes</>}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-3">
+                      <button onClick={startReschedule} className="flex-1 bg-white border border-gray-200 text-primary font-bold py-2.5 rounded-lg hover:bg-gray-100 transition-colors text-sm flex items-center justify-center gap-2"><Calendar className="w-3.5 h-3.5" /> Reschedule</button>
+                      {(detail.status === 'confirmed' || detail.status === 'late') && <button onClick={() => updateStatus(detail.id, 'checked_in')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>{isRestaurant ? 'Seat' : 'Check In'}</span><ChevronRight className="w-4 h-4" /></button>}
+                      {detail.status === 'checked_in' && <button onClick={() => updateStatus(detail.id, 'completed')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>{isRestaurant ? 'Checkout' : 'Complete'}</span><ChevronRight className="w-4 h-4" /></button>}
+                      {detail.status === 'pending' && <button onClick={() => updateStatus(detail.id, 'confirmed')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>Confirm</span><Check className="w-4 h-4" /></button>}
+                    </div>
+                  )}
+                  {!editMode && !rescheduleMode && detail.status !== 'cancelled' && (
+                    <button onClick={() => confirmCancel(detail.id)} className="w-full mt-2 text-xs text-red-400 hover:text-red-600 font-bold py-2 transition-colors">Cancel Booking</button>
+                  )}
                 </div>
               </>
             )}

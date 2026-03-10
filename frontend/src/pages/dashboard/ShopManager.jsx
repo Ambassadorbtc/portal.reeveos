@@ -99,10 +99,33 @@ export default function ShopManager() {
     load()
   }
 
+  const archiveProduct = async (id) => {
+    try {
+      await api.patch(`/shop/business/${bid}/products/${id}`, { status: 'archived' })
+      setDeleteConfirm(null)
+      load()
+    } catch (e) {
+      console.error('Archive failed:', e)
+      alert('Failed to archive product. Please try again.')
+    }
+  }
+
   const deleteProduct = async (id) => {
-    await api.delete(`/shop/business/${bid}/products/${id}`)
-    setDeleteConfirm(null)
-    load()
+    try {
+      await api.delete(`/shop/business/${bid}/products/${id}`)
+      setDeleteConfirm(null)
+      load()
+    } catch (e) {
+      console.error('Delete failed:', e)
+      // Fallback: try archive instead
+      try {
+        await api.patch(`/shop/business/${bid}/products/${id}`, { status: 'archived' })
+        setDeleteConfirm(null)
+        load()
+      } catch (e2) {
+        alert('Failed to delete product. Please try again.')
+      }
+    }
   }
 
   const updateOrder = async (orderId, status) => {
@@ -172,20 +195,25 @@ export default function ShopManager() {
       {panel?.type === 'product' && <ProductPanel data={panel.data} onSave={saveProduct} onClose={() => setPanel(null)} />}
       {panel?.type === 'discount' && <DiscountPanel data={panel.data} onSave={saveDiscount} onClose={() => setPanel(null)} />}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete / Archive Confirmation Modal */}
       {deleteConfirm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, backdropFilter: 'blur(4px)' }} onClick={() => setDeleteConfirm(null)}>
-          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 28, width: 380, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', fontFamily: "'Figtree', sans-serif" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 28, width: 400, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', fontFamily: "'Figtree', sans-serif" }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 10, background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Archive size={20} color="#EF4444" /></div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: '#111' }}>Archive Product?</div>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={20} color="#EF4444" /></div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#111' }}>Remove Product</div>
             </div>
-            <div style={{ fontSize: 13, color: '#666', lineHeight: '20px', marginBottom: 24 }}>
-              <strong style={{ color: '#111' }}>{deleteConfirm.name || 'This product'}</strong> will be archived and hidden from your shop. You can restore it later from the Deleted Items page.
+            <div style={{ fontSize: 13, color: '#666', lineHeight: '20px', marginBottom: 8 }}>
+              What would you like to do with <strong style={{ color: '#111' }}>{deleteConfirm.name || 'this product'}</strong>?
             </div>
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ fontSize: 12, color: '#999', lineHeight: '18px', marginBottom: 24, padding: 12, background: '#FAFAFA', borderRadius: 10, border: '1px solid #F0F0F0' }}>
+              <strong style={{ color: '#666' }}>Archive</strong> — hides from shop, can be restored later from Deleted Items<br/>
+              <strong style={{ color: '#666' }}>Delete</strong> — permanently removes the product
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '12px 0', borderRadius: 10, border: '1px solid #E5E5E5', background: '#fff', fontSize: 13, fontWeight: 600, color: '#333', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>Cancel</button>
-              <button onClick={() => deleteProduct(deleteConfirm.id)} style={{ flex: 1, padding: '12px 0', borderRadius: 10, border: 'none', background: '#EF4444', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>Archive Product</button>
+              <button onClick={() => archiveProduct(deleteConfirm.id || deleteConfirm._id)} style={{ flex: 1, padding: '12px 0', borderRadius: 10, border: '1px solid #111', background: '#fff', fontSize: 13, fontWeight: 600, color: '#111', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>Archive</button>
+              <button onClick={() => deleteProduct(deleteConfirm.id || deleteConfirm._id)} style={{ flex: 1, padding: '12px 0', borderRadius: 10, border: 'none', background: '#EF4444', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>Delete</button>
             </div>
           </div>
         </div>
@@ -210,7 +238,7 @@ function ProductsView({ products, search, setSearch, onEdit, onDelete }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
         {filtered.map(p => (
-          <div key={p.id} style={{ background: '#fff', borderRadius: 12, border: '1px solid #EBEBEB', padding: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div key={p.id || p._id} style={{ background: '#fff', borderRadius: 12, border: '1px solid #EBEBEB', padding: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>{p.name}</div>
@@ -241,7 +269,7 @@ function ProductsView({ products, search, setSearch, onEdit, onDelete }) {
               <button onClick={() => onEdit(p)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, padding: 6, borderRadius: 8, border: '1px solid #E5E5E5', background: '#fff', fontSize: 11, fontWeight: 600, color: '#333', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>
                 <Edit3 size={12} /> Edit
               </button>
-              <button onClick={() => onDelete(p.id, p.name)} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #FEE2E2', background: '#FFF5F5', color: '#EF4444', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+              <button onClick={() => onDelete(p.id || p._id, p.name)} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #FEE2E2', background: '#FFF5F5', color: '#EF4444', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                 <Archive size={12} />
               </button>
             </div>

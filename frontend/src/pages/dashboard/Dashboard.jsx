@@ -466,6 +466,94 @@ const Dashboard = () => {
 
             {/* Floor Status — restaurants only */}
             {isRestaurant && <FloorStatusWidget tables={tables} navigate={navigate} />}
+
+            {/* Weekly Performance Metrics */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] p-6">
+              <h2 className="text-lg font-extrabold text-gray-900 mb-1">This Week at a Glance</h2>
+              <p className="text-xs text-gray-400 font-medium mb-5">Key performance indicators</p>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { label: 'Bookings This Week', value: summary?.period?.totalBookings || totalCovers, sub: summary?.period?.bookingsChange ? `${summary.period.bookingsChange > 0 ? '+' : ''}${summary.period.bookingsChange}% vs last week` : 'vs last week', color: '#111' },
+                  { label: 'Revenue This Week', value: `£${(summary?.period?.totalRevenue || revenue).toLocaleString()}`, sub: summary?.period?.revenueChange ? `${summary.period.revenueChange > 0 ? '+' : ''}${summary.period.revenueChange}% vs last week` : 'vs last week', color: '#10B981' },
+                  { label: 'Avg Booking Value', value: totalCovers > 0 ? `£${Math.round(revenue / totalCovers)}` : '—', sub: 'Per appointment today', color: '#C9A84C' },
+                  { label: 'Completion Rate', value: (() => { const completed = todayBookings.filter(b => b.status === 'completed').length; return totalCovers > 0 ? `${Math.round((completed / totalCovers) * 100)}%` : '—' })(), sub: `${todayBookings.filter(b => b.status === 'completed').length} of ${totalCovers} completed`, color: '#8B5CF6' },
+                ].map((m, i) => (
+                  <div key={i} style={{ padding: 16, background: '#FAFAFA', borderRadius: 14, border: '1px solid #F0F0F0' }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: '#999', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>{m.label}</div>
+                    <div style={{ fontSize: 26, fontWeight: 800, color: m.color, lineHeight: 1.1 }}>{m.value}</div>
+                    <div style={{ fontSize: 11, color: '#BBB', marginTop: 4 }}>{m.sub}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Today's Services Breakdown */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] p-6">
+              <h2 className="text-lg font-extrabold text-gray-900 mb-1">{isRestaurant ? 'Popular Today' : 'Services Today'}</h2>
+              <p className="text-xs text-gray-400 font-medium mb-5">What clients are booking</p>
+              {(() => {
+                const services = {}
+                todayBookings.forEach(b => {
+                  const name = b.service_name || b.service || b.serviceName || 'Unknown Service'
+                  services[name] = (services[name] || 0) + 1
+                })
+                const sorted = Object.entries(services).sort((a, b) => b[1] - a[1])
+                const maxCount = sorted.length > 0 ? sorted[0][1] : 1
+                return sorted.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {sorted.map(([name, count], i) => (
+                      <div key={name} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ width: 24, textAlign: 'right', fontSize: 11, fontWeight: 700, color: '#BBB' }}>{i + 1}.</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: '#111' }}>{name}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: '#111' }}>{count}</span>
+                          </div>
+                          <div style={{ height: 6, borderRadius: 3, background: '#F0F0F0', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', borderRadius: 3, background: '#111', width: `${(count / maxCount) * 100}%`, transition: 'width 0.5s ease' }} />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ padding: 20, textAlign: 'center', fontSize: 12, color: '#BBB' }}>Service data will appear as bookings come in</div>
+                )
+              })()}
+            </div>
+
+            {/* Staff Utilisation Today */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] p-6">
+              <h2 className="text-lg font-extrabold text-gray-900 mb-1">Staff Today</h2>
+              <p className="text-xs text-gray-400 font-medium mb-5">Appointments per team member</p>
+              {(() => {
+                const staff = {}
+                todayBookings.forEach(b => {
+                  const name = b.staff_name || b.staffName || b.therapist || 'Unassigned'
+                  staff[name] = (staff[name] || 0) + 1
+                })
+                const sorted = Object.entries(staff).sort((a, b) => b[1] - a[1])
+                return sorted.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {sorted.map(([name, count]) => (
+                      <div key={name} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ width: 36, height: 36, borderRadius: 10, background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#111', flexShrink: 0 }}>
+                          {name.split(' ').map(w => w[0]).join('').slice(0, 2)}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: '#111' }}>{name}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: '#111' }}>{count} appt{count !== 1 ? 's' : ''}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ padding: 20, textAlign: 'center', fontSize: 12, color: '#BBB' }}>Staff data will appear as bookings come in</div>
+                )
+              })()}
+            </div>
           </div>
 
           {/* Right Column */}

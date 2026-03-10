@@ -107,6 +107,7 @@ export const TierProvider = ({ children }) => {
     hasFeature,
     isPro,
     isPremium,
+    refetchBusiness: fetchBusinessByType,
     tier: business?.tier,
     platformTier: business?.rezvo_tier
   }

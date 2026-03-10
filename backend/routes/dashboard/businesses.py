@@ -188,6 +188,8 @@ async def get_business(business_id: str, tenant: TenantContext = Depends(verify_
         "tables": business.get("tables", []),
         "features_enabled": business.get("features_enabled", []),
         "stripe_connected": business.get("stripe_connected", False),
+        "mothership_mode": business.get("mothership_mode", False),
+        "mothership_settings": business.get("mothership_settings"),
     }
 
 

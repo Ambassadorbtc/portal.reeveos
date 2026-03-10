@@ -4,8 +4,7 @@ import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
 
 const MothershipSettings = () => {
-  const { business } = useBusiness()
-  const [enabled, setEnabled] = useState(false)
+  const { business, refetchBusiness } = useBusiness()  const [enabled, setEnabled] = useState(false)
   const [settings, setSettings] = useState({
     commission_type: 'percentage', default_rate: 30, chair_rental: 200,
     settlement_frequency: 'instant', shared_booking: true,
@@ -32,11 +31,13 @@ const MothershipSettings = () => {
       if (!enabled) {
         await api.post(`/mothership/business/${bid}/enable`, settings)
         setEnabled(true)
+        if (refetchBusiness) await refetchBusiness()
         setToast('Self-Employed Mode enabled')
       } else {
         if (!confirm('Disable Self-Employed Mode? All operators will be paused.')) return
         await api.post(`/mothership/business/${bid}/disable`)
         setEnabled(false)
+        if (refetchBusiness) await refetchBusiness()
         setToast('Self-Employed Mode disabled')
       }
     } catch (e) { setToast(e.message || 'Failed') }

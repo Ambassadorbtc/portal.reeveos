@@ -54,6 +54,7 @@ export const BusinessProvider = ({ children }) => {
       tier,
       setBusinessType,
       cycleTier,
+      refetchBusiness: tierCtx?.refetchBusiness,
       loading: tierCtx?.loading ?? false,
     }
   }, [tierCtx?.business, tierCtx?.loading, devTypeOverride, devTierOverride])

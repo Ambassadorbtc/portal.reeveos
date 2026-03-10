@@ -138,7 +138,7 @@ const PreferencesTab = () => {
 
 const Settings = () => {
   const navigate = useNavigate()
-  const { business, businessType, tier } = useBusiness()
+  const { business, businessType, tier, refetchBusiness } = useBusiness()
   const [settings, setSettings] = useState(null)
   const [subscription, setSubscription] = useState(null)
   const [staff, setStaff] = useState([])
@@ -729,10 +729,12 @@ const Settings = () => {
                   if (!mothershipEnabled) {
                     await api.post(`/mothership/business/${bizId}/enable`, mothershipSettings)
                     setMothershipEnabled(true)
-                    setToast('Self-Employed Mode enabled')
+                    if (refetchBusiness) await refetchBusiness()
+                    setToast('Self-Employed Mode enabled — Mothership section now in sidebar')
                   } else {
                     await api.post(`/mothership/business/${bizId}/disable`)
                     setMothershipEnabled(false)
+                    if (refetchBusiness) await refetchBusiness()
                     setToast('Self-Employed Mode disabled')
                   }
                 } catch (e) { setToast(e.message || 'Failed') }

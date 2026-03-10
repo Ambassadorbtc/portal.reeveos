@@ -185,9 +185,10 @@ function buildSections(navItems, tier, businessType) {
           id: i.id, label: i.label, path: i.path, Icon: iconFor(i), locked: locked(i),
         })),
       ].filter(Boolean) },
-      { id: 'settings', Icon: Settings, label: 'Settings', children:
-        systemChildren
-      },
+      { id: 'settings', Icon: Settings, label: 'Settings', children: [
+        ...systemChildren,
+        { id: 'deleted', label: 'Deleted Items', path: '/dashboard/deleted', Icon: Trash2, locked: false },
+      ]},
     ]},
   ]
 

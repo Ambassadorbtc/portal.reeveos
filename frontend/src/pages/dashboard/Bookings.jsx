@@ -89,6 +89,7 @@ const Bookings = () => {
   const [activeTab, setActiveTab] = useState('all')
   const [detail, setDetail] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  const [detailClient, setDetailClient] = useState(null)
   const [updating, setUpdating] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [editFields, setEditFields] = useState({})
@@ -159,6 +160,13 @@ const Bookings = () => {
           notes: b.notes || '',
           customer: { name: custName, phone: custPhone, email: custEmail },
         })
+        // Fetch CRM client detail for rich info
+        const custId = b.customerId || b.customer_id
+        if (custId && bid) {
+          api.get(`/crm/business/${bid}/client/${custId}`).then(r => setDetailClient(r)).catch(() => setDetailClient(null))
+        } else {
+          setDetailClient(null)
+        }
       } else {
         setDetail(null)
       }
@@ -244,7 +252,7 @@ const Bookings = () => {
   }, [newBookingIds])
 
   const openDetail = (id) => setSearchParams({ booking: id })
-  const closeDetail = () => { setDetail(null); setEditMode(false); setRescheduleMode(false); setSearchParams({}) }
+  const closeDetail = () => { setDetail(null); setDetailClient(null); setEditMode(false); setRescheduleMode(false); setSearchParams({}) }
 
   const displayBookings = bookings
 
@@ -567,6 +575,58 @@ const Bookings = () => {
                     <div className="bg-red-50 p-3 rounded-lg border border-red-200">
                       <label className="text-[10px] font-bold text-red-500 uppercase block mb-1">Allergens</label>
                       <p className="text-sm font-bold text-red-700">{detail.allergens.join(', ')}</p>
+                    </div>
+                  )}
+
+                  {/* CRM Client Details */}
+                  {detailClient && (
+                    <div className="space-y-2">
+                      {/* Visit count + lifetime spend */}
+                      <div className="grid grid-cols-3 gap-2">
+                        {detailClient.stats?.total_visits != null && (
+                          <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-200 text-center">
+                            <p className="text-[9px] font-bold text-gray-400 uppercase">Visits</p>
+                            <p className="text-lg font-extrabold text-primary">{detailClient.stats.total_visits}</p>
+                          </div>
+                        )}
+                        {detailClient.ltv?.total != null && (
+                          <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-200 text-center">
+                            <p className="text-[9px] font-bold text-gray-400 uppercase">Lifetime</p>
+                            <p className="text-lg font-extrabold text-primary">£{Math.round(detailClient.ltv.total)}</p>
+                          </div>
+                        )}
+                        {detailClient.stats?.no_shows != null && (
+                          <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-200 text-center">
+                            <p className="text-[9px] font-bold text-gray-400 uppercase">No-shows</p>
+                            <p className={`text-lg font-extrabold ${detailClient.stats.no_shows > 0 ? 'text-red-600' : 'text-primary'}`}>{detailClient.stats.no_shows}</p>
+                          </div>
+                        )}
+                      </div>
+                      {/* Consultation form status */}
+                      {detailClient.consultation_form_status && detailClient.consultation_form_status !== 'none' && (
+                        <div className={`p-2.5 rounded-lg border flex items-center gap-2 text-xs font-semibold ${
+                          detailClient.consultation_form_status === 'valid' ? 'bg-green-50 border-green-200 text-green-700' :
+                          detailClient.consultation_form_status === 'expiring_soon' ? 'bg-amber-50 border-amber-200 text-amber-700' :
+                          'bg-red-50 border-red-200 text-red-700'
+                        }`}>
+                          <span className="w-2 h-2 rounded-full bg-current shrink-0" />
+                          Consultation: {detailClient.consultation_form_status === 'valid' ? 'Valid' : detailClient.consultation_form_status === 'expiring_soon' ? 'Expiring soon' : 'Expired — needs renewal'}
+                        </div>
+                      )}
+                      {/* Staff notes */}
+                      {detailClient.client?.notes?.length > 0 && (
+                        <div className="bg-purple-50 p-2.5 rounded-lg border border-purple-200 text-xs text-purple-800">
+                          <strong>Staff notes:</strong> {Array.isArray(detailClient.client.notes) ? detailClient.client.notes.join(' · ') : detailClient.client.notes}
+                        </div>
+                      )}
+                      {/* Tags */}
+                      {detailClient.client?.tags?.length > 0 && (
+                        <div className="flex gap-1.5 flex-wrap">
+                          {detailClient.client.tags.map(t => (
+                            <span key={t} className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${t === 'VIP' ? 'bg-[#C9A84C] text-white' : 'bg-gray-100 text-gray-600'}`}>{t}</span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
 

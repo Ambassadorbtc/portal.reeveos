@@ -38,7 +38,11 @@ const Login = () => {
     setError('')
     setLoading(true)
     const result = await login(email, password)
-    if (result.success) { navigate('/dashboard') }
+    if (result.success) {
+      // Store selected business type for TierContext to filter
+      sessionStorage.setItem('login_business_type', mode)
+      navigate('/dashboard')
+    }
     else { setError(result.error || 'Invalid email or password') }
     setLoading(false)
   }

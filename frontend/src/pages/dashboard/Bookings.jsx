@@ -3,11 +3,30 @@ import AppLoader from "../../components/shared/AppLoader"
  * Bookings — Card-based browse view matching UXPilot Browse design
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, Component } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Search, ChevronRight, RefreshCw, Download, X, Check, Users, Armchair, Phone, Mail, Cake, Pencil, SlidersHorizontal, Clock } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
+
+/* ── Error Boundary: catches ANY React render crash in the detail panel ── */
+class DetailErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { hasError: false } }
+  static getDerivedStateFromError() { return { hasError: true } }
+  componentDidCatch(err) { console.error('Booking detail crash:', err) }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 text-center">
+          <p className="text-gray-500 mb-4">Could not load booking details.</p>
+          <button onClick={() => { this.setState({ hasError: false }); this.props.onClose?.() }}
+            className="px-6 py-2 bg-[#111] text-white rounded-lg text-sm font-bold">Close</button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 const STATUS_CONFIG = {
   confirmed: { label: 'Confirmed', bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-100', bar: 'bg-emerald-500' },
@@ -336,76 +355,59 @@ const Bookings = () => {
 
       {detail && <div className="fixed inset-0 bg-black/20 z-30" onClick={closeDetail} />}
       <div className={`fixed inset-y-0 right-0 w-full sm:w-[450px] bg-white shadow-2xl transform transition-transform duration-300 z-40 border-l border-gray-200 flex flex-col ${detail ? 'translate-x-0' : 'translate-x-full'}`}>
-        {detail && (() => {
-          try {
-            const dStatus = detail.status || 'pending'
-            const dRef = detail.reference || detail.id || ''
-            const dName = detail.customer?.name || detail.customerName || 'Client'
-            const dPhone = detail.customer?.phone || detail.phone || ''
-            const dEmail = detail.customer?.email || detail.email || ''
-            const dDate = detail.date || ''
-            const dTime = detail.time ? formatTime(detail.time) : ''
-            const dService = detail.service || detail.serviceName || '—'
-            const dStaff = detail.staffName || 'Any available'
-            const dNotes = detail.notes || ''
-            const dGuests = detail.guests || detail.partySize || '—'
-            const dTable = detail.table || detail.tableName || 'Unassigned'
-            const sc = STATUS_CONFIG[dStatus] || STATUS_CONFIG.confirmed
-            const statusLabel = dStatus === 'checked_in' ? STATUS_LABELS.checked_in : sc.label
-            const av = getAvatarColor(dName)
-
-            return (
-              <>
-                <div className="h-16 border-b border-gray-200 flex items-center justify-between px-6 bg-gray-50 shrink-0">
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2.5 py-1 rounded-full ${sc.bg} ${sc.text} text-xs font-bold border ${sc.border}`}>{statusLabel}</span>
-                    <span className="text-xs text-gray-400 font-mono">{dRef}</span>
-                  </div>
-                  <button className="w-8 h-8 rounded hover:bg-gray-200 flex items-center justify-center text-gray-400" onClick={closeDetail}><X className="w-4 h-4" /></button>
-                </div>
-                {detailLoading ? <AppLoader message="Loading..." size="sm" /> : (
-                  <>
-                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                      <div className="flex items-start gap-4">
-                        <div className={`w-14 h-14 rounded-full ${av.bg} flex items-center justify-center ${av.text} font-bold text-xl shadow-sm`}>{getInitials(dName)}</div>
-                        <div className="flex-1">
-                          <h2 className="text-xl font-heading font-bold text-primary">{dName}</h2>
-                          <p className="text-sm text-gray-500 mt-1">{[dPhone, dEmail].filter(Boolean).join(' • ')}</p>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        {(isRestaurant
-                          ? [{l:'Date',v:dDate},{l:'Time',v:dTime},{l:'Guests',v:dGuests},{l:'Table',v:dTable}]
-                          : [{l:'Date',v:dDate},{l:'Time',v:dTime},{l:'Service',v:dService},{l:'Therapist',v:dStaff}]
-                        ).map(d => (
-                          <div key={d.l} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase">{d.l}</p>
-                            <p className="text-sm font-bold text-primary mt-1">{d.v || '—'}</p>
-                          </div>
-                        ))}
-                      </div>
-                      {dNotes && <div className="bg-gray-50 p-3 rounded-lg border border-gray-200"><label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Notes</label><p className="text-sm text-primary/80">{dNotes}</p></div>}
-                    </div>
-                    <div className="p-4 border-t border-gray-200 bg-gray-50 flex gap-3 shrink-0">
-                      <button className="flex-1 bg-white border border-gray-200 text-primary font-bold py-2.5 rounded-lg hover:bg-gray-100 transition-colors text-sm">Reschedule</button>
-                      {dStatus === 'confirmed' && <button onClick={() => updateStatus(detail.id, 'checked_in')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>{STATUS_LABELS.seat_action}</span><ChevronRight className="w-4 h-4" /></button>}
-                      {dStatus === 'checked_in' && <button onClick={() => updateStatus(detail.id, 'completed')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>{STATUS_LABELS.checkout_action}</span><ChevronRight className="w-4 h-4" /></button>}
-                      {dStatus === 'pending' && <button onClick={() => updateStatus(detail.id, 'confirmed')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>Confirm</span><Check className="w-4 h-4" /></button>}
-                    </div>
-                  </>
-                )}
-              </>
-            )
-          } catch (e) {
-            console.error('Detail panel render error:', e)
-            return (
-              <div className="p-6 text-center">
-                <p className="text-gray-500">Could not load booking details.</p>
-                <button onClick={closeDetail} className="mt-4 px-4 py-2 bg-[#111] text-white rounded-lg text-sm font-bold">Close</button>
+        {detail && (
+          <DetailErrorBoundary key={detail.id || 'detail'} onClose={closeDetail}>
+            <div className="h-16 border-b border-gray-200 flex items-center justify-between px-6 bg-gray-50 shrink-0">
+              <div className="flex items-center gap-2">
+                <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${(STATUS_CONFIG[detail.status || 'pending'] || STATUS_CONFIG.confirmed).bg} ${(STATUS_CONFIG[detail.status || 'pending'] || STATUS_CONFIG.confirmed).text} border ${(STATUS_CONFIG[detail.status || 'pending'] || STATUS_CONFIG.confirmed).border}`}>
+                  {detail.status === 'checked_in' ? (isRestaurant ? 'Seated' : 'In Treatment') : (STATUS_CONFIG[detail.status || 'pending'] || STATUS_CONFIG.confirmed).label}
+                </span>
+                <span className="text-xs text-gray-400 font-mono">{detail.reference || detail.id || ''}</span>
               </div>
-            )
-          }
-        })()}
+              <button className="w-8 h-8 rounded hover:bg-gray-200 flex items-center justify-center text-gray-400" onClick={closeDetail}><X className="w-4 h-4" /></button>
+            </div>
+            {detailLoading ? <AppLoader message="Loading..." size="sm" /> : (
+              <>
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className={`w-14 h-14 rounded-full ${getAvatarColor(detail.customerName || 'C').bg} flex items-center justify-center ${getAvatarColor(detail.customerName || 'C').text} font-bold text-xl shadow-sm`}>
+                      {getInitials(detail.customerName || 'Client')}
+                    </div>
+                    <div className="flex-1">
+                      <h2 className="text-xl font-heading font-bold text-primary">{detail.customerName || 'Client'}</h2>
+                      <p className="text-sm text-gray-500 mt-1">{[detail.customer?.phone || detail.phone || '', detail.customer?.email || detail.email || ''].filter(Boolean).join(' • ') || '—'}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">Date</p>
+                      <p className="text-sm font-bold text-primary mt-1">{detail.date || '—'}</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">Time</p>
+                      <p className="text-sm font-bold text-primary mt-1">{detail.time ? formatTime(detail.time) : '—'}</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">{isRestaurant ? 'Guests' : 'Service'}</p>
+                      <p className="text-sm font-bold text-primary mt-1">{isRestaurant ? (detail.guests || detail.partySize || '—') : (detail.service || detail.serviceName || '—')}</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">{isRestaurant ? 'Table' : 'Therapist'}</p>
+                      <p className="text-sm font-bold text-primary mt-1">{isRestaurant ? (detail.table || detail.tableName || 'Unassigned') : (detail.staffName || 'Any available')}</p>
+                    </div>
+                  </div>
+                  {detail.notes && <div className="bg-gray-50 p-3 rounded-lg border border-gray-200"><label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Notes</label><p className="text-sm text-primary/80">{detail.notes}</p></div>}
+                </div>
+                <div className="p-4 border-t border-gray-200 bg-gray-50 flex gap-3 shrink-0">
+                  <button className="flex-1 bg-white border border-gray-200 text-primary font-bold py-2.5 rounded-lg hover:bg-gray-100 transition-colors text-sm">Reschedule</button>
+                  {(detail.status === 'confirmed' || detail.status === 'late') && <button onClick={() => updateStatus(detail.id, 'checked_in')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>{isRestaurant ? 'Seat' : 'Check In'}</span><ChevronRight className="w-4 h-4" /></button>}
+                  {detail.status === 'checked_in' && <button onClick={() => updateStatus(detail.id, 'completed')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>{isRestaurant ? 'Checkout' : 'Complete'}</span><ChevronRight className="w-4 h-4" /></button>}
+                  {detail.status === 'pending' && <button onClick={() => updateStatus(detail.id, 'confirmed')} disabled={updating} className="flex-1 bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary-hover transition-colors shadow-lg flex items-center justify-center gap-2 text-sm"><span>Confirm</span><Check className="w-4 h-4" /></button>}
+                </div>
+              </>
+            )}
+          </DetailErrorBoundary>
+        )}
       </div>
     </div>
   )

@@ -42,6 +42,11 @@ import Payments from './pages/dashboard/Payments'
 import Help from './pages/dashboard/Help'
 import Deleted from './pages/dashboard/Deleted'
 import Operators from './pages/dashboard/Operators'
+import MothershipDashboard from './pages/dashboard/MothershipDashboard'
+import MothershipPayments from './pages/dashboard/MothershipPayments'
+import MothershipBookings from './pages/dashboard/MothershipBookings'
+import MothershipPerformance from './pages/dashboard/MothershipPerformance'
+import MothershipSettings from './pages/dashboard/MothershipSettings'
 
 /* EPOS pages — restaurant only */
 import EposInventory from './pages/dashboard/EposInventory'
@@ -193,6 +198,11 @@ const App = () => {
               <Route path="floor-plan" element={<FloorPlan />} />
               <Route path="staff" element={<Staff />} />
               <Route path="operators" element={<Operators />} />
+              <Route path="mothership" element={<MothershipDashboard />} />
+              <Route path="mothership/bookings" element={<MothershipBookings />} />
+              <Route path="mothership/payments" element={<MothershipPayments />} />
+              <Route path="mothership/performance" element={<MothershipPerformance />} />
+              <Route path="mothership/settings" element={<MothershipSettings />} />
               <Route path="services" element={<Services />} />
               <Route path="online-booking" element={<OnlineBooking />} />
               <Route path="orders" element={<Orders />} />

@@ -14,7 +14,7 @@ import {
   LayoutGrid, Megaphone, Settings, HelpCircle,
   ChevronLeft, ChevronRight, ChevronDown, Lock,
   Send, Bot, Linkedin, Bell,
-  Package, Flame, Clock, Wallet, ClipboardCheck, MessageSquare, Monitor, Target, Columns3, Tag, Video, Trash2, UserPlus
+  Package, Flame, Clock, Wallet, ClipboardCheck, MessageSquare, Monitor, Target, Columns3, Tag, Video, Trash2, UserPlus, Building2, TrendingUp, Banknote
 } from 'lucide-react'
 
 /* ── Color tokens ── */
@@ -165,12 +165,21 @@ function buildSections(navItems, tier, businessType, business) {
       ]},
     ]},
     ] : []),
+    ...(business?.mothership_mode ? [{ label: 'MOTHERSHIP', items: [
+      { id: 'mothership', Icon: Building2, label: 'Mothership', children: [
+        { id: 'ms-dashboard', label: 'Dashboard', path: '/dashboard/mothership', Icon: LayoutDashboard, locked: false },
+        { id: 'ms-team', label: 'Team', path: '/dashboard/operators', Icon: UserPlus, locked: false },
+        { id: 'ms-bookings', label: 'Bookings', path: '/dashboard/mothership/bookings', Icon: Calendar, locked: false },
+        { id: 'ms-payments', label: 'Payments', path: '/dashboard/mothership/payments', Icon: Banknote, locked: false },
+        { id: 'ms-performance', label: 'Performance', path: '/dashboard/mothership/performance', Icon: TrendingUp, locked: false },
+        { id: 'ms-settings', label: 'Settings', path: '/dashboard/mothership/settings', Icon: Settings, locked: false },
+      ]},
+    ]}] : []),
     { label: 'MANAGE', items: [
       { id: 'people', Icon: Users, label: 'People', children: [
         ...(navItems.management || []).filter(i => i.id === 'staff').map(i => ({
           id: i.id, label: i.label, path: i.path, Icon: iconFor(i), locked: locked(i),
         })),
-        ...(business?.mothership_mode ? [{ id: 'operators', label: 'Operators', path: '/dashboard/operators', Icon: UserPlus, locked: false }] : []),
         ...(navItems.business || []).filter(i => ['reviews'].includes(i.id)).map(i => ({
           id: i.id, label: i.label, path: i.path, Icon: iconFor(i), locked: locked(i),
         })),

@@ -134,14 +134,31 @@ async def update_product(
         if f in payload:
             update[f] = payload[f]
 
-    result = await db.shop_products.update_one(
-        {"_id": ObjectId(product_id), "business_id": tenant.business_id},
-        {"$set": update}
-    )
-    if result.matched_count == 0:
+    matched = False
+    # Try ObjectId first
+    try:
+        result = await db.shop_products.update_one(
+            {"_id": ObjectId(product_id), "business_id": tenant.business_id},
+            {"$set": update}
+        )
+        if result.matched_count > 0:
+            matched = True
+    except Exception:
+        pass
+
+    if not matched:
         # Try by product_id string
-        await db.shop_products.update_one(
+        result = await db.shop_products.update_one(
             {"product_id": product_id, "business_id": tenant.business_id},
+            {"$set": update}
+        )
+        if result.matched_count > 0:
+            matched = True
+
+    if not matched:
+        # Try _id as plain string
+        result = await db.shop_products.update_one(
+            {"_id": product_id, "business_id": tenant.business_id},
             {"$set": update}
         )
 
@@ -156,11 +173,35 @@ async def delete_product(
 ):
     """Soft delete a product."""
     db = get_database()
-    await db.shop_products.update_one(
-        {"$or": [{"_id": ObjectId(product_id)}, {"product_id": product_id}],
-         "business_id": tenant.business_id},
-        {"$set": {"deleted": True, "status": "archived", "updated_at": datetime.utcnow()}}
-    )
+    matched = False
+
+    # Try ObjectId
+    try:
+        result = await db.shop_products.update_one(
+            {"_id": ObjectId(product_id), "business_id": tenant.business_id},
+            {"$set": {"deleted": True, "status": "archived", "updated_at": datetime.utcnow()}}
+        )
+        if result.matched_count > 0:
+            matched = True
+    except Exception:
+        pass
+
+    if not matched:
+        # Try product_id string field
+        result = await db.shop_products.update_one(
+            {"product_id": product_id, "business_id": tenant.business_id},
+            {"$set": {"deleted": True, "status": "archived", "updated_at": datetime.utcnow()}}
+        )
+        if result.matched_count > 0:
+            matched = True
+
+    if not matched:
+        # Try _id as plain string
+        await db.shop_products.update_one(
+            {"_id": product_id, "business_id": tenant.business_id},
+            {"$set": {"deleted": True, "status": "archived", "updated_at": datetime.utcnow()}}
+        )
+
     return {"status": "deleted"}
 
 

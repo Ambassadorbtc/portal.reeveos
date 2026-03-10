@@ -39,8 +39,27 @@ const Notifications = () => {
     if (showLoader) setLoading(true)
     try {
       const data = await api.get(`/notifications/business/${bid}?limit=100&hours_back=4320`)
-      setNotifications(data.notifications || [])
-      setUnreadCount(data.unread_count || 0)
+      let notifs = data.notifications || []
+      
+      // If no notifications exist, generate from recent bookings
+      if (notifs.length === 0) {
+        try {
+          const bkData = await api.get(`/bookings/business/${bid}?limit=50&status=all`)
+          const bks = bkData.bookings || []
+          notifs = bks.map(b => ({
+            id: b.id || b._id,
+            category: 'bookings',
+            title: `Booking ${b.status || 'confirmed'}`,
+            message: `${b.customerName || b.customer_name || 'Client'} — ${b.service || b.serviceName || b.service_name || 'Appointment'}`,
+            created_at: b.createdAt || b.created_at || b.date,
+            read: b.status === 'completed' || b.status === 'cancelled',
+            priority: b.status === 'pending' ? 'urgent' : 'normal',
+          }))
+        } catch {}
+      }
+      
+      setNotifications(notifs)
+      setUnreadCount(data.unread_count || notifs.filter(n => !n.read).length)
     } catch (err) {
       console.error('Failed to load notifications:', err)
     }

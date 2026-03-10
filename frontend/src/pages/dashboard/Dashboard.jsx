@@ -294,17 +294,20 @@ const Dashboard = () => {
       trend: summary?.period?.bookingsChange ? `${Math.abs(summary.period.bookingsChange)}%` : null,
       trendUp: (summary?.period?.bookingsChange || 0) >= 0,
       sub: 'vs last week',
+      link: '/dashboard/bookings',
     },
     {
       label: isRestaurant ? 'Upcoming Reservations' : 'Upcoming Appointments', value: upcomingCount,
       icon: <CalendarCheck className="w-5 h-5" />, iconBg: 'text-primary',
       sub: nextBkg ? (isRestaurant ? `Next: ${nextBkg.time || ''} (Party of ${nextBkg.guests || '?'})` : `Next: ${nextBkg.time || ''} — ${nextBkg.customerName || 'Client'}`) : 'No upcoming',
+      link: '/dashboard/calendar',
     },
     {
       label: isRestaurant ? 'Waitlist' : 'Cancellation Waitlist', value: waitlistCount,
       icon: <Clock className="w-5 h-5" />, iconBg: 'text-[#D4A373]',
       sub: waitlistCount > 0 ? (isRestaurant ? `~${waitlistCount * 8} min avg. wait` : `${waitlistCount} clients waiting`) : isRestaurant ? 'No waitlist active' : 'No waitlist active',
       hoverColor: 'group-hover:text-[#D4A373]',
+      link: '/dashboard/bookings',
     },
     {
       label: 'Revenue Today',
@@ -314,6 +317,7 @@ const Dashboard = () => {
       trendUp: (summary?.period?.revenueChange || 0) >= 0,
       sub: apiRevenue > 0 ? 'vs yesterday' : totalCovers > 0 ? (isRestaurant ? 'est. ~£30/cover' : 'est. from bookings') : 'vs yesterday',
       hoverColor: 'group-hover:text-emerald-500',
+      link: '/dashboard/payments',
     },
   ]
 
@@ -391,7 +395,7 @@ const Dashboard = () => {
         {/* Stat Cards */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {statCards.map((c,i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_-5px_rgba(17,17,17,0.1)] transition-all duration-300 group">
+            <div key={i} onClick={() => c.link && navigate(c.link)} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_-5px_rgba(17,17,17,0.1)] transition-all duration-300 group cursor-pointer">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <p className="text-sm font-medium text-gray-500 mb-1">{c.label}</p>

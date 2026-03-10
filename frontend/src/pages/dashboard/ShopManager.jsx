@@ -103,39 +103,49 @@ export default function ShopManager() {
   }
 
   const archiveProduct = async (id) => {
+    const name = deleteConfirm?.name || 'Product'
     setDeleteConfirm(null)
     setDeletingId(id)
-    // Wait for animation to play
     await new Promise(r => setTimeout(r, 500))
     try {
-      await api.put(`/shop/business/${bid}/products/${id}`, { status: 'archived' })
-      setDeleteToast({ name: deleteConfirm?.name || 'Product', action: 'archived' })
+      console.log('Archiving product:', id, 'business:', bid)
+      const res = await api.put(`/shop/business/${bid}/products/${id}`, { status: 'archived' })
+      console.log('Archive response:', res)
+      setDeleteToast({ name, action: 'archived' })
       setTimeout(() => setDeleteToast(null), 4000)
       load()
     } catch (e) {
+      console.error('PUT archive failed:', e)
       try {
-        await api.delete(`/shop/business/${bid}/products/${id}`)
-        setDeleteToast({ name: deleteConfirm?.name || 'Product', action: 'archived' })
+        const res2 = await api.delete(`/shop/business/${bid}/products/${id}`)
+        console.log('DELETE fallback response:', res2)
+        setDeleteToast({ name, action: 'archived' })
         setTimeout(() => setDeleteToast(null), 4000)
         load()
       } catch (e2) {
-        alert('Failed to archive product. Please try again.')
+        console.error('DELETE fallback also failed:', e2)
+        setDeletingId(null)
+        alert('Failed to archive product. Check console for details.')
       }
     }
     setDeletingId(null)
   }
 
   const deleteProduct = async (id) => {
+    const name = deleteConfirm?.name || 'Product'
     setDeleteConfirm(null)
     setDeletingId(id)
     await new Promise(r => setTimeout(r, 500))
     try {
+      console.log('Deleting product:', id, 'business:', bid)
       await api.delete(`/shop/business/${bid}/products/${id}`)
-      setDeleteToast({ name: deleteConfirm?.name || 'Product', action: 'deleted' })
+      setDeleteToast({ name, action: 'deleted' })
       setTimeout(() => setDeleteToast(null), 4000)
       load()
     } catch (e) {
-      alert('Failed to delete product. Please try again.')
+      console.error('Delete failed:', e)
+      setDeletingId(null)
+      alert('Failed to delete product. Check console for details.')
     }
     setDeletingId(null)
   }

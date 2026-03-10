@@ -108,7 +108,10 @@ const Bookings = () => {
     if (!silent) setLoading(true)
     try {
       const params = new URLSearchParams()
-      params.set('page', '1'); params.set('limit', '20'); params.set('status', status)
+      params.set('page', '1'); params.set('limit', '50')
+      // When viewing history or all, fetch 'all' statuses from API
+      // When waitlist tab, still fetch all (client-side filters)
+      params.set('status', 'all')
       if (searchDebounce) params.set('search', searchDebounce)
       const res = await api.get(`/bookings/business/${bid}?${params}`)
       const fetched = res.bookings || []
@@ -234,7 +237,7 @@ const Bookings = () => {
   const doCancel = () => { if (cancelConfirm) updateStatus(cancelConfirm, 'cancelled') }
 
   useEffect(() => { const t = setTimeout(() => setSearchDebounce(search), 300); return () => clearTimeout(t) }, [search])
-  useEffect(() => { if (bid) fetchBookings(false) }, [bid, status, searchDebounce])
+  useEffect(() => { if (bid) fetchBookings(false) }, [bid, activeTab, searchDebounce])
   useEffect(() => { if (bookingId && bid) fetchDetail(bookingId); else if (!bookingId) setDetail(null) }, [bookingId, bid])
 
   // Live polling — silently refresh every 15 seconds
@@ -254,7 +257,22 @@ const Bookings = () => {
   const openDetail = (id) => setSearchParams({ booking: id })
   const closeDetail = () => { setDetail(null); setDetailClient(null); setEditMode(false); setRescheduleMode(false); setSearchParams({}) }
 
-  const displayBookings = bookings
+  const displayBookings = bookings.filter(b => {
+    // Tab filtering
+    if (activeTab === 'waitlist') return b.status === 'waitlist'
+    if (activeTab === 'history') return ['completed', 'cancelled', 'no_show'].includes(b.status)
+    // 'all' tab: show everything except waitlist (waitlist has its own tab)
+    if (activeTab === 'all') return b.status !== 'waitlist'
+    return true
+  }).filter(b => {
+    // Search filtering (client-side on top of API search)
+    if (!search) return true
+    const q = search.toLowerCase()
+    const name = (typeof b.customer === 'object' ? b.customer?.name : b.customerName) || ''
+    const phone = (typeof b.customer === 'object' ? b.customer?.phone : b.customerPhone) || ''
+    const svc = (typeof b.service === 'object' ? b.service?.name : b.service) || ''
+    return name.toLowerCase().includes(q) || phone.includes(q) || svc.toLowerCase().includes(q)
+  })
 
   const STATUS_LABELS = {
     checked_in: isRestaurant ? 'Seated' : 'In Treatment',
@@ -288,7 +306,11 @@ const Bookings = () => {
         </div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-1.5">
-            {['all', 'waitlist', 'history'].map(t => (
+            {['all', 'waitlist', 'history'].map(t => {
+              const count = t === 'all' ? bookings.filter(b => b.status !== 'waitlist').length
+                : t === 'waitlist' ? bookings.filter(b => b.status === 'waitlist').length
+                : bookings.filter(b => ['completed', 'cancelled', 'no_show'].includes(b.status)).length
+              return (
               <button key={t} onClick={() => setActiveTab(t)}
                 className={`px-4 py-1.5 rounded-full font-bold text-xs transition-all ${
                   activeTab === t
@@ -297,8 +319,10 @@ const Bookings = () => {
                 }`}
                 style={{ fontFamily: "'Figtree', sans-serif" }}>
                 {t === 'all' ? 'All Bookings' : t === 'waitlist' ? 'Waitlist' : 'History'}
+                {count > 0 && <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === t ? 'bg-white/20' : 'bg-gray-200 text-gray-500'}`}>{count}</span>}
               </button>
-            ))}
+              )
+            })}
           </div>
           <div className="flex items-center gap-2 self-end sm:self-auto">
             <button onClick={fetchBookings} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-[#111111] hover:bg-[#111111]/5 transition-colors" title="Refresh"><RefreshCw className="w-4 h-4" /></button>

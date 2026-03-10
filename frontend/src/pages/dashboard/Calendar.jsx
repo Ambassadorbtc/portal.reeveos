@@ -624,7 +624,10 @@ const Calendar = () => {
     const hov = hovA === a.id
     const sel = selA === a.id
     const done = a.status === 'completed'
-    const tiny = h <= 32, sm = h <= 52
+    const minCardH = 64
+    const cardH = Math.max(h - 2, minCardH)
+    const isShort = h < minCardH + 2
+    const tiny = cardH <= 38, sm = cardH <= 56
 
     if (isDragging && drag.type === 'move' && drag.ghostStaffId !== a.staffId) return null
 
@@ -643,11 +646,12 @@ const Calendar = () => {
             setSelA(sel ? null : a.id)
           }}
           style={{
-            position: 'absolute', top: top + 1, left: 4, right: 4, height: Math.max(h - 2, 34),
+            position: 'absolute', top: top + 1, left: 4, right: 4, height: cardH,
+            minHeight: minCardH,
             borderRadius: 6, background: done ? `${bg}60` : bg,
             opacity: isDragging ? 0.85 : done ? 0.7 : a.status === 'no_show' ? 0.55 : 1,
             cursor: isDragging ? 'grabbing' : 'grab',
-            overflow: 'hidden', color: '#111',
+            overflow: 'visible', color: '#111',
             transition: isDragging ? 'none' : 'all 0.2s cubic-bezier(0.22,1,0.36,1)',
             transform: isDragging ? 'scale(1.03)' : hov && !sel ? 'scale(1.012) translateY(-1px)' : 'none',
             animation: isNewBooking ? 'calendarPulse 0.6s ease-out' : 'none',
@@ -655,8 +659,8 @@ const Calendar = () => {
               : isDragging ? `0 12px 36px ${bg}40, 0 0 0 2px #fff, 0 0 0 4px ${bg}`
               : sel ? `0 0 0 2.5px #fff, 0 0 0 4.5px ${bg}, 0 8px 24px ${bg}25`
               : hov ? `0 8px 24px ${bg}30` : `0 2px 6px ${bg}12`,
-            zIndex: isDragging ? 40 : sel ? 30 : hov ? 20 : 2,
-            padding: tiny ? '2px 8px' : sm ? '4px 9px' : '7px 11px',
+            zIndex: isDragging ? 40 : sel ? 30 : hov ? 20 : isShort ? 5 : 2,
+            padding: tiny ? '4px 8px' : sm ? '5px 9px' : '7px 11px',
             display: 'flex', flexDirection: 'column',
           }}>
           {!tiny && !isDragging && (

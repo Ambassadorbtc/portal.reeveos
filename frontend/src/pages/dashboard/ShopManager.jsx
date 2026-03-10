@@ -3,7 +3,7 @@
  * Products, Orders, Discounts, Vouchers — all self-service like Shopify admin
  */
 import { useState, useEffect, useCallback } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
 import AppLoader from '../../components/shared/AppLoader'
@@ -66,6 +66,9 @@ export default function ShopManager() {
   const [panel, setPanel] = useState(null) // { type: 'product'|'discount', data: {...} }
   const [error, setError] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null) // { id, name }
+  const [deletingId, setDeletingId] = useState(null)
+  const [deleteToast, setDeleteToast] = useState(null)
+  const navigate = useNavigate()
 
   const load = useCallback(async () => {
     if (!bid) { setLoading(false); return }
@@ -100,32 +103,41 @@ export default function ShopManager() {
   }
 
   const archiveProduct = async (id) => {
+    setDeleteConfirm(null)
+    setDeletingId(id)
+    // Wait for animation to play
+    await new Promise(r => setTimeout(r, 500))
     try {
       await api.put(`/shop/business/${bid}/products/${id}`, { status: 'archived' })
-      setDeleteConfirm(null)
+      setDeleteToast({ name: deleteConfirm?.name || 'Product', action: 'archived' })
+      setTimeout(() => setDeleteToast(null), 4000)
       load()
     } catch (e) {
-      console.error('Archive failed:', e)
-      // Fallback: try delete endpoint which also sets archived
       try {
         await api.delete(`/shop/business/${bid}/products/${id}`)
-        setDeleteConfirm(null)
+        setDeleteToast({ name: deleteConfirm?.name || 'Product', action: 'archived' })
+        setTimeout(() => setDeleteToast(null), 4000)
         load()
       } catch (e2) {
         alert('Failed to archive product. Please try again.')
       }
     }
+    setDeletingId(null)
   }
 
   const deleteProduct = async (id) => {
+    setDeleteConfirm(null)
+    setDeletingId(id)
+    await new Promise(r => setTimeout(r, 500))
     try {
       await api.delete(`/shop/business/${bid}/products/${id}`)
-      setDeleteConfirm(null)
+      setDeleteToast({ name: deleteConfirm?.name || 'Product', action: 'deleted' })
+      setTimeout(() => setDeleteToast(null), 4000)
       load()
     } catch (e) {
-      console.error('Delete failed:', e)
       alert('Failed to delete product. Please try again.')
     }
+    setDeletingId(null)
   }
 
   const updateOrder = async (orderId, status) => {
@@ -185,7 +197,7 @@ export default function ShopManager() {
 
       {/* Content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
-        {tab === 'products' && <ProductsView products={products} search={search} setSearch={setSearch} onEdit={p => setPanel({ type: 'product', data: { ...p, tags: (p.tags || []).join(', ') } })} onDelete={(id, name) => setDeleteConfirm({ id, name })} />}
+        {tab === 'products' && <ProductsView products={products} search={search} setSearch={setSearch} onEdit={p => setPanel({ type: 'product', data: { ...p, tags: (p.tags || []).join(', ') } })} onDelete={(id, name) => setDeleteConfirm({ id, name })} deletingId={deletingId} />}
         {tab === 'orders' && <OrdersView orders={orders} onUpdate={updateOrder} />}
         {tab === 'discounts' && <DiscountsView discounts={discounts} />}
         {tab === 'vouchers' && <VouchersView vouchers={vouchers} />}
@@ -218,6 +230,37 @@ export default function ShopManager() {
           </div>
         </div>
       )}
+
+      {/* Delete/Archive Toast */}
+      {deleteToast && (
+        <div style={{
+          position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+          display: 'flex', alignItems: 'center', gap: 14, padding: '14px 22px',
+          background: '#111', color: '#fff', borderRadius: 14,
+          boxShadow: '0 12px 40px rgba(17,17,17,0.35)', zIndex: 200,
+          animation: 'toastSlideUp 0.3s ease-out', fontSize: 13, fontWeight: 600,
+          fontFamily: "'Figtree', sans-serif",
+        }}>
+          <Trash2 size={16} color="#EF4444" />
+          <span>{deleteToast.name} {deleteToast.action}</span>
+          <button onClick={() => navigate('/dashboard/deleted')} style={{
+            display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px',
+            borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)',
+            background: 'rgba(255,255,255,0.1)', color: '#C9A84C',
+            cursor: 'pointer', fontSize: 12, fontWeight: 700,
+            fontFamily: "'Figtree', sans-serif",
+          }}>
+            <Archive size={12} /> View in Deleted Items
+          </button>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes toastSlideUp {
+          from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+          to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+      `}</style>
     </div>
   )
 }
@@ -225,7 +268,7 @@ export default function ShopManager() {
 // ═══════════════════════════════════════════════════════════════
 // PRODUCTS VIEW
 // ═══════════════════════════════════════════════════════════════
-function ProductsView({ products, search, setSearch, onEdit, onDelete }) {
+function ProductsView({ products, search, setSearch, onEdit, onDelete, deletingId }) {
   const filtered = products.filter(p => !search || p.name?.toLowerCase().includes(search.toLowerCase()) || p.category?.toLowerCase().includes(search.toLowerCase()))
 
   return (
@@ -238,7 +281,16 @@ function ProductsView({ products, search, setSearch, onEdit, onDelete }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
         {filtered.map(p => (
-          <div key={p.id || p._id} style={{ background: '#fff', borderRadius: 12, border: '1px solid #EBEBEB', padding: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div key={p.id || p._id} style={{
+            background: '#fff', borderRadius: 12, border: '1px solid #EBEBEB', padding: 16,
+            display: 'flex', flexDirection: 'column', gap: 6,
+            transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            ...(deletingId === (p.id || p._id) ? {
+              opacity: 0, transform: 'scale(0.8) translateY(-20px)',
+              filter: 'blur(4px)', maxHeight: 0, padding: 0, margin: 0,
+              overflow: 'hidden', border: 'none',
+            } : {}),
+          }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>{p.name}</div>

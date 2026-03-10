@@ -5,8 +5,10 @@ import AppLoader from "../../components/shared/AppLoader"
  */
 
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
+import { Trash2, Archive } from 'lucide-react'
 
 const COLORS = ['#FFD166', '#06D6A0', '#118AB2', '#EF476F', '#073B4C', '#F77F00']
 const DURATIONS = ['15 mins', '30 mins', '45 mins', '1 hour', '1 hr 15 mins', '1 hr 30 mins', '2 hours', '2 hr 30 mins', '3 hours']
@@ -14,6 +16,7 @@ const BUFFER_TIMES = ['None', '5 mins', '10 mins', '15 mins', '30 mins']
 
 const Services = () => {
   const { business, businessType, loading: bizLoading } = useBusiness()
+  const navigate = useNavigate()
   const [services, setServices] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -23,6 +26,8 @@ const Services = () => {
   const [editing, setEditing] = useState({})
   const [saving, setSaving] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [deletingId, setDeletingId] = useState(null)
+  const [deleteToast, setDeleteToast] = useState(null)
 
   const bid = business?.id ?? business?._id
   const isFood = businessType === 'food' || businessType === 'restaurant'
@@ -97,37 +102,47 @@ const Services = () => {
   const handleArchiveService = async () => {
     if (!bid || !deleteConfirm) return
     const sid = deleteConfirm.id || deleteConfirm._id
+    const name = deleteConfirm.name || 'Service'
+    setDeleteConfirm(null)
+    setDeletingId(sid)
+    await new Promise(r => setTimeout(r, 500))
     try {
-      // Try to set inactive via v2
       await api.patch(`/services/business/${bid}/${sid}`, { active: false, status: 'archived' }).catch(() => null)
       setServices(prev => prev.filter(s => (s.id || s._id) !== sid))
       setSelected(null)
-      setDeleteConfirm(null)
+      setDeleteToast({ name, action: 'archived' })
+      setTimeout(() => setDeleteToast(null), 4000)
     } catch (e) {
-      console.error('Archive service failed:', e)
       alert('Failed to archive service.')
     }
+    setDeletingId(null)
   }
 
   const handleDeleteService = async () => {
     if (!bid || !deleteConfirm) return
     const sid = deleteConfirm.id || deleteConfirm._id
+    const name = deleteConfirm.name || 'Service'
+    setDeleteConfirm(null)
+    setDeletingId(sid)
+    await new Promise(r => setTimeout(r, 500))
     try {
       await api.delete(`/services-v2/business/${bid}/${sid}`)
       setServices(prev => prev.filter(s => (s.id || s._id) !== sid))
       setSelected(null)
-      setDeleteConfirm(null)
+      setDeleteToast({ name, action: 'deleted' })
+      setTimeout(() => setDeleteToast(null), 4000)
     } catch {
       try {
         await api.delete(`/services/business/${bid}/${sid}`)
         setServices(prev => prev.filter(s => (s.id || s._id) !== sid))
         setSelected(null)
-        setDeleteConfirm(null)
+        setDeleteToast({ name, action: 'deleted' })
+        setTimeout(() => setDeleteToast(null), 4000)
       } catch (e2) {
-        console.error('Delete service failed:', e2)
         alert('Failed to delete service.')
       }
     }
+    setDeletingId(null)
   }
 
   if (loading) {
@@ -189,6 +204,14 @@ const Services = () => {
                       const isHidden = s.active === false
                       return (
                         <div key={s.id} onClick={() => selectService(s)}
+                          style={{
+                            transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                            ...(deletingId === (s.id || s._id) ? {
+                              opacity: 0, transform: 'scale(0.85) translateX(-30px)',
+                              filter: 'blur(3px)', maxHeight: 0, padding: 0, margin: 0,
+                              overflow: 'hidden',
+                            } : {}),
+                          }}
                           className={`rounded-lg p-3 flex items-center gap-3 cursor-pointer group transition-all relative ${isSel ? 'bg-primary/5 border border-primary shadow-sm' : isHidden ? 'bg-gray-50 border border-border opacity-75 hover:border-primary/50' : 'bg-white border border-border hover:border-primary/50 hover:shadow-md'}`}>
                           <div className="text-gray-300 group-hover:text-primary p-1"><i className="fa-solid fa-grip-vertical" /></div>
                           <div className="w-3 h-10 rounded" style={{ backgroundColor: s.color || COLORS[0] }} />
@@ -367,6 +390,37 @@ const Services = () => {
           </div>
         </div>
       )}
+
+      {/* Delete/Archive Toast */}
+      {deleteToast && (
+        <div style={{
+          position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+          display: 'flex', alignItems: 'center', gap: 14, padding: '14px 22px',
+          background: '#111', color: '#fff', borderRadius: 14,
+          boxShadow: '0 12px 40px rgba(17,17,17,0.35)', zIndex: 200,
+          animation: 'svcToastUp 0.3s ease-out', fontSize: 13, fontWeight: 600,
+          fontFamily: "'Figtree', sans-serif",
+        }}>
+          <Trash2 size={16} color="#EF4444" />
+          <span>{deleteToast.name} {deleteToast.action}</span>
+          <button onClick={() => navigate('/dashboard/deleted')} style={{
+            display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px',
+            borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)',
+            background: 'rgba(255,255,255,0.1)', color: '#C9A84C',
+            cursor: 'pointer', fontSize: 12, fontWeight: 700,
+            fontFamily: "'Figtree', sans-serif",
+          }}>
+            <Archive size={12} /> View in Deleted Items
+          </button>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes svcToastUp {
+          from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+          to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+      `}</style>
     </div>
   )
 }

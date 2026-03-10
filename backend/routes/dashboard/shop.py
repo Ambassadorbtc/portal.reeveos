@@ -46,15 +46,19 @@ async def list_products(
     business_id: str,
     category: Optional[str] = None,
     status: Optional[str] = None,
+    include_deleted: bool = False,
     tenant: TenantContext = Depends(verify_business_access),
 ):
     """List all products for a business."""
     db = get_database()
-    match = {"business_id": tenant.business_id, "deleted": {"$ne": True}}
-    if category:
-        match["category"] = category
+    match = {"business_id": tenant.business_id}
+    if not include_deleted:
+        match["deleted"] = {"$ne": True}
     if status:
         match["status"] = status
+
+    if category:
+        match["category"] = category
 
     products = []
     async for p in db.shop_products.find(match).sort("sort_order", 1):
@@ -129,6 +133,7 @@ async def update_product(
         "track_stock", "low_stock_threshold", "images", "variants",
         "tags", "status", "type", "weight_g", "shipping_required",
         "visible_online", "sort_order", "seo_title", "seo_description",
+        "deleted",
     ]
     for f in allowed_fields:
         if f in payload:

@@ -36,13 +36,13 @@ export default function Deleted() {
     if (!bid) { setLoading(false); return }
     try {
       const [prodRes, bookRes, svcRes] = await Promise.allSettled([
-        api.get(`/shop/business/${bid}/products?include_deleted=true&status=archived`),
+        api.get(`/shop/business/${bid}/products?include_deleted=true`),
         api.get(`/bookings/business/${bid}?status=cancelled&limit=100`),
         api.get(`/services-v2/business/${bid}`),
       ])
       if (prodRes.status === 'fulfilled') {
         const allProds = prodRes.value?.products || prodRes.value || []
-        setProducts(allProds.filter(p => p.status === 'archived' || p.status === 'deleted'))
+        setProducts(allProds.filter(p => p.status === 'archived' || p.status === 'deleted' || p.deleted === true))
       }
       if (bookRes.status === 'fulfilled') {
         setBookings((bookRes.value?.bookings || bookRes.value || []).filter(b => b.status === 'cancelled'))
@@ -54,7 +54,7 @@ export default function Deleted() {
       }
       // Archive = everything combined
       const allArchived = [
-        ...(prodRes.status === 'fulfilled' ? (prodRes.value?.products || prodRes.value || []).filter(p => p.status === 'archived').map(p => ({ ...p, _type: 'product' })) : []),
+        ...(prodRes.status === 'fulfilled' ? (prodRes.value?.products || prodRes.value || []).filter(p => p.status === 'archived' || p.deleted === true).map(p => ({ ...p, _type: 'product' })) : []),
         ...(bookRes.status === 'fulfilled' ? (bookRes.value?.bookings || bookRes.value || []).filter(b => b.status === 'cancelled').map(b => ({ ...b, _type: 'booking' })) : []),
       ]
       setArchived(allArchived)
@@ -67,7 +67,7 @@ export default function Deleted() {
   const restoreProduct = async (id) => {
     setRestoring(id)
     try {
-      await api.put(`/shop/business/${bid}/products/${id}`, { status: 'active' })
+      await api.put(`/shop/business/${bid}/products/${id}`, { status: 'active', deleted: false })
       load()
     } catch (e) { console.error('Restore error:', e) }
     setRestoring(null)

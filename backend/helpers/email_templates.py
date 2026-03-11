@@ -574,7 +574,7 @@ def invoice(d: dict) -> str:
             f"will leave your account ending in <strong>{d.get('card_last4', '****')}</strong> around <strong>{d.get('payment_date', '')}</strong>.",
             "Thanks for paying by card on file."
         )
-        + f'<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:24px 0;">{items_html}{line_item("Net amount", f"£{d.get("""net""", """0""")}", muted=True)}{line_item("VAT at 20%", f"£{d.get("""vat""", """0""")}", muted=True)}{total_row("Total due", f"£{d["""amount"""]}")}</table>'
+        + '<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:24px 0;">' + items_html + line_item("Net amount", "£" + str(d.get("net", "0")), muted=True) + line_item("VAT at 20%", "£" + str(d.get("vat", "0")), muted=True) + total_row("Total due", "£" + str(d.get("amount", "0"))) + '</table>'
         + details_html
         + button("View Full Invoice", d.get("invoice_url", "#"))
         + divider()
@@ -598,7 +598,7 @@ def abandoned_cart(d: dict) -> str:
     return (
         heading("You left something behind")
         + paragraph(f"Hi {d['client_name']}, looks like you didn't finish checking out. Your items are still waiting:")
-        + f'<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:20px 0;">{items_html}{total_row("Your basket", f"£{d["""total"""]}")}</table>'
+        + '<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:20px 0;">' + items_html + total_row("Your basket", "£" + str(d.get("total", "0"))) + '</table>'
         + button("Complete My Order", d.get("cart_url", "#"))
         + paragraph("We've saved your basket for 48 hours. After that, items may go out of stock.", muted=True, small=True)
     )
@@ -681,7 +681,7 @@ def purchase_order(d: dict) -> str:
         heading("Purchase Order")
         + paragraph(d.get("po_number", ""), muted=True, small=True)
         + f'<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:16px 0;padding:16px 0;border-top:1px solid {BORDER};border-bottom:1px solid {BORDER};"><tr><td style="vertical-align:top;font-family:Arial,Helvetica,sans-serif;"><span style="font-size:10px;color:{MUTED};text-transform:uppercase;letter-spacing:1px;">From</span><br/><span style="font-size:13px;font-weight:bold;color:{BLACK};">{d.get("from_name", "")}</span><br/><span style="font-size:12px;color:{MUTED};">{d.get("from_address", "")}</span></td><td style="vertical-align:top;text-align:right;font-family:Arial,Helvetica,sans-serif;"><span style="font-size:10px;color:{MUTED};text-transform:uppercase;letter-spacing:1px;">To</span><br/><span style="font-size:13px;font-weight:bold;color:{BLACK};">{d.get("to_name", "")}</span><br/><span style="font-size:12px;color:{MUTED};">{d.get("to_dept", "")}</span></td></tr></table>'
-        + f'<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:20px 0;">{items_html}{total_row("Order total", f"£{d.get("""order_total""", """0""")}")}</table>'
+        + '<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:20px 0;">' + items_html + total_row("Order total", "£" + str(d.get("order_total", "0"))) + '</table>'
         + paragraph(f"Delivery: {d.get('delivery', 'Standard')}", muted=True, small=True)
         + paragraph(f"Payment: {d.get('payment_terms', 'On account')}", muted=True, small=True)
         + divider()

@@ -1076,3 +1076,511 @@ async def public_submit_consent(slug: str, data: dict = Body(...)):
         "blocks": blocks,
         "treatment": template.get("name", treatment_type),
     }
+
+
+# ═══════════════════════════════════════════════════════════════
+# 4A: FORM VALIDITY PERIOD — per-client status with days remaining
+# ═══════════════════════════════════════════════════════════════
+
+VALIDITY_PERIOD_MAP = {
+    "6_months": 180,
+    "12_months": 365,
+    "never_expires": 36500,  # 100 years ≈ never
+}
+
+
+@router.get("/business/{business_id}/client/{client_id}/form-status")
+async def get_client_form_status(
+    business_id: str,
+    client_id: str,
+    tenant: TenantContext = Depends(verify_business_access),
+):
+    """
+    Check if a specific client has a valid consultation form.
+    Returns detailed status with days remaining, expiry, and renewal flag.
+    """
+    db = get_database()
+    now = datetime.utcnow()
+
+    # Verify client belongs to this business
+    try:
+        client = await db.clients.find_one({"_id": ObjectId(client_id), "businessId": business_id})
+    except Exception:
+        client = None
+    # Also check business_id (snake_case variant from consultation form submission)
+    if not client:
+        try:
+            client = await db.clients.find_one({"_id": ObjectId(client_id), "business_id": business_id})
+        except Exception:
+            pass
+    if not client:
+        raise HTTPException(404, "Client not found")
+
+    client_email = (client.get("email") or "").strip().lower()
+
+    # Find latest consultation submission for this client
+    query = {"business_id": business_id}
+    or_clauses = [{"client_id": client_id}]
+    if client_email:
+        or_clauses.append({"client_email": client_email})
+        # Also search with encrypted email
+        enc = TenantEncryption(business_id)
+        if enc.enabled:
+            or_clauses.append({"client_email": enc.encrypt_deterministic(client_email)})
+    query["$or"] = or_clauses
+
+    latest = await db.consultation_submissions.find_one(
+        query, sort=[("submitted_at", -1)]
+    )
+
+    if not latest:
+        return {
+            "completed": False,
+            "valid": False,
+            "expires_at": None,
+            "days_remaining": 0,
+            "needs_renewal": True,
+            "action": "send_form",
+        }
+
+    expires_at = latest.get("expires_at")
+    submitted_at = latest.get("submitted_at")
+
+    if not expires_at:
+        return {
+            "completed": True,
+            "valid": False,
+            "expires_at": None,
+            "days_remaining": 0,
+            "needs_renewal": True,
+            "action": "resend_form",
+            "submitted_at": submitted_at.isoformat() if submitted_at else None,
+        }
+
+    if isinstance(expires_at, str):
+        try:
+            expires_at = datetime.fromisoformat(expires_at)
+        except (ValueError, TypeError):
+            expires_at = now
+
+    days_remaining = max(0, (expires_at - now).days)
+    is_valid = expires_at > now
+    needs_renewal = days_remaining <= 30
+
+    result = {
+        "completed": True,
+        "valid": is_valid,
+        "expires_at": expires_at.isoformat(),
+        "days_remaining": days_remaining,
+        "needs_renewal": needs_renewal,
+        "submitted_at": submitted_at.isoformat() if submitted_at else None,
+        "status": latest.get("status", "clear"),
+        "submission_id": str(latest["_id"]),
+    }
+
+    if not is_valid:
+        result["action"] = "resend_form"
+    elif needs_renewal:
+        result["action"] = "renewal_recommended"
+
+    return result
+
+
+# ═══════════════════════════════════════════════════════════════
+# 4B: HEALTH CHANGE QUICK PROMPT — fast check-in health screen
+# ═══════════════════════════════════════════════════════════════
+
+HEALTH_CHECK_FIELDS = {
+    "pregnant", "new_medication", "skin_conditions",
+    "allergies", "recent_surgery",
+}
+
+
+@router.post("/business/{business_id}/client/{client_id}/health-check")
+async def health_check_prompt(
+    business_id: str,
+    client_id: str,
+    payload: dict = Body(...),
+    tenant: TenantContext = Depends(verify_business_access),
+):
+    """
+    Quick health check at check-in.
+    If no changes confirmed: extends form validity by 6 months.
+    If any flag: requires therapist review.
+    """
+    db = get_database()
+    enc = TenantEncryption(business_id)
+    now = datetime.utcnow()
+
+    # Verify client
+    try:
+        client = await db.clients.find_one({"_id": ObjectId(client_id), "businessId": business_id})
+    except Exception:
+        client = None
+    if not client:
+        try:
+            client = await db.clients.find_one({"_id": ObjectId(client_id), "business_id": business_id})
+        except Exception:
+            pass
+    if not client:
+        raise HTTPException(404, "Client not found")
+
+    no_changes_confirmed = payload.get("no_changes_confirmed", False)
+
+    # Check which flags are raised
+    raised_flags = []
+    for field in HEALTH_CHECK_FIELDS:
+        if payload.get(field, False):
+            raised_flags.append(field)
+
+    # Build health check record
+    check_record = {
+        "timestamp": now.isoformat(),
+        "recorded_by": tenant.user_email or tenant.user_id,
+        "no_changes_confirmed": no_changes_confirmed,
+        "flags": raised_flags,
+    }
+
+    # Store on client record
+    await db.clients.update_one(
+        {"_id": ObjectId(client_id)},
+        {"$push": {"health_checks": check_record}},
+    )
+
+    if not raised_flags and no_changes_confirmed:
+        # No changes — extend form validity by 6 months
+        client_email = (client.get("email") or "").strip().lower()
+        new_expiry = now + timedelta(days=180)
+
+        # Find and extend latest consultation submission
+        query = {"business_id": business_id}
+        or_clauses = [{"client_id": client_id}]
+        if client_email:
+            or_clauses.append({"client_email": client_email})
+            if enc.enabled:
+                or_clauses.append({"client_email": enc.encrypt_deterministic(client_email)})
+        query["$or"] = or_clauses
+
+        latest = await db.consultation_submissions.find_one(
+            query, sort=[("submitted_at", -1)]
+        )
+
+        extended = False
+        if latest:
+            await db.consultation_submissions.update_one(
+                {"_id": latest["_id"]},
+                {"$set": {"expires_at": new_expiry, "validity_extended_at": now, "validity_extended_by": tenant.user_id}},
+            )
+            # Also update client record
+            await db.clients.update_one(
+                {"_id": ObjectId(client_id)},
+                {"$set": {"consultation_expires": new_expiry}},
+            )
+            extended = True
+
+        # Log medical data access
+        await log_medical_access(
+            event_type="health_check_no_changes",
+            business_id=business_id,
+            accessed_by=tenant.user_id,
+            accessor_role=tenant.role,
+            accessor_email=tenant.user_email,
+            client_email=client_email,
+            details=f"No changes confirmed. Form validity extended to {new_expiry.isoformat()}" if extended else "No changes confirmed, no form to extend",
+        )
+
+        return {
+            "flagged": False,
+            "flags": [],
+            "action": "no_action",
+            "message": "No health changes confirmed",
+            "form_extended": extended,
+            "new_expiry": new_expiry.isoformat() if extended else None,
+        }
+
+    # Flags raised — require therapist review
+    # Log medical data access
+    await log_medical_access(
+        event_type="health_check_flagged",
+        business_id=business_id,
+        accessed_by=tenant.user_id,
+        accessor_role=tenant.role,
+        accessor_email=tenant.user_email,
+        client_email=(client.get("email") or "").strip().lower(),
+        details=f"Health flags raised: {', '.join(raised_flags)}",
+    )
+
+    return {
+        "flagged": True,
+        "flags": raised_flags,
+        "action": "therapist_review_required",
+        "message": f"{len(raised_flags)} health change(s) reported — therapist review required before treatment",
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+# 4C: CONTRAINDICATION RULES — custom per-business overrides
+# ═══════════════════════════════════════════════════════════════
+
+CONDITION_LABELS = {
+    "pregnant": "Pregnant / Breastfeeding",
+    "pacemaker": "Pacemaker / Electronic Implant",
+    "metalImplants": "Metal Implants in Treatment Area",
+    "bloodClotting": "Blood Clotting Disorder",
+    "activeCancer": "Active Cancer / Undergoing Treatment",
+    "keloid": "History of Keloid Scarring",
+    "skinInfection": "Active Skin Infection",
+    "autoimmune": "Autoimmune Disease",
+    "epilepsy": "Epilepsy",
+    "herpes": "Active Herpes / Cold Sore",
+    "roaccutane": "Roaccutane (last 6 months)",
+    "bloodThinners": "Blood Thinning Medication",
+    "retinoids": "Topical Retinoids (last 7 days)",
+    "photosensitising": "Photosensitising Medication",
+    "immunosuppressants": "Immunosuppressant Medication",
+    "sunburn": "Active Sunburn",
+    "sunbed": "Sunbed Use (last 2 weeks)",
+    "fishAllergy": "Fish / Salmon Allergy",
+    "fillersRecent": "Dermal Fillers (last 6 months)",
+    "uncontrolledDiabetes": "Uncontrolled Diabetes",
+}
+
+
+@router.post("/business/{business_id}/contraindication-rules")
+async def set_contraindication_rules(
+    business_id: str,
+    payload: dict = Body(...),
+    tenant: TenantContext = Depends(verify_business_access),
+):
+    """
+    Owner sets custom BLOCK/FLAG/OK per condition per treatment.
+    Overrides the default matrix for this business.
+    """
+    rules = payload.get("rules")
+    if not rules or not isinstance(rules, dict):
+        raise HTTPException(400, "rules is required (dict of condition → {treatment: BLOCK|FLAG|OK})")
+
+    # Validate structure
+    valid_levels = {"BLOCK", "FLAG", "OK"}
+    valid_treatments = set(TREATMENT_LABELS.keys())
+
+    for condition, treatment_rules in rules.items():
+        if not isinstance(treatment_rules, dict):
+            raise HTTPException(400, f"Invalid rule format for '{condition}' — must be {{treatment: level}}")
+        for treatment, level in treatment_rules.items():
+            if treatment not in valid_treatments:
+                raise HTTPException(400, f"Invalid treatment '{treatment}'. Valid: {', '.join(sorted(valid_treatments))}")
+            if level not in valid_levels:
+                raise HTTPException(400, f"Invalid level '{level}' for {condition}/{treatment}. Must be BLOCK, FLAG, or OK")
+
+    db = get_database()
+    now = datetime.utcnow()
+
+    # Store as custom contra_matrix on the consultation template
+    await db.consultation_templates.update_one(
+        {"business_id": business_id},
+        {
+            "$set": {
+                "contra_matrix": rules,
+                "contra_matrix_updated_at": now,
+                "contra_matrix_updated_by": tenant.user_id,
+            },
+            "$setOnInsert": {"created_at": now, "business_id": business_id},
+        },
+        upsert=True,
+    )
+
+    return {
+        "ok": True,
+        "message": f"Custom contraindication rules saved ({len(rules)} conditions)",
+        "conditions_count": len(rules),
+    }
+
+
+@router.get("/business/{business_id}/contraindication-check")
+async def check_contraindications(
+    business_id: str,
+    client_id: str = Query(...),
+    service_id: str = Query(None),
+    service_name: str = Query(None),
+    tenant: TenantContext = Depends(verify_business_access),
+):
+    """
+    Check a client's health data against the business's contraindication rules
+    for a specific service. Returns OK/FLAG/BLOCK with alternatives.
+    """
+    db = get_database()
+    enc = TenantEncryption(business_id)
+
+    # Verify client
+    try:
+        client = await db.clients.find_one({"_id": ObjectId(client_id), "businessId": business_id})
+    except Exception:
+        client = None
+    if not client:
+        try:
+            client = await db.clients.find_one({"_id": ObjectId(client_id), "business_id": business_id})
+        except Exception:
+            pass
+    if not client:
+        raise HTTPException(404, "Client not found")
+
+    client_email = (client.get("email") or "").strip().lower()
+
+    # Get client's latest consultation form data
+    query = {"business_id": business_id}
+    or_clauses = [{"client_id": client_id}]
+    if client_email:
+        or_clauses.append({"client_email": client_email})
+        if enc.enabled:
+            or_clauses.append({"client_email": enc.encrypt_deterministic(client_email)})
+    query["$or"] = or_clauses
+
+    latest = await db.consultation_submissions.find_one(
+        query, sort=[("submitted_at", -1)]
+    )
+
+    if not latest:
+        return {
+            "result": "OK",
+            "message": "No consultation form on file — cannot check contraindications",
+            "flags": [],
+            "blocked_reason": None,
+            "alternative_services": [],
+            "has_form": False,
+        }
+
+    form_data = latest.get("form_data", {})
+
+    # Also factor in recent health checks
+    health_checks = client.get("health_checks", [])
+    latest_check = health_checks[-1] if health_checks else None
+    if latest_check and latest_check.get("flags"):
+        # Map health check flags to form_data keys
+        check_to_form = {
+            "pregnant": "pregnant",
+            "new_medication": None,  # Generic — can't map to specific condition
+            "skin_conditions": "skinInfection",
+            "allergies": None,
+            "recent_surgery": None,
+        }
+        for flag in latest_check["flags"]:
+            mapped = check_to_form.get(flag)
+            if mapped:
+                form_data[mapped] = "yes"
+
+    # Get business's custom matrix or default
+    template = await db.consultation_templates.find_one({"business_id": business_id})
+    matrix = (template or {}).get("contra_matrix", DEFAULT_CONTRA_MATRIX)
+
+    # Determine treatment key from service_id or service_name
+    treatment_key = None
+    svc_text = ""
+
+    if service_id:
+        # Look up service in business menu
+        try:
+            biz = await db.businesses.find_one({"_id": ObjectId(business_id)})
+        except Exception:
+            biz = await db.businesses.find_one({"_id": business_id})
+        if biz:
+            for item in biz.get("menu", []):
+                if item.get("id") == service_id or str(item.get("_id", "")) == service_id:
+                    svc_text = (item.get("name", "") + " " + (item.get("category") or "")).lower()
+                    break
+                for sub in item.get("services", []):
+                    if sub.get("id") == service_id or str(sub.get("_id", "")) == service_id:
+                        svc_text = (sub.get("name", "") + " " + (sub.get("category") or "")).lower()
+                        break
+                if svc_text:
+                    break
+        # Also check services collection
+        if not svc_text:
+            svc_doc = await db.services.find_one({"_id": ObjectId(service_id) if ObjectId.is_valid(service_id) else service_id, "business_id": business_id})
+            if svc_doc:
+                svc_text = (svc_doc.get("name", "") + " " + (svc_doc.get("category") or "")).lower()
+
+    if service_name:
+        svc_text = service_name.lower()
+
+    # Map service text to treatment key
+    if svc_text:
+        if "microneedling" in svc_text and "rf" not in svc_text:
+            treatment_key = "microneedling"
+        elif "rf" in svc_text or "radio frequency" in svc_text or "radiofrequency" in svc_text:
+            treatment_key = "rf"
+        elif "peel" in svc_text or "chemical" in svc_text or "biorep" in svc_text:
+            treatment_key = "peel"
+        elif "polynuc" in svc_text:
+            treatment_key = "polynucleotides"
+        elif "lymph" in svc_text or "lift" in svc_text:
+            treatment_key = "lymphatic"
+        elif "derma" in svc_text:
+            treatment_key = "dermaplaning"
+        elif "laser" in svc_text:
+            treatment_key = "laser"
+
+    # Run contraindication check
+    all_alerts = run_contraindication_check(form_data, matrix)
+
+    if treatment_key:
+        # Filter to only this treatment
+        blocks = [a for a in all_alerts["blocks"] if a["treatment"] == treatment_key]
+        flags = [a for a in all_alerts["flags"] if a["treatment"] == treatment_key]
+    else:
+        # No specific treatment matched — return all
+        blocks = all_alerts["blocks"]
+        flags = all_alerts["flags"]
+
+    # Determine result
+    if blocks:
+        blocked_conditions = [CONDITION_LABELS.get(b["condition"], b["condition"]) for b in blocks]
+        blocked_reason = f"Contraindicated due to: {', '.join(blocked_conditions)}"
+
+        # Find alternative services that are NOT blocked
+        all_treatments = set(TREATMENT_LABELS.keys())
+        blocked_treatments = set()
+        for b in all_alerts["blocks"]:
+            blocked_treatments.add(b["treatment"])
+        safe_treatments = all_treatments - blocked_treatments
+        alternatives = [{"key": t, "name": TREATMENT_LABELS.get(t, t)} for t in sorted(safe_treatments)]
+
+        result = {
+            "result": "BLOCK",
+            "message": blocked_reason,
+            "flags": [{"condition": b["condition"], "condition_label": CONDITION_LABELS.get(b["condition"], b["condition"]), "treatment": b["treatment"]} for b in blocks],
+            "blocked_reason": blocked_reason,
+            "alternative_services": alternatives,
+            "has_form": True,
+        }
+    elif flags:
+        result = {
+            "result": "FLAG",
+            "message": "Requires practitioner review before proceeding",
+            "flags": [{"condition": f["condition"], "condition_label": CONDITION_LABELS.get(f["condition"], f["condition"]), "treatment": f["treatment"]} for f in flags],
+            "blocked_reason": None,
+            "alternative_services": [],
+            "has_form": True,
+        }
+    else:
+        result = {
+            "result": "OK",
+            "message": "No contraindications found",
+            "flags": [],
+            "blocked_reason": None,
+            "alternative_services": [],
+            "has_form": True,
+        }
+
+    # Log medical data access
+    await log_medical_access(
+        event_type="contraindication_check",
+        business_id=business_id,
+        accessed_by=tenant.user_id,
+        accessor_role=tenant.role,
+        accessor_email=tenant.user_email,
+        client_email=client_email,
+        details=f"Check for service={service_name or service_id or 'all'} result={result['result']}",
+    )
+
+    return result

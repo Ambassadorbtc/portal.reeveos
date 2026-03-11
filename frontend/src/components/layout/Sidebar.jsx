@@ -14,7 +14,8 @@ import {
   LayoutGrid, Megaphone, Settings, HelpCircle,
   ChevronLeft, ChevronRight, ChevronDown, Lock,
   Send, Bot, Linkedin, Bell,
-  Package, Flame, Clock, Wallet, ClipboardCheck, MessageSquare, Monitor, Target, Columns3, Tag, Video, Trash2, UserPlus, Building2, TrendingUp, Banknote
+  Package, Flame, Clock, Wallet, ClipboardCheck, MessageSquare, Monitor, Target, Columns3, Tag, Video, Trash2, UserPlus, Building2, TrendingUp, Banknote,
+  Box, FlaskConical, CalendarCheck, FileText
 } from 'lucide-react'
 
 /* ── Color tokens ── */
@@ -57,6 +58,9 @@ const ICON_MAP = {
   'fa-cash-register': Wallet,
   'fa-file-medical': ClipboardCheck,
   'fa-comments': MessageSquare,
+  'fa-box': Box,
+  'fa-flask': FlaskConical,
+  'fa-calendar-check': CalendarCheck,
 }
 
 /* ── Build grouped sections from nav config ── */
@@ -158,6 +162,7 @@ function buildSections(navItems, tier, businessType, business) {
     { label: 'CLIENT PORTAL', items: [
       { id: 'client-portal-mgmt', Icon: Monitor, label: 'Client Portal', children: [
         { id: 'consultation-forms', label: 'Consultation Forms', path: '/dashboard/consultation-forms', Icon: ClipboardCheck, locked: false },
+        { id: 'packages', label: 'Packages', path: '/dashboard/packages', Icon: Box, locked: false },
         { id: 'video-meetings', label: 'Video Meetings', path: '/dashboard/video-meetings', Icon: Video, locked: false },
         { id: 'client-messages', label: 'Messages', path: '/dashboard/client-messages', Icon: MessageSquare, locked: false },
         { id: 'client-emails', label: 'Email Management', path: '/dashboard/client-emails', Icon: Send, locked: false },
@@ -165,6 +170,13 @@ function buildSections(navItems, tier, businessType, business) {
       ]},
     ]},
     ] : []),
+    { label: 'WEBSITE', items: [
+      { id: 'website-section', Icon: Globe, label: 'Website', children: [
+        { id: 'website-pages', label: 'Pages', path: '/dashboard/website', Icon: LayoutGrid, locked: false },
+        { id: 'website-blog', label: 'Blog', path: '/dashboard/blog', Icon: FileText, locked: false },
+        { id: 'website-analytics', label: 'Analytics', path: '/dashboard/website/analytics', Icon: BarChart3, locked: false },
+      ]},
+    ]},
     ...(business?.mothership_mode ? [{ label: 'MOTHERSHIP', items: [
       { id: 'mothership', Icon: Building2, label: 'Mothership', children: [
         { id: 'ms-dashboard', label: 'Dashboard', path: '/dashboard/mothership', Icon: LayoutDashboard, locked: false },
@@ -191,6 +203,10 @@ function buildSections(navItems, tier, businessType, business) {
         ...(navItems.business || []).filter(i => ['analytics', 'payments'].includes(i.id)).map(i => ({
           id: i.id, label: i.label, path: i.path, Icon: iconFor(i), locked: locked(i),
         })),
+        ...(!isRestaurant ? [
+          { id: 'consumables', label: 'Consumables', path: '/dashboard/consumables', Icon: FlaskConical, locked: false },
+          { id: 'rota', label: 'Staff Rota', path: '/dashboard/rota', Icon: CalendarCheck, locked: false },
+        ] : []),
         ...(navItems.advanced || []).map(i => ({
           id: i.id, label: i.label, path: i.path, Icon: iconFor(i), locked: locked(i),
         })),

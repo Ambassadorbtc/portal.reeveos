@@ -48,6 +48,17 @@ import MothershipBookings from './pages/dashboard/MothershipBookings'
 import MothershipPerformance from './pages/dashboard/MothershipPerformance'
 import MothershipSettings from './pages/dashboard/MothershipSettings'
 
+/* Sprint 6-8 pages */
+import Packages from './pages/dashboard/Packages'
+import RotaBuilder from './pages/dashboard/RotaBuilder'
+import Consumables from './pages/dashboard/Consumables'
+
+/* Website Builder */
+import WebsitePages from './pages/dashboard/WebsitePages'
+import WebsiteBuilder from './pages/dashboard/WebsiteBuilder'
+import WebsiteAnalytics from './pages/dashboard/WebsiteAnalytics'
+import BlogManager from './pages/dashboard/BlogManager'
+
 /* EPOS pages — restaurant only */
 import EposInventory from './pages/dashboard/EposInventory'
 import EposKDS from './pages/dashboard/EposKDS'
@@ -223,6 +234,15 @@ const App = () => {
               <Route path="settings" element={<Settings />} />
               <Route path="help" element={<Help />} />
               <Route path="deleted" element={<Deleted />} />
+              {/* Sprint 6-8 pages */}
+              <Route path="packages" element={<Packages />} />
+              <Route path="rota" element={<RotaBuilder />} />
+              <Route path="consumables" element={<Consumables />} />
+              {/* Website Builder */}
+              <Route path="website" element={<WebsitePages />} />
+              <Route path="website/edit/:slug" element={<WebsiteBuilder />} />
+              <Route path="website/analytics" element={<WebsiteAnalytics />} />
+              <Route path="blog" element={<BlogManager />} />
               {/* EPOS pages */}
               <Route path="inventory" element={<EposInventory />} />
               <Route path="kds" element={<EposKDS />} />

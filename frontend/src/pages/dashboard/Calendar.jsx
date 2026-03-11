@@ -68,6 +68,8 @@ const PhoneIcon = () => <svg width={12} height={12} viewBox="0 0 24 24" fill="no
 const MailIcon = () => <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
 const GripIcon = () => <svg width={10} height={10} viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><circle cx="8" cy="4" r="2"/><circle cx="16" cy="4" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="8" cy="20" r="2"/><circle cx="16" cy="20" r="2"/></svg>
 const UndoIcon = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+const RotateCcwIcon = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+const CalendarPlusIcon = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
 
 /* Mini sparkline */
 const Spark = ({ data, color }) => {
@@ -155,6 +157,9 @@ const Calendar = () => {
   const [bookError, setBookError] = useState('')
   const [selPackages, setSelPackages] = useState([])
   const [selClient, setSelClient] = useState(null)
+  const [selAlerts, setSelAlerts] = useState([])
+  const [showBlockTime, setShowBlockTime] = useState(false)
+  const [blockForm, setBlockForm] = useState({ staff_id: '', start_time: '', end_time: '', preset: 'custom', reason: '' })
   const openBookModal = () => {
     setEditingId(null)
     setBookForm(f => ({ ...f, date: selectedDate, time: '', serviceId: '', staffId: '', customerName: '', customerPhone: '', customerEmail: '', notes: '' }))
@@ -290,9 +295,9 @@ const Calendar = () => {
 
   /* ── Fetch packages + CRM client when booking selected ── */
   useEffect(() => {
-    if (!selA || !bid) { setSelPackages([]); setSelClient(null); return }
+    if (!selA || !bid) { setSelPackages([]); setSelClient(null); setSelAlerts([]); return }
     const booking = (data?.bookings || []).find(b => b.id === selA)
-    if (!booking?.customerId) { setSelPackages([]); setSelClient(null); return }
+    if (!booking?.customerId) { setSelPackages([]); setSelClient(null); setSelAlerts([]); return }
     // Packages
     api.get(`/packages/business/${bid}/client/${booking.customerId}`).then(r => {
       setSelPackages(r.packages || [])
@@ -301,6 +306,10 @@ const Calendar = () => {
     api.get(`/crm/business/${bid}/client/${booking.customerId}`).then(r => {
       setSelClient(r)
     }).catch(() => setSelClient(null))
+    // Staff alerts
+    api.get(`/notes/business/${bid}/client/${booking.customerId}/alerts`).then(r => {
+      setSelAlerts((r.alerts || []).filter(a => a.active !== false))
+    }).catch(() => setSelAlerts([]))
   }, [selA, bid, data])
 
   /* ── Time updater ── */
@@ -535,6 +544,65 @@ const Calendar = () => {
     const staff = staffColumns.find(s => s.id === a.staffId)
     const st = STATUS_MAP[a.status] || STATUS_MAP.confirmed
     const bg = gc(a)
+    const [showResched, setShowResched] = useState(false)
+    const [reschedSlots, setReschedSlots] = useState([])
+    const [reschedLoading, setReschedLoading] = useState(false)
+    const [reschedDate, setReschedDate] = useState(() => (a.date || selectedDate))
+    const [reschedSaving, setReschedSaving] = useState(null)
+
+    const fetchAvailability = (dateStr) => {
+      if (!bid) return
+      setReschedLoading(true)
+      setReschedSlots([])
+      const timeStr = fmt(a.start)
+      api.get(`/rota/business/${bid}/available-staff?date=${dateStr}&time=${timeStr}`)
+        .then(r => {
+          const slots = r.slots || r.available || r.data || []
+          setReschedSlots(Array.isArray(slots) ? slots : [])
+        })
+        .catch(() => setReschedSlots([]))
+        .finally(() => setReschedLoading(false))
+    }
+
+    const handleReschedSelect = (slot) => {
+      if (!bid || reschedSaving) return
+      setReschedSaving(slot.time || slot.start_time)
+      api.patch(`/bookings/business/${bid}/detail/${a.id}/edit`, {
+        date: reschedDate,
+        time: slot.time || slot.start_time,
+        staffId: slot.staffId || slot.staff_id || a.staffId,
+      }).then(() => {
+        fetchCalendarData(false)
+        setSelA(null)
+      }).catch(err => console.error('Reschedule failed:', err))
+        .finally(() => setReschedSaving(null))
+    }
+
+    const handleRebook = (weeks) => {
+      const rebookDate = new Date()
+      rebookDate.setDate(rebookDate.getDate() + weeks * 7)
+      const dateStr = rebookDate.toISOString().slice(0, 10)
+      const svcName = typeof a.service === 'object' ? a.service?.name : a.service
+      const matchedSvc = bookServices.find(s => s.name === svcName)
+      setEditingId(null)
+      setBookForm({
+        customerName: a.customerName || '',
+        customerPhone: a.customerPhone || '',
+        customerEmail: a.customerEmail || '',
+        serviceId: matchedSvc ? (matchedSvc.id || matchedSvc._id) : '',
+        staffId: a.staffId || '',
+        date: dateStr,
+        time: '',
+        notes: '',
+      })
+      setBookError('')
+      setShowBook(true)
+      setSelA(null)
+      if (bid && bookServices.length === 0) {
+        api.get(`/services-v2/business/${bid}`).then(r => setBookServices((r.categories || []).flatMap(c => c.services || []))).catch(() => {})
+      }
+    }
+
     return (
       <div data-po="1" onClick={e => e.stopPropagation()} style={{
         position: 'absolute', top: (a.start - SH) * HH + a.dur * HH + 6, left: 4, right: 4,
@@ -624,6 +692,16 @@ const Calendar = () => {
               )}
             </div>
           )}
+          {selAlerts.length > 0 && (
+            <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {selAlerts.map((al, idx) => (
+                <div key={al.id || idx} style={{ padding: '7px 10px', background: '#FEF9E7', borderRadius: 8, border: '1px solid #F9E79F', fontSize: 11, color: '#7D6608', lineHeight: '16px', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                  <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  <div><strong style={{ fontWeight: 700 }}>Staff Alert{al.category ? ` (${al.category})` : ''}:</strong> {al.text}</div>
+                </div>
+              ))}
+            </div>
+          )}
           {selPackages.length > 0 && (
             <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
               {selPackages.map(p => (
@@ -662,19 +740,101 @@ const Calendar = () => {
               if (bid && bookServices.length === 0) {
                 api.get(`/services-v2/business/${bid}`).then(r => setBookServices((r.categories || []).flatMap(c => c.services || []))).catch(() => {})
               }
-            }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '10px 0', borderRadius: 10, border: '1px solid #EBEBEB', background: '#fff', fontSize: 12, fontWeight: 600, color: '#111111', cursor: 'pointer' }}><EditIcon /> Edit</button>
+            }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '10px 0', borderRadius: 10, border: '1px solid #EBEBEB', background: '#fff', fontSize: 12, fontWeight: 600, color: '#111111', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}><EditIcon /> Edit</button>
+            <button onClick={() => {
+              setShowResched(prev => {
+                if (!prev) fetchAvailability(reschedDate)
+                return !prev
+              })
+            }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '10px 0', borderRadius: 10, border: '1px solid #EBEBEB', background: '#fff', fontSize: 12, fontWeight: 600, color: '#111111', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}><RotateCcwIcon /> Reschedule</button>
             <button onClick={() => {
               const newStatus = a.status === 'checked_in' ? 'completed' : 'checked_in'
               api.patch(`/bookings/business/${bid}/detail/${a.id}/status`, { status: newStatus }).then(() => {
                 fetchCalendarData(false); setSelA(null)
               }).catch(err => console.error('Status update failed:', err))
-            }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '10px 0', borderRadius: 10, border: 'none', background: '#111111', fontSize: 12, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(17,17,17,0.2)' }}>
+            }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '10px 0', borderRadius: 10, border: 'none', background: '#111111', fontSize: 12, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(17,17,17,0.2)', fontFamily: "'Figtree', sans-serif" }}>
               <CheckIcon /> {a.status === 'checked_in' ? 'Complete' : 'Check In'}
             </button>
             <button onClick={() => {
               setCancelConfirm(a.id)
             }} style={{ width: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, border: '1px solid #EF444420', background: '#FEF2F2', color: '#EF4444', cursor: 'pointer' }}><TrashIcon /></button>
           </div>
+          {/* ── Reschedule availability panel ── */}
+          {showResched && (
+            <div style={{ marginTop: 10, padding: '10px 12px', background: '#F9FAFB', borderRadius: 10, border: '1px solid #F0F0F0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <RotateCcwIcon />
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#111111', fontFamily: "'Figtree', sans-serif" }}>Available slots</span>
+                <input
+                  type="date"
+                  value={reschedDate}
+                  onChange={e => { setReschedDate(e.target.value); fetchAvailability(e.target.value) }}
+                  style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: '#111111', border: '1px solid #E5E7EB', borderRadius: 6, padding: '3px 6px', fontFamily: "'Figtree', sans-serif", outline: 'none' }}
+                />
+              </div>
+              {reschedLoading && (
+                <div style={{ fontSize: 11, color: '#999', padding: '8px 0', textAlign: 'center', fontFamily: "'Figtree', sans-serif" }}>Loading availability...</div>
+              )}
+              {!reschedLoading && reschedSlots.length === 0 && (
+                <div style={{ fontSize: 11, color: '#999', padding: '8px 0', textAlign: 'center', fontFamily: "'Figtree', sans-serif" }}>No available slots found</div>
+              )}
+              {!reschedLoading && reschedSlots.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {reschedSlots.map((slot, idx) => {
+                    const slotTime = slot.time || slot.start_time || ''
+                    const slotStaff = slot.staff_name || slot.staffName || ''
+                    const isSaving = reschedSaving === slotTime
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleReschedSelect(slot)}
+                        disabled={!!reschedSaving}
+                        style={{
+                          padding: '5px 10px', borderRadius: 20, border: '1px solid #E5E7EB',
+                          background: isSaving ? '#111111' : '#fff', color: isSaving ? '#fff' : '#111111',
+                          fontSize: 11, fontWeight: 700, cursor: reschedSaving ? 'wait' : 'pointer',
+                          fontFamily: "'Figtree', sans-serif", display: 'flex', flexDirection: 'column',
+                          alignItems: 'center', gap: 1, transition: 'all 0.15s ease',
+                        }}
+                        onMouseEnter={e => { if (!reschedSaving) { e.currentTarget.style.background = '#111111'; e.currentTarget.style.color = '#fff' } }}
+                        onMouseLeave={e => { if (!isSaving) { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#111111' } }}
+                      >
+                        <span>{slotTime}</span>
+                        {slotStaff && <span style={{ fontSize: 9, fontWeight: 600, opacity: 0.7 }}>{slotStaff}</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+          {/* ── Quick Rebook chips (shown when completed) ── */}
+          {a.status === 'completed' && (
+            <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #F0F0F0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                <CalendarPlusIcon />
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#111111', fontFamily: "'Figtree', sans-serif" }}>Quick rebook</span>
+              </div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {[2, 4, 6, 8].map(w => (
+                  <button
+                    key={w}
+                    onClick={() => handleRebook(w)}
+                    style={{
+                      padding: '5px 12px', borderRadius: 20, border: 'none',
+                      background: '#F3F4F6', color: '#111111',
+                      fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                      fontFamily: "'Figtree', sans-serif", transition: 'all 0.15s ease',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#111111'; e.currentTarget.style.color = '#fff' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = '#F3F4F6'; e.currentTarget.style.color = '#111111' }}
+                  >
+                    {w} weeks
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {a.medicalAlert && (
             <div style={{ marginTop: 8, padding: '8px 10px', background: '#FEF2F2', borderRadius: 8, border: '1px solid #FECACA', fontSize: 11, color: '#DC2626', lineHeight: '16px', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
               <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -875,6 +1035,9 @@ const Calendar = () => {
           <SearchIcon />
           <input value={calSearch} onChange={e => setCalSearch(e.target.value)} placeholder="Search clients, services..." style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 12, color: '#111111', width: '100%', fontWeight: 500, fontFamily: "'Figtree', system-ui, sans-serif" }} />
         </div>
+        <button onClick={() => setShowBlockTime(true)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 20, border: 'none', background: '#F5F5F5', fontSize: 12, fontWeight: 500, color: '#777', cursor: 'pointer' }}>
+          <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg> Block Time
+        </button>
         <button onClick={() => setShowKPI(!showKPI)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 20, border: 'none', background: showKPI ? '#11111112' : '#F5F5F5', fontSize: 12, fontWeight: 600, color: showKPI ? '#111111' : '#999', cursor: 'pointer' }}>
           <BarChartIcon /> Insights {showKPI ? <ChevU /> : <ChevD />}
         </button>
@@ -1180,6 +1343,59 @@ const Calendar = () => {
                   fetchCalendarData(false); setSelA(null); setCancelConfirm(null)
                 }).catch(err => { console.error('Cancel failed:', err); setCancelConfirm(null) })
               }} style={{ flex: 1, padding: '12px 0', borderRadius: 12, border: 'none', background: '#EF4444', fontSize: 14, fontWeight: 600, color: '#fff', cursor: 'pointer', fontFamily: "'Figtree', sans-serif", boxShadow: '0 2px 8px rgba(239,68,68,0.3)' }}>Cancel appointment</button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Block Time Modal ── */}
+      {showBlockTime && (
+        <>
+          <div onClick={() => setShowBlockTime(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 9998 }} />
+          <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 9999, background: '#fff', borderRadius: 20, padding: '28px', width: 420, maxWidth: '92vw', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', fontFamily: "'Figtree', sans-serif" }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: '#111', marginBottom: 20 }}>Block Time</div>
+            {/* Presets */}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
+              {[{ id: 'lunch', label: 'Lunch', start: '12:00', end: '13:00' }, { id: 'staff_meeting', label: 'Staff Meeting', start: '09:00', end: '10:00' }, { id: 'training', label: 'Training', start: '14:00', end: '16:00' }, { id: 'personal', label: 'Personal', start: '10:00', end: '11:00' }, { id: 'custom', label: 'Custom', start: '', end: '' }].map(p => (
+                <button key={p.id} onClick={() => setBlockForm(f => ({ ...f, preset: p.id, start_time: p.start, end_time: p.end, reason: p.id === 'custom' ? f.reason : p.label }))} style={{ padding: '6px 14px', borderRadius: 20, border: '1px solid', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: blockForm.preset === p.id ? '#111' : '#fff', color: blockForm.preset === p.id ? '#fff' : '#666', borderColor: blockForm.preset === p.id ? '#111' : '#E5E7EB' }}>{p.label}</button>
+              ))}
+            </div>
+            {/* Staff */}
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#333', marginBottom: 6 }}>Staff member</label>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {staffColumns.map(s => (
+                  <button key={s.id} onClick={() => setBlockForm(f => ({ ...f, staff_id: s.id }))} style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid', fontSize: 11, fontWeight: 600, cursor: 'pointer', background: blockForm.staff_id === s.id ? '#111' : '#fff', color: blockForm.staff_id === s.id ? '#fff' : '#666', borderColor: blockForm.staff_id === s.id ? '#111' : '#E5E7EB' }}>{s.name}</button>
+                ))}
+              </div>
+            </div>
+            {/* Times */}
+            <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#333', marginBottom: 6 }}>Start</label>
+                <input type="text" placeholder="09:00" value={blockForm.start_time} onChange={e => setBlockForm(f => ({ ...f, start_time: e.target.value }))} style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #E5E7EB', fontSize: 14, fontFamily: "'Figtree', sans-serif" }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#333', marginBottom: 6 }}>End</label>
+                <input type="text" placeholder="17:00" value={blockForm.end_time} onChange={e => setBlockForm(f => ({ ...f, end_time: e.target.value }))} style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #E5E7EB', fontSize: 14, fontFamily: "'Figtree', sans-serif" }} />
+              </div>
+            </div>
+            {blockForm.preset === 'custom' && (
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#333', marginBottom: 6 }}>Reason</label>
+                <input type="text" placeholder="e.g. Dentist appointment" value={blockForm.reason} onChange={e => setBlockForm(f => ({ ...f, reason: e.target.value }))} style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #E5E7EB', fontSize: 14, fontFamily: "'Figtree', sans-serif" }} />
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+              <button onClick={() => setShowBlockTime(false)} style={{ flex: 1, padding: '12px 0', borderRadius: 12, border: '1px solid #EBEBEB', background: '#fff', fontSize: 14, fontWeight: 600, color: '#111', cursor: 'pointer', fontFamily: "'Figtree', sans-serif" }}>Cancel</button>
+              <button onClick={async () => {
+                if (!blockForm.staff_id || !blockForm.start_time || !blockForm.end_time) return
+                try {
+                  await api.post(`/blocked-times/business/${bid}`, { staff_id: blockForm.staff_id, date: selectedDate, start_time: blockForm.start_time, end_time: blockForm.end_time, preset: blockForm.preset, reason: blockForm.reason || blockForm.preset })
+                  setShowBlockTime(false)
+                  fetchCalendarData(false)
+                } catch (err) { console.error('Block time failed:', err) }
+              }} style={{ flex: 1, padding: '12px 0', borderRadius: 12, border: 'none', background: '#111', fontSize: 14, fontWeight: 600, color: '#fff', cursor: 'pointer', fontFamily: "'Figtree', sans-serif", boxShadow: '0 2px 8px rgba(17,17,17,0.2)' }}>Block Time</button>
             </div>
           </div>
         </>

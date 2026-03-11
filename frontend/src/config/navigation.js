@@ -30,8 +30,11 @@ export const getNavItems = (businessType) => {
       ...(isRestaurant ? [{ id: 'orders', label: 'Orders', icon: 'fa-bag-shopping', path: '/dashboard/orders', minTier: 'growth' }] : []),
       ...(!isRestaurant ? [{ id: 'consultation-forms', label: 'Consultation Forms', icon: 'fa-file-medical', path: '/dashboard/consultation-forms', minTier: 'free' }, { id: 'client-messages', label: 'Client Messages', icon: 'fa-comments', path: '/dashboard/client-messages', minTier: 'free' }] : []),
       { id: 'clients', label: isRestaurant ? 'Guest CRM' : 'Clients', icon: 'fa-address-book', path: '/dashboard/clients', minTier: 'growth' },
+      ...(!isRestaurant ? [{ id: 'packages', label: 'Packages', icon: 'fa-box', path: '/dashboard/packages', minTier: 'free' }] : []),
       { id: 'reviews', label: 'Reviews', icon: 'fa-star', path: '/dashboard/reviews', minTier: 'growth' },
       { id: 'analytics', label: 'Analytics', icon: 'fa-chart-line', path: '/dashboard/analytics', minTier: 'growth' },
+      ...(!isRestaurant ? [{ id: 'consumables', label: 'Consumables', icon: 'fa-flask', path: '/dashboard/consumables', minTier: 'free' }] : []),
+      ...(!isRestaurant ? [{ id: 'rota', label: 'Staff Rota', icon: 'fa-calendar-check', path: '/dashboard/rota', minTier: 'free' }] : []),
       { id: 'payments', label: 'Payments', icon: 'fa-credit-card', path: '/dashboard/payments', minTier: 'growth' },
     ],
     advanced: [

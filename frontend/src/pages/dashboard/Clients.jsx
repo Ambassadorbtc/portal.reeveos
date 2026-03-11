@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Search, Plus, X, Phone, Mail, MapPin, Calendar, Clock, Star,
   ChevronRight, Edit3, Send, Check, AlertTriangle,
-  Utensils, ArrowLeft, Users, UserPlus
+  Utensils, ArrowLeft, Users, UserPlus, Heart, Package, History, Trash2
 } from 'lucide-react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
@@ -56,6 +56,20 @@ const Clients = () => {
   const [newTag, setNewTag] = useState('')
   const [editMode, setEditMode] = useState(false)
   const [addGuestModal, setAddGuestModal] = useState(false)
+  const [profileTab, setProfileTab] = useState('overview')
+  const [alerts, setAlerts] = useState([])
+  const [alertsLoading, setAlertsLoading] = useState(false)
+  const [alertForm, setAlertForm] = useState({ category: '', text: '' })
+  const [showAlertForm, setShowAlertForm] = useState(false)
+  const [alertCategoryOpen, setAlertCategoryOpen] = useState(false)
+  const [packages, setPackages] = useState([])
+  const [packagesLoading, setPackagesLoading] = useState(false)
+  const [treatmentHistory, setTreatmentHistory] = useState([])
+  const [treatmentLoading, setTreatmentLoading] = useState(false)
+  const [therapistPref, setTherapistPref] = useState(null)
+  const [showTherapistDropdown, setShowTherapistDropdown] = useState(false)
+  const [staffList, setStaffList] = useState([])
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     if (!bid) { setLoading(false); return }
@@ -79,6 +93,124 @@ const Clients = () => {
     }
     load()
   }, [bid])
+
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 4000)
+  }
+
+  // Fetch alerts when Alerts tab is selected
+  useEffect(() => {
+    if (!bid || !selectedGuest || profileTab !== 'alerts') return
+    const fetchAlerts = async () => {
+      setAlertsLoading(true)
+      try {
+        const res = await api.get(`/notes/business/${bid}/client/${selectedGuest.id}/alerts`)
+        setAlerts(res.alerts || [])
+      } catch { setAlerts([]) }
+      setAlertsLoading(false)
+    }
+    fetchAlerts()
+  }, [bid, selectedGuest?.id, profileTab])
+
+  // Fetch packages when Packages tab is selected
+  useEffect(() => {
+    if (!bid || !selectedGuest || profileTab !== 'packages') return
+    const fetchPackages = async () => {
+      setPackagesLoading(true)
+      try {
+        const res = await api.get(`/packages/business/${bid}/active?client_id=${selectedGuest.id}`)
+        setPackages(res.packages || [])
+      } catch { setPackages([]) }
+      setPackagesLoading(false)
+    }
+    fetchPackages()
+  }, [bid, selectedGuest?.id, profileTab])
+
+  // Fetch treatment history when Treatment History tab is selected
+  useEffect(() => {
+    if (!bid || !selectedGuest || profileTab !== 'treatment-history') return
+    const fetchHistory = async () => {
+      setTreatmentLoading(true)
+      try {
+        const res = await api.get(`/clinical/business/${bid}/client/${selectedGuest.id}/treatment-history`)
+        setTreatmentHistory(res.treatments || [])
+      } catch { setTreatmentHistory([]) }
+      setTreatmentLoading(false)
+    }
+    fetchHistory()
+  }, [bid, selectedGuest?.id, profileTab])
+
+  // Fetch therapist preference + staff list on profile load
+  useEffect(() => {
+    if (!bid || !selectedGuest) { setTherapistPref(null); return }
+    const fetchPref = async () => {
+      try {
+        const res = await api.get(`/clinical/business/${bid}/client/${selectedGuest.id}/therapist-preference`)
+        setTherapistPref(res.preferred_staff_id || null)
+      } catch { setTherapistPref(null) }
+    }
+    const fetchStaff = async () => {
+      try {
+        const res = await api.get(`/staff/business/${bid}`)
+        setStaffList(res.staff || [])
+      } catch { setStaffList([]) }
+    }
+    fetchPref()
+    fetchStaff()
+  }, [bid, selectedGuest?.id])
+
+  const handleAddAlert = async () => {
+    if (!alertForm.category || !alertForm.text.trim()) return
+    try {
+      const res = await api.post(`/notes/business/${bid}/client/${selectedGuest.id}/alert`, { category: alertForm.category, text: alertForm.text })
+      setAlerts(prev => [...prev, res.alert || { id: `temp-${Date.now()}`, category: alertForm.category, text: alertForm.text, created_at: new Date().toISOString() }])
+      setAlertForm({ category: '', text: '' })
+      setShowAlertForm(false)
+      showToast('Alert added')
+    } catch { showToast('Failed to add alert', 'error') }
+  }
+
+  const handleDismissAlert = async (alertId) => {
+    try {
+      await api.delete(`/notes/business/${bid}/client/${selectedGuest.id}/alert/${alertId}`)
+      setAlerts(prev => prev.filter(a => (a.id || a._id) !== alertId))
+      showToast('Alert dismissed')
+    } catch { showToast('Failed to dismiss alert', 'error') }
+  }
+
+  const handleSetTherapistPref = async (staffId) => {
+    try {
+      await api.patch(`/clinical/business/${bid}/client/${selectedGuest.id}/therapist-preference`, { preferred_staff_id: staffId, mode: 'preferred' })
+      setTherapistPref(staffId)
+      setShowTherapistDropdown(false)
+      showToast('Therapist preference saved')
+    } catch { showToast('Failed to save preference', 'error') }
+  }
+
+  const handleClearTherapistPref = async () => {
+    try {
+      await api.patch(`/clinical/business/${bid}/client/${selectedGuest.id}/therapist-preference`, { preferred_staff_id: null, mode: 'none' })
+      setTherapistPref(null)
+      setShowTherapistDropdown(false)
+      showToast('Therapist preference cleared')
+    } catch { showToast('Failed to clear preference', 'error') }
+  }
+
+  const ALERT_CATEGORY_STYLES = {
+    preference: 'bg-blue-100 text-blue-700 border-blue-200',
+    medical: 'bg-red-100 text-red-700 border-red-200',
+    operational: 'bg-[#C9A84C]/20 text-[#8B7333] border-[#C9A84C]/40',
+  }
+
+  const SERVICE_BORDER_COLORS = {
+    facial: 'border-l-pink-400',
+    massage: 'border-l-emerald-400',
+    laser: 'border-l-purple-400',
+    body: 'border-l-blue-400',
+    nails: 'border-l-rose-400',
+    hair: 'border-l-amber-400',
+  }
 
   const filteredGuests = guests.filter(g => {
     if (search && !g.name.toLowerCase().includes(search.toLowerCase()) && !(g.email||'').toLowerCase().includes(search.toLowerCase())) return false
@@ -122,11 +254,11 @@ const Clients = () => {
 
           {/* Back */}
           <div className="flex items-center gap-3">
-            <button onClick={() => { setSelectedGuest(null); setEditMode(false) }} className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-primary hover:border-primary transition-all shadow-sm">
+            <button onClick={() => { setSelectedGuest(null); setEditMode(false); setProfileTab('overview') }} className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-primary hover:border-primary transition-all shadow-sm">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div className="flex items-center gap-2 text-sm text-gray-400">
-              <span className="hover:text-primary cursor-pointer" onClick={() => setSelectedGuest(null)}>Clients</span>
+              <span className="hover:text-primary cursor-pointer" onClick={() => { setSelectedGuest(null); setProfileTab('overview') }}>Clients</span>
               <ChevronRight className="w-3 h-3" />
               <span className="text-primary font-semibold">{g.name}</span>
             </div>
@@ -178,6 +310,41 @@ const Clients = () => {
                 <button className="px-5 py-2.5 bg-[#D4A373] text-white rounded-full font-semibold text-sm hover:bg-[#C4935F] transition-colors whitespace-nowrap flex items-center gap-2">
                   <Send className="w-3.5 h-3.5" /> Send Message
                 </button>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowTherapistDropdown(!showTherapistDropdown)}
+                    className="px-5 py-2.5 border-2 border-gray-200 rounded-full font-semibold text-sm hover:border-red-300 transition-colors whitespace-nowrap flex items-center gap-2"
+                    title={therapistPref ? 'Preferred therapist set' : 'Set preferred therapist'}
+                  >
+                    <Heart className={`w-3.5 h-3.5 ${therapistPref ? 'text-red-500 fill-red-500' : 'text-gray-400'}`} />
+                    <span className={therapistPref ? 'text-red-600' : 'text-gray-500'}>
+                      {therapistPref ? (staffList.find(s => (s.id || s._id) === therapistPref)?.name || 'Preferred') : 'Set Therapist'}
+                    </span>
+                  </button>
+                  {showTherapistDropdown && (
+                    <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-30">
+                      {therapistPref && (
+                        <button
+                          onClick={handleClearTherapistPref}
+                          className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"
+                        >
+                          <X className="w-3.5 h-3.5" /> Clear preference
+                        </button>
+                      )}
+                      {staffList.map(s => (
+                        <button
+                          key={s.id || s._id}
+                          onClick={() => handleSetTherapistPref(s.id || s._id)}
+                          className={`w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-2 font-medium ${(s.id || s._id) === therapistPref ? 'text-red-600 bg-red-50/50' : 'text-[#111111]'}`}
+                        >
+                          <Heart className={`w-3.5 h-3.5 ${(s.id || s._id) === therapistPref ? 'fill-red-500 text-red-500' : 'text-gray-300'}`} />
+                          {s.name}
+                        </button>
+                      ))}
+                      {staffList.length === 0 && <p className="px-4 py-2 text-sm text-gray-400">No staff found</p>}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -206,7 +373,31 @@ const Clients = () => {
             )}
           </div>
 
-          {/* Main Grid */}
+          {/* Profile Tab Navigation */}
+          <div className="flex items-center gap-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-1.5">
+            {[
+              { id: 'overview', label: 'Overview', icon: null },
+              { id: 'alerts', label: 'Alerts', icon: AlertTriangle },
+              { id: 'packages', label: 'Packages', icon: Package },
+              { id: 'treatment-history', label: 'Treatment History', icon: History },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setProfileTab(tab.id)}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                  profileTab === tab.id
+                    ? 'bg-[#111111] text-white shadow-lg shadow-[#111111]/20'
+                    : 'text-gray-400 hover:text-[#111111] hover:bg-gray-50'
+                }`}
+              >
+                {tab.icon && <tab.icon className="w-4 h-4" />}
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab Content: Overview */}
+          {profileTab === 'overview' && (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Activity Timeline — 3 cols */}
             <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -316,6 +507,216 @@ const Clients = () => {
               )}
             </div>
           </div>
+          )}
+
+          {/* Tab Content: Alerts */}
+          {profileTab === 'alerts' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-[#111111]">Staff Alerts</h2>
+              <button
+                onClick={() => setShowAlertForm(!showAlertForm)}
+                className="px-4 py-2 bg-[#111111] text-white rounded-full text-xs font-bold flex items-center gap-2 hover:bg-[#1a1a1a] transition-colors shadow-lg shadow-[#111111]/20"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Alert
+              </button>
+            </div>
+
+            {showAlertForm && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h3 className="text-sm font-bold text-[#111111] mb-4">New Alert</h3>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative">
+                    <button
+                      onClick={() => setAlertCategoryOpen(!alertCategoryOpen)}
+                      className="w-full sm:w-48 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-[#111111]/15"
+                    >
+                      <span className={alertForm.category ? 'text-[#111111]' : 'text-gray-400'}>
+                        {alertForm.category ? alertForm.category.charAt(0).toUpperCase() + alertForm.category.slice(1) : 'Select category'}
+                      </span>
+                      <ChevronRight className={`w-4 h-4 text-gray-400 transition-transform ${alertCategoryOpen ? 'rotate-90' : ''}`} />
+                    </button>
+                    {alertCategoryOpen && (
+                      <div className="absolute left-0 top-full mt-1 w-full bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-30">
+                        {['preference', 'medical', 'operational'].map(cat => (
+                          <button
+                            key={cat}
+                            onClick={() => { setAlertForm(prev => ({ ...prev, category: cat })); setAlertCategoryOpen(false) }}
+                            className="w-full px-4 py-2.5 text-left text-sm font-medium hover:bg-gray-50 flex items-center gap-2 text-[#111111]"
+                          >
+                            <span className={`w-2.5 h-2.5 rounded-full ${cat === 'preference' ? 'bg-blue-500' : cat === 'medical' ? 'bg-red-500' : 'bg-[#C9A84C]'}`} />
+                            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={alertForm.text}
+                    onChange={e => setAlertForm(prev => ({ ...prev, text: e.target.value }))}
+                    onKeyDown={e => e.key === 'Enter' && handleAddAlert()}
+                    placeholder="Alert text..."
+                    className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]/15 focus:border-[#111111]/30"
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={handleAddAlert} className="px-5 py-2.5 bg-[#111111] text-white rounded-xl text-sm font-bold hover:bg-[#1a1a1a] transition-colors">Save</button>
+                    <button onClick={() => { setShowAlertForm(false); setAlertForm({ category: '', text: '' }) }} className="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-200 transition-colors">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {alertsLoading ? (
+              <div className="py-12 text-center text-sm text-gray-400">Loading alerts...</div>
+            ) : alerts.length > 0 ? (
+              <div className="space-y-3">
+                {alerts.map(alert => (
+                  <div key={alert.id || alert._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-start gap-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold border whitespace-nowrap ${ALERT_CATEGORY_STYLES[alert.category] || 'bg-gray-100 text-gray-600 border-gray-200'}`}>
+                      {alert.category ? alert.category.charAt(0).toUpperCase() + alert.category.slice(1) : 'General'}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-[#111111] font-medium">{alert.text}</p>
+                      {alert.created_at && (
+                        <p className="text-xs text-gray-400 mt-1">{new Date(alert.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleDismissAlert(alert.id || alert._id)}
+                      className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors shrink-0"
+                      title="Dismiss alert"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+                <AlertTriangle className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                <p className="text-sm text-gray-400 font-medium">No alerts for this client</p>
+              </div>
+            )}
+          </div>
+          )}
+
+          {/* Tab Content: Packages */}
+          {profileTab === 'packages' && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-[#111111]">Active Packages</h2>
+            {packagesLoading ? (
+              <div className="py-12 text-center text-sm text-gray-400">Loading packages...</div>
+            ) : packages.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {packages.map(pkg => {
+                  const pctUsed = pkg.total_sessions > 0 ? (pkg.sessions_used / pkg.total_sessions) * 100 : 0
+                  const statusStyle = pkg.status === 'active' ? 'bg-green-50 text-green-700 border-green-200' : pkg.status === 'expired' ? 'bg-red-50 text-red-700 border-red-200' : pkg.status === 'completed' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-gray-100 text-gray-600 border-gray-200'
+                  return (
+                    <div key={pkg.id || pkg._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-base font-bold text-[#111111]">{pkg.template_name || pkg.name || 'Package'}</h3>
+                          {pkg.expiry_date && (
+                            <p className="text-xs text-gray-400 mt-1">Expires {new Date(pkg.expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                          )}
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${statusStyle}`}>
+                          {pkg.status ? pkg.status.charAt(0).toUpperCase() + pkg.status.slice(1) : 'Unknown'}
+                        </span>
+                      </div>
+                      <div className="mb-2">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs font-semibold text-gray-500">Sessions</span>
+                          <span className="text-xs font-bold text-[#111111]">{pkg.sessions_used || 0} / {pkg.total_sessions || 0}</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                          <div
+                            className={`h-2.5 rounded-full transition-all ${pctUsed > 80 ? 'bg-[#C9A84C]' : 'bg-[#111111]'}`}
+                            style={{ width: `${Math.min(100, pctUsed)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+                <Package className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                <p className="text-sm text-gray-400 font-medium">No active packages</p>
+              </div>
+            )}
+          </div>
+          )}
+
+          {/* Tab Content: Treatment History */}
+          {profileTab === 'treatment-history' && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-[#111111]">Treatment History</h2>
+            {treatmentLoading ? (
+              <div className="py-12 text-center text-sm text-gray-400">Loading treatment history...</div>
+            ) : treatmentHistory.length > 0 ? (
+              <div className="space-y-3">
+                {treatmentHistory.map((t, idx) => {
+                  const serviceKey = (t.service_type || '').toLowerCase()
+                  const borderColor = SERVICE_BORDER_COLORS[serviceKey] || 'border-l-gray-300'
+                  return (
+                    <div key={t.id || t._id || idx} className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-5 border-l-4 ${borderColor}`}>
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-xs font-bold text-gray-400">
+                              {t.date ? new Date(t.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No date'}
+                            </span>
+                            <span className="px-2.5 py-0.5 bg-gray-100 text-[#111111] rounded-full text-xs font-bold">
+                              {t.service_type || 'General'}
+                            </span>
+                          </div>
+                          {t.areas_treated && (
+                            <p className="text-sm text-[#111111] font-medium mb-1">
+                              {Array.isArray(t.areas_treated) ? t.areas_treated.join(', ') : t.areas_treated}
+                            </p>
+                          )}
+                          {t.comfort_level != null && (
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className="text-xs text-gray-500 mr-1">Comfort</span>
+                              {[1, 2, 3, 4, 5].map(d => (
+                                <span
+                                  key={d}
+                                  className={`w-2 h-2 rounded-full ${d <= t.comfort_level ? 'bg-[#111111]' : 'bg-gray-200'}`}
+                                />
+                              ))}
+                            </div>
+                          )}
+                          {t.notes && (
+                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">{t.notes}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+                <History className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                <p className="text-sm text-gray-400 font-medium">No treatment history</p>
+              </div>
+            )}
+          </div>
+          )}
+
+          {/* Toast notification */}
+          {toast && (
+            <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl shadow-xl text-sm font-bold flex items-center gap-2 transition-all ${
+              toast.type === 'error' ? 'bg-red-600 text-white' : 'bg-[#111111] text-white'
+            }`}>
+              {toast.type === 'error' ? <AlertTriangle className="w-4 h-4" /> : <Check className="w-4 h-4" />}
+              {toast.msg}
+            </div>
+          )}
+
         </div>
       </div>
     )

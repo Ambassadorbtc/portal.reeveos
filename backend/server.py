@@ -99,6 +99,13 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         import logging
         logging.getLogger("library").error(f"Library index init error: {e}")
+    # Create website builder indexes (TTL for analytics, etc.)
+    try:
+        from routes.dashboard.website_builder import ensure_website_indexes
+        await ensure_website_indexes()
+    except Exception as e:
+        import logging
+        logging.getLogger("website_builder").error(f"Website builder index init error: {e}")
     yield
     stop_scheduler()
     await database.close_mongo_connection()
@@ -315,6 +322,50 @@ app.include_router(operators_router)
 from routes.dashboard.mothership import router as mothership_router
 app.include_router(mothership_router)
 
+# Client Notes (Staff Alerts, Appointment Notes, Client Booking Notes)
+from routes.dashboard.client_notes import router as client_notes_router
+app.include_router(client_notes_router)
+
+# Blocked Times (Calendar block slots)
+from routes.dashboard.blocked_times import router as blocked_times_router
+app.include_router(blocked_times_router)
+
+# Clinical Workflow (Check-in, Completion, Therapist Preference)
+from routes.dashboard.clinical_workflow import router as clinical_workflow_router
+app.include_router(clinical_workflow_router)
+
+# Treatment Add-ons & Product Upsells
+from routes.dashboard.addons import router as addons_router
+app.include_router(addons_router)
+
+# Abandoned Cart Tracking
+from routes.dashboard.abandoned_cart import router as abandoned_cart_router
+app.include_router(abandoned_cart_router)
+
+# Staff Rota (4-week rotating schedule, overrides, availability)
+from routes.dashboard.rota import router as rota_router
+app.include_router(rota_router)
+
+# Treatment Consumable Tracking
+from routes.dashboard.consumables import router as consumables_router
+app.include_router(consumables_router)
+
+# Website Builder (Pages, Settings, Images, Templates, AI, Domains, Analytics)
+from routes.dashboard.website_builder import router as website_builder_router
+app.include_router(website_builder_router)
+
+# Public Website Renderer (SSR pages at /site/{subdomain}/{slug})
+from routes.public.website_renderer import router as website_renderer_router
+app.include_router(website_renderer_router)
+
+# Blog Engine (CRUD, publish, schedule)
+from routes.dashboard.blog import router as blog_router
+app.include_router(blog_router)
+
+# Public Contact Form Submissions
+from routes.public.forms import router as forms_router
+app.include_router(forms_router)
+
 # Static uploads for booking page logo/cover
 static_dir = Path("/opt/rezvo-app/uploads")
 try:
@@ -322,6 +373,11 @@ try:
 except OSError:
     pass
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
+# Site assets (tracker.js for public website analytics)
+site_assets_dir = Path("/opt/rezvo-app/backend/static")
+if site_assets_dir.exists():
+    app.mount("/site-assets", StaticFiles(directory=str(site_assets_dir)), name="site-assets")
 
 
 @app.get("/")

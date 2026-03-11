@@ -851,3 +851,438 @@ async def get_booking_audit(
         })
 
     return {"audit": entries, "total": len(entries)}
+
+
+# ═══════════════════════════════════════════════════════════════
+# 2B: RESCHEDULE WITH AVAILABILITY — available slots for next 14 days
+# ═══════════════════════════════════════════════════════════════
+
+@router.get("/business/{business_id}/detail/{booking_id}/reschedule-options")
+async def get_reschedule_options(
+    business_id: str,
+    booking_id: str,
+    staff_mode: str = Query("same", regex="^(same|any)$"),
+    days_ahead: int = Query(14, ge=1, le=30),
+    tenant: TenantContext = Depends(verify_business_access),
+):
+    """
+    Returns available reschedule slots for the next N days.
+    Each slot scored: green (free), amber (tight), grey (blocked).
+    """
+    from bson import ObjectId as OID
+    db = get_database()
+    sdb = get_scoped_db(tenant.business_id)
+
+    try:
+        business = await db.businesses.find_one({"_id": OID(business_id)})
+    except Exception:
+        business = await db.businesses.find_one({"_id": business_id})
+    if not business:
+        raise HTTPException(404, "Business not found")
+
+    # Find the booking
+    booking = await sdb.bookings.find_one({"_id": booking_id})
+    if not booking:
+        try:
+            booking = await sdb.bookings.find_one({"_id": OID(booking_id)})
+        except Exception:
+            pass
+    if not booking:
+        raise HTTPException(404, "Booking not found")
+
+    nb = normalize_booking(booking)
+    svc = nb["service"]
+    duration = svc.get("duration") or nb["duration"] or 60
+    staff_id = nb["staffId"] if staff_mode == "same" else None
+
+    booking_settings = business.get("booking_settings", {})
+    slot_duration = booking_settings.get("slot_duration_minutes", 15)
+    gap_tolerance = booking_settings.get("gap_tolerance_minutes", 30)
+
+    # Get business hours (default 9-21)
+    open_hour = booking_settings.get("open_hour", 9)
+    close_hour = booking_settings.get("close_hour", 21)
+
+    today = date.today()
+    results = []
+
+    for day_offset in range(1, days_ahead + 1):
+        check_date = today + timedelta(days=day_offset)
+        date_str = check_date.isoformat()
+
+        # Get existing bookings for this date
+        bid_str = str(business["_id"])
+        existing = []
+        async for b in db.bookings.find({
+            "businessId": {"$in": [business_id, bid_str]},
+            "date": date_str,
+            "status": {"$nin": ["cancelled", "no_show"]},
+        }):
+            btime = b.get("time", "09:00")
+            bdur = b.get("duration", 60)
+            if isinstance(b.get("service"), dict):
+                bdur = b["service"].get("duration", bdur)
+            bstaff = b.get("staffId", "")
+            existing.append({"time": btime, "duration": bdur, "staffId": bstaff})
+
+        # Get blocked times for this date
+        blocked = []
+        async for bt in db.blocked_times.find({"business_id": business_id, "date": date_str}):
+            blocked.append({"start": bt.get("start_time", ""), "end": bt.get("end_time", ""), "staff_id": bt.get("staff_id", "")})
+        # Also check repeating blocks
+        async for bt in db.blocked_times.find({"business_id": business_id, "repeat_rule": {"$ne": "none"}}):
+            if _block_applies_on_date(bt, check_date):
+                blocked.append({"start": bt.get("start_time", ""), "end": bt.get("end_time", ""), "staff_id": bt.get("staff_id", "")})
+
+        # Generate slots
+        current_min = open_hour * 60
+        end_min = close_hour * 60
+
+        while current_min + duration <= end_min:
+            t = f"{current_min // 60:02d}:{current_min % 60:02d}"
+
+            if _is_slot_free(current_min, duration, existing, staff_id) and not _is_blocked(current_min, duration, blocked, staff_id):
+                score = _gap_score(current_min, duration, existing, staff_id, gap_tolerance)
+                if score >= 70:
+                    color = "green"
+                elif score >= 40:
+                    color = "amber"
+                else:
+                    color = "grey"
+
+                results.append({
+                    "date": date_str,
+                    "time": t,
+                    "score": score,
+                    "color": color,
+                })
+
+            current_min += slot_duration
+
+    # Sort by score descending, take top 20
+    results.sort(key=lambda x: -x["score"])
+    top_slots = results[:20]
+
+    return {
+        "booking_id": str(booking.get("_id", "")),
+        "service": svc.get("name", ""),
+        "duration": duration,
+        "staff_id": staff_id or "any",
+        "slots": top_slots,
+        "total_available": len(results),
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+# 2C: QUICK REBOOK — suggest slots X weeks ahead from original date
+# ═══════════════════════════════════════════════════════════════
+
+@router.post("/business/{business_id}/detail/{booking_id}/quick-rebook")
+async def quick_rebook(
+    business_id: str,
+    booking_id: str,
+    payload: dict = Body(...),
+    tenant: TenantContext = Depends(verify_business_access),
+):
+    """
+    Find available slots X weeks from the original booking date.
+    Returns top 5 suggestions sorted by fit score.
+    """
+    from bson import ObjectId as OID
+    db = get_database()
+    sdb = get_scoped_db(tenant.business_id)
+
+    weeks_ahead = payload.get("weeks_ahead", 4)
+    if weeks_ahead not in (4, 6, 8):
+        raise HTTPException(400, "weeks_ahead must be 4, 6, or 8")
+    preferred_time = payload.get("preferred_time", "same")
+
+    try:
+        business = await db.businesses.find_one({"_id": OID(business_id)})
+    except Exception:
+        business = await db.businesses.find_one({"_id": business_id})
+    if not business:
+        raise HTTPException(404, "Business not found")
+
+    booking = await sdb.bookings.find_one({"_id": booking_id})
+    if not booking:
+        try:
+            booking = await sdb.bookings.find_one({"_id": OID(booking_id)})
+        except Exception:
+            pass
+    if not booking:
+        raise HTTPException(404, "Booking not found")
+
+    nb = normalize_booking(booking)
+    svc = nb["service"]
+    duration = svc.get("duration") or nb["duration"] or 60
+    staff_id = nb["staffId"]
+    original_time = nb["time"] or "10:00"
+
+    booking_settings = business.get("booking_settings", {})
+    slot_duration = booking_settings.get("slot_duration_minutes", 15)
+    gap_tolerance = booking_settings.get("gap_tolerance_minutes", 30)
+    open_hour = booking_settings.get("open_hour", 9)
+    close_hour = booking_settings.get("close_hour", 21)
+
+    # Calculate target date
+    try:
+        orig_date = date.fromisoformat(nb["date"])
+    except (ValueError, TypeError):
+        orig_date = date.today()
+    target_date = orig_date + timedelta(weeks=weeks_ahead)
+
+    # Search a 5-day window around the target date
+    bid_str = str(business["_id"])
+    candidates = []
+
+    for day_offset in range(-2, 3):
+        check_date = target_date + timedelta(days=day_offset)
+        if check_date <= date.today():
+            continue
+        date_str = check_date.isoformat()
+
+        existing = []
+        async for b in db.bookings.find({
+            "businessId": {"$in": [business_id, bid_str]},
+            "date": date_str,
+            "status": {"$nin": ["cancelled", "no_show"]},
+        }):
+            btime = b.get("time", "09:00")
+            bdur = b.get("duration", 60)
+            if isinstance(b.get("service"), dict):
+                bdur = b["service"].get("duration", bdur)
+            bstaff = b.get("staffId", "")
+            existing.append({"time": btime, "duration": bdur, "staffId": bstaff})
+
+        blocked = []
+        async for bt in db.blocked_times.find({"business_id": business_id, "date": date_str}):
+            blocked.append({"start": bt.get("start_time", ""), "end": bt.get("end_time", ""), "staff_id": bt.get("staff_id", "")})
+        async for bt in db.blocked_times.find({"business_id": business_id, "repeat_rule": {"$ne": "none"}}):
+            if _block_applies_on_date(bt, check_date):
+                blocked.append({"start": bt.get("start_time", ""), "end": bt.get("end_time", ""), "staff_id": bt.get("staff_id", "")})
+
+        current_min = open_hour * 60
+        end_min = close_hour * 60
+
+        while current_min + duration <= end_min:
+            t = f"{current_min // 60:02d}:{current_min % 60:02d}"
+
+            if _is_slot_free(current_min, duration, existing, staff_id) and not _is_blocked(current_min, duration, blocked, staff_id):
+                score = _gap_score(current_min, duration, existing, staff_id, gap_tolerance)
+
+                # Bonus for matching preferred time
+                if preferred_time == "same":
+                    try:
+                        orig_parts = original_time.split(":")
+                        orig_min = int(orig_parts[0]) * 60 + int(orig_parts[1])
+                        time_diff = abs(current_min - orig_min)
+                        if time_diff == 0:
+                            score += 30
+                        elif time_diff <= 30:
+                            score += 20
+                        elif time_diff <= 60:
+                            score += 10
+                    except (ValueError, IndexError):
+                        pass
+
+                # Bonus for matching target date exactly
+                if day_offset == 0:
+                    score += 15
+
+                candidates.append({
+                    "date": date_str,
+                    "time": t,
+                    "score": min(score, 100),
+                    "day_offset": day_offset,
+                })
+
+            current_min += slot_duration
+
+    # Sort by score, return top 5
+    candidates.sort(key=lambda x: -x["score"])
+    suggestions = candidates[:5]
+
+    return {
+        "booking_id": str(booking.get("_id", "")),
+        "original_date": nb["date"],
+        "original_time": original_time,
+        "target_date": target_date.isoformat(),
+        "weeks_ahead": weeks_ahead,
+        "suggestions": suggestions,
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+# 2D: CALENDAR BOOKING ENHANCEMENT — notes metadata on list endpoint
+# ═══════════════════════════════════════════════════════════════
+
+@router.get("/business/{business_id}/calendar-enhanced")
+async def list_bookings_enhanced(
+    business_id: str,
+    from_date: str = Query(..., alias="from"),
+    to_date: str = Query(..., alias="to"),
+    tenant: TenantContext = Depends(verify_business_access),
+):
+    """
+    Enhanced calendar endpoint: bookings + staff_alerts count + appointment_note + client_note.
+    Powers the frontend calendar to show warning icons and note indicators.
+    """
+    from bson import ObjectId as OID
+    db = get_database()
+    sdb = get_scoped_db(tenant.business_id)
+
+    try:
+        business = await db.businesses.find_one({"_id": OID(business_id)})
+    except Exception:
+        business = await db.businesses.find_one({"_id": business_id})
+    if not business:
+        raise HTTPException(404, "Business not found")
+
+    match = {}
+    if from_date:
+        match.setdefault("date", {})["$gte"] = from_date
+    if to_date:
+        match.setdefault("date", {})["$lte"] = to_date
+
+    cursor = sdb.bookings.find(match).sort("date", 1).sort("time", 1)
+    docs = await cursor.to_list(length=1000)
+
+    staff_map = {st.get("id"): st for st in business.get("staff", [])}
+
+    # Collect all unique customer IDs to batch-fetch staff alerts
+    customer_ids = set()
+    for d in docs:
+        cid = d.get("customerId") or d.get("user_id") or ""
+        if cid:
+            customer_ids.add(cid)
+        # Also match by email from customer object
+        cust = d.get("customer", {})
+        if isinstance(cust, dict) and cust.get("email"):
+            customer_ids.add(cust["email"])
+
+    # Batch fetch clients with staff_alerts for this business
+    alert_counts = {}
+    if customer_ids:
+        # Try matching by customerId stored on clients collection
+        client_cursor = db.clients.find(
+            {"businessId": business_id, "staff_alerts": {"$exists": True, "$ne": []}},
+            {"_id": 1, "staff_alerts": 1, "email": 1},
+        )
+        async for client in client_cursor:
+            cid = str(client["_id"])
+            count = len([a for a in (client.get("staff_alerts") or []) if a.get("active", True)])
+            if count > 0:
+                alert_counts[cid] = count
+                # Also index by email for matching
+                cemail = (client.get("email") or "").strip().lower()
+                if cemail:
+                    alert_counts[cemail] = count
+
+    # Build enhanced booking list
+    bookings = []
+    for d in docs:
+        item = booking_to_list_item(d, staff_map)
+
+        # Staff alert count for this booking's client
+        cid = d.get("customerId") or d.get("user_id") or ""
+        cemail = ""
+        cust = d.get("customer", {})
+        if isinstance(cust, dict):
+            cemail = (cust.get("email") or "").strip().lower()
+        alerts = alert_counts.get(cid, 0) or alert_counts.get(cemail, 0)
+        item["staffAlertCount"] = alerts
+
+        # Appointment note (staff-facing, per-session)
+        appt_note = d.get("appointment_note")
+        if appt_note and isinstance(appt_note, dict) and appt_note.get("text"):
+            item["appointmentNote"] = appt_note["text"]
+        else:
+            item["appointmentNote"] = None
+
+        # Client note (client-facing, submitted during booking)
+        client_note = d.get("client_note")
+        if client_note and isinstance(client_note, dict) and client_note.get("text"):
+            item["clientNote"] = client_note["text"]
+        else:
+            item["clientNote"] = None
+
+        bookings.append(item)
+
+    return {"bookings": bookings, "total": len(bookings)}
+
+
+# ═══════════════════════════════════════════════════════════════
+# SHARED HELPERS — availability scoring for 2B & 2C
+# ═══════════════════════════════════════════════════════════════
+
+def _time_to_min(t: str) -> int:
+    parts = t.split(":")
+    return int(parts[0]) * 60 + int(parts[1])
+
+
+def _is_slot_free(slot_min: int, duration: int, existing: list, staff_id: str = None) -> bool:
+    slot_end = slot_min + duration
+    for e in existing:
+        if staff_id and e["staffId"] and e["staffId"] != staff_id:
+            continue
+        e_start = _time_to_min(e["time"])
+        e_end = e_start + e["duration"]
+        if slot_min < e_end and slot_end > e_start:
+            return False
+    return True
+
+
+def _is_blocked(slot_min: int, duration: int, blocked: list, staff_id: str = None) -> bool:
+    slot_end = slot_min + duration
+    for b in blocked:
+        if staff_id and b.get("staff_id") and b["staff_id"] != staff_id:
+            continue
+        try:
+            b_start = _time_to_min(b["start"])
+            b_end = _time_to_min(b["end"])
+        except (ValueError, IndexError):
+            continue
+        if slot_min < b_end and slot_end > b_start:
+            return True
+    return False
+
+
+def _gap_score(slot_min: int, duration: int, existing: list, staff_id: str = None, gap_tolerance: int = 30) -> int:
+    if not existing:
+        return 50
+    slot_end = slot_min + duration
+    before_gap = 999
+    after_gap = 999
+    for e in existing:
+        if staff_id and e["staffId"] and e["staffId"] != staff_id:
+            continue
+        e_start = _time_to_min(e["time"])
+        e_end = e_start + e["duration"]
+        if e_end <= slot_min:
+            before_gap = min(before_gap, slot_min - e_end)
+        if e_start >= slot_end:
+            after_gap = min(after_gap, e_start - slot_end)
+    if before_gap == 0 or after_gap == 0:
+        return 100
+    if before_gap <= gap_tolerance or after_gap <= gap_tolerance:
+        return 70
+    if before_gap > 120 and after_gap > 120:
+        return 30
+    return 50
+
+
+def _block_applies_on_date(block_doc: dict, check: date) -> bool:
+    """Check if a repeating block applies on a given date."""
+    try:
+        base = date.fromisoformat(block_doc.get("date", ""))
+    except (ValueError, TypeError):
+        return False
+    if check < base:
+        return False
+    rule = block_doc.get("repeat_rule", "none")
+    if rule == "daily":
+        return True
+    if rule == "weekly":
+        return (check - base).days % 7 == 0
+    return False

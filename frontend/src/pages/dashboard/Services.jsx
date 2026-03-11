@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
-import { Trash2, Archive } from 'lucide-react'
+import { Trash2, Archive, Sparkles, Plus, ChevronRight } from 'lucide-react'
 
 const COLORS = ['#D4A574', '#6BA3C7', '#A87BBF', '#6BC7A3', '#E8845E', '#E8B84E', '#E87B9E', '#6366F1', '#14B8A6', '#F97316', '#8B5CF6', '#64748B']
 const DURATIONS = ['15 mins', '30 mins', '45 mins', '1 hour', '1 hr 15 mins', '1 hr 30 mins', '2 hours', '2 hr 30 mins', '3 hours']
@@ -28,6 +28,16 @@ const Services = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
   const [deleteToast, setDeleteToast] = useState(null)
+  const [editorTab, setEditorTab] = useState('details')
+  const [addOns, setAddOns] = useState([])
+  const [addOnsLoading, setAddOnsLoading] = useState(false)
+  const [newAddOn, setNewAddOn] = useState({ name: '', price: '', duration: '' })
+  const [addOnTiers, setAddOnTiers] = useState([
+    { count: 1, price: '' },
+    { count: 2, price: '' },
+    { count: 3, price: '' },
+  ])
+  const [addOnsSaving, setAddOnsSaving] = useState(false)
 
   const bid = business?.id ?? business?._id
   const isFood = businessType === 'food' || businessType === 'restaurant'
@@ -82,11 +92,60 @@ const Services = () => {
 
   const selectService = (s) => {
     setSelected(s)
+    setEditorTab('details')
     setEditing({
       name: s.name || '', category: s.category || '', description: s.description || '',
       price: s.price || 0, duration: s.duration || '30 mins', buffer: 'None',
       color: s.color || COLORS[0], active: s.active !== false,
     })
+  }
+
+  const fetchAddOns = async (serviceId) => {
+    if (!bid || !serviceId) return
+    setAddOnsLoading(true)
+    try {
+      const res = await api.get(`/addons/business/${bid}/service/${serviceId}`)
+      setAddOns(res.add_ons || [])
+      setAddOnTiers(
+        (res.add_on_tiers && res.add_on_tiers.length > 0)
+          ? res.add_on_tiers
+          : [{ count: 1, price: '' }, { count: 2, price: '' }, { count: 3, price: '' }]
+      )
+    } catch {
+      setAddOns([])
+      setAddOnTiers([{ count: 1, price: '' }, { count: 2, price: '' }, { count: 3, price: '' }])
+    }
+    setAddOnsLoading(false)
+  }
+
+  const handleAddNewAddOn = () => {
+    if (!newAddOn.name.trim()) return
+    setAddOns(prev => [...prev, {
+      id: `temp_${Date.now()}`,
+      name: newAddOn.name.trim(),
+      price: parseFloat(newAddOn.price) || 0,
+      duration: parseInt(newAddOn.duration) || 0,
+    }])
+    setNewAddOn({ name: '', price: '', duration: '' })
+  }
+
+  const handleDeleteAddOn = (addonId) => {
+    setAddOns(prev => prev.filter(a => a.id !== addonId))
+  }
+
+  const handleSaveAddOns = async () => {
+    if (!bid || !selected) return
+    setAddOnsSaving(true)
+    try {
+      const sid = selected.id || selected._id
+      await api.post(`/addons/business/${bid}/service/${sid}/configure`, {
+        add_ons: addOns.map(a => ({ name: a.name, price: parseFloat(a.price) || 0, duration: parseInt(a.duration) || 0 })),
+        add_on_tiers: addOnTiers.map(t => ({ count: t.count, price: parseFloat(t.price) || 0 })),
+      })
+    } catch (e) {
+      console.error('Failed to save add-ons', e)
+    }
+    setAddOnsSaving(false)
   }
 
   const handleSave = async () => {
@@ -275,7 +334,28 @@ const Services = () => {
                   </div>
                 </div>
 
-                <div className="p-6 space-y-6">
+                {/* Tab Bar */}
+                <div className="flex border-b border-border bg-white">
+                  <button
+                    onClick={() => setEditorTab('details')}
+                    className={`flex-1 py-3 text-sm font-bold text-center transition-colors relative ${editorTab === 'details' ? 'text-[#111111]' : 'text-gray-400 hover:text-gray-600'}`}
+                    style={{ fontFamily: "'Figtree', sans-serif" }}
+                  >
+                    Details
+                    {editorTab === 'details' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#111111]" />}
+                  </button>
+                  <button
+                    onClick={() => { setEditorTab('addons'); fetchAddOns(selected?.id || selected?._id) }}
+                    className={`flex-1 py-3 text-sm font-bold text-center transition-colors relative flex items-center justify-center gap-1.5 ${editorTab === 'addons' ? 'text-[#111111]' : 'text-gray-400 hover:text-gray-600'}`}
+                    style={{ fontFamily: "'Figtree', sans-serif" }}
+                  >
+                    <Sparkles size={14} />
+                    Add-Ons
+                    {editorTab === 'addons' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#111111]" />}
+                  </button>
+                </div>
+
+                {editorTab === 'details' && <div className="p-6 space-y-6">
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-bold text-primary mb-1.5">{isFood ? 'Item' : 'Service'} Name <span className="text-red-500">*</span></label>
@@ -346,8 +426,103 @@ const Services = () => {
                       ))}
                     </div>
                   </div>
-                </div>
+                </div>}
 
+                {/* Add-Ons Tab */}
+                {editorTab === 'addons' && (
+                  <div className="p-6 space-y-6" style={{ fontFamily: "'Figtree', sans-serif" }}>
+                    {addOnsLoading ? (
+                      <div className="text-center py-8">
+                        <div className="w-6 h-6 border-2 border-[#111111] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                        <p className="text-xs text-gray-500">Loading add-ons...</p>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Existing Add-Ons */}
+                        <div>
+                          <label className="block text-sm font-bold text-[#111111] mb-3">Current Add-Ons</label>
+                          {addOns.length === 0 ? (
+                            <div className="text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                              <Sparkles size={20} className="mx-auto mb-2 text-gray-300" />
+                              <p className="text-xs text-gray-400">No add-ons yet. Add one below.</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {addOns.map((addon) => (
+                                <div key={addon.id} className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg group hover:border-[#111111]/30 transition-colors">
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-bold text-[#111111] truncate">{addon.name}</p>
+                                    <div className="flex items-center gap-3 mt-0.5">
+                                      <span className="text-xs text-gray-500 font-medium">{'\u00A3'}{Number(addon.price).toFixed(2)}</span>
+                                      {addon.duration > 0 && <span className="text-xs text-gray-400">{addon.duration} mins</span>}
+                                    </div>
+                                  </div>
+                                  <button onClick={() => handleDeleteAddOn(addon.id)} className="p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100">
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Add New Add-On Form */}
+                        <div className="pt-4 border-t border-gray-100">
+                          <label className="block text-sm font-bold text-[#111111] mb-3">Add New</label>
+                          <div className="grid grid-cols-[1fr_80px_80px_auto] gap-2 items-end">
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Name</label>
+                              <input type="text" placeholder="e.g. Scalp massage" value={newAddOn.name} onChange={e => setNewAddOn(d => ({ ...d, name: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-[#111111] focus:ring-2 focus:ring-[#111111]/10 focus:border-[#111111] outline-none transition-all" />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Price ({'\u00A3'})</label>
+                              <input type="number" step="0.01" placeholder="0.00" value={newAddOn.price} onChange={e => setNewAddOn(d => ({ ...d, price: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-[#111111] focus:ring-2 focus:ring-[#111111]/10 focus:border-[#111111] outline-none transition-all" />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Mins</label>
+                              <input type="number" placeholder="0" value={newAddOn.duration} onChange={e => setNewAddOn(d => ({ ...d, duration: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-[#111111] focus:ring-2 focus:ring-[#111111]/10 focus:border-[#111111] outline-none transition-all" />
+                            </div>
+                            <button onClick={handleAddNewAddOn} disabled={!newAddOn.name.trim()}
+                              className="p-2 rounded-lg bg-[#111111] text-white hover:bg-[#222] transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                              <Plus size={16} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Tier Pricing */}
+                        <div className="pt-4 border-t border-gray-100">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Sparkles size={14} className="text-[#C9A84C]" />
+                            <label className="text-sm font-bold text-[#111111]">Tier Pricing</label>
+                          </div>
+                          <p className="text-xs text-gray-400 mb-3">Set discounted prices when clients select multiple add-ons.</p>
+                          <div className="space-y-2">
+                            {addOnTiers.map((tier, idx) => (
+                              <div key={tier.count} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <span className="text-sm font-medium text-[#111111] whitespace-nowrap min-w-[100px]">{tier.count} add-on{tier.count > 1 ? 's' : ''} =</span>
+                                <div className="relative flex-1 max-w-[120px]">
+                                  <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none"><span className="text-gray-400 font-bold text-sm">{'\u00A3'}</span></div>
+                                  <input type="number" step="0.01" value={tier.price} onChange={e => {
+                                    const val = e.target.value
+                                    setAddOnTiers(prev => prev.map((t, i) => i === idx ? { ...t, price: val } : t))
+                                  }}
+                                    placeholder="0.00"
+                                    className="w-full pl-7 pr-2 py-2 border border-gray-200 rounded-lg text-sm font-medium text-[#111111] focus:ring-2 focus:ring-[#111111]/10 focus:border-[#111111] outline-none transition-all bg-white" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Footer — Details tab */}
+                {editorTab === 'details' && (
                 <div className="px-6 py-4 bg-gray-50 border-t border-border flex items-center justify-between">
                   <button onClick={() => setDeleteConfirm(selected)} className="text-sm font-bold text-red-500 hover:bg-red-50 px-4 py-2 rounded-lg transition-colors">Delete {isFood ? 'Item' : 'Service'}</button>
                   <div className="flex gap-3">
@@ -355,6 +530,20 @@ const Services = () => {
                     <button onClick={handleSave} disabled={saving} className="text-sm font-bold text-white bg-primary px-6 py-2 rounded-lg hover:bg-primary-hover transition-colors shadow-md disabled:opacity-50">{saving ? 'Saving...' : 'Save Changes'}</button>
                   </div>
                 </div>
+                )}
+
+                {/* Footer — Add-Ons tab */}
+                {editorTab === 'addons' && (
+                <div className="px-6 py-4 bg-gray-50 border-t border-border flex items-center justify-end">
+                  <div className="flex gap-3">
+                    <button onClick={() => setEditorTab('details')} className="text-sm font-bold text-primary bg-white border border-border px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">Back to Details</button>
+                    <button onClick={handleSaveAddOns} disabled={addOnsSaving} className="text-sm font-bold text-white bg-[#111111] px-6 py-2 rounded-lg hover:bg-[#222] transition-colors shadow-md disabled:opacity-50 flex items-center gap-2" style={{ fontFamily: "'Figtree', sans-serif" }}>
+                      <Sparkles size={14} />
+                      {addOnsSaving ? 'Saving...' : 'Save Add-Ons'}
+                    </button>
+                  </div>
+                </div>
+                )}
               </div>
 
               <div className="max-w-2xl mx-auto mt-6 flex gap-4 p-4 bg-blue-50 border border-blue-100 rounded-lg">

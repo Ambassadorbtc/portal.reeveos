@@ -7,7 +7,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import api from '../../utils/api'
-import { Star, MessageSquare, ThumbsUp, Send, Loader2, RefreshCw } from 'lucide-react'
+import { Star, MessageSquare, ThumbsUp, Send, Loader2, RefreshCw, ExternalLink, Settings, Save, X } from 'lucide-react'
 
 const Reviews = () => {
   const { business, loading: bizLoading } = useBusiness()
@@ -19,15 +19,53 @@ const Reviews = () => {
   const [replyingTo, setReplyingTo] = useState(null)
   const [replyText, setReplyText] = useState('')
   const [replySending, setReplySending] = useState(false)
+  const [googleUrl, setGoogleUrl] = useState('')
+  const [redirectThreshold, setRedirectThreshold] = useState(4)
+  const [configSaving, setConfigSaving] = useState(false)
+  const [configOpen, setConfigOpen] = useState(false)
+  const [googleRedirects, setGoogleRedirects] = useState(0)
+  const [toast, setToast] = useState(null)
+
+  const showToast = useCallback((message, type = 'success') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 4000)
+  }, [])
+
+  // Load Google review config
+  useEffect(() => {
+    if (!bid) return
+    api.get(`/settings/business/${bid}`).then(data => {
+      if (data.google_review_url) setGoogleUrl(data.google_review_url)
+      if (data.review_redirect_threshold != null) setRedirectThreshold(data.review_redirect_threshold)
+    }).catch(() => {})
+  }, [bid])
+
+  const saveGoogleConfig = async () => {
+    if (!bid) return
+    setConfigSaving(true)
+    try {
+      await api.patch(`/settings/business/${bid}`, {
+        google_review_url: googleUrl,
+        review_redirect_threshold: redirectThreshold,
+      })
+      showToast('Google review settings saved')
+    } catch (err) {
+      console.error('Failed to save config:', err)
+      showToast('Failed to save settings', 'error')
+    }
+    setConfigSaving(false)
+  }
 
   const fetchReviews = useCallback(async () => {
     if (!bid) return
     setLoading(true)
     try {
-      const [reviewData, statsData] = await Promise.all([
+      const [reviewData, statsData, reputationData] = await Promise.all([
         api.get(`/reviews/business/${bid}?limit=100`).catch(() => ({ results: [] })),
         api.get(`/reputation/business/${bid}/review-stats`).catch(() => ({ total_reviews: 0, average_rating: 0, rating_distribution: {} })),
+        api.get(`/reputation/business/${bid}`).catch(() => ({ google_redirects: 0 })),
       ])
+      setGoogleRedirects(reputationData.google_redirects || 0)
       const list = (reviewData.results || []).map(r => ({
         id: r._id || r.id,
         name: r.user_name || 'Anonymous',
@@ -80,9 +118,76 @@ const Reviews = () => {
 
   return (
     <div className="space-y-6" style={{ fontFamily: "'Figtree', sans-serif" }}>
+      {/* Google Review Config */}
+      <div className="rounded-2xl border border-[#C9A84C]/30 shadow-sm" style={{ background: '#FEF9E7' }}>
+        <button
+          onClick={() => setConfigOpen(!configOpen)}
+          className="w-full flex items-center justify-between px-5 py-4"
+        >
+          <div className="flex items-center gap-2.5">
+            <Settings className="w-4 h-4 text-[#C9A84C]" />
+            <span className="text-sm font-bold text-[#111111]">Google Review Redirect</span>
+            {googleUrl && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#C9A84C]/20 text-[#96791A]">Configured</span>
+            )}
+          </div>
+          <span className="text-xs text-gray-400">{configOpen ? 'Hide' : 'Configure'}</span>
+        </button>
+        {configOpen && (
+          <div className="px-5 pb-5 space-y-4 border-t border-[#C9A84C]/20">
+            <div className="pt-4">
+              <label className="block text-xs font-bold text-gray-600 mb-1.5">Google Maps Review URL</label>
+              <div className="flex items-center gap-2">
+                <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={googleUrl}
+                  onChange={e => setGoogleUrl(e.target.value)}
+                  placeholder="https://search.google.com/local/writereview?placeid=..."
+                  className="flex-1 px-3 py-2 text-sm border border-[#C9A84C]/30 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A84C]/30 focus:border-[#C9A84C]"
+                  style={{ fontFamily: "'Figtree', sans-serif" }}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-600 mb-1.5">Redirect Threshold (stars)</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="number"
+                  min={1}
+                  max={5}
+                  value={redirectThreshold}
+                  onChange={e => setRedirectThreshold(Math.min(5, Math.max(1, parseInt(e.target.value) || 1)))}
+                  className="w-20 px-3 py-2 text-sm text-center border border-[#C9A84C]/30 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A84C]/30 focus:border-[#C9A84C]"
+                  style={{ fontFamily: "'Figtree', sans-serif" }}
+                />
+                <span className="text-xs text-gray-500">Reviews rated {redirectThreshold}+ stars will be redirected to Google</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                onClick={saveGoogleConfig}
+                disabled={configSaving}
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white rounded-full transition-all disabled:opacity-50"
+                style={{ background: '#C9A84C' }}
+              >
+                {configSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                Save Settings
+              </button>
+              <button
+                onClick={() => setConfigOpen(false)}
+                className="flex items-center gap-1 px-3 py-2 text-xs font-bold text-gray-400 hover:text-gray-600 transition-all"
+              >
+                <X className="w-3 h-3" /> Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm text-center">
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm text-center">
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Average Rating</p>
           <div className="flex items-center justify-center gap-2 mt-2">
             <span className="text-3xl font-extrabold text-gray-900">{avgRating.toFixed(1)}</span>
@@ -91,17 +196,24 @@ const Reviews = () => {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm text-center">
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm text-center">
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Reviews</p>
           <p className="text-3xl font-extrabold text-gray-900 mt-2">{stats.total_reviews || reviews.length}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm text-center">
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm text-center">
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Reply Rate</p>
           <p className="text-3xl font-extrabold text-emerald-600 mt-2">{replyRate}%</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm text-center">
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm text-center">
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">5-Star %</p>
           <p className="text-3xl font-extrabold text-gray-900 mt-2">{fiveStarPct}%</p>
+        </div>
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm text-center">
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Google Redirects</p>
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <ExternalLink className="w-4 h-4 text-[#C9A84C]" />
+            <span className="text-3xl font-extrabold text-[#C9A84C]">{googleRedirects}</span>
+          </div>
         </div>
       </div>
 
@@ -212,6 +324,24 @@ const Reviews = () => {
           </div>
         </div>
       ))}
+
+      {/* Toast notification */}
+      {toast && (
+        <div
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-bold animate-[slideUp_0.3s_ease-out]"
+          style={{
+            fontFamily: "'Figtree', sans-serif",
+            background: toast.type === 'error' ? '#FEE2E2' : '#F0FDF4',
+            color: toast.type === 'error' ? '#991B1B' : '#166534',
+            border: `1px solid ${toast.type === 'error' ? '#FECACA' : '#BBF7D0'}`,
+          }}
+        >
+          <span>{toast.message}</span>
+          <button onClick={() => setToast(null)} className="ml-1 opacity-60 hover:opacity-100 transition-opacity">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
     </div>
   )
 }

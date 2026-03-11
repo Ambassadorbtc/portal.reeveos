@@ -123,7 +123,7 @@ def render_email(body_html: str, business: dict, show_powered: bool = True, show
           
           <!-- FOOTER -->
           <tr>
-            <td style="padding:32px 40px 0;background-color:{BLACK};">
+            <td style="padding:32px 40px;background-color:{BLACK};">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <!-- Logo + tagline -->
                 <tr><td style="padding-bottom:20px;">
@@ -137,50 +137,38 @@ def render_email(body_html: str, business: dict, show_powered: bool = True, show
                       <span style="font-family:Arial,Helvetica,sans-serif;font-size:18px;color:{WHITE};font-weight:800;letter-spacing:-0.02em;">ReeveOS</span>
                     </td>
                   </tr></table>
-                  <p style="margin:10px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;max-width:280px;">The zero-commission booking &amp; ordering platform helping UK restaurants and service businesses thrive.</p>
+                  <p style="margin:10px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;max-width:320px;">The zero-commission booking &amp; ordering platform helping UK restaurants and service businesses thrive.</p>
                 </td></tr>
-                <!-- Divider -->
-                <tr><td style="padding-bottom:20px;"><div style="height:1px;background-color:rgba(255,255,255,0.1);">&nbsp;</div></td></tr>
-                <!-- Link columns -->
+                <!-- Socials -->
                 <tr><td style="padding-bottom:20px;">
-                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr>
-                    <td style="vertical-align:top;width:33%;font-family:Arial,Helvetica,sans-serif;">
-                      <p style="margin:0 0 10px;font-size:11px;color:{WHITE};font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;">Discover</p>
-                      <p style="margin:0 0 6px;font-size:12px;"><a href="https://reeveos.app/industries/restaurants.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Restaurants</a></p>
-                      <p style="margin:0 0 6px;font-size:12px;"><a href="https://reeveos.app/industries/salons-spas.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Hair Salons</a></p>
-                      <p style="margin:0 0 6px;font-size:12px;"><a href="https://reeveos.app/industries/barbers.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Barbers</a></p>
-                      <p style="margin:0;font-size:12px;"><a href="https://reeveos.app/industries/wellness-clinics.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Spas &amp; Wellness</a></p>
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr>
+                    <td style="padding-right:8px;">
+                      <a href="https://instagram.com/reeveuk" style="display:inline-block;width:32px;height:32px;background-color:rgba(255,255,255,0.1);border-radius:16px;text-align:center;line-height:32px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;">in</a>
                     </td>
-                    <td style="vertical-align:top;width:33%;font-family:Arial,Helvetica,sans-serif;">
-                      <p style="margin:0 0 10px;font-size:11px;color:{WHITE};font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;">Features</p>
-                      <p style="margin:0 0 6px;font-size:12px;"><a href="https://reeveos.app/features/calendar.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Smart Calendar</a></p>
-                      <p style="margin:0 0 6px;font-size:12px;"><a href="https://reeveos.app/features/payments.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Stripe Payments</a></p>
-                      <p style="margin:0 0 6px;font-size:12px;"><a href="https://reeveos.app/features/mobile-app.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Mobile App</a></p>
-                      <p style="margin:0;font-size:12px;"><a href="https://reeveos.app/features/integrations.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Integrations</a></p>
+                    <td style="padding-right:8px;">
+                      <a href="https://linkedin.com/company/reeve" style="display:inline-block;width:32px;height:32px;background-color:rgba(255,255,255,0.1);border-radius:16px;text-align:center;line-height:32px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;">li</a>
                     </td>
-                    <td style="vertical-align:top;width:33%;font-family:Arial,Helvetica,sans-serif;">
-                      <p style="margin:0 0 10px;font-size:11px;color:{WHITE};font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;">Company</p>
-                      <p style="margin:0 0 6px;font-size:12px;"><a href="https://reeveos.app/about.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">About Us</a></p>
-                      <p style="margin:0 0 6px;font-size:12px;"><a href="https://reeveos.app/support.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Support Centre</a></p>
-                      <p style="margin:0 0 6px;font-size:12px;"><a href="https://reeveos.app/contact.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Contact</a></p>
-                      <p style="margin:0;font-size:12px;"><a href="https://reeveos.app/#pricing" style="color:rgba(255,255,255,0.5);text-decoration:none;">Pricing</a></p>
+                    <td>
+                      <a href="https://twitter.com/reeveuk" style="display:inline-block;width:32px;height:32px;background-color:rgba(255,255,255,0.1);border-radius:16px;text-align:center;line-height:32px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;">X</a>
                     </td>
                   </tr></table>
                 </td></tr>
-                <!-- Gold ReeveOS watermark -->
-                <tr><td style="padding:10px 0;border-top:1px solid rgba(255,255,255,0.1);text-align:center;">
-                  <span style="font-family:Arial,Helvetica,sans-serif;font-size:48px;font-weight:800;color:{GOLD};letter-spacing:-2px;line-height:1;">ReeveOS</span>
+                <!-- Divider -->
+                <tr><td style="padding-bottom:20px;"><div style="height:1px;background-color:rgba(255,255,255,0.1);">&nbsp;</div></td></tr>
+                <!-- Support + Company details -->
+                <tr><td style="padding-bottom:16px;">
+                  <p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">Need help? <a href="https://reeveos.app/support.html" style="color:{GOLD};text-decoration:none;">Visit our Support Centre</a></p>
+                  <p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:rgba(255,255,255,0.35);">{biz_name}, {biz_address}</p>
+                  <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:rgba(255,255,255,0.35);">You received this because you have an account with {biz_name}</p>
                 </td></tr>
                 <!-- Bottom bar -->
-                <tr><td style="padding:16px 0 20px;border-top:1px solid rgba(255,255,255,0.05);">
+                <tr><td style="padding:12px 0 0;border-top:1px solid rgba(255,255,255,0.05);">
                   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr>
-                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:10px;color:rgba(255,255,255,0.4);">&copy; 2026 ReeveOS Ltd. All rights reserved.</td>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:10px;color:rgba(255,255,255,0.3);">&copy; 2026 ReeveOS Ltd.</td>
                     <td style="font-family:Arial,Helvetica,sans-serif;font-size:10px;text-align:right;">
-                      <a href="https://reeveos.app/privacy.html" style="color:rgba(255,255,255,0.4);text-decoration:none;">Privacy</a>
-                      <span style="color:rgba(255,255,255,0.2);"> &nbsp;&middot;&nbsp; </span>
-                      <a href="https://reeveos.app/terms.html" style="color:rgba(255,255,255,0.4);text-decoration:none;">Terms</a>
-                      <span style="color:rgba(255,255,255,0.2);"> &nbsp;&middot;&nbsp; </span>
-                      <a href="https://reeveos.app/cookies.html" style="color:rgba(255,255,255,0.4);text-decoration:none;">Cookies</a>
+                      <a href="https://reeveos.app/privacy.html" style="color:rgba(255,255,255,0.3);text-decoration:none;">Privacy</a>
+                      <span style="color:rgba(255,255,255,0.15);"> &middot; </span>
+                      <a href="https://reeveos.app/terms.html" style="color:rgba(255,255,255,0.3);text-decoration:none;">Terms</a>
                     </td>
                   </tr></table>
                   {powered_html}

@@ -193,6 +193,15 @@ const App = () => {
             {/* Consumer portal — client-facing app per business */}
             <Route path="/client/:slug/*" element={<ClientPortal />} />
 
+            {/* Website Builder — standalone full-screen (outside DashboardLayout) */}
+            <Route path="/dashboard/website/edit/:slug" element={
+              <TenantErrorBoundary>
+                <BusinessProvider>
+                  <WebsiteBuilder />
+                </BusinessProvider>
+              </TenantErrorBoundary>
+            } />
+
             {/* Dashboard — owner portal */}
             <Route path="/dashboard" element={
               <TenantErrorBoundary>
@@ -240,7 +249,6 @@ const App = () => {
               <Route path="consumables" element={<Consumables />} />
               {/* Website Builder */}
               <Route path="website" element={<WebsitePages />} />
-              <Route path="website/edit/:slug" element={<WebsiteBuilder />} />
               <Route path="website/analytics" element={<WebsiteAnalytics />} />
               <Route path="blog" element={<BlogManager />} />
               {/* EPOS pages */}
